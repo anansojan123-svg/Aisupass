@@ -1361,7 +1361,7 @@ abstract class AppLocalizations {
   /// 设置页 VR 反制开关的说明
   ///
   /// In zh, this message translates to:
-  /// **'vivo 机型需要先拆掉内核侧的 VR 保护；其它机型不要开'**
+  /// **'仅 vivo 机型需要，先移除内核侧 VR 保护'**
   String get escalationDirtyFragVrDisarmDesc;
 
   /// 设置页自动解析开关的标题
@@ -1373,7 +1373,7 @@ abstract class AppLocalizations {
   /// 设置页自动解析开关的说明
   ///
   /// In zh, this message translates to:
-  /// **'由内核 BTF 推导函数偏移；非 vivo 机型不需要管'**
+  /// **'从内核 BTF 推导偏移，仅在 VR 反制开启时可用'**
   String get escalationDirtyFragVrAutoDesc;
 
   /// 设置页软重启开关的标题
@@ -1385,7 +1385,7 @@ abstract class AppLocalizations {
   /// 设置页软重启开关的说明
   ///
   /// In zh, this message translates to:
-  /// **'root 接管成功后软重启一次，Zygisk / LSPosed 模块随之生效。失败不会重启；与开机自启同开时若管理器无法完成重启，开机后可能反而没有 root'**
+  /// **'成功后重启一次，让模块生效；与开机自启同开时，重启失败可能导致开机无 root'**
   String get escalationDirtyFragSoftRebootDesc;
 
   /// 手动偏移输入框的标签
@@ -1541,7 +1541,7 @@ abstract class AppLocalizations {
   /// 专家模式开关的说明
   ///
   /// In zh, this message translates to:
-  /// **'开启后才能配置开机自动执行'**
+  /// **'开启后显示自动执行与运行参数'**
   String get settingsExpertModeDesc;
 
   /// 开机自启开关的标题（专家模式已开）
@@ -1559,7 +1559,7 @@ abstract class AppLocalizations {
   /// 开机自启开关的说明
   ///
   /// In zh, this message translates to:
-  /// **'重启后自动尝试注入，不用手点。失败会自动关闭这个开关'**
+  /// **'开机时自动执行一次，失败会自动关闭'**
   String get settingsBootAutostartDesc;
 
   /// 开启开机自启前的确认弹窗标题

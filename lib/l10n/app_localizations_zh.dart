@@ -694,21 +694,20 @@ class AppLocalizationsZh extends AppLocalizations {
   String get escalationDirtyFragVrDisarmTitle => 'VR 反制';
 
   @override
-  String get escalationDirtyFragVrDisarmDesc =>
-      'vivo 机型需要先拆掉内核侧的 VR 保护；其它机型不要开';
+  String get escalationDirtyFragVrDisarmDesc => '仅 vivo 机型需要，先移除内核侧 VR 保护';
 
   @override
   String get escalationDirtyFragVrAutoTitle => '自动解析偏移';
 
   @override
-  String get escalationDirtyFragVrAutoDesc => '由内核 BTF 推导函数偏移；非 vivo 机型不需要管';
+  String get escalationDirtyFragVrAutoDesc => '从内核 BTF 推导偏移，仅在 VR 反制开启时可用';
 
   @override
   String get escalationDirtyFragSoftRebootTitle => '成功后自动软重启';
 
   @override
   String get escalationDirtyFragSoftRebootDesc =>
-      'root 接管成功后软重启一次，Zygisk / LSPosed 模块随之生效。失败不会重启；与开机自启同开时若管理器无法完成重启，开机后可能反而没有 root';
+      '成功后重启一次，让模块生效；与开机自启同开时，重启失败可能导致开机无 root';
 
   @override
   String get escalationDirtyFragVrOffsetLabel => '手动偏移';
@@ -803,7 +802,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsExpertModeTitle => '专家模式';
 
   @override
-  String get settingsExpertModeDesc => '开启后才能配置开机自动执行';
+  String get settingsExpertModeDesc => '开启后显示自动执行与运行参数';
 
   @override
   String get settingsBootAutostartTitle => '开机自动执行 DirtyFrag';
@@ -812,7 +811,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsBootAutostartTitleLocked => '开机自动执行 DirtyFrag（需先开专家模式）';
 
   @override
-  String get settingsBootAutostartDesc => '重启后自动尝试注入，不用手点。失败会自动关闭这个开关';
+  String get settingsBootAutostartDesc => '开机时自动执行一次，失败会自动关闭';
 
   @override
   String get settingsBootAutostartConfirmTitle => '确认开启开机自启？';

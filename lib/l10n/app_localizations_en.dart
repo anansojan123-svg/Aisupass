@@ -709,21 +709,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get escalationDirtyFragVrDisarmDesc =>
-      'vivo devices need the kernel-side VR protection removed first; leave it off elsewhere';
+      'vivo devices only; removes the kernel VR protection';
 
   @override
   String get escalationDirtyFragVrAutoTitle => 'Resolve offset automatically';
 
   @override
   String get escalationDirtyFragVrAutoDesc =>
-      'Derives the function offset from kernel BTF; non-vivo devices can ignore it';
+      'Derives the offset from kernel BTF; available only with VR disarm on';
 
   @override
   String get escalationDirtyFragSoftRebootTitle => 'Soft reboot on success';
 
   @override
   String get escalationDirtyFragSoftRebootDesc =>
-      'Reboots once after root is taken over so Zygisk / LSPosed modules take effect. A failed run never reboots; combined with boot autorun, a reboot the manager cannot complete may leave the device without root';
+      'Reboots once on success so modules load; with boot autorun on, a failed reboot can leave no root at boot';
 
   @override
   String get escalationDirtyFragVrOffsetLabel => 'Manual offset';
@@ -827,7 +827,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsExpertModeDesc =>
-      'Required before boot-time autorun can be configured';
+      'Unlocks autorun and the run settings below';
 
   @override
   String get settingsBootAutostartTitle => 'Run DirtyFrag on boot';
@@ -838,7 +838,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsBootAutostartDesc =>
-      'Tries to inject automatically after a reboot. A failed run turns this switch off';
+      'Runs once at boot; turns itself off on failure';
 
   @override
   String get settingsBootAutostartConfirmTitle => 'Enable boot autorun?';
