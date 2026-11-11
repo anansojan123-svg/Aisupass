@@ -52,6 +52,9 @@ class AdbShellNativeImpl(private val context: Context) : AdbShellNative {
     /** 唯一的身份来源：应用内无线调试自配对，不需要用户安装任何外部 App。 */
     private val adb = AdbShellChannel(AdbConnectionManager(context))
 
+    /** 供同模块的提权会话复用同一条 ADB 连接；不对外暴露给 Pigeon。 */
+    internal val shellChannel: AdbShellChannel get() = adb
+
     /**
      * 配对码输入通知。
      *

@@ -141,7 +141,7 @@ class _RootManagerDialog extends HookConsumerWidget {
       }
       busy.value = true;
       try {
-        await ref.read(selectRootManagerProvider(manager: manager).future);
+        await ref.read(rootManagerActionsProvider).select(manager);
         if (!context.mounted) return;
         Navigator.of(context).pop();
         ToastMessage.success(l10n.rootManagerSwitched(manager.displayName));

@@ -4,6 +4,7 @@ import 'package:Aisupass/core/extensions/context_extensions.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/escalation_action_provider.dart';
 import 'package:Aisupass/features/escalation/presentation/widgets/dirty_frag_setting_row.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// 专家模式开关：DirtyFrag 功能的入口开关。
@@ -14,28 +15,37 @@ class ExpertModeSwitch extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<bool> expert = ref.watch(dirtyFragExpertModeProvider);
-    if (expert.hasError) {
+    final AsyncValue<bool> async = ref.watch(dirtyFragExpertModeProvider);
+    // 落盘后的即时值；null 表示还没点过，用读到的值。
+    final ValueNotifier<bool?> local = useState<bool?>(null);
+
+    if (async.hasError) {
       return RefError(
         onRetry: () => ref.invalidate(dirtyFragExpertModeProvider),
       );
+    }
+
+    final bool shown = local.value ?? async.value ?? false;
+
+    Future<void> save(bool enabled) async {
+      local.value = enabled;
+      try {
+        await ref
+            .read(dirtyFragActionsProvider)
+            .setExpertMode(enabled: enabled);
+      } catch (error) {
+        local.value = null;
+        ToastMessage.error(error);
+      }
     }
 
     return DirtyFragSettingRow(
       icon: Icons.build_circle_outlined,
       title: context.l10n.settingsExpertModeTitle,
       subtitle: context.l10n.settingsExpertModeDesc,
-      value: expert.value ?? false,
-      // 读取中不给点，避免拿旧值覆盖真实状态。
-      onChanged: expert.isLoading ? null : (bool value) => _toggle(ref, value),
+      value: shown,
+      // 只挡「一次都没读到过」的初始态；重载期间照常可点。
+      onChanged: async.value == null && local.value == null ? null : save,
     );
-  }
-
-  Future<void> _toggle(WidgetRef ref, bool enabled) async {
-    try {
-      await ref.read(setDirtyFragExpertModeProvider(enabled: enabled).future);
-    } catch (error) {
-      ToastMessage.error(error);
-    }
   }
 }

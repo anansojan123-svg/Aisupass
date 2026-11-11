@@ -1,0 +1,704 @@
+{
+ "items": [
+  {
+   "device": "真我GT7 Pro",
+   "model": "RMX5010",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "805_sign_RMX5010_11_A_OTA_0560_all_h38tKk_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX5010/805_sign_RMX5010_11_A_OTA_0560_all_h38tKk_10010111.zip"
+  },
+  {
+   "device": "真我GT7 Pro竞速版",
+   "model": "RMX5090",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "806_sign_RMX5090_11_A_OTA_0470_all_4m39Iy_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX5090/806_sign_RMX5090_11_A_OTA_0470_all_4m39Iy_10010111.zip"
+  },
+  {
+   "device": "真我GT7、真我GT7阿斯顿马丁F1限量版",
+   "model": "RMX6688",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "811_sign_RMX6688_11_A_OTA_0380_all_Qt92xR_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX6688/811_sign_RMX6688_11_A_OTA_0380_all_Qt92xR_10010111.zip"
+  },
+  {
+   "device": "真我Neo 7、真我Neo7不良人限定版",
+   "model": "RMX5060",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "1337_sign_RMX5060_11_A_OTA_0560_all_8fJXlu_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX5060/1337_sign_RMX5060_11_A_OTA_0560_all_8fJXlu_10010111.zip"
+  },
+  {
+   "device": "真我Neo 7 Turbo",
+   "model": "RMX5062",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "1339_sign_RMX5062_11_A_OTA_0480_all_CAf8wi_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX5062/1339_sign_RMX5062_11_A_OTA_0480_all_CAf8wi_10010111.zip"
+  },
+  {
+   "device": "真我GT5 Pro",
+   "model": "RMX3888",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "1604_sign_RMX3888_11_C_OTA_1770_all_d65NJT_10010111.zip",
+   "url": "https://rbp01.realme.net/GT5Pro/1604_sign_RMX3888_11_C_OTA_1770_all_d65NJT_10010111.zip"
+  },
+  {
+   "device": "真我GT6",
+   "model": "RMX3800",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "1568_sign_RMX3800_11_C_OTA_1710_all_QY1SWb_10010111.zip",
+   "url": "https://rbp01.realme.net/GT6/1568_sign_RMX3800_11_C_OTA_1710_all_QY1SWb_10010111.zip"
+  },
+  {
+   "device": "真我Neo 7 SE",
+   "model": "RMX5080",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "814_sign_RMX5080_11_A_OTA_0440_all_8u2tkz_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX5080/814_sign_RMX5080_11_A_OTA_0440_all_8u2tkz_10010111.zip"
+  },
+  {
+   "device": "真我GT Neo6",
+   "model": "RMX3852",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "822_sign_RMX3852_11_C_OTA_1470_all_LK2QoY_10010111.zip",
+   "url": "https://rbp01.realme.net/GT_Neo6/822_sign_RMX3852_11_C_OTA_1470_all_LK2QoY_10010111.zip"
+  },
+  {
+   "device": "真我GT Neo6 SE",
+   "model": "RMX3850",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "821_sign_RMX3850_11_C_OTA_1470_all_4T8oIc_10010111.zip",
+   "url": "https://rbp01.realme.net/GT_Neo6_SE/821_sign_RMX3850_11_C_OTA_1470_all_4T8oIc_10010111.zip"
+  },
+  {
+   "device": "真我GT5",
+   "model": "RMX3820",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "1861_sign_RMX3820_11_F_OTA_2160_all_eB5WFm_10010111.zip",
+   "url": "https://rbp01.realme.net/GT5/1861_sign_RMX3820_11_F_OTA_2160_all_eB5WFm_10010111.zip"
+  },
+  {
+   "device": "真我GT5 240W",
+   "model": "RMX3823",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "1862_sign_RMX3823_11_F_OTA_2160_all_Mfq9LH_10010111.zip",
+   "url": "https://rbp01.realme.net/GT5_240W/1862_sign_RMX3823_11_F_OTA_2160_all_Mfq9LH_10010111.zip"
+  },
+  {
+   "device": "真我14 Pro+",
+   "model": "RMX5050",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "1483_sign_RMX5050_11_A_OTA_0450_all_E3FKzf_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX5050/1483_sign_RMX5050_11_A_OTA_0450_all_E3FKzf_10010111.zip"
+  },
+  {
+   "device": "真我14 Pro",
+   "model": "RMX5055",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "1632_sign_RMX5055_11_C_OTA_1770_all_r0BvX1_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX5055/1632_sign_RMX5055_11_C_OTA_1770_all_r0BvX1_10010111.zip"
+  },
+  {
+   "device": "真我13 Pro至尊版",
+   "model": "RMX3989",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "1760_sign_RMX3989_11_F_OTA_2130_all_VcoTDu_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3989/1760_sign_RMX3989_11_F_OTA_2130_all_VcoTDu_10010111.zip"
+  },
+  {
+   "device": "真我15 Pro",
+   "model": "RMX5100",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "876_sign_RMX5100_11_A_OTA_0370_all_ZOCgn1_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX5100/876_sign_RMX5100_11_A_OTA_0370_all_ZOCgn1_10010111.zip"
+  },
+  {
+   "device": "真我15T",
+   "model": "RMX5112",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "851_sign_RMX5112_11_A_OTA_0520_all_0Q8VwS_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX5112/851_sign_RMX5112_11_A_OTA_0520_all_0Q8VwS_10010111.zip"
+  },
+  {
+   "device": "真我12 Pro+",
+   "model": "RMX3841",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "2163_sign_RMX3841_11_C_OTA_1160_all_lXJaWN_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3841/2163_sign_RMX3841_11_C_OTA_1160_all_lXJaWN_10010111.zip"
+  },
+  {
+   "device": "真我12 Pro、真我 12 Pro至尊版",
+   "model": "RMX3843",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "2164_sign_RMX3843_11_C_OTA_1160_all_Ia14gC_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3843/2164_sign_RMX3843_11_C_OTA_1160_all_Ia14gC_10010111.zip"
+  },
+  {
+   "device": "真我Neo7x",
+   "model": "RMX5071",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "2_sign_RMX5071_11_C_OTA_1930_all_Wji1oX_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX5071/2_sign_RMX5071_11_C_OTA_1930_all_Wji1oX_10010111.zip"
+  },
+  {
+   "device": "真我14",
+   "model": "RMX5075",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "6_sign_RMX5075_11_C_OTA_1930_all_rgE1Hn_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX5075/6_sign_RMX5075_11_C_OTA_1930_all_rgE1Hn_10010111.zip"
+  },
+  {
+   "device": "真我13 Pro+",
+   "model": "RMX3920",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "2152_sign_RMX3920_11_C_OTA_1180_all_PRtwCX_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3920/2152_sign_RMX3920_11_C_OTA_1180_all_PRtwCX_10010111.zip"
+  },
+  {
+   "device": "真我13 Pro",
+   "model": "RMX5002",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "1766_sign_RMX5002_11_C_OTA_1370_all_ygIbFx_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX5002/1766_sign_RMX5002_11_C_OTA_1370_all_ygIbFx_10010111.zip"
+  },
+  {
+   "device": "真我GT Neo5",
+   "model": "RMX3706",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "52_sign_RMX3706_11_F_OTA_2260_all_hw2iJP_10010111.zip",
+   "url": "https://rbp01.realme.net/GT_Neo5/52_sign_RMX3706_11_F_OTA_2260_all_hw2iJP_10010111.zip"
+  },
+  {
+   "device": "真我GT Neo5 240W",
+   "model": "RMX3708",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "44_sign_RMX3708_11_F_OTA_2260_all_dovYcO_10010111.zip",
+   "url": "https://rbp01.realme.net/GT_Neo5_240W/44_sign_RMX3708_11_F_OTA_2260_all_dovYcO_10010111.zip"
+  },
+  {
+   "device": "真我GT Neo5 SE",
+   "model": "RMX3700",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "51_sign_RMX3700_11_F_OTA_2260_all_t2N0Mj_10010111.zip",
+   "url": "https://rbp01.realme.net/GT_Neo5_SE/51_sign_RMX3700_11_F_OTA_2260_all_t2N0Mj_10010111.zip"
+  },
+  {
+   "device": "真我V70",
+   "model": "RMX3946",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "38_sign_RMX3946_11_A_OTA_0340_all_6PJMQR_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3946/38_sign_RMX3946_11_A_OTA_0340_all_6PJMQR_10010111.zip"
+  },
+  {
+   "device": "真我V70s",
+   "model": "RMX3948",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "39_sign_RMX3948_11_A_OTA_0340_all_1YNaXC_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3948/39_sign_RMX3948_11_A_OTA_0340_all_1YNaXC_10010111.zip"
+  },
+  {
+   "device": "真我12x",
+   "model": "RMX3993",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "46_sign_RMX3993_11_C_OTA_1560_all_nCN1I9_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3993/46_sign_RMX3993_11_C_OTA_1560_all_nCN1I9_10010111.zip"
+  },
+  {
+   "device": "真我12",
+   "model": "RMX3992",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "45_sign_RMX3992_11_C_OTA_1560_all_NT5wdq_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3992/45_sign_RMX3992_11_C_OTA_1560_all_NT5wdq_10010111.zip"
+  },
+  {
+   "device": "真我13",
+   "model": "RMX3952",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "864_sign_RMX3952_11_C_OTA_1580_all_xK378q_10010111 (1).zip",
+   "url": "https://rbp01.realme.net/RMX3952/864_sign_RMX3952_11_C_OTA_1580_all_xK378q_10010111 (1).zip"
+  },
+  {
+   "device": "真我V60",
+   "model": "RMX3995",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "863_sign_RMX3995_11_C_OTA_1560_all_UMPf2I_10010111 (1).zip",
+   "url": "https://rbp01.realme.net/RMX3995/863_sign_RMX3995_11_C_OTA_1560_all_UMPf2I_10010111 (1).zip"
+  },
+  {
+   "device": "真我V60s",
+   "model": "RMX3996",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "862_sign_RMX3996_11_C_OTA_1560_all_PsEean_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3996/862_sign_RMX3996_11_C_OTA_1560_all_PsEean_10010111.zip"
+  },
+  {
+   "device": "真我V60 Pro",
+   "model": "RMX3953",
+   "version": "realme UI 7.0回退至realme UI 6.0",
+   "build": "34_sign_RMX3953_11_C_OTA_1250_all_JBFnry_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3953/34_sign_RMX3953_11_C_OTA_1250_all_JBFnry_10010111.zip"
+  },
+  {
+   "device": "真我GT5 Pro",
+   "model": "RMX3888",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "RMX3888_11_A_OTA_0530_all_EL7Dws_10010111.zip",
+   "url": "https://rbp01.realme.net/GT5Pro/RMX3888_11_A_OTA_0530_all_EL7Dws_10010111.zip"
+  },
+  {
+   "device": "真我GT6",
+   "model": "RMX3800",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "RMX3800_11_A_OTA_0430_all_v3qPyg_10010111.zip",
+   "url": "https://rbp01.realme.net/GT6/RMX3800_11_A_OTA_0430_all_v3qPyg_10010111.zip"
+  },
+  {
+   "device": "真我GT Neo6",
+   "model": "RMX3852",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "1278_sign_RMX3852_11_A_OTA_0240_all_25cztf_10010111.zip",
+   "url": "https://rbp01.realme.net/GT_Neo6/1278_sign_RMX3852_11_A_OTA_0240_all_25cztf_10010111.zip"
+  },
+  {
+   "device": "真我GT Neo6 SE",
+   "model": "RMX3850",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "1352_sign_RMX3850_11_A_OTA_0360_all_ZKHVlX_10010111.zip",
+   "url": "https://rbp01.realme.net/GT_Neo6_SE/1352_sign_RMX3850_11_A_OTA_0360_all_ZKHVlX_10010111.zip"
+  },
+  {
+   "device": "真我GT5",
+   "model": "RMX3820",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "513_sign_RMX3820_11_C_OTA_1550_all_ap13Vj_10010111.zip",
+   "url": "https://rbp01.realme.net/GT5/513_sign_RMX3820_11_C_OTA_1550_all_ap13Vj_10010111.zip"
+  },
+  {
+   "device": "真我GT5 240W",
+   "model": "RMX3823",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "514_sign_RMX3823_11_C_OTA_1550_all_2xDewf_10010111.zip",
+   "url": "https://rbp01.realme.net/GT5_240W/514_sign_RMX3823_11_C_OTA_1550_all_2xDewf_10010111.zip"
+  },
+  {
+   "device": "真我13 Pro+",
+   "model": "RMX3920",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "552_sign_RMX3920_11_A_OTA_0400_all_EYhzCJ_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3920/552_sign_RMX3920_11_A_OTA_0400_all_EYhzCJ_10010111.zip"
+  },
+  {
+   "device": "真我13 Pro至尊版",
+   "model": "RMX3989",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "554_sign_RMX3989_11_A_OTA_0400_all_5GoNPX_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3989/554_sign_RMX3989_11_A_OTA_0400_all_5GoNPX_10010111.zip"
+  },
+  {
+   "device": "真我13 Pro",
+   "model": "RMX5002",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "511_sign_RMX5002_11_A_OTA_0660_all_m0sx9M_10010111.zip",
+   "url": "https://rbp01.realme.net/13_Pro/511_sign_RMX5002_11_A_OTA_0660_all_m0sx9M_10010111.zip"
+  },
+  {
+   "device": "真我12 Pro+",
+   "model": "RMX3841",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "536_sign_RMX3841_11_A_OTA_0690_all_Ti59yP_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3841/536_sign_RMX3841_11_A_OTA_0690_all_Ti59yP_10010111.zip"
+  },
+  {
+   "device": "真我12 Pro/真我12 Pro至尊版",
+   "model": "RMX3843",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "538_sign_RMX3843_11_A_OTA_0690_all_f2CwcS_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3843/538_sign_RMX3843_11_A_OTA_0690_all_f2CwcS_10010111.zip"
+  },
+  {
+   "device": "真我GT Neo5",
+   "model": "RMX3706",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "66_sign_RMX3706_11_C_OTA_1410_all_xy320C_10010111.zip",
+   "url": "https://rbp01.realme.net/GT_Neo5/66_sign_RMX3706_11_C_OTA_1410_all_xy320C_10010111.zip"
+  },
+  {
+   "device": "真我GT Neo5 240W",
+   "model": "RMX3708",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "8_sign_RMX3708_11_C_OTA_1410_all_7NdXq8_10010111.zip",
+   "url": "https://rbp01.realme.net/GT_Neo5_240W/8_sign_RMX3708_11_C_OTA_1410_all_7NdXq8_10010111.zip"
+  },
+  {
+   "device": "真我GT Neo5 SE",
+   "model": "RMX3700",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "1323_sign_RMX3700_11_C_OTA_1330_all_KB9neC_10010111.zip",
+   "url": "https://rbp01.realme.net/GT_Neo5_SE/1323_sign_RMX3700_11_C_OTA_1330_all_KB9neC_10010111.zip"
+  },
+  {
+   "device": "真我12",
+   "model": "RMX3992",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "535_sign_RMX3992_11_A_OTA_0150_all_NGSQc0_10010111.zip",
+   "url": "https://rbp01.realme.net/12/535_sign_RMX3992_11_A_OTA_0150_all_NGSQc0_10010111.zip"
+  },
+  {
+   "device": "真我12x",
+   "model": "RMX3993",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "618_sign_RMX3993_11_A_OTA_0280_all_FG1CbT_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3993/618_sign_RMX3993_11_A_OTA_0280_all_FG1CbT_10010111.zip"
+  },
+  {
+   "device": "真我11 Pro+",
+   "model": "RMX3740",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "646_sign_RMX3740_11_C_OTA_1120_all_npyISM_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3740/646_sign_RMX3740_11_C_OTA_1120_all_npyISM_10010111.zip"
+  },
+  {
+   "device": "真我11 Pro",
+   "model": "RMX3770",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "645_sign_RMX3770_11_C_OTA_1120_all_dCqBQZ_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3770/645_sign_RMX3770_11_C_OTA_1120_all_dCqBQZ_10010111.zip"
+  },
+  {
+   "device": "真我10 Pro+",
+   "model": "RMX3687",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "643_sign_RMX3687_11_C_OTA_1100_all_Pv9WBK_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3687/643_sign_RMX3687_11_C_OTA_1100_all_Pv9WBK_10010111.zip"
+  },
+  {
+   "device": "真我10 Pro",
+   "model": "RMX3663",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "589_sign_RMX3663_11_C_OTA_1090_all_Fb50n9_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3663/589_sign_RMX3663_11_C_OTA_1090_all_Fb50n9_10010111.zip"
+  },
+  {
+   "device": "真我13",
+   "model": "RMX3952",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "660_sign_RMX3952_11_A_OTA_0140_all_6Q9piF_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3952/660_sign_RMX3952_11_A_OTA_0140_all_6Q9piF_10010111.zip"
+  },
+  {
+   "device": "真我11",
+   "model": "RMX3751",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "656_sign_RMX3751_11_C_OTA_1100_all_YV48pB_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3751/656_sign_RMX3751_11_C_OTA_1100_all_YV48pB_10010111.zip"
+  },
+  {
+   "device": "真我V60",
+   "model": "RMX3995",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "658_sign_RMX3995_11_A_OTA_0180_all_KvCian_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3995/658_sign_RMX3995_11_A_OTA_0180_all_KvCian_10010111.zip"
+  },
+  {
+   "device": "真我V60s",
+   "model": "RMX3996",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "657_sign_RMX3996_11_A_OTA_0180_all_M9pQ3S_10010111%20(1).zip",
+   "url": "https://rbp01.realme.net/RMX3996/657_sign_RMX3996_11_A_OTA_0180_all_M9pQ3S_10010111%20(1).zip"
+  },
+  {
+   "device": "真我GT2大师探索版",
+   "model": "RMX3551",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "669_sign_RMX3551_11_F_OTA_2360_all_1G6Jw2_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3551/669_sign_RMX3551_11_F_OTA_2360_all_1G6Jw2_10010111.zip"
+  },
+  {
+   "device": "真我GT2 Pro",
+   "model": "RMX3300",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "668_sign_RMX3300_11_F_OTA_3360_all_F5Hhkc_10010111.zip",
+   "url": "https://rbp01.realme.net/GT_2Pro/668_sign_RMX3300_11_F_OTA_3360_all_F5Hhkc_10010111.zip"
+  },
+  {
+   "device": "真我V60 Pro",
+   "model": "RMX3953",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "653_sign_RMX3953_11_A_OTA_0240_all_KLq50J_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3953/653_sign_RMX3953_11_A_OTA_0240_all_KLq50J_10010111.zip"
+  },
+  {
+   "device": "真我V50",
+   "model": "RMX3783",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "586_sign_RMX3783_11_C_OTA_1240_all_zpJVk5_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3783/586_sign_RMX3783_11_C_OTA_1240_all_zpJVk5_10010111.zip"
+  },
+  {
+   "device": "真我V50s",
+   "model": "RMX3781",
+   "version": "realme UI 6.0回退至realme UI 5.0",
+   "build": "587_sign_RMX3781_11_C_OTA_1240_all_RPTz9h_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3781/587_sign_RMX3781_11_C_OTA_1240_all_RPTz9h_10010111.zip"
+  },
+  {
+   "device": "真我GT2 Pro（回退版本C.16）",
+   "model": "RMX3300",
+   "version": "realme UI 5.0回退至realme UI 4.0",
+   "build": "RMX3300_ROLL_BACK_Android13_CN.zip",
+   "url": "https://rbp01.realme.net/GT_2Pro/RMX3300_ROLL_BACK_Android13_CN.zip"
+  },
+  {
+   "device": "真我GT Neo5 150W（回退版本13.1.0.115）",
+   "model": "RMX3706",
+   "version": "realme UI 5.0回退至realme UI 4.0",
+   "build": "RMX3706_11_A_OTA_0450_all_kfXLEj_CN.zip",
+   "url": "https://rbp01.realme.net/GT_Neo5/RMX3706_11_A_OTA_0450_all_kfXLEj_CN.zip"
+  },
+  {
+   "device": "真我GT Neo5 240W（回退版本13.1.0.115）",
+   "model": "RMX3708",
+   "version": "realme UI 5.0回退至realme UI 4.0",
+   "build": "RMX3708_11_A_OTA_0450_all_MBejmZ_CN.zip",
+   "url": "https://rbp01.realme.net/GT_Neo5_240W/RMX3708_11_A_OTA_0450_all_MBejmZ_CN.zip"
+  },
+  {
+   "device": "真我GT2 大师探索版（回退版本13.1.0.102）",
+   "model": "RMX3551",
+   "version": "realme UI 5.0回退至realme UI 4.0",
+   "build": "RMX3551_11_C_OTA_1160_all_H8CiVL_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3551/UI4.0/RMX3551_11_C_OTA_1160_all_H8CiVL_10010111.zip"
+  },
+  {
+   "device": "真我GT5 150W（回退版本13.1.1.142）",
+   "model": "RMX3820",
+   "version": "realme UI 5.0回退至realme UI 4.0",
+   "build": "RMX3820_11_A_OTA_0420_all_Y80qQi_10010111.zip",
+   "url": "https://rbp01.realme.net/GT5/RMX3820_11_A_OTA_0420_all_Y80qQi_10010111.zip"
+  },
+  {
+   "device": "真我GT5 240W（回退版本13.1.1.142）",
+   "model": "RMX3823",
+   "version": "realme UI 5.0回退至realme UI 4.0",
+   "build": "RMX3823_11_A_OTA_0420_all_4Bj8wY_10010111.zip",
+   "url": "https://rbp01.realme.net/GT5_240W/RMX3823_11_A_OTA_0420_all_4Bj8wY_10010111.zip"
+  },
+  {
+   "device": "真我GT Neo3（回退版本13.1.0.211）",
+   "model": "RMX3560",
+   "version": "realme UI 5.0回退至realme UI 4.0",
+   "build": "RMX3560_11_C_OTA_1240_all_CDSeWu_CN.zip",
+   "url": "https://rbp01.realme.net/GT_Neo3/UI4.0/RMX3560_11_C_OTA_1240_all_CDSeWu_CN.zip"
+  },
+  {
+   "device": "真我GT Neo 3 150W&amp;火影定制版（回退版本13.1.0.211）",
+   "model": "RMX3562",
+   "version": "realme UI 5.0回退至realme UI 4.0",
+   "build": "RMX3562_11_C_OTA_1240_all_0ypstj_CN.zip",
+   "url": "https://rbp01.realme.net/GT_Neo3_150W/UI4.0/RMX3562_11_C_OTA_1240_all_0ypstj_CN.zip"
+  },
+  {
+   "device": "真我GT Neo5 SE（回退版本13.1.0.120）",
+   "model": "RMX3700",
+   "version": "realme UI 5.0回退至realme UI 4.0",
+   "build": "RMX3700_11_A_OTA_0240_all_8oFIxq_10010111.zip",
+   "url": "https://rbp01.realme.net/GT_Neo5_SE/RMX3700_11_A_OTA_0240_all_8oFIxq_10010111.zip"
+  },
+  {
+   "device": "真我GT 大师探索版（回退版本13.1.0.103）",
+   "model": "",
+   "version": "realme UI 5.0回退至realme UI 4.0",
+   "build": "oplus_ota_downgrade.zip",
+   "url": "https://rbp01.realme.net/RMX3366/UI4.0/oplus_ota_downgrade.zip"
+  },
+  {
+   "device": "真我11 Pro+（回退版本13.1.0.140）",
+   "model": "RMX3740",
+   "version": "realme UI 5.0回退至realme UI 4.0",
+   "build": "RMX3740_11_A_OTA_0400_all_knLzEp_CN.zip",
+   "url": "https://rbp01.realme.net/RMX3740/UI4.0/RMX3740_11_A_OTA_0400_all_knLzEp_CN.zip"
+  },
+  {
+   "device": "真我11 Pro（回退版本13.1.0.140）",
+   "model": "RMX3770",
+   "version": "realme UI 5.0回退至realme UI 4.0",
+   "build": "321_sign_RMX3770_11_A_OTA_0400_all_Y5WQIg_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3770/UI4.0/321_sign_RMX3770_11_A_OTA_0400_all_Y5WQIg_10010111.zip"
+  },
+  {
+   "device": "真我11（回退版本13.1.0.106）",
+   "model": "RMX3751",
+   "version": "realme UI 5.0回退至realme UI 4.0",
+   "build": "RMX3751_11_A_OTA_0250_all_Xs2roL_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3751/UI4.0/RMX3751_11_A_OTA_0250_all_Xs2roL_10010111.zip"
+  },
+  {
+   "device": "真我Q5 Pro（回退版本13.1.0.200)",
+   "model": "RMX3372",
+   "version": "realme UI 5.0回退至realme UI 4.0",
+   "build": "314_sign_RMX3372_11_C_OTA_1120_all_L3hs0U_10010111.zip",
+   "url": "https://rbp01.realme.net/Q5Pro/UI4.0/314_sign_RMX3372_11_C_OTA_1120_all_L3hs0U_10010111.zip"
+  },
+  {
+   "device": "真我10 Pro（回退版本11_A.61）",
+   "model": "RMX3663",
+   "version": "realme UI 5.0回退至realme UI 4.0",
+   "build": "RMX3663_11_A_OTA_0610_all_6377b8_10010111.zip",
+   "url": "https://rbp01.realme.net/10Pro/RMX3663_11_A_OTA_0610_all_6377b8_10010111.zip"
+  },
+  {
+   "device": "真我10 Pro+（回退版本11_A.33）",
+   "model": "RMX3687",
+   "version": "realme UI 5.0回退至realme UI 4.0",
+   "build": "318_sign_RMX3687_11_A_OTA_0330_all_cbd254_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3687/318_sign_RMX3687_11_A_OTA_0330_all_cbd254_10010111.zip"
+  },
+  {
+   "device": "真我Q5&amp;真我Q5 狂欢版（回退版本11.C.20）",
+   "model": "RMX3478",
+   "version": "realme UI 5.0回退至realme UI 4.0",
+   "build": "353_sign_RMX3478_11_C_OTA_1200_all_75799a_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3478/353_sign_RMX3478_11_C_OTA_1200_all_75799a_10010111.zip"
+  },
+  {
+   "device": "真我V50（回退版本13.2.0.500）",
+   "model": "RMX3783",
+   "version": "realme UI 5.0回退至realme UI 4.0",
+   "build": "383_sign_RMX3783_11_A_OTA_0510_all_2fWE3g_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3783/383_sign_RMX3783_11_A_OTA_0510_all_2fWE3g_10010111.zip"
+  },
+  {
+   "device": "真我V50s（回退版本13.2.0.500）",
+   "model": "RMX3781",
+   "version": "realme UI 5.0回退至realme UI 4.0",
+   "build": "386_sign_RMX3781_11_A_OTA_0510_all_EImBTU_10010111.zip",
+   "url": "https://rbp01.realme.net/RMX3781/386_sign_RMX3781_11_A_OTA_0510_all_EImBTU_10010111.zip"
+  },
+  {
+   "device": "真我GT2（回退版本11.C.22）",
+   "model": "RMX3310",
+   "version": "realme UI 5.0回退至realme UI 4.0",
+   "build": "393_sign_RMX3310_11_C_OTA_1220_all_Rg8TGQ_10010111.zip",
+   "url": "https://rbp01.realme.net/GT_2/UI4.0/393_sign_RMX3310_11_C_OTA_1220_all_Rg8TGQ_10010111.zip"
+  },
+  {
+   "device": "真我GT（回退版本13.1.0.1810）",
+   "model": "RMX2202",
+   "version": "realme UI 5.0回退至realme UI 4.0",
+   "build": "399_sign_RMX2202_11_F_OTA_3190_all_rJ7SEZ_10010111.zip",
+   "url": "https://rbp01.realme.net/GT/UI4.0/399_sign_RMX2202_11_F_OTA_3190_all_rJ7SEZ_10010111.zip"
+  },
+  {
+   "device": "真我GT（回退版本C.25）",
+   "model": "RMX2202",
+   "version": "realme UI 4.0回退至realme UI 3.0",
+   "build": "RMX2202_11_C_OTA_1250_all_d1bf42_10010111.zip",
+   "url": "https://rbp01.realme.net/GT/UI3.0/RMX2202_11_C_OTA_1250_all_d1bf42_10010111.zip"
+  },
+  {
+   "device": "真我GT Neo2（回退版本C.10）",
+   "model": "",
+   "version": "realme UI 4.0回退至realme UI 3.0",
+   "build": "oplus_ota_downgrade.zip",
+   "url": "https://rbp01.realme.net/GT_Neo2/UI3.0/oplus_ota_downgrade.zip"
+  },
+  {
+   "device": "真我GT2 大师探索版（回退版本A.18）",
+   "model": "RMX3551",
+   "version": "realme UI 4.0回退至realme UI 3.0",
+   "build": "RMX3551_11_A_OTA_0180_all_86b356_CN.zip",
+   "url": "https://rbp01.realme.net/RMX3551/RMX3551_11_A_OTA_0180_all_86b356_CN.zip"
+  },
+  {
+   "device": "真我GT 大师探索版（回退版本C.14）",
+   "model": "",
+   "version": "realme UI 4.0回退至realme UI 3.0",
+   "build": "oplus_ota_downgrade.zip",
+   "url": "https://rbp01.realme.net/RMX3366/oplus_ota_downgrade.zip"
+  },
+  {
+   "device": "真我GT 大师版（回退版本C.12）",
+   "model": "RMX3361",
+   "version": "realme UI 4.0回退至realme UI 3.0",
+   "build": "RMX3361_11_C_OTA_1120_all_bc7697_10011000.zip",
+   "url": "https://rbp01.realme.net/RMX3361/UI3.0/RMX3361_11_C_OTA_1120_all_bc7697_10011000.zip"
+  },
+  {
+   "device": "真我Q5和真我Q5狂欢版（回退版本A.41）",
+   "model": "RMX3478",
+   "version": "realme UI 4.0回退至realme UI 3.0",
+   "build": "RMX3478_11_A_OTA_0410_all_789a23_10010111.zip",
+   "url": "https://rbp01.realme.net/Q5/RMX3478_11_A_OTA_0410_all_789a23_10010111.zip"
+  },
+  {
+   "device": "真我GT2 Pro（回退版本为A.21）",
+   "model": "RMX3300",
+   "version": "realme UI 4.0回退至realme UI 3.0",
+   "build": "RMX3300_11_A_OTA_0250_all_CN.zip",
+   "url": "https://rbp01.realme.net/GT_2Pro/RMX3300_11_A_OTA_0250_all_CN.zip"
+  },
+  {
+   "device": "真我GT Neo3 150W和火影限定版（回退版本为A.44）",
+   "model": "RMX3562",
+   "version": "realme UI 4.0回退至realme UI 3.0",
+   "build": "RMX3562_11_A_OTA_0440_all_6875c4_CN.zip",
+   "url": "https://rbp01.realme.net/GT_Neo3_150W/RMX3562_11_A_OTA_0440_all_6875c4_CN.zip"
+  },
+  {
+   "device": "真我GT Neo3 80W（回退版本为A.44）",
+   "model": "RMX3560",
+   "version": "realme UI 4.0回退至realme UI 3.0",
+   "build": "RMX3560_11_A_OTA_0440_all_a1fa82_CN.zip",
+   "url": "https://rbp01.realme.net/GT_Neo3/RMX3560_11_A_OTA_0440_all_a1fa82_CN.zip"
+  },
+  {
+   "device": "真我GT2（退回版本为A.20）",
+   "model": "RMX3310",
+   "version": "realme UI 4.0回退至realme UI 3.0",
+   "build": "RMX3310_11_A_OTA_0200_all_0265bb_CN.zip",
+   "url": "https://rbp01.realme.net/GT_2/RMX3310_11_A_OTA_0200_all_0265bb_CN.zip"
+  },
+  {
+   "device": "真我Q5 Pro（回退版本A.09）",
+   "model": "RMX3372",
+   "version": "realme UI 4.0回退至realme UI 3.0",
+   "build": "RMX3372_11_A_OTA_0090_all_7c4647_CN.zip",
+   "url": "https://rbp01.realme.net/Q5Pro/RMX3372_11_A_OTA_0090_all_7c4647_CN.zip"
+  },
+  {
+   "device": "真我Q3 Pro（回退版本C.17）",
+   "model": "",
+   "version": "realme UI 4.0回退至realme UI 3.0",
+   "build": "oplus_ota_downgrade.zip",
+   "url": "https://rbp01.realme.net/Q3Pro/UI3.0/oplus_ota_downgrade.zip"
+  },
+  {
+   "device": "真我GT Neo2T（回退版本C.21）",
+   "model": "",
+   "version": "realme UI 4.0回退至realme UI 3.0",
+   "build": "oplus_ota_downgrade.zip",
+   "url": "https://rbp01.realme.net/realme_GT_Neo_2T/oplus_ota_downgrade.zip"
+  },
+  {
+   "device": "真我GT Neo2龙珠版（回退版本C.05）",
+   "model": "",
+   "version": "realme UI 4.0回退至realme UI 3.0",
+   "build": "oplus_ota_downgrade.zip",
+   "url": "https://rbp01.realme.net/GT_Neo2/UI3.0/longzhu/oplus_ota_downgrade.zip"
+  },
+  {
+   "device": "真我GT Neo（回退版本C.25）",
+   "model": "",
+   "version": "realme UI 4.0回退至realme UI 3.0",
+   "build": "oplus_ota_downgrade.zip",
+   "url": "https://rbp01.realme.net/realme_GT_Neo/oplus_ota_downgrade.zip"
+  },
+  {
+   "device": "真我GT Neo闪速版（回退版本C.19）",
+   "model": "",
+   "version": "realme UI 4.0回退至realme UI 3.0",
+   "build": "oplus_ota_downgrade.zip",
+   "url": "https://rbp01.realme.net/RMX3350/oplus_ota_downgrade.zip"
+  }
+ ]
+}

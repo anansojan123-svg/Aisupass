@@ -467,6 +467,24 @@ void main() {
       expect(fake.commands, hasLength(1));
     });
 
+    test('设备没有 su 时单独分型，不并入一般失败', () async {
+      final _FakeNative fake = _FakeNative((String command) {
+        if (isHandoff(command)) {
+          return _fail(
+            127,
+            stderr: '/system/bin/sh: su: inaccessible or not found\n',
+          );
+        }
+        fail('不该走到这里: $command');
+      });
+
+      final HandoffOutcome result = await _repository(fake)
+          .handoffRoot(manager: _kernelsu);
+
+      expect(result.kind, HandoffKind.noSu);
+      expect(result.exitCode, 127);
+    });
+
     test('late-load 退出码非 0 即失败，退出码原样透传', () async {
       final _FakeNative fake = _FakeNative((String command) {
         if (isHandoff(command)) return _fail(7, stderr: 'no kernel module');

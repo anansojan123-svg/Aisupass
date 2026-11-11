@@ -5,11 +5,14 @@ import 'package:Aisupass/common/widgets/app_theme_mode_switch.dart';
 import 'package:Aisupass/core/extensions/context_extensions.dart';
 import 'package:Aisupass/features/ai/presentation/widgets/ai_config_entry.dart';
 import 'package:Aisupass/features/escalation/presentation/widgets/dirty_frag_boot_switch.dart';
+import 'package:Aisupass/features/escalation/presentation/widgets/ghost_key_setting_section.dart';
+import 'package:Aisupass/features/escalation/presentation/widgets/kernel_profile_setting_row.dart';
+import 'package:Aisupass/features/escalation/presentation/widgets/run_log_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-/// 移动端设置内容。当前只有通用与外观两组，其余设置项等待业务接入。
+/// 移动端设置内容。
 ///
 /// 标题栏与底栏由 `MainPage` 提供，这里不要自带 Scaffold。
 class SettingTab extends HookWidget {
@@ -33,7 +36,18 @@ class SettingTab extends HookWidget {
         SizedBox(height: 20.h),
         AppSettingsSection(
           title: context.l10n.settingsBootAutostartSection,
-          children: const <Widget>[DirtyFragBootSwitch()],
+          children: <Widget>[
+            const DirtyFragBootSwitch(),
+            Divider(height: 1, indent: 62.w, endIndent: 16.w),
+            const KernelProfileSettingRow(),
+            Divider(height: 1, indent: 62.w, endIndent: 16.w),
+            const RunLogEntry(),
+          ],
+        ),
+        SizedBox(height: 20.h),
+        AppSettingsSection(
+          title: context.l10n.settingsGhostKeySection,
+          children: const <Widget>[GhostKeySettingSection()],
         ),
         SizedBox(height: 20.h),
         AppSettingsSection(

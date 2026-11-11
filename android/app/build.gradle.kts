@@ -47,7 +47,7 @@ android {
 
     externalNativeBuild {
         cmake {
-            path("src/main/jni/dfroot/CMakeLists.txt")
+            path("src/main/jni/CMakeLists.txt")
         }
     }
 
@@ -87,4 +87,10 @@ dependencies {
     implementation("com.github.MuntashirAkon:libadb-android:3.1.1")
     implementation("com.github.MuntashirAkon:sun-security-android:1.1")
     implementation("org.conscrypt:conscrypt-android:2.5.3")
+
+    // OTA payload 解包：payload.bin 的 REPLACE_BZ 操作是 bzip2 压缩，
+    // 只用其中的 BZip2CompressorInputStream，避免自行实现 bzip2 解码器。
+    implementation("org.apache.commons:commons-compress:1.27.1")
+    // REPLACE_XZ 操作改用官方 XZ for Java 解码，替换自研 LZMA2 解码器。
+    implementation("org.tukaani:xz:1.10")
 }

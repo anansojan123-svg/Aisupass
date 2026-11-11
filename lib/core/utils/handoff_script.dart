@@ -85,6 +85,18 @@ class HandoffScript {
   static bool indicatesManagerMissing(String output, int exitCode) =>
       output.contains(noKsudMarker) || exitCode == noKsudExitCode;
 
+  /// 输出是否表明「设备上没有 su」。
+  ///
+  /// `SuShell.wrap` 在所有候选路径都不可执行时会退回裸 `su`；设备上根本没有
+  /// `su` 时由设备 shell 报 `sh: su: inaccessible or not found`，退出码 127。
+  /// 这与「管理器装没装」无关，得单独认出来，否则会被当成授权失败误导用户。
+  static bool indicatesNoSu(String output, int exitCode) {
+    final String lower = output.toLowerCase();
+    if (lower.contains('su: inaccessible or not found')) return true;
+    if (lower.contains('su: not found')) return true;
+    return exitCode == 127 && lower.contains('su');
+  }
+
   /// 输出里是否出现已知失败关键字（大小写不敏感）。
   static bool mentionsFailure(String output) {
     final String lower = output.toLowerCase();

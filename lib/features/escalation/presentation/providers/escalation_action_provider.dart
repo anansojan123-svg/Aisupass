@@ -3,10 +3,15 @@ import 'package:Aisupass/core/storage/storage_providers.dart';
 import 'package:Aisupass/core/utils/payload_shell.dart';
 import 'package:Aisupass/features/escalation/data/datasources/dirty_frag_action_datasource.dart';
 import 'package:Aisupass/features/escalation/data/datasources/escalation_action_datasource.dart';
+import 'package:Aisupass/features/escalation/data/datasources/ghost_key_action_datasource.dart';
 import 'package:Aisupass/features/escalation/data/repositories/dirty_frag_action_repository_impl.dart';
 import 'package:Aisupass/features/escalation/data/repositories/escalation_action_repository_impl.dart';
+import 'package:Aisupass/features/escalation/data/repositories/ghost_key_action_repository_impl.dart';
 import 'package:Aisupass/features/escalation/domain/models/dirty_frag_outcome.dart';
 import 'package:Aisupass/features/escalation/domain/models/dirty_frag_run_defaults.dart';
+import 'package:Aisupass/features/escalation/domain/models/ghost_key_outcome.dart';
+import 'package:Aisupass/features/escalation/domain/models/ghost_key_preflight.dart';
+import 'package:Aisupass/features/escalation/domain/models/ghost_key_run_defaults.dart';
 import 'package:Aisupass/features/escalation/domain/models/handoff_outcome.dart';
 import 'package:Aisupass/features/escalation/domain/models/payload.dart';
 import 'package:Aisupass/features/escalation/domain/models/payload_match.dart';
@@ -16,7 +21,9 @@ import 'package:Aisupass/features/escalation/domain/models/vr_offset_result.dart
 import 'package:Aisupass/features/escalation/domain/repositories/dirty_frag_action_repository.dart';
 import 'package:Aisupass/features/escalation/domain/repositories/escalation_action_repository.dart';
 import 'package:Aisupass/features/escalation/domain/repositories/escalation_query_repository.dart';
+import 'package:Aisupass/features/escalation/domain/repositories/ghost_key_action_repository.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/escalation_query_provider.dart';
+import 'package:Aisupass/generated/cve98260.g.dart' as cve98260;
 import 'package:Aisupass/generated/dirty_frag.g.dart' as pigeon;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -71,18 +78,26 @@ Future<String> runPayloadChoice(Ref ref, {required Payload payload}) =>
 Future<HandoffOutcome> handoffRoot(Ref ref, {required RootManager manager}) =>
     ref.watch(escalationActionRepositoryProvider).handoffRoot(manager: manager);
 
-/// 记住用户选定的 root 管理器。
+/// root 管理器的写操作。
 ///
-/// 落盘后失效 [selectedRootManagerProvider]。
-@riverpod
-Future<void> selectRootManager(
-  Ref ref, {
-  required RootManager manager,
-}) async {
-  await ref
-      .watch(escalationActionRepositoryProvider)
-      .selectRootManager(manager: manager);
-  ref.invalidate(selectedRootManagerProvider);
+/// 形态同 `aiConfigActions`：无参 `keepAlive` 类持有 [Ref]，参数走方法入参。
+/// 带参族函数会按参数缓存，同样的参数第二次调用不再执行方法体。
+@Riverpod(keepAlive: true)
+RootManagerActions rootManagerActions(Ref ref) => RootManagerActions(ref);
+
+/// 见 [rootManagerActions]。
+class RootManagerActions {
+  RootManagerActions(this._ref);
+
+  final Ref _ref;
+
+  /// 记住用户选定的管理器，落盘后失效 [selectedRootManagerProvider]。
+  Future<void> select(RootManager manager) async {
+    await _ref
+        .read(escalationActionRepositoryProvider)
+        .selectRootManager(manager: manager);
+    _ref.invalidate(selectedRootManagerProvider);
+  }
 }
 
 /// DirtyFrag 运行数据源。
@@ -107,16 +122,42 @@ Future<bool> dirtyFragArmed(Ref ref) =>
 Future<DirtyFragRunDefaults> dirtyFragRunDefaults(Ref ref) =>
     ref.watch(dirtyFragActionRepositoryProvider).runDefaults();
 
-/// 写运行默认值。设置页改开关时调用。
-@riverpod
-Future<void> saveDirtyFragRunDefaults(
-  Ref ref, {
-  required DirtyFragRunDefaults defaults,
-}) async {
-  await ref
-      .watch(dirtyFragActionRepositoryProvider)
-      .saveRunDefaults(defaults: defaults);
-  ref.invalidate(dirtyFragRunDefaultsProvider);
+/// DirtyFrag 设置页的写操作。
+///
+/// 同 [rootManagerActions]：无参类，参数走方法入参。
+@Riverpod(keepAlive: true)
+DirtyFragActions dirtyFragActions(Ref ref) => DirtyFragActions(ref);
+
+/// 见 [dirtyFragActions]。
+class DirtyFragActions {
+  DirtyFragActions(this._ref);
+
+  final Ref _ref;
+
+  /// 写运行默认值。四个字段整体覆盖。
+  Future<void> saveRunDefaults(DirtyFragRunDefaults defaults) async {
+    await _ref
+        .read(dirtyFragActionRepositoryProvider)
+        .saveRunDefaults(defaults: defaults);
+    _ref.invalidate(dirtyFragRunDefaultsProvider);
+  }
+
+  /// 切换专家模式。
+  Future<void> setExpertMode({required bool enabled}) async {
+    await _ref
+        .read(dirtyFragActionRepositoryProvider)
+        .setExpertModeEnabled(enabled: enabled);
+    _ref.invalidate(dirtyFragExpertModeProvider);
+    _ref.invalidate(dirtyFragBootAutostartProvider);
+  }
+
+  /// 切换开机自启。
+  Future<void> setBootAutostart({required bool enabled}) async {
+    await _ref
+        .read(dirtyFragActionRepositoryProvider)
+        .setBootAutostartEnabled(enabled: enabled);
+    _ref.invalidate(dirtyFragBootAutostartProvider);
+  }
 }
 
 /// 跑一次 DirtyFrag，按块吐出证据。
@@ -139,29 +180,6 @@ Future<bool> dirtyFragExpertMode(Ref ref) =>
 Future<bool> dirtyFragBootAutostart(Ref ref) =>
     ref.watch(dirtyFragActionRepositoryProvider).isBootAutostartEnabled();
 
-/// 切换专家模式。
-@riverpod
-Future<void> setDirtyFragExpertMode(Ref ref, {required bool enabled}) async {
-  await ref
-      .watch(dirtyFragActionRepositoryProvider)
-      .setExpertModeEnabled(enabled: enabled);
-  // 专家模式变了，开机自启那行的可用态要跟着变。
-  ref.invalidate(dirtyFragExpertModeProvider);
-  ref.invalidate(dirtyFragBootAutostartProvider);
-}
-
-/// 切换开机自启。
-@riverpod
-Future<void> setDirtyFragBootAutostart(
-  Ref ref, {
-  required bool enabled,
-}) async {
-  await ref
-      .watch(dirtyFragActionRepositoryProvider)
-      .setBootAutostartEnabled(enabled: enabled);
-  ref.invalidate(dirtyFragBootAutostartProvider);
-}
-
 /// 从镜像或 OTA 直链算一次 vr 偏移。
 @riverpod
 Future<VrOffsetResult> deriveVrOffset(
@@ -182,3 +200,55 @@ Stream<VrDeriveProgress> vrDeriveProgress(Ref ref) async* {
     await Future<void>.delayed(const Duration(milliseconds: 200));
   }
 }
+
+/// GhostKey 运行数据源。
+@riverpod
+GhostKeyActionDatasource ghostKeyActionDatasource(Ref ref) =>
+    GhostKeyActionDatasource(
+      native: cve98260.Cve98260Native(),
+      storage: ref.watch(preferencesStoreProvider),
+    );
+
+/// GhostKey 运行仓储。
+@riverpod
+GhostKeyActionRepository ghostKeyActionRepository(Ref ref) =>
+    GhostKeyActionRepositoryImpl(
+      datasource: ref.watch(ghostKeyActionDatasourceProvider),
+    );
+
+/// GhostKey 起跑前的六项就绪检查。
+@riverpod
+Future<GhostKeyPreflight> ghostKeyPreflight(Ref ref) =>
+    ref.watch(ghostKeyActionRepositoryProvider).preflight();
+
+/// 运行偏好（设置页两个开关的当前值）。
+@riverpod
+Future<GhostKeyRunDefaults> ghostKeyRunDefaults(Ref ref) =>
+    ref.watch(ghostKeyActionRepositoryProvider).runDefaults();
+
+/// GhostKey 设置页的写操作。
+///
+/// 同 [rootManagerActions]：无参类，参数走方法入参。
+@Riverpod(keepAlive: true)
+GhostKeyActions ghostKeyActions(Ref ref) => GhostKeyActions(ref);
+
+/// 见 [ghostKeyActions]。
+class GhostKeyActions {
+  GhostKeyActions(this._ref);
+
+  final Ref _ref;
+
+  /// 写运行偏好。两个字段整体覆盖。
+  Future<void> saveRunDefaults(GhostKeyRunDefaults defaults) async {
+    await _ref
+        .read(ghostKeyActionRepositoryProvider)
+        .saveRunDefaults(defaults: defaults);
+    _ref.invalidate(ghostKeyRunDefaultsProvider);
+  }
+}
+
+/// 跑一次 GhostKey，按块吐出证据。
+@riverpod
+Stream<GhostKeyOutcome> runGhostKey(Ref ref, {RootManager? manager}) => ref
+    .watch(ghostKeyActionRepositoryProvider)
+    .run(manager: manager);

@@ -347,93 +347,67 @@ final class HandoffRootFamily extends $Family
   String toString() => r'handoffRootProvider';
 }
 
-/// 记住用户选定的 root 管理器。
+/// root 管理器的写操作。
 ///
-/// 落盘后失效 [selectedRootManagerProvider]。
+/// 形态同 `aiConfigActions`：无参 `keepAlive` 类持有 [Ref]，参数走方法入参。
+/// 带参族函数会按参数缓存，同样的参数第二次调用不再执行方法体。
 
-@ProviderFor(selectRootManager)
-const selectRootManagerProvider = SelectRootManagerFamily._();
+@ProviderFor(rootManagerActions)
+const rootManagerActionsProvider = RootManagerActionsProvider._();
 
-/// 记住用户选定的 root 管理器。
+/// root 管理器的写操作。
 ///
-/// 落盘后失效 [selectedRootManagerProvider]。
+/// 形态同 `aiConfigActions`：无参 `keepAlive` 类持有 [Ref]，参数走方法入参。
+/// 带参族函数会按参数缓存，同样的参数第二次调用不再执行方法体。
 
-final class SelectRootManagerProvider
-    extends $FunctionalProvider<AsyncValue<void>, void, FutureOr<void>>
-    with $FutureModifier<void>, $FutureProvider<void> {
-  /// 记住用户选定的 root 管理器。
+final class RootManagerActionsProvider
+    extends
+        $FunctionalProvider<
+          RootManagerActions,
+          RootManagerActions,
+          RootManagerActions
+        >
+    with $Provider<RootManagerActions> {
+  /// root 管理器的写操作。
   ///
-  /// 落盘后失效 [selectedRootManagerProvider]。
-  const SelectRootManagerProvider._({
-    required SelectRootManagerFamily super.from,
-    required RootManager super.argument,
-  }) : super(
-         retry: null,
-         name: r'selectRootManagerProvider',
-         isAutoDispose: true,
-         dependencies: null,
-         $allTransitiveDependencies: null,
-       );
+  /// 形态同 `aiConfigActions`：无参 `keepAlive` 类持有 [Ref]，参数走方法入参。
+  /// 带参族函数会按参数缓存，同样的参数第二次调用不再执行方法体。
+  const RootManagerActionsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'rootManagerActionsProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
-  String debugGetCreateSourceHash() => _$selectRootManagerHash();
-
-  @override
-  String toString() {
-    return r'selectRootManagerProvider'
-        ''
-        '($argument)';
-  }
+  String debugGetCreateSourceHash() => _$rootManagerActionsHash();
 
   @$internal
   @override
-  $FutureProviderElement<void> $createElement($ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
+  $ProviderElement<RootManagerActions> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
 
   @override
-  FutureOr<void> create(Ref ref) {
-    final argument = this.argument as RootManager;
-    return selectRootManager(ref, manager: argument);
+  RootManagerActions create(Ref ref) {
+    return rootManagerActions(ref);
   }
 
-  @override
-  bool operator ==(Object other) {
-    return other is SelectRootManagerProvider && other.argument == argument;
-  }
-
-  @override
-  int get hashCode {
-    return argument.hashCode;
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(RootManagerActions value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<RootManagerActions>(value),
+    );
   }
 }
 
-String _$selectRootManagerHash() => r'5d7f6ef19e8e6a41a9db5d64f7a8164bc9e05f06';
-
-/// 记住用户选定的 root 管理器。
-///
-/// 落盘后失效 [selectedRootManagerProvider]。
-
-final class SelectRootManagerFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<void>, RootManager> {
-  const SelectRootManagerFamily._()
-    : super(
-        retry: null,
-        name: r'selectRootManagerProvider',
-        dependencies: null,
-        $allTransitiveDependencies: null,
-        isAutoDispose: true,
-      );
-
-  /// 记住用户选定的 root 管理器。
-  ///
-  /// 落盘后失效 [selectedRootManagerProvider]。
-
-  SelectRootManagerProvider call({required RootManager manager}) =>
-      SelectRootManagerProvider._(argument: manager, from: this);
-
-  @override
-  String toString() => r'selectRootManagerProvider';
-}
+String _$rootManagerActionsHash() =>
+    r'f84a7be6ff0900100ae2492dfa6cd513dfe3a32f';
 
 /// DirtyFrag 运行数据源。
 
@@ -626,86 +600,62 @@ final class DirtyFragRunDefaultsProvider
 String _$dirtyFragRunDefaultsHash() =>
     r'c147e91ade7a9f1c0aa3b9e122cdc55b8cc695e0';
 
-/// 写运行默认值。设置页改开关时调用。
+/// DirtyFrag 设置页的写操作。
+///
+/// 同 [rootManagerActions]：无参类，参数走方法入参。
 
-@ProviderFor(saveDirtyFragRunDefaults)
-const saveDirtyFragRunDefaultsProvider = SaveDirtyFragRunDefaultsFamily._();
+@ProviderFor(dirtyFragActions)
+const dirtyFragActionsProvider = DirtyFragActionsProvider._();
 
-/// 写运行默认值。设置页改开关时调用。
+/// DirtyFrag 设置页的写操作。
+///
+/// 同 [rootManagerActions]：无参类，参数走方法入参。
 
-final class SaveDirtyFragRunDefaultsProvider
-    extends $FunctionalProvider<AsyncValue<void>, void, FutureOr<void>>
-    with $FutureModifier<void>, $FutureProvider<void> {
-  /// 写运行默认值。设置页改开关时调用。
-  const SaveDirtyFragRunDefaultsProvider._({
-    required SaveDirtyFragRunDefaultsFamily super.from,
-    required DirtyFragRunDefaults super.argument,
-  }) : super(
-         retry: null,
-         name: r'saveDirtyFragRunDefaultsProvider',
-         isAutoDispose: true,
-         dependencies: null,
-         $allTransitiveDependencies: null,
-       );
+final class DirtyFragActionsProvider
+    extends
+        $FunctionalProvider<
+          DirtyFragActions,
+          DirtyFragActions,
+          DirtyFragActions
+        >
+    with $Provider<DirtyFragActions> {
+  /// DirtyFrag 设置页的写操作。
+  ///
+  /// 同 [rootManagerActions]：无参类，参数走方法入参。
+  const DirtyFragActionsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'dirtyFragActionsProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
-  String debugGetCreateSourceHash() => _$saveDirtyFragRunDefaultsHash();
-
-  @override
-  String toString() {
-    return r'saveDirtyFragRunDefaultsProvider'
-        ''
-        '($argument)';
-  }
+  String debugGetCreateSourceHash() => _$dirtyFragActionsHash();
 
   @$internal
   @override
-  $FutureProviderElement<void> $createElement($ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
+  $ProviderElement<DirtyFragActions> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
 
   @override
-  FutureOr<void> create(Ref ref) {
-    final argument = this.argument as DirtyFragRunDefaults;
-    return saveDirtyFragRunDefaults(ref, defaults: argument);
+  DirtyFragActions create(Ref ref) {
+    return dirtyFragActions(ref);
   }
 
-  @override
-  bool operator ==(Object other) {
-    return other is SaveDirtyFragRunDefaultsProvider &&
-        other.argument == argument;
-  }
-
-  @override
-  int get hashCode {
-    return argument.hashCode;
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(DirtyFragActions value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<DirtyFragActions>(value),
+    );
   }
 }
 
-String _$saveDirtyFragRunDefaultsHash() =>
-    r'02004449b98f9973ee87d0ffefba58e5da45455b';
-
-/// 写运行默认值。设置页改开关时调用。
-
-final class SaveDirtyFragRunDefaultsFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<void>, DirtyFragRunDefaults> {
-  const SaveDirtyFragRunDefaultsFamily._()
-    : super(
-        retry: null,
-        name: r'saveDirtyFragRunDefaultsProvider',
-        dependencies: null,
-        $allTransitiveDependencies: null,
-        isAutoDispose: true,
-      );
-
-  /// 写运行默认值。设置页改开关时调用。
-
-  SaveDirtyFragRunDefaultsProvider call({
-    required DirtyFragRunDefaults defaults,
-  }) => SaveDirtyFragRunDefaultsProvider._(argument: defaults, from: this);
-
-  @override
-  String toString() => r'saveDirtyFragRunDefaultsProvider';
-}
+String _$dirtyFragActionsHash() => r'da9f3570dec10c45a19961219ce0d3c8745ed94d';
 
 /// 跑一次 DirtyFrag，按块吐出证据。
 
@@ -883,166 +833,6 @@ final class DirtyFragBootAutostartProvider
 String _$dirtyFragBootAutostartHash() =>
     r'50200e7bc0cf5292f007f4d2541f423eb393f6e7';
 
-/// 切换专家模式。
-
-@ProviderFor(setDirtyFragExpertMode)
-const setDirtyFragExpertModeProvider = SetDirtyFragExpertModeFamily._();
-
-/// 切换专家模式。
-
-final class SetDirtyFragExpertModeProvider
-    extends $FunctionalProvider<AsyncValue<void>, void, FutureOr<void>>
-    with $FutureModifier<void>, $FutureProvider<void> {
-  /// 切换专家模式。
-  const SetDirtyFragExpertModeProvider._({
-    required SetDirtyFragExpertModeFamily super.from,
-    required bool super.argument,
-  }) : super(
-         retry: null,
-         name: r'setDirtyFragExpertModeProvider',
-         isAutoDispose: true,
-         dependencies: null,
-         $allTransitiveDependencies: null,
-       );
-
-  @override
-  String debugGetCreateSourceHash() => _$setDirtyFragExpertModeHash();
-
-  @override
-  String toString() {
-    return r'setDirtyFragExpertModeProvider'
-        ''
-        '($argument)';
-  }
-
-  @$internal
-  @override
-  $FutureProviderElement<void> $createElement($ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<void> create(Ref ref) {
-    final argument = this.argument as bool;
-    return setDirtyFragExpertMode(ref, enabled: argument);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is SetDirtyFragExpertModeProvider &&
-        other.argument == argument;
-  }
-
-  @override
-  int get hashCode {
-    return argument.hashCode;
-  }
-}
-
-String _$setDirtyFragExpertModeHash() =>
-    r'a64348a4122f62ef74b3009abe9c93fe7df00fbe';
-
-/// 切换专家模式。
-
-final class SetDirtyFragExpertModeFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<void>, bool> {
-  const SetDirtyFragExpertModeFamily._()
-    : super(
-        retry: null,
-        name: r'setDirtyFragExpertModeProvider',
-        dependencies: null,
-        $allTransitiveDependencies: null,
-        isAutoDispose: true,
-      );
-
-  /// 切换专家模式。
-
-  SetDirtyFragExpertModeProvider call({required bool enabled}) =>
-      SetDirtyFragExpertModeProvider._(argument: enabled, from: this);
-
-  @override
-  String toString() => r'setDirtyFragExpertModeProvider';
-}
-
-/// 切换开机自启。
-
-@ProviderFor(setDirtyFragBootAutostart)
-const setDirtyFragBootAutostartProvider = SetDirtyFragBootAutostartFamily._();
-
-/// 切换开机自启。
-
-final class SetDirtyFragBootAutostartProvider
-    extends $FunctionalProvider<AsyncValue<void>, void, FutureOr<void>>
-    with $FutureModifier<void>, $FutureProvider<void> {
-  /// 切换开机自启。
-  const SetDirtyFragBootAutostartProvider._({
-    required SetDirtyFragBootAutostartFamily super.from,
-    required bool super.argument,
-  }) : super(
-         retry: null,
-         name: r'setDirtyFragBootAutostartProvider',
-         isAutoDispose: true,
-         dependencies: null,
-         $allTransitiveDependencies: null,
-       );
-
-  @override
-  String debugGetCreateSourceHash() => _$setDirtyFragBootAutostartHash();
-
-  @override
-  String toString() {
-    return r'setDirtyFragBootAutostartProvider'
-        ''
-        '($argument)';
-  }
-
-  @$internal
-  @override
-  $FutureProviderElement<void> $createElement($ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<void> create(Ref ref) {
-    final argument = this.argument as bool;
-    return setDirtyFragBootAutostart(ref, enabled: argument);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is SetDirtyFragBootAutostartProvider &&
-        other.argument == argument;
-  }
-
-  @override
-  int get hashCode {
-    return argument.hashCode;
-  }
-}
-
-String _$setDirtyFragBootAutostartHash() =>
-    r'900e56823aefa4b6e0c4b072715930f5b125ce3e';
-
-/// 切换开机自启。
-
-final class SetDirtyFragBootAutostartFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<void>, bool> {
-  const SetDirtyFragBootAutostartFamily._()
-    : super(
-        retry: null,
-        name: r'setDirtyFragBootAutostartProvider',
-        dependencies: null,
-        $allTransitiveDependencies: null,
-        isAutoDispose: true,
-      );
-
-  /// 切换开机自启。
-
-  SetDirtyFragBootAutostartProvider call({required bool enabled}) =>
-      SetDirtyFragBootAutostartProvider._(argument: enabled, from: this);
-
-  @override
-  String toString() => r'setDirtyFragBootAutostartProvider';
-}
-
 /// 从镜像或 OTA 直链算一次 vr 偏移。
 
 @ProviderFor(deriveVrOffset)
@@ -1181,3 +971,339 @@ final class VrDeriveProgressProvider
 }
 
 String _$vrDeriveProgressHash() => r'6328101a05e6d604b5067d9539040d603605a839';
+
+/// GhostKey 运行数据源。
+
+@ProviderFor(ghostKeyActionDatasource)
+const ghostKeyActionDatasourceProvider = GhostKeyActionDatasourceProvider._();
+
+/// GhostKey 运行数据源。
+
+final class GhostKeyActionDatasourceProvider
+    extends
+        $FunctionalProvider<
+          GhostKeyActionDatasource,
+          GhostKeyActionDatasource,
+          GhostKeyActionDatasource
+        >
+    with $Provider<GhostKeyActionDatasource> {
+  /// GhostKey 运行数据源。
+  const GhostKeyActionDatasourceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'ghostKeyActionDatasourceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$ghostKeyActionDatasourceHash();
+
+  @$internal
+  @override
+  $ProviderElement<GhostKeyActionDatasource> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  GhostKeyActionDatasource create(Ref ref) {
+    return ghostKeyActionDatasource(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GhostKeyActionDatasource value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GhostKeyActionDatasource>(value),
+    );
+  }
+}
+
+String _$ghostKeyActionDatasourceHash() =>
+    r'a178747ce7856ec2332a96a50ed00ee4f52ff51b';
+
+/// GhostKey 运行仓储。
+
+@ProviderFor(ghostKeyActionRepository)
+const ghostKeyActionRepositoryProvider = GhostKeyActionRepositoryProvider._();
+
+/// GhostKey 运行仓储。
+
+final class GhostKeyActionRepositoryProvider
+    extends
+        $FunctionalProvider<
+          GhostKeyActionRepository,
+          GhostKeyActionRepository,
+          GhostKeyActionRepository
+        >
+    with $Provider<GhostKeyActionRepository> {
+  /// GhostKey 运行仓储。
+  const GhostKeyActionRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'ghostKeyActionRepositoryProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$ghostKeyActionRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<GhostKeyActionRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  GhostKeyActionRepository create(Ref ref) {
+    return ghostKeyActionRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GhostKeyActionRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GhostKeyActionRepository>(value),
+    );
+  }
+}
+
+String _$ghostKeyActionRepositoryHash() =>
+    r'b66eb0eb80d0c8df54920e10acd3a9206fb7a41f';
+
+/// GhostKey 起跑前的六项就绪检查。
+
+@ProviderFor(ghostKeyPreflight)
+const ghostKeyPreflightProvider = GhostKeyPreflightProvider._();
+
+/// GhostKey 起跑前的六项就绪检查。
+
+final class GhostKeyPreflightProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<GhostKeyPreflight>,
+          GhostKeyPreflight,
+          FutureOr<GhostKeyPreflight>
+        >
+    with
+        $FutureModifier<GhostKeyPreflight>,
+        $FutureProvider<GhostKeyPreflight> {
+  /// GhostKey 起跑前的六项就绪检查。
+  const GhostKeyPreflightProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'ghostKeyPreflightProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$ghostKeyPreflightHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<GhostKeyPreflight> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<GhostKeyPreflight> create(Ref ref) {
+    return ghostKeyPreflight(ref);
+  }
+}
+
+String _$ghostKeyPreflightHash() => r'53ef1c0818cc66863c046c99d6bdb47ec170df4f';
+
+/// 运行偏好（设置页两个开关的当前值）。
+
+@ProviderFor(ghostKeyRunDefaults)
+const ghostKeyRunDefaultsProvider = GhostKeyRunDefaultsProvider._();
+
+/// 运行偏好（设置页两个开关的当前值）。
+
+final class GhostKeyRunDefaultsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<GhostKeyRunDefaults>,
+          GhostKeyRunDefaults,
+          FutureOr<GhostKeyRunDefaults>
+        >
+    with
+        $FutureModifier<GhostKeyRunDefaults>,
+        $FutureProvider<GhostKeyRunDefaults> {
+  /// 运行偏好（设置页两个开关的当前值）。
+  const GhostKeyRunDefaultsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'ghostKeyRunDefaultsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$ghostKeyRunDefaultsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<GhostKeyRunDefaults> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<GhostKeyRunDefaults> create(Ref ref) {
+    return ghostKeyRunDefaults(ref);
+  }
+}
+
+String _$ghostKeyRunDefaultsHash() =>
+    r'95e2a28a80597ec5f480f85fa34efcd31f43d786';
+
+/// GhostKey 设置页的写操作。
+///
+/// 同 [rootManagerActions]：无参类，参数走方法入参。
+
+@ProviderFor(ghostKeyActions)
+const ghostKeyActionsProvider = GhostKeyActionsProvider._();
+
+/// GhostKey 设置页的写操作。
+///
+/// 同 [rootManagerActions]：无参类，参数走方法入参。
+
+final class GhostKeyActionsProvider
+    extends
+        $FunctionalProvider<GhostKeyActions, GhostKeyActions, GhostKeyActions>
+    with $Provider<GhostKeyActions> {
+  /// GhostKey 设置页的写操作。
+  ///
+  /// 同 [rootManagerActions]：无参类，参数走方法入参。
+  const GhostKeyActionsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'ghostKeyActionsProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$ghostKeyActionsHash();
+
+  @$internal
+  @override
+  $ProviderElement<GhostKeyActions> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  GhostKeyActions create(Ref ref) {
+    return ghostKeyActions(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GhostKeyActions value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GhostKeyActions>(value),
+    );
+  }
+}
+
+String _$ghostKeyActionsHash() => r'd131b7ce2923ae6a94d0f6f954495decd9872f6e';
+
+/// 跑一次 GhostKey，按块吐出证据。
+
+@ProviderFor(runGhostKey)
+const runGhostKeyProvider = RunGhostKeyFamily._();
+
+/// 跑一次 GhostKey，按块吐出证据。
+
+final class RunGhostKeyProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<GhostKeyOutcome>,
+          GhostKeyOutcome,
+          Stream<GhostKeyOutcome>
+        >
+    with $FutureModifier<GhostKeyOutcome>, $StreamProvider<GhostKeyOutcome> {
+  /// 跑一次 GhostKey，按块吐出证据。
+  const RunGhostKeyProvider._({
+    required RunGhostKeyFamily super.from,
+    required RootManager? super.argument,
+  }) : super(
+         retry: null,
+         name: r'runGhostKeyProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$runGhostKeyHash();
+
+  @override
+  String toString() {
+    return r'runGhostKeyProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<GhostKeyOutcome> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<GhostKeyOutcome> create(Ref ref) {
+    final argument = this.argument as RootManager?;
+    return runGhostKey(ref, manager: argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is RunGhostKeyProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$runGhostKeyHash() => r'43cf80ac90026f3cb97df96e8c171575badb7639';
+
+/// 跑一次 GhostKey，按块吐出证据。
+
+final class RunGhostKeyFamily extends $Family
+    with $FunctionalFamilyOverride<Stream<GhostKeyOutcome>, RootManager?> {
+  const RunGhostKeyFamily._()
+    : super(
+        retry: null,
+        name: r'runGhostKeyProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// 跑一次 GhostKey，按块吐出证据。
+
+  RunGhostKeyProvider call({RootManager? manager}) =>
+      RunGhostKeyProvider._(argument: manager, from: this);
+
+  @override
+  String toString() => r'runGhostKeyProvider';
+}

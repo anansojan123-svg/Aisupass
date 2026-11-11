@@ -20,3 +20,32 @@ String escalationReasonLabel(String code, AppLocalizations l10n) =>
 
 /// 退出码行。负数是「没取到」，不是真实退出码。
 String escalationExitTag(int code) => code < 0 ? 'exit --' : 'exit $code';
+
+/// GhostKey 拒绝受理的原因码 → 「文案（码）」；未识别的码原样返回。
+String ghostKeyNotStartedReason(AppLocalizations l10n, String code) =>
+    _withCode(l10n, code, switch (code) {
+      'alreadyRunning' => l10n.escalationGhostKeyReasonAlreadyRunning,
+      'noAdb' => l10n.escalationGhostKeyReasonNoAdb,
+      'notShell' => l10n.escalationGhostKeyReasonNotShell,
+      'seccompFiltered' => l10n.escalationGhostKeyReasonSeccomp,
+      'missingBinary' => l10n.escalationGhostKeyReasonMissingBinary,
+      'noProfile' => l10n.escalationGhostKeyReasonNoProfile,
+      'badRequest' => l10n.escalationGhostKeyReasonBadRequest,
+      _ => null,
+    });
+
+/// DirtyFrag 拒绝受理的原因码 → 「文案（码）」；未识别的码原样返回。
+String dirtyFragNotStartedReason(AppLocalizations l10n, String code) =>
+    _withCode(l10n, code, switch (code) {
+      'alreadyArmed' => l10n.escalationDirtyFragReasonAlreadyArmed,
+      'busy' => l10n.escalationDirtyFragReasonBusy,
+      'noIpSec' => l10n.escalationDirtyFragReasonNoIpSec,
+      'missingBinary' => l10n.escalationDirtyFragReasonMissingBinary,
+      'stagingFailed' => l10n.escalationDirtyFragReasonStagingFailed,
+      'badRequest' => l10n.escalationDirtyFragReasonBadRequest,
+      _ => null,
+    });
+
+/// 码留在文案后面，出问题时还能对照原生日志。
+String _withCode(AppLocalizations l10n, String code, String? label) =>
+    label == null ? code : l10n.escalationReasonWithCode(label, code);

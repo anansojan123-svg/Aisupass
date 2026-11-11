@@ -13,6 +13,9 @@ enum HandoffKind {
   /// 管理器没装：`/data/app` 下没有该包名的 `libksud.so`。
   managerMissing,
 
+  /// 设备上没有 su：载荷还没跑，或跑完没拿到临时 root。
+  noSu,
+
   /// 命令跑了但失败。
   failed,
 }

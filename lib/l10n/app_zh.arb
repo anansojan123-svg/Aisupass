@@ -829,7 +829,11 @@
       }
     }
   },
-  "escalationHandoffFailed": "移交失败（退出码 {code}）。常见原因：管理器版本与内核模块不匹配、授权被拒绝，或管理器正在升级。",
+  "escalationHandoffNoSu": "设备上没有 su，先跑提权拿到临时 root 再移交。",
+  "@escalationHandoffNoSu": {
+    "description": "手动提权页-移交时设备没有 su"
+  },
+  "escalationHandoffFailed": "移交失败（退出码 {code}）",
   "@escalationHandoffFailed": {
     "description": "手动提权页-移交失败：带上退出码",
     "placeholders": {
@@ -838,7 +842,7 @@
       }
     }
   },
-  "escalationHandoffFailedNoCode": "移交失败：命令没跑起来，没拿到退出码。检查授权框是否被拒绝，或管理器是否在升级。",
+  "escalationHandoffFailedNoCode": "移交失败：命令没跑起来，没拿到退出码。",
   "@escalationHandoffFailedNoCode": {
     "description": "手动提权页-移交失败但没有退出码"
   },
@@ -1067,9 +1071,9 @@
   "@escalationDirtyFragTimedOut": {
     "description": "超时时的结论"
   },
-  "escalationDirtyFragNotStarted": "原生侧未受理，原因码：{reason}",
+  "escalationDirtyFragNotStarted": "原生侧未受理：{reason}",
   "@escalationDirtyFragNotStarted": {
-    "description": "原生拒绝受理时的结论；reason 是契约里的技术标识，不做翻译",
+    "description": "原生拒绝受理时的结论；reason 是「文案（码）」",
     "placeholders": {
       "reason": {
         "type": "String"
@@ -1130,6 +1134,274 @@
         "type": "String"
       }
     }
+  },
+  "escalationGhostKeyTitle": "GhostKey 提权",
+  "@escalationGhostKeyTitle": {
+    "description": "提权菜单里的 GhostKey 菜单项"
+  },
+  "escalationGhostKeyRunning": "开始 GhostKey 提权{manager}",
+  "@escalationGhostKeyRunning": {
+    "description": "GhostKey 开跑提示；manager 为空时是空串",
+    "placeholders": {
+      "manager": {
+        "type": "String"
+      }
+    }
+  },
+  "escalationGhostKeyNoAdb": "adb 未连接",
+  "@escalationGhostKeyNoAdb": {
+    "description": "GhostKey 前置检查：adb 未连接"
+  },
+  "escalationGhostKeySucceeded": "GhostKey 完成，临时 root 已就绪{manager}",
+  "@escalationGhostKeySucceeded": {
+    "description": "GhostKey 成功的结论行；manager 为空时是空串",
+    "placeholders": {
+      "manager": {
+        "type": "String"
+      }
+    }
+  },
+  "escalationGhostKeyDegraded": "GhostKey 完成，但线性映射置信度偏低",
+  "@escalationGhostKeyDegraded": {
+    "description": "GhostKey 降级成功的结论行"
+  },
+  "escalationGhostKeyCalibFailed": "KASLR slide 校准失败",
+  "@escalationGhostKeyCalibFailed": {
+    "description": "GhostKey calib_a 失败"
+  },
+  "escalationGhostKeyPageOffsetFailed": "线性映射基址校准失败",
+  "@escalationGhostKeyPageOffsetFailed": {
+    "description": "GhostKey calib_b 失败"
+  },
+  "escalationGhostKeyInjectFailed": "注入失败：rootd 未就绪",
+  "@escalationGhostKeyInjectFailed": {
+    "description": "GhostKey 注入阶段失败"
+  },
+  "escalationGhostKeyVerifyFailed": "临时 root 通道校验失败",
+  "@escalationGhostKeyVerifyFailed": {
+    "description": "GhostKey verify 阶段失败"
+  },
+  "escalationGhostKeyKsuFailed": "临时 root 已就绪，KernelSU 接管失败",
+  "@escalationGhostKeyKsuFailed": {
+    "description": "GhostKey 成功但 KSU 阶段失败"
+  },
+  "escalationGhostKeyTimedOut": "GhostKey 超时",
+  "@escalationGhostKeyTimedOut": {
+    "description": "GhostKey 会话超时或被取消"
+  },
+  "escalationGhostKeyNotStarted": "GhostKey 未启动：{reason}",
+  "@escalationGhostKeyNotStarted": {
+    "description": "GhostKey 被原生拒绝受理；reason 是原因码",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "escalationGhostKeyReasonAlreadyRunning": "已有任务在运行",
+  "@escalationGhostKeyReasonAlreadyRunning": {
+    "description": "原因码 alreadyRunning"
+  },
+  "escalationGhostKeyReasonNoAdb": "ADB 未连接",
+  "@escalationGhostKeyReasonNoAdb": {
+    "description": "原因码 noAdb"
+  },
+  "escalationGhostKeyReasonNotShell": "shell 身份不是 2000",
+  "@escalationGhostKeyReasonNotShell": {
+    "description": "原因码 notShell"
+  },
+  "escalationGhostKeyReasonSeccomp": "shell 带 seccomp 过滤",
+  "@escalationGhostKeyReasonSeccomp": {
+    "description": "原因码 seccompFiltered"
+  },
+  "escalationGhostKeyReasonMissingBinary": "载荷文件缺失",
+  "@escalationGhostKeyReasonMissingBinary": {
+    "description": "原因码 missingBinary"
+  },
+  "escalationGhostKeyReasonNoProfile": "当前内核版本没有对应 profile",
+  "@escalationGhostKeyReasonNoProfile": {
+    "description": "原因码 noProfile"
+  },
+  "escalationGhostKeyReasonBadRequest": "请求参数不合法",
+  "@escalationGhostKeyReasonBadRequest": {
+    "description": "原因码 badRequest"
+  },
+  "escalationReasonWithCode": "{label}（{code}）",
+  "@escalationReasonWithCode": {
+    "description": "原因码展示：可读文案后保留原始码，便于对照原生日志",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "escalationDirtyFragReasonAlreadyArmed": "已有驻留标记",
+  "@escalationDirtyFragReasonAlreadyArmed": {
+    "description": "原因码 alreadyArmed"
+  },
+  "escalationDirtyFragReasonBusy": "有任务正在运行",
+  "@escalationDirtyFragReasonBusy": {
+    "description": "原因码 busy"
+  },
+  "escalationDirtyFragReasonNoIpSec": "系统没有 IpSec 服务",
+  "@escalationDirtyFragReasonNoIpSec": {
+    "description": "原因码 noIpSec"
+  },
+  "escalationDirtyFragReasonMissingBinary": "管理器或载荷文件缺失",
+  "@escalationDirtyFragReasonMissingBinary": {
+    "description": "原因码 missingBinary"
+  },
+  "escalationDirtyFragReasonStagingFailed": "落位或启动失败",
+  "@escalationDirtyFragReasonStagingFailed": {
+    "description": "原因码 stagingFailed"
+  },
+  "escalationDirtyFragReasonBadRequest": "请求参数不合法",
+  "@escalationDirtyFragReasonBadRequest": {
+    "description": "原因码 badRequest"
+  },
+  "escalationGhostKeyFailed": "GhostKey 失败",
+  "@escalationGhostKeyFailed": {
+    "description": "GhostKey 兜底失败结论"
+  },
+  "escalationGhostKeyConfirmTitle": "确认 GhostKey 提权",
+  "@escalationGhostKeyConfirmTitle": {
+    "description": "GhostKey 确认弹窗标题"
+  },
+  "escalationGhostKeyConfirmRisk": "该操作会校准内核映射并注入 rootd，过程中设备可能短暂不可用。",
+  "@escalationGhostKeyConfirmRisk": {
+    "description": "GhostKey 确认弹窗的风险提示"
+  },
+  "escalationGhostKeyConfirmRun": "开始提权",
+  "@escalationGhostKeyConfirmRun": {
+    "description": "GhostKey 确认弹窗的确认按钮"
+  },
+  "escalationGhostKeyFieldManager": "管理器",
+  "@escalationGhostKeyFieldManager": {
+    "description": "GhostKey 确认弹窗：管理器字段"
+  },
+  "escalationGhostKeyFieldRelease": "内核版本",
+  "@escalationGhostKeyFieldRelease": {
+    "description": "GhostKey 确认弹窗：内核版本字段"
+  },
+  "escalationGhostKeyFieldShellUid": "shell uid",
+  "@escalationGhostKeyFieldShellUid": {
+    "description": "GhostKey 确认弹窗：shell uid 字段"
+  },
+  "escalationGhostKeyFieldSeccomp": "seccomp",
+  "@escalationGhostKeyFieldSeccomp": {
+    "description": "GhostKey 确认弹窗：seccomp 字段"
+  },
+  "escalationGhostKeyFieldProfile": "profile 命中",
+  "@escalationGhostKeyFieldProfile": {
+    "description": "GhostKey 确认弹窗：profile 命中字段"
+  },
+  "escalationGhostKeyFieldRunKsu": "接管 KSU",
+  "@escalationGhostKeyFieldRunKsu": {
+    "description": "GhostKey 确认弹窗：是否接管 KSU"
+  },
+  "escalationGhostKeyFieldFallback": "接受降级偏移",
+  "@escalationGhostKeyFieldFallback": {
+    "description": "GhostKey 确认弹窗：是否接受 fallback"
+  },
+  "escalationGhostKeyValueUnknown": "未知",
+  "@escalationGhostKeyValueUnknown": {
+    "description": "GhostKey 弹窗：取不到的值"
+  },
+  "escalationGhostKeyValueNone": "未选择",
+  "@escalationGhostKeyValueNone": {
+    "description": "GhostKey 弹窗：未选择管理器"
+  },
+  "escalationGhostKeyValueYes": "是",
+  "@escalationGhostKeyValueYes": {
+    "description": "GhostKey 弹窗：布尔值「是」"
+  },
+  "escalationGhostKeyValueNo": "否",
+  "@escalationGhostKeyValueNo": {
+    "description": "GhostKey 弹窗：布尔值「否」"
+  },
+  "escalationGhostKeyToggleOn": "开",
+  "@escalationGhostKeyToggleOn": {
+    "description": "GhostKey 弹窗：开关为开"
+  },
+  "escalationGhostKeyToggleOff": "关",
+  "@escalationGhostKeyToggleOff": {
+    "description": "GhostKey 弹窗：开关为关"
+  },
+  "escalationGhostKeyProgressTitle": "进度",
+  "@escalationGhostKeyProgressTitle": {
+    "description": "GhostKey 进度面板标题"
+  },
+  "escalationGhostKeyDurationSeconds": "{seconds} s",
+  "@escalationGhostKeyDurationSeconds": {
+    "description": "GhostKey 阶段耗时；seconds 是已格式化的一位小数",
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "escalationGhostKeyStageCalibAName": "KASLR slide 校准",
+  "@escalationGhostKeyStageCalibAName": {
+    "description": "阶段名：calib_a"
+  },
+  "escalationGhostKeyStageCalibBName": "线性映射校准",
+  "@escalationGhostKeyStageCalibBName": {
+    "description": "阶段名：calib_b"
+  },
+  "escalationGhostKeyStageInjectName": "注入 rootd",
+  "@escalationGhostKeyStageInjectName": {
+    "description": "阶段名：inject"
+  },
+  "escalationGhostKeyStageVerifyName": "校验临时 root",
+  "@escalationGhostKeyStageVerifyName": {
+    "description": "阶段名：verify"
+  },
+  "escalationGhostKeyStageKsuName": "接管 KernelSU",
+  "@escalationGhostKeyStageKsuName": {
+    "description": "阶段名：ksu"
+  },
+  "escalationGhostKeyStageCalibAHint": "定位内核基址",
+  "@escalationGhostKeyStageCalibAHint": {
+    "description": "阶段进行中提示：calib_a"
+  },
+  "escalationGhostKeyStageCalibBHint": "校准线性映射",
+  "@escalationGhostKeyStageCalibBHint": {
+    "description": "阶段进行中提示：calib_b"
+  },
+  "escalationGhostKeyStageInjectHint": "注入并启动 rootd",
+  "@escalationGhostKeyStageInjectHint": {
+    "description": "阶段进行中提示：inject"
+  },
+  "escalationGhostKeyStageVerifyHint": "校验 root 通道",
+  "@escalationGhostKeyStageVerifyHint": {
+    "description": "阶段进行中提示：verify"
+  },
+  "escalationGhostKeyStageKsuHint": "移交 KernelSU",
+  "@escalationGhostKeyStageKsuHint": {
+    "description": "阶段进行中提示：ksu"
+  },
+  "settingsGhostKeySection": "GhostKey",
+  "@settingsGhostKeySection": {
+    "description": "设置页 GhostKey 分组的小标题"
+  },
+  "settingsGhostKeyRunKsuTitle": "接管 KernelSU",
+  "@settingsGhostKeyRunKsuTitle": {
+    "description": "设置页：是否在末段接管 KernelSU"
+  },
+  "settingsGhostKeyRunKsuDesc": "提权完成后自动把内核能力移交给 KernelSU",
+  "@settingsGhostKeyRunKsuDesc": {
+    "description": "设置页：接管 KernelSU 的说明"
+  },
+  "settingsGhostKeyAcceptFallbackTitle": "接受降级偏移",
+  "@settingsGhostKeyAcceptFallbackTitle": {
+    "description": "设置页：是否接受 calib_b 的 fallback"
+  },
+  "settingsGhostKeyAcceptFallbackDesc": "线性映射置信度偏低时继续注入，不中止",
+  "@settingsGhostKeyAcceptFallbackDesc": {
+    "description": "设置页：接受降级偏移的说明"
   },
   "settingsBootAutostartSection": "提权",
   "@settingsBootAutostartSection": {
@@ -1352,5 +1624,741 @@
         "type": "String"
       }
     }
+  },
+  "kernelProfileTitle": "内核 profile",
+  "@kernelProfileTitle": {
+    "description": "内核 profile 页面与设置入口的标题"
+  },
+  "kernelProfileEntrySubtitle": "从 boot.img 生成本机内核参数",
+  "@kernelProfileEntrySubtitle": {
+    "description": "设置页内核 profile 入口的副标题"
+  },
+  "kernelProfilePageDesc": "本机内核不在内置表里时，用本机的 boot.img 生成 profile。生成的 profile 只保存在本应用私有目录。",
+  "@kernelProfilePageDesc": {
+    "description": "内核 profile 页面的说明文字"
+  },
+  "kernelProfileImportAction": "选择 boot.img",
+  "@kernelProfileImportAction": {
+    "description": "选择 boot.img 的按钮"
+  },
+  "kernelProfileImportUrlHint": "OTA 链接（HTTP/HTTPS）",
+  "@kernelProfileImportUrlHint": {
+    "description": "OTA 链接输入框的提示文字"
+  },
+  "kernelProfileImportUrlAction": "从链接导入",
+  "@kernelProfileImportUrlAction": {
+    "description": "按输入的 OTA 链接下载并生成 profile 的按钮"
+  },
+  "kernelProfileBtfHint": "需要带 BTF 调试信息的内核，第三方 ROM 或老机型可能取不到结构偏移",
+  "@kernelProfileBtfHint": {
+    "description": "OTA 链接输入框下方的提示：必须导入带 BTF 的内核镜像"
+  },
+  "kernelProfilePasteExample": "粘贴示例",
+  "@kernelProfilePasteExample": {
+    "description": "把已知可用的示例 OTA 链接填进输入框"
+  },
+  "kernelProfileWhyBtfTitle": "为什么需要 BTF？",
+  "@kernelProfileWhyBtfTitle": {
+    "description": "BTF 说明弹窗标题"
+  },
+  "kernelProfileWhyBtfBody": "生成的 profile 靠 struct cred 各字段的字节偏移来伪造凭据，而这些偏移随内核版本变化，不能写死。\n\n内核镜像若带 BTF（编译开关 CONFIG_DEBUG_INFO_BTF），就能直接从镜像读出 task_struct、cred 的真实布局；没有 BTF 就取不到 task_cred、task_struct_size、cred_uid，profile 生成不了。\n\n另外链接必须支持 HTTP Range（分段下载），否则无法只取 boot 分区。厂商原厂 OTA 和 Pixel 等 GKI 机型一般两者都满足。",
+  "@kernelProfileWhyBtfBody": {
+    "description": "BTF 说明弹窗正文：解释原理与链接要求"
+  },
+  "kernelProfileDialogClose": "知道了",
+  "@kernelProfileDialogClose": {
+    "description": "说明弹窗的关闭按钮"
+  },
+  "otaCatalogBrowseAction": "历史版本",
+  "@otaCatalogBrowseAction": {
+    "description": "打开历史 OTA 清单弹窗的按钮"
+  },
+  "otaCatalogTitle": "历史 OTA 包",
+  "@otaCatalogTitle": {
+    "description": "历史 OTA 清单弹窗标题"
+  },
+  "otaCatalogSearchHint": "搜索机型或版本号",
+  "@otaCatalogSearchHint": {
+    "description": "历史 OTA 清单的搜索框提示"
+  },
+  "otaCatalogPickHint": "点任意版本，把直链填进上面的输入框",
+  "@otaCatalogPickHint": {
+    "description": "历史 OTA 清单的使用说明"
+  },
+  "otaCatalogEmpty": "没有匹配的机型或版本",
+  "@otaCatalogEmpty": {
+    "description": "历史 OTA 清单搜索无结果"
+  },
+  "otaCatalogVersionCount": "{count} 个版本",
+  "@otaCatalogVersionCount": {
+    "description": "机型分组右侧的版本数量",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "otaCatalogBrandGoogle": "Google",
+  "@otaCatalogBrandGoogle": {
+    "description": "历史 OTA 清单的 Google 品牌标签"
+  },
+  "otaCatalogBrandRealme": "realme",
+  "@otaCatalogBrandRealme": {
+    "description": "历史 OTA 清单的 realme 品牌标签"
+  },
+  "kernelProfileDetailTitle": "内核参数详情",
+  "@kernelProfileDetailTitle": {
+    "description": "已导入 profile 详情弹窗标题"
+  },
+  "kernelProfileDetailOverview": "基本信息",
+  "@kernelProfileDetailOverview": {
+    "description": "详情弹窗的概览分区标题"
+  },
+  "kernelProfileDetailOffsets": "结构偏移",
+  "@kernelProfileDetailOffsets": {
+    "description": "详情弹窗的偏移量分区标题"
+  },
+  "kernelProfileDetailRaw": "原始配置",
+  "@kernelProfileDetailRaw": {
+    "description": "详情弹窗的原始 HOCON 分区标题"
+  },
+  "kernelProfileDetailVulnType": "漏洞类型",
+  "@kernelProfileDetailVulnType": {
+    "description": "概览里的漏洞类型字段名"
+  },
+  "kernelProfileDetailPageOffset": "页偏移",
+  "@kernelProfileDetailPageOffset": {
+    "description": "概览里的内核页偏移字段名"
+  },
+  "kernelProfileDetailSource": "导入来源",
+  "@kernelProfileDetailSource": {
+    "description": "概览里的导入来源字段名"
+  },
+  "kernelProfileDetailCopy": "复制",
+  "@kernelProfileDetailCopy": {
+    "description": "复制原始配置的按钮"
+  },
+  "kernelProfileDetailCopied": "已复制原始配置",
+  "@kernelProfileDetailCopied": {
+    "description": "复制成功后的提示"
+  },
+  "kernelProfileDetailEmpty": "读取不到内容，文件可能已被删除",
+  "@kernelProfileDetailEmpty": {
+    "description": "profile 文件读不到时的提示"
+  },
+  "kernelProfilePhaseLocate": "定位 OTA 包",
+  "@kernelProfilePhaseLocate": {
+    "description": "导入阶段 0：连接服务器并定位 payload.bin"
+  },
+  "kernelProfilePhaseRead": "下载镜像",
+  "@kernelProfilePhaseRead": {
+    "description": "导入阶段 1：读取本地镜像或从链接下载分区数据"
+  },
+  "kernelProfileBytesProgress": "{done} / {total}",
+  "@kernelProfileBytesProgress": {
+    "description": "下载相位的字节进度",
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "kernelProfilePhaseParse": "解析内核",
+  "@kernelProfilePhaseParse": {
+    "description": "导入阶段 2：解析内核"
+  },
+  "kernelProfilePhaseSave": "写入 profile",
+  "@kernelProfilePhaseSave": {
+    "description": "导入阶段 3：写入 profile"
+  },
+  "kernelProfilePhaseDone": "完成",
+  "@kernelProfilePhaseDone": {
+    "description": "导入阶段 4：全部结束"
+  },
+  "kernelProfileImportSuccess": "已生成 profile：{release}",
+  "@kernelProfileImportSuccess": {
+    "description": "导入成功提示；release 是内核版本串，不翻译",
+    "placeholders": {
+      "release": {
+        "type": "String"
+      }
+    }
+  },
+  "kernelProfileImportFailed": "导入失败",
+  "@kernelProfileImportFailed": {
+    "description": "导入失败的标题"
+  },
+  "kernelProfileMissingFields": "缺少必填字段：{fields}",
+  "@kernelProfileMissingFields": {
+    "description": "导入结果缺字段提示；fields 是字段路径列表",
+    "placeholders": {
+      "fields": {
+        "type": "String"
+      }
+    }
+  },
+  "kernelProfileImportedSection": "已导入的 profile",
+  "@kernelProfileImportedSection": {
+    "description": "已导入 profile 列表的小标题"
+  },
+  "kernelProfileImportedEmpty": "还没有导入过 profile",
+  "@kernelProfileImportedEmpty": {
+    "description": "已导入 profile 列表的空态"
+  },
+  "kernelProfileRemove": "删除",
+  "@kernelProfileRemove": {
+    "description": "删除 profile 的按钮与提示"
+  },
+  "kernelProfileRemoveConfirmTitle": "删除这份 profile？",
+  "@kernelProfileRemoveConfirmTitle": {
+    "description": "删除 profile 的确认弹窗标题"
+  },
+  "kernelProfileRemoveConfirmBody": "{release} 将被删除。本机若没有其它匹配的 profile，需要重新导入。",
+  "@kernelProfileRemoveConfirmBody": {
+    "description": "删除 profile 的确认弹窗正文；release 不翻译",
+    "placeholders": {
+      "release": {
+        "type": "String"
+      }
+    }
+  },
+  "kernelProfileErrorEmptyPath": "没有拿到文件路径",
+  "@kernelProfileErrorEmptyPath": {
+    "description": "导入错误：路径为空"
+  },
+  "kernelProfileErrorNotFound": "文件不存在或不可读",
+  "@kernelProfileErrorNotFound": {
+    "description": "导入错误：文件不存在"
+  },
+  "kernelProfileErrorTooLarge": "文件过大，无法解析",
+  "@kernelProfileErrorTooLarge": {
+    "description": "导入错误：文件超过上限"
+  },
+  "kernelProfileErrorNotBootImage": "这不是一个 boot.img",
+  "@kernelProfileErrorNotBootImage": {
+    "description": "导入错误：魔数不符"
+  },
+  "kernelProfileErrorDecode": "解压内核失败",
+  "@kernelProfileErrorDecode": {
+    "description": "导入错误：内核解码失败"
+  },
+  "kernelProfileErrorIncomplete": "解析结果不完整，未保存",
+  "@kernelProfileErrorIncomplete": {
+    "description": "导入错误：必填字段缺失"
+  },
+  "kernelProfileErrorIo": "读写文件失败",
+  "@kernelProfileErrorIo": {
+    "description": "导入错误：文件读写失败"
+  },
+  "kernelProfileErrorNoBtf": "这个 ROM 的内核不含 BTF 调试信息，无法推导结构偏移",
+  "@kernelProfileErrorNoBtf": {
+    "description": "导入错误：内核镜像里没有 BTF 段，通常是 ROM 编译时未开启 CONFIG_DEBUG_INFO_BTF"
+  },
+  "kernelProfileErrorBadUrl": "链接无效，需要 HTTP 或 HTTPS 地址",
+  "@kernelProfileErrorBadUrl": {
+    "description": "导入错误：OTA 链接不是 HTTP/HTTPS"
+  },
+  "kernelProfileErrorDownload": "下载或解包 OTA 失败",
+  "@kernelProfileErrorDownload": {
+    "description": "导入错误：远端下载或 payload 解包失败"
+  },
+  "kernelProfileErrorDetail": "详情：{detail}",
+  "@kernelProfileErrorDetail": {
+    "description": "导入错误追加的原始错误详情；detail 是原生侧异常类名与消息，不翻译",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "kernelProfileErrorOom": "内存不足，解析中断",
+  "@kernelProfileErrorOom": {
+    "description": "导入错误：内存不足"
+  },
+  "kernelProfileErrorUnknown": "未知错误",
+  "@kernelProfileErrorUnknown": {
+    "description": "导入错误：未归类的异常"
+  },
+  "ghostKeyRunResultRunning": "进行中",
+  "@ghostKeyRunResultRunning": {
+    "description": "运行记录结果标签：进行中"
+  },
+  "ghostKeyRunResultSuccess": "成功",
+  "@ghostKeyRunResultSuccess": {
+    "description": "运行记录结果标签：成功"
+  },
+  "ghostKeyRunResultFailed": "失败",
+  "@ghostKeyRunResultFailed": {
+    "description": "运行记录结果标签：失败"
+  },
+  "ghostKeyRunResultStopped": "已停止",
+  "@ghostKeyRunResultStopped": {
+    "description": "运行记录结果标签：已停止"
+  },
+  "ghostKeyRunResultInterrupted": "中断",
+  "@ghostKeyRunResultInterrupted": {
+    "description": "运行记录结果标签：中断"
+  },
+  "ghostKeyDurationSeconds": "{seconds}秒",
+  "@ghostKeyDurationSeconds": {
+    "description": "时长格式：秒；seconds 是整数",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "ghostKeyDurationMinutesSeconds": "{minutes}分{seconds}秒",
+  "@ghostKeyDurationMinutesSeconds": {
+    "description": "时长格式：分秒；minutes 与 seconds 都是整数",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "ghostKeyRunLogTitle": "运行记录",
+  "@ghostKeyRunLogTitle": {
+    "description": "运行记录页面与设置入口的标题"
+  },
+  "ghostKeyRunLogEntrySubtitle": "查看历史运行明细与失败诊断",
+  "@ghostKeyRunLogEntrySubtitle": {
+    "description": "设置页运行记录入口的副标题"
+  },
+  "ghostKeyRunLogCount": "共 {count} 次 · 最新在最上",
+  "@ghostKeyRunLogCount": {
+    "description": "运行记录列表首行的条数；count 是整数",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ghostKeyRunLogEmpty": "暂无运行记录",
+  "@ghostKeyRunLogEmpty": {
+    "description": "运行记录列表的空态"
+  },
+  "ghostKeyRunLogExportAll": "导出全部",
+  "@ghostKeyRunLogExportAll": {
+    "description": "导出全部运行记录"
+  },
+  "ghostKeyRunLogExportAllFileName": "run-logs-all.log",
+  "@ghostKeyRunLogExportAllFileName": {
+    "description": "导出全部时的默认文件名"
+  },
+  "ghostKeyRunLogClearAll": "清空全部记录",
+  "@ghostKeyRunLogClearAll": {
+    "description": "清空全部运行记录"
+  },
+  "ghostKeyRunLogCleared": "运行记录已清空",
+  "@ghostKeyRunLogCleared": {
+    "description": "清空后的轻提示"
+  },
+  "ghostKeyRunLogDetailTitle": "运行 #{runId}",
+  "@ghostKeyRunLogDetailTitle": {
+    "description": "详情页标题；runId 是整数",
+    "placeholders": {
+      "runId": {
+        "type": "int"
+      }
+    }
+  },
+  "ghostKeyRunLogCopy": "复制",
+  "@ghostKeyRunLogCopy": {
+    "description": "复制日志正文"
+  },
+  "ghostKeyRunLogCopied": "已复制到剪贴板",
+  "@ghostKeyRunLogCopied": {
+    "description": "复制成功的轻提示"
+  },
+  "ghostKeyRunLogSaveAs": "另存为",
+  "@ghostKeyRunLogSaveAs": {
+    "description": "另存为按钮与对话框标题"
+  },
+  "ghostKeyRunLogSaved": "已保存",
+  "@ghostKeyRunLogSaved": {
+    "description": "另存为成功的轻提示"
+  },
+  "ghostKeyRunLogDeleteThis": "删除这一次记录",
+  "@ghostKeyRunLogDeleteThis": {
+    "description": "删除单条运行记录"
+  },
+  "ghostKeyRunLogDiagTitlePrefix": "诊断: {title}",
+  "@ghostKeyRunLogDiagTitlePrefix": {
+    "description": "失败诊断块：标题行前缀",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "ghostKeyRunLogDiagCausePrefix": "可能原因: {cause}",
+  "@ghostKeyRunLogDiagCausePrefix": {
+    "description": "失败诊断块：可能原因行前缀",
+    "placeholders": {
+      "cause": {
+        "type": "String"
+      }
+    }
+  },
+  "ghostKeyRunLogDiagSuggestionPrefix": "建议: {suggestion}",
+  "@ghostKeyRunLogDiagSuggestionPrefix": {
+    "description": "失败诊断块：建议行前缀",
+    "placeholders": {
+      "suggestion": {
+        "type": "String"
+      }
+    }
+  },
+  "ghostKeyDiagCalibANoSlideCandidateTitle": "KASLR 偏移解算失败：候选地址里找不到可信的内核基址",
+  "@ghostKeyDiagCalibANoSlideCandidateTitle": {
+    "description": "失败归因规则 CalibANoSlideCandidate 的标题"
+  },
+  "ghostKeyDiagCalibANoSlideCandidateCause1": "内核刚完成 OTA / 刚重启，运行时布局与 profile 假设不符",
+  "@ghostKeyDiagCalibANoSlideCandidateCause1": {
+    "description": "失败归因规则 CalibANoSlideCandidate 的原因 1"
+  },
+  "ghostKeyDiagCalibANoSlideCandidateCause2": "导入的 profile 与当前内核版本不匹配（boot.img 版本对不上）",
+  "@ghostKeyDiagCalibANoSlideCandidateCause2": {
+    "description": "失败归因规则 CalibANoSlideCandidate 的原因 2"
+  },
+  "ghostKeyDiagCalibANoSlideCandidateCause3": "设备后台负载异常，k_itimer 采样被污染",
+  "@ghostKeyDiagCalibANoSlideCandidateCause3": {
+    "description": "失败归因规则 CalibANoSlideCandidate 的原因 3"
+  },
+  "ghostKeyDiagCalibANoSlideCandidateCause4": "tracefs 采样窗口未抓到任何 k_itimer 记录（SELinux 拦截 / Shizuku 权限不足 / 后台负载过低）",
+  "@ghostKeyDiagCalibANoSlideCandidateCause4": {
+    "description": "失败归因规则 CalibANoSlideCandidate 的原因 4"
+  },
+  "ghostKeyDiagCalibANoSlideCandidateSuggestion1": "重启设备后重试一次",
+  "@ghostKeyDiagCalibANoSlideCandidateSuggestion1": {
+    "description": "失败归因规则 CalibANoSlideCandidate 的建议 1"
+  },
+  "ghostKeyDiagCalibANoSlideCandidateSuggestion2": "确认 profile 对应当前内核版本（设备信息条上的内核版本）",
+  "@ghostKeyDiagCalibANoSlideCandidateSuggestion2": {
+    "description": "失败归因规则 CalibANoSlideCandidate 的建议 2"
+  },
+  "ghostKeyDiagCalibANoSlideCandidateSuggestion3": "若连续失败，请保存运行日志以便排查",
+  "@ghostKeyDiagCalibANoSlideCandidateSuggestion3": {
+    "description": "失败归因规则 CalibANoSlideCandidate 的建议 3"
+  },
+  "ghostKeyDiagCalibANoKitimerRecordsTitle": "KASLR 偏移解算失败：多尺寸探针没采到任何 k_itimer 分配记录",
+  "@ghostKeyDiagCalibANoKitimerRecordsTitle": {
+    "description": "失败归因规则 CalibANoKitimerRecords 的标题"
+  },
+  "ghostKeyDiagCalibANoKitimerRecordsCause1": "tracefs 的 kmem_cache_alloc 事件没被打开（被 SELinux 拦截，或 Shizuku 授权 / 挂载异常）",
+  "@ghostKeyDiagCalibANoKitimerRecordsCause1": {
+    "description": "失败归因规则 CalibANoKitimerRecords 的原因 1"
+  },
+  "ghostKeyDiagCalibANoKitimerRecordsCause2": "本机 k_itimer 结构体尺寸不在候选集 0x108 / 0x100 / 0x110 / 0x118 内，所有尺寸都没匹配到记录",
+  "@ghostKeyDiagCalibANoKitimerRecordsCause2": {
+    "description": "失败归因规则 CalibANoKitimerRecords 的原因 2"
+  },
+  "ghostKeyDiagCalibANoKitimerRecordsCause3": "采样窗口内系统负载过低，定时器调用点未被充分触发",
+  "@ghostKeyDiagCalibANoKitimerRecordsCause3": {
+    "description": "失败归因规则 CalibANoKitimerRecords 的原因 3"
+  },
+  "ghostKeyDiagCalibANoKitimerRecordsSuggestion1": "确认 Shizuku 已授权且 tracefs 可写（设置 → 开发者选项）",
+  "@ghostKeyDiagCalibANoKitimerRecordsSuggestion1": {
+    "description": "失败归因规则 CalibANoKitimerRecords 的建议 1"
+  },
+  "ghostKeyDiagCalibANoKitimerRecordsSuggestion2": "重启设备后重试，让采样在单次开机内完成",
+  "@ghostKeyDiagCalibANoKitimerRecordsSuggestion2": {
+    "description": "失败归因规则 CalibANoKitimerRecords 的建议 2"
+  },
+  "ghostKeyDiagCalibANoKitimerRecordsSuggestion3": "仍失败请保存运行日志（含 [calib_a] 与 arm_kmem_cache_alloc 行）以便排查",
+  "@ghostKeyDiagCalibANoKitimerRecordsSuggestion3": {
+    "description": "失败归因规则 CalibANoKitimerRecords 的建议 3"
+  },
+  "ghostKeyDiagCalibATracefsUnusableTitle": "tracefs 不可用：内核追踪事件挂载/读取失败",
+  "@ghostKeyDiagCalibATracefsUnusableTitle": {
+    "description": "失败归因规则 CalibATracefsUnusable 的标题"
+  },
+  "ghostKeyDiagCalibATracefsUnusableCause1": "SELinux 策略拦截了 tracefs 写入",
+  "@ghostKeyDiagCalibATracefsUnusableCause1": {
+    "description": "失败归因规则 CalibATracefsUnusable 的原因 1"
+  },
+  "ghostKeyDiagCalibATracefsUnusableCause2": "Shizuku 授权异常（未启动或权限被回收）",
+  "@ghostKeyDiagCalibATracefsUnusableCause2": {
+    "description": "失败归因规则 CalibATracefsUnusable 的原因 2"
+  },
+  "ghostKeyDiagCalibATracefsUnusableCause3": "部分 ROM 精简了 tracefs 节点",
+  "@ghostKeyDiagCalibATracefsUnusableCause3": {
+    "description": "失败归因规则 CalibATracefsUnusable 的原因 3"
+  },
+  "ghostKeyDiagCalibATracefsUnusableSuggestion1": "确认 Shizuku 正在运行且已给本应用授权",
+  "@ghostKeyDiagCalibATracefsUnusableSuggestion1": {
+    "description": "失败归因规则 CalibATracefsUnusable 的建议 1"
+  },
+  "ghostKeyDiagCalibATracefsUnusableSuggestion2": "检查开发者选项中 USB 调试（无线调试）是否可用",
+  "@ghostKeyDiagCalibATracefsUnusableSuggestion2": {
+    "description": "失败归因规则 CalibATracefsUnusable 的建议 2"
+  },
+  "ghostKeyDiagCalibATracefsUnusableSuggestion3": "重启 Shizuku 后重试；仍失败请保存日志排查",
+  "@ghostKeyDiagCalibATracefsUnusableSuggestion3": {
+    "description": "失败归因规则 CalibATracefsUnusable 的建议 3"
+  },
+  "ghostKeyDiagCalibBNoMatchingRecordsTitle": "页偏移解算失败：校准 A 得出的基址与实际不符",
+  "@ghostKeyDiagCalibBNoMatchingRecordsTitle": {
+    "description": "失败归因规则 CalibBNoMatchingRecords 的标题"
+  },
+  "ghostKeyDiagCalibBNoMatchingRecordsCause1": "校准 A 的 KASLR slide 不准（上游错误，先解决校准 A）",
+  "@ghostKeyDiagCalibBNoMatchingRecordsCause1": {
+    "description": "失败归因规则 CalibBNoMatchingRecords 的原因 1"
+  },
+  "ghostKeyDiagCalibBNoMatchingRecordsCause2": "两次校准之间内核内存布局发生变化",
+  "@ghostKeyDiagCalibBNoMatchingRecordsCause2": {
+    "description": "失败归因规则 CalibBNoMatchingRecords 的原因 2"
+  },
+  "ghostKeyDiagCalibBNoMatchingRecordsSuggestion1": "重启设备让两次校准在同一次开机状态内完成",
+  "@ghostKeyDiagCalibBNoMatchingRecordsSuggestion1": {
+    "description": "失败归因规则 CalibBNoMatchingRecords 的建议 1"
+  },
+  "ghostKeyDiagCalibBNoMatchingRecordsSuggestion2": "重跑完整流水线（不要单独跳过校准步骤）",
+  "@ghostKeyDiagCalibBNoMatchingRecordsSuggestion2": {
+    "description": "失败归因规则 CalibBNoMatchingRecords 的建议 2"
+  },
+  "ghostKeyDiagCalibBInsufficientSamplesTitle": "采样不足：触发样本太少，无法解算页偏移",
+  "@ghostKeyDiagCalibBInsufficientSamplesTitle": {
+    "description": "失败归因规则 CalibBInsufficientSamples 的标题"
+  },
+  "ghostKeyDiagCalibBInsufficientSamplesCause1": "系统后台负载过低，定时器调用点未被充分触发",
+  "@ghostKeyDiagCalibBInsufficientSamplesCause1": {
+    "description": "失败归因规则 CalibBInsufficientSamples 的原因 1"
+  },
+  "ghostKeyDiagCalibBInsufficientSamplesCause2": "设备刚冷启动，运行时服务还没起来",
+  "@ghostKeyDiagCalibBInsufficientSamplesCause2": {
+    "description": "失败归因规则 CalibBInsufficientSamples 的原因 2"
+  },
+  "ghostKeyDiagCalibBInsufficientSamplesSuggestion1": "让设备处于轻度使用状态（如播放音乐）后再重试",
+  "@ghostKeyDiagCalibBInsufficientSamplesSuggestion1": {
+    "description": "失败归因规则 CalibBInsufficientSamples 的建议 1"
+  },
+  "ghostKeyDiagCalibBInsufficientSamplesSuggestion2": "直接多跑一次，样本量通常第二次更充分",
+  "@ghostKeyDiagCalibBInsufficientSamplesSuggestion2": {
+    "description": "失败归因规则 CalibBInsufficientSamples 的建议 2"
+  },
+  "ghostKeyDiagInjectResidualProcessTitle": "存在上一轮残留进程：残留进程还钉着已释放的页，继续注入会导致内核崩溃",
+  "@ghostKeyDiagInjectResidualProcessTitle": {
+    "description": "失败归因规则 InjectResidualProcess 的标题"
+  },
+  "ghostKeyDiagInjectResidualProcessCause1": "上一轮提权未走完清理步骤（中途强退 / 断电）",
+  "@ghostKeyDiagInjectResidualProcessCause1": {
+    "description": "失败归因规则 InjectResidualProcess 的原因 1"
+  },
+  "ghostKeyDiagInjectResidualProcessSuggestion1": "必须重启设备后再试（杀掉残留进程不解决问题）",
+  "@ghostKeyDiagInjectResidualProcessSuggestion1": {
+    "description": "失败归因规则 InjectResidualProcess 的建议 1"
+  },
+  "ghostKeyDiagInjectRootdNotReadyTitle": "漏洞已触发但 root 通道未建立：rootd 超时未就绪",
+  "@ghostKeyDiagInjectRootdNotReadyTitle": {
+    "description": "失败归因规则 InjectRootdNotReady 的标题"
+  },
+  "ghostKeyDiagInjectRootdNotReadyCause1": "设备内核对该漏洞打了部分回移植补丁，UAF 窗口不稳定",
+  "@ghostKeyDiagInjectRootdNotReadyCause1": {
+    "description": "失败归因规则 InjectRootdNotReady 的原因 1"
+  },
+  "ghostKeyDiagInjectRootdNotReadyCause2": "系统负载导致竞态时序偏差",
+  "@ghostKeyDiagInjectRootdNotReadyCause2": {
+    "description": "失败归因规则 InjectRootdNotReady 的原因 2"
+  },
+  "ghostKeyDiagInjectRootdNotReadySuggestion1": "重启设备后再试 1~2 次",
+  "@ghostKeyDiagInjectRootdNotReadySuggestion1": {
+    "description": "失败归因规则 InjectRootdNotReady 的建议 1"
+  },
+  "ghostKeyDiagInjectRootdNotReadySuggestion2": "若每次都在同一位置超时，内核可能已修复，请记录机型与内核版本以便反馈",
+  "@ghostKeyDiagInjectRootdNotReadySuggestion2": {
+    "description": "失败归因规则 InjectRootdNotReady 的建议 2"
+  },
+  "ghostKeyDiagInjectOffsetTableMissingTitle": "内核偏移表未加载：注入缺少 profile 数据",
+  "@ghostKeyDiagInjectOffsetTableMissingTitle": {
+    "description": "失败归因规则 InjectOffsetTableMissing 的标题"
+  },
+  "ghostKeyDiagInjectOffsetTableMissingCause1": "未导入 / 导入了损坏的 profile 文件",
+  "@ghostKeyDiagInjectOffsetTableMissingCause1": {
+    "description": "失败归因规则 InjectOffsetTableMissing 的原因 1"
+  },
+  "ghostKeyDiagInjectOffsetTableMissingCause2": "profile 与当前内核不匹配被引擎拒绝",
+  "@ghostKeyDiagInjectOffsetTableMissingCause2": {
+    "description": "失败归因规则 InjectOffsetTableMissing 的原因 2"
+  },
+  "ghostKeyDiagInjectOffsetTableMissingSuggestion1": "重新导入对应内核版本的 profile（boot.img 提取）",
+  "@ghostKeyDiagInjectOffsetTableMissingSuggestion1": {
+    "description": "失败归因规则 InjectOffsetTableMissing 的建议 1"
+  },
+  "ghostKeyDiagInjectTaskLeakFailedTitle": "task_struct 地址泄漏失败：扫描窗口内没有匹配到 task_struct 的 slab 分配记录",
+  "@ghostKeyDiagInjectTaskLeakFailedTitle": {
+    "description": "失败归因规则 InjectTaskLeakFailed 的标题"
+  },
+  "ghostKeyDiagInjectTaskLeakFailedCause1": "task_struct 缓存尺寸与 BTF 的 sizeof(task_struct) 不一致：缓存由 kmem_cache_create_usercopy(\"task_struct\", arch_task_struct_size, 0x40, ...) 创建，arch_task_struct_size 是运行时变量，厂商可用 android_arch_task_struct_size= 在其上追加（最多 0x400）",
+  "@ghostKeyDiagInjectTaskLeakFailedCause1": {
+    "description": "失败归因规则 InjectTaskLeakFailed 的原因 1"
+  },
+  "ghostKeyDiagInjectTaskLeakFailedCause2": "kmem_cache_alloc 事件未被打开（tracefs 不可写 / SELinux 拒绝）",
+  "@ghostKeyDiagInjectTaskLeakFailedCause2": {
+    "description": "失败归因规则 InjectTaskLeakFailed 的原因 2"
+  },
+  "ghostKeyDiagInjectTaskLeakFailedCause3": "fork 落在未被读取的 CPU 上（按实际核数扫描，理论上不会）",
+  "@ghostKeyDiagInjectTaskLeakFailedCause3": {
+    "description": "失败归因规则 InjectTaskLeakFailed 的原因 3"
+  },
+  "ghostKeyDiagInjectTaskLeakFailedSuggestion1": "更新到本修复之后的版本重试（尺寸匹配已改为 [sizeof, sizeof+0x400] 窗口，兼容厂商扩展）",
+  "@ghostKeyDiagInjectTaskLeakFailedSuggestion1": {
+    "description": "失败归因规则 InjectTaskLeakFailed 的建议 1"
+  },
+  "ghostKeyDiagInjectTaskLeakFailedSuggestion2": "日志里 [task] raw=0 说明是事件没开；raw>0 但 hits=0 则是尺寸窗口不对，请把 [task] sizes= 那行保存下来以便排查",
+  "@ghostKeyDiagInjectTaskLeakFailedSuggestion2": {
+    "description": "失败归因规则 InjectTaskLeakFailed 的建议 2"
+  },
+  "ghostKeyDiagVerifyFailedTitle": "临时 root 验证失败：提权通道建立后 su 校验未通过",
+  "@ghostKeyDiagVerifyFailedTitle": {
+    "description": "失败归因规则 VerifyFailed 的标题"
+  },
+  "ghostKeyDiagVerifyFailedCause1": "注入阶段的凭据改写不完整（上游竞态部分成功）",
+  "@ghostKeyDiagVerifyFailedCause1": {
+    "description": "失败归因规则 VerifyFailed 的原因 1"
+  },
+  "ghostKeyDiagVerifyFailedCause2": "验证子进程被 SELinux 或系统策略拦截",
+  "@ghostKeyDiagVerifyFailedCause2": {
+    "description": "失败归因规则 VerifyFailed 的原因 2"
+  },
+  "ghostKeyDiagVerifyFailedSuggestion1": "重启设备后重试完整流水线",
+  "@ghostKeyDiagVerifyFailedSuggestion1": {
+    "description": "失败归因规则 VerifyFailed 的建议 1"
+  },
+  "ghostKeyDiagVerifyFailedSuggestion2": "检查 SELinux 状态（设置 → 开发者选项），不强制改 Permissive",
+  "@ghostKeyDiagVerifyFailedSuggestion2": {
+    "description": "失败归因规则 VerifyFailed 的建议 2"
+  },
+  "ghostKeyDiagKsuAlreadyLiveTitle": "KernelSU 模块已驻留：旧模块仍在内存，late-load 被跳过",
+  "@ghostKeyDiagKsuAlreadyLiveTitle": {
+    "description": "失败归因规则 KsuAlreadyLive 的标题"
+  },
+  "ghostKeyDiagKsuAlreadyLiveCause1": "上一次提权注入的 kernelsu 模块还活着",
+  "@ghostKeyDiagKsuAlreadyLiveCause1": {
+    "description": "失败归因规则 KsuAlreadyLive 的原因 1"
+  },
+  "ghostKeyDiagKsuAlreadyLiveSuggestion1": "重启设备后再跑一次，管理器才能看到新接管",
+  "@ghostKeyDiagKsuAlreadyLiveSuggestion1": {
+    "description": "失败归因规则 KsuAlreadyLive 的建议 1"
+  },
+  "ghostKeyDiagKsuAlreadyLiveSuggestion2": "若只是想用 root，无需重跑——当前已是临时 root 状态",
+  "@ghostKeyDiagKsuAlreadyLiveSuggestion2": {
+    "description": "失败归因规则 KsuAlreadyLive 的建议 2"
+  },
+  "ghostKeyDiagKsuModuleAbsentTitle": "KSU late-load 失败：模块没有出现在 /proc/modules",
+  "@ghostKeyDiagKsuModuleAbsentTitle": {
+    "description": "失败归因规则 KsuModuleAbsent 的标题"
+  },
+  "ghostKeyDiagKsuModuleAbsentCause1": "设备上的 KernelSU 管理器 / ksud 版本过旧，KMI 不匹配",
+  "@ghostKeyDiagKsuModuleAbsentCause1": {
+    "description": "失败归因规则 KsuModuleAbsent 的原因 1"
+  },
+  "ghostKeyDiagKsuModuleAbsentCause2": "模块加载路径被内核限制",
+  "@ghostKeyDiagKsuModuleAbsentCause2": {
+    "description": "失败归因规则 KsuModuleAbsent 的原因 2"
+  },
+  "ghostKeyDiagKsuModuleAbsentSuggestion1": "更新设备上的 KernelSU 管理器到最新版",
+  "@ghostKeyDiagKsuModuleAbsentSuggestion1": {
+    "description": "失败归因规则 KsuModuleAbsent 的建议 1"
+  },
+  "ghostKeyDiagKsuModuleAbsentSuggestion2": "重试一次；连续失败请保存日志并注明管理器版本",
+  "@ghostKeyDiagKsuModuleAbsentSuggestion2": {
+    "description": "失败归因规则 KsuModuleAbsent 的建议 2"
+  },
+  "ghostKeyDiagKsuKsudMissingTitle": "找不到 ksud：设备上未安装 KernelSU 管理器且内置兜底失效",
+  "@ghostKeyDiagKsuKsudMissingTitle": {
+    "description": "失败归因规则 KsuKsudMissing 的标题"
+  },
+  "ghostKeyDiagKsuKsudMissingCause1": "KernelSU 管理器未安装",
+  "@ghostKeyDiagKsuKsudMissingCause1": {
+    "description": "失败归因规则 KsuKsudMissing 的原因 1"
+  },
+  "ghostKeyDiagKsuKsudMissingCause2": "内置兜底 ksud 与当前架构 / KMI 不兼容",
+  "@ghostKeyDiagKsuKsudMissingCause2": {
+    "description": "失败归因规则 KsuKsudMissing 的原因 2"
+  },
+  "ghostKeyDiagKsuKsudMissingSuggestion1": "先安装 KernelSU 官方管理器，再重跑流水线",
+  "@ghostKeyDiagKsuKsudMissingSuggestion1": {
+    "description": "失败归因规则 KsuKsudMissing 的建议 1"
+  },
+  "ghostKeyDiagHostShizukuUnavailableTitle": "Shizuku 环境异常：宿主进程无法启动提权流水线",
+  "@ghostKeyDiagHostShizukuUnavailableTitle": {
+    "description": "失败归因规则 HostShizukuUnavailable 的标题"
+  },
+  "ghostKeyDiagHostShizukuUnavailableCause1": "Shizuku 服务未启动（未开无线调试或 adb 未连接）",
+  "@ghostKeyDiagHostShizukuUnavailableCause1": {
+    "description": "失败归因规则 HostShizukuUnavailable 的原因 1"
+  },
+  "ghostKeyDiagHostShizukuUnavailableCause2": "用户拒绝了本应用的 Shizuku 授权",
+  "@ghostKeyDiagHostShizukuUnavailableCause2": {
+    "description": "失败归因规则 HostShizukuUnavailable 的原因 2"
+  },
+  "ghostKeyDiagHostShizukuUnavailableSuggestion1": "打开 Shizuku 应用并确保服务运行（无线调试 / adb 两种方式均可）",
+  "@ghostKeyDiagHostShizukuUnavailableSuggestion1": {
+    "description": "失败归因规则 HostShizukuUnavailable 的建议 1"
+  },
+  "ghostKeyDiagHostShizukuUnavailableSuggestion2": "在本应用内重新发起授权并允许",
+  "@ghostKeyDiagHostShizukuUnavailableSuggestion2": {
+    "description": "失败归因规则 HostShizukuUnavailable 的建议 2"
+  },
+  "ghostKeyDiagFallbackExit2Title": "流水线终止（exit=2）：KASLR 偏移解算失败，且未命中任何已知细分模式",
+  "@ghostKeyDiagFallbackExit2Title": {
+    "description": "失败归因规则 FallbackExit2 的标题"
+  },
+  "ghostKeyDiagFallbackExit2Cause1": "校准 A 未能从 k_itimer 采样解出可信内核基址（最常见的失败点）",
+  "@ghostKeyDiagFallbackExit2Cause1": {
+    "description": "失败归因规则 FallbackExit2 的原因 1"
+  },
+  "ghostKeyDiagFallbackExit2Cause2": "当前内核布局与所选 profile 不符（刚 OTA/重启、或 profile 版本对不上，导致 timer_link/cred_link 偏移错误）",
+  "@ghostKeyDiagFallbackExit2Cause2": {
+    "description": "失败归因规则 FallbackExit2 的原因 2"
+  },
+  "ghostKeyDiagFallbackExit2Cause3": "tracefs 采样被环境异常打断（SELinux 拦截 / Shizuku 授权失效 / 系统负载异常）",
+  "@ghostKeyDiagFallbackExit2Cause3": {
+    "description": "失败归因规则 FallbackExit2 的原因 3"
+  },
+  "ghostKeyDiagFallbackExit2Cause4": "或本次失败属于尚未被归因器覆盖的新变体（退出码为 2 但日志串未被规则捕获）",
+  "@ghostKeyDiagFallbackExit2Cause4": {
+    "description": "失败归因规则 FallbackExit2 的原因 4"
+  },
+  "ghostKeyDiagFallbackExit2Suggestion1": "重启设备后重试一次——KASLR 每次开机都不同，重跑通常可解",
+  "@ghostKeyDiagFallbackExit2Suggestion1": {
+    "description": "失败归因规则 FallbackExit2 的建议 1"
+  },
+  "ghostKeyDiagFallbackExit2Suggestion2": "确认运行的是最新构建（1.1.5），且 profile 由本机 boot.img 提取、release 精确匹配当前内核",
+  "@ghostKeyDiagFallbackExit2Suggestion2": {
+    "description": "失败归因规则 FallbackExit2 的建议 2"
+  },
+  "ghostKeyDiagFallbackExit2Suggestion3": "不要只靠重试：请把「运行日志」页完整内容（尤其含 [calib_a] / [calib_b] 的行）保存下来，便于定位内核适配问题",
+  "@ghostKeyDiagFallbackExit2Suggestion3": {
+    "description": "失败归因规则 FallbackExit2 的建议 3"
+  },
+  "ghostKeyDiagFallbackGenericTitle": "流水线终止（exit={exit}）：未命中已知失败模式",
+  "@ghostKeyDiagFallbackGenericTitle": {
+    "description": "失败归因兜底规则的标题；exit 是整数退出码",
+    "placeholders": {
+      "exit": {
+        "type": "int"
+      }
+    }
+  },
+  "ghostKeyDiagFallbackGenericCause1": "时序敏感的竞态窗口未命中，或环境临时异常",
+  "@ghostKeyDiagFallbackGenericCause1": {
+    "description": "失败归因兜底规则的原因 1"
+  },
+  "ghostKeyDiagFallbackGenericSuggestion1": "不要只靠重试：请把「运行日志」页完整内容复制保存，便于定位内核适配问题",
+  "@ghostKeyDiagFallbackGenericSuggestion1": {
+    "description": "失败归因兜底规则的建议 1"
+  },
+  "ghostKeyDiagFallbackGenericSuggestion2": "连续失败请重启设备后再试；仍失败请保存运行日志以便排查",
+  "@ghostKeyDiagFallbackGenericSuggestion2": {
+    "description": "失败归因兜底规则的建议 2"
   }
 }

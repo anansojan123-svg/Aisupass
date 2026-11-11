@@ -5,18 +5,29 @@ import 'dart:io';
 import 'package:Aisupass/core/extensions/context_extensions.dart';
 import 'package:Aisupass/core/providers/adb_shell_provider.dart';
 import 'package:Aisupass/core/utils/escalation_reason.dart';
+import 'package:Aisupass/core/utils/run_log_diagnosis_text.dart';
 import 'package:Aisupass/core/utils/terminal_text_writer.dart';
 import 'package:Aisupass/features/escalation/domain/enums/dirty_frag_kind.dart';
+import 'package:Aisupass/features/escalation/domain/enums/ghost_key_kind.dart';
+import 'package:Aisupass/features/escalation/domain/enums/run_log_result.dart';
 import 'package:Aisupass/features/escalation/domain/models/device_identity.dart';
 import 'package:Aisupass/features/escalation/domain/models/dirty_frag_outcome.dart';
 import 'package:Aisupass/features/escalation/domain/models/dirty_frag_run_defaults.dart';
+import 'package:Aisupass/features/escalation/domain/models/ghost_key_outcome.dart';
+import 'package:Aisupass/features/escalation/domain/models/ghost_key_preflight.dart';
+import 'package:Aisupass/features/escalation/domain/models/ghost_key_run_defaults.dart';
 import 'package:Aisupass/features/escalation/domain/models/handoff_outcome.dart';
 import 'package:Aisupass/features/escalation/domain/models/payload.dart';
 import 'package:Aisupass/features/escalation/domain/models/root_manager.dart';
+import 'package:Aisupass/features/escalation/domain/models/run_log_diagnosis.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/escalation_action_provider.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/escalation_query_provider.dart';
+import 'package:Aisupass/features/escalation/presentation/providers/run_log_action_provider.dart';
+import 'package:Aisupass/features/escalation/presentation/providers/run_log_query_provider.dart';
 import 'package:Aisupass/features/escalation/presentation/widgets/dirty_frag_confirm_dialog.dart';
 import 'package:Aisupass/features/escalation/presentation/widgets/escalation_menu_button.dart';
+import 'package:Aisupass/features/escalation/presentation/widgets/ghost_key_confirm_dialog.dart';
+import 'package:Aisupass/features/escalation/presentation/widgets/ghost_key_progress_panel.dart';
 import 'package:Aisupass/features/escalation/presentation/widgets/payload_catalog_dialog.dart';
 import 'package:Aisupass/features/escalation/presentation/widgets/payload_confirm_dialog.dart';
 import 'package:Aisupass/features/escalation/presentation/widgets/terminal_key_bar.dart';
@@ -119,10 +130,25 @@ class ManualEscalationPage extends HookConsumerWidget {
             ),
           );
 
+    final RootManager? ghostKeyManager = ref
+        .watch(selectedRootManagerProvider)
+        .value;
+    // 用 useState 而非 useRef：开跑前要先等运行日志落盘，这段 await 之后
+    // 必须靠这次状态变化触发重建，才能订阅到 runGhostKeyProvider。
+    final ValueNotifier<bool> ghostKeyStarted = useState<bool>(false);
+    // 08：本轮日志文件名。null = 当前没有在写盘的运行。
+    final ObjectRef<String?> ghostKeyRunFile = useRef<String?>(null);
+    // 08：写盘游标。只把 outcome.output 的新增尾部追加到文件。
+    final ObjectRef<int> ghostKeyLoggedLength = useRef<int>(0);
+    final AsyncValue<GhostKeyOutcome>? ghostKey = !ghostKeyStarted.value
+        ? null
+        : ref.watch(runGhostKeyProvider(manager: ghostKeyManager));
+
     final bool running =
         busy.value ||
         (handoff?.isLoading ?? false) ||
-        (dirtyFrag?.isLoading ?? false);
+        (dirtyFrag?.isLoading ?? false) ||
+        (ghostKey?.isLoading ?? false);
 
     // 招牌要按真实列数挑排版；画好之前到达的输出先攒着，顺序才不会颠倒。
     final ObjectRef<bool> bannerDrawn = useRef<bool>(false);
@@ -379,11 +405,169 @@ class ManualEscalationPage extends HookConsumerWidget {
       dirtyFragOffset.value = override;
       dirtyFragStarted.value = true;
       ref.invalidate(
-        runDirtyFragProvider(
-          manager: manager,
-          vrOffsetOverride: override,
-        ),
+        runDirtyFragProvider(manager: manager, vrOffsetOverride: override),
       );
+    }
+
+    /// 08：开一轮运行日志。失败不阻断提权。
+    Future<void> openGhostKeyRun() async {
+      try {
+        final DeviceIdentity device = await ref.read(
+          currentDeviceIdentityProvider.future,
+        );
+        final meta = await ref
+            .read(runLogActionsProvider)
+            .begin(
+              device: device.model,
+              kernel: device.kernelRelease,
+              profile: '',
+            );
+        ghostKeyRunFile.value = meta.fileName;
+        ghostKeyLoggedLength.value = 0;
+      } catch (_) {
+        ghostKeyRunFile.value = null;
+      }
+    }
+
+    /// 08：终局结果 → 日志结果枚举。
+    RunLogResult resultOfGhostKey(GhostKeyOutcome outcome) {
+      if (outcome.success) return RunLogResult.success;
+      if (outcome.kind == GhostKeyKind.timedOut) {
+        return RunLogResult.interrupted;
+      }
+      return RunLogResult.failed;
+    }
+
+    /// 08：落盘 + 诊断。顺序严格为「写屏 -> 落盘 -> finish」，不可换。
+    Future<void> persistGhostKeyChunk(
+      GhostKeyOutcome outcome,
+      AppLocalizations l10n,
+    ) async {
+      final String? fileName = ghostKeyRunFile.value;
+      if (fileName == null) return;
+      final String full = outcome.output;
+
+      // ① 增量切片 -> 追加到文件。异常静默：落盘失败不影响提权结果。
+      final int logged = ghostKeyLoggedLength.value;
+      if (full.length > logged) {
+        ghostKeyLoggedLength.value = full.length;
+        final String delta = full.substring(logged);
+        final List<String> deltaLines = delta
+            .split('\n')
+            .map((String line) => line.trimRight())
+            .where((String line) => line.isNotEmpty)
+            .toList(growable: false);
+        if (deltaLines.isNotEmpty) {
+          try {
+            await ref
+                .read(runLogActionsProvider)
+                .append(fileName: fileName, lines: deltaLines);
+          } catch (_) {
+            // 静默：日志缺行不影响流水线。
+          }
+        }
+      }
+
+      if (!outcome.isFinal) return;
+
+      // ② 终态且失败 -> 诊断。诊断行必须「先上屏、再落盘」。
+      if (!outcome.success) {
+        try {
+          final RunLogDiagnosis diagnosis = await ref.read(
+            diagnoseRunLogProvider(
+              lines: full.split('\n'),
+              exitCode: outcome.exitCode,
+            ).future,
+          );
+          final List<String> diagnosisLines = diagnosis.lines(l10n);
+          for (final String line in diagnosisLines) {
+            writer.writeLine(line);
+          }
+          try {
+            await ref
+                .read(runLogActionsProvider)
+                .append(fileName: fileName, lines: diagnosisLines);
+          } catch (_) {
+            // 静默
+          }
+        } catch (_) {
+          // 诊断本身失败：只丢诊断块，不能丢 finishRun。
+        }
+      }
+
+      // ③ 收尾。finishRun 必须最后调用。
+      try {
+        await ref
+            .read(runLogActionsProvider)
+            .finish(
+              fileName: fileName,
+              result: resultOfGhostKey(outcome),
+              exitCode: outcome.exitCode,
+              durationMs: outcome.durationMs,
+            );
+      } catch (_) {
+        // 静默
+      } finally {
+        ghostKeyRunFile.value = null;
+        ghostKeyLoggedLength.value = 0;
+      }
+    }
+
+    /// 跑一次 GhostKey。
+    ///
+    /// 与 DirtyFrag 的区别：管理器可以没选（原生自己按 profile 找），不查内核版本
+    /// （支持面由原生 profile 表决定），前置检查全走原生的 `preflight()`。
+    Future<void> startGhostKey() async {
+      if (busy.value) return;
+
+      final GhostKeyPreflight preflight;
+      final GhostKeyRunDefaults defaults;
+      try {
+        preflight = await ref.read(ghostKeyPreflightProvider.future);
+        defaults = await ref.read(ghostKeyRunDefaultsProvider.future);
+      } catch (error) {
+        writer.writeLine(
+          '${l10n.escalationInvokeFailed}：$error',
+          color: TerminalTextWriter.red,
+        );
+        return;
+      }
+
+      // adb 不通是硬拦点：其余五项交给确认弹窗展示，用户自己判断。
+      if (!preflight.adbConnected) {
+        writer.writeLine(
+          l10n.escalationGhostKeyNoAdb,
+          color: TerminalTextWriter.red,
+        );
+        return;
+      }
+
+      final RootManager? manager = ghostKeyManager;
+
+      if (!context.mounted) return;
+      final bool? confirmed = await showGhostKeyConfirmDialog(
+        context,
+        manager: manager,
+        preflight: preflight,
+        defaults: defaults,
+      );
+      if (confirmed != true) return;
+
+      writer.writeLine('');
+      writer.writeLine(
+        l10n.escalationGhostKeyRunning(
+          manager == null ? '' : ' ${manager.displayName}',
+        ),
+        color: TerminalTextWriter.yellow,
+      );
+      ref.invalidate(shellConnectionProvider);
+      // 必须先建好运行日志再起跑：被拒时首块立刻就到，晚一步就没有文件可写，
+      // 记录会永远停在「进行中」。ghostKeyStarted 也要等这之后才翻开，
+      // 否则重建一帧就会先把流订阅起来。
+      await openGhostKeyRun();
+      if (!context.mounted) return;
+      ghostKeyStarted.value = true;
+      ref.invalidate(runGhostKeyProvider(manager: manager));
     }
 
     /// 把终端里选中的文本复制到剪贴板。
@@ -472,6 +656,7 @@ class ManualEscalationPage extends HookConsumerWidget {
                   manager.displayName,
                   manager.packageName,
                 ),
+              HandoffKind.noSu => l10n.escalationHandoffNoSu,
               HandoffKind.failed =>
                 outcome.exitCode < 0
                     ? l10n.escalationHandoffFailedNoCode
@@ -518,7 +703,9 @@ class ManualEscalationPage extends HookConsumerWidget {
           if (!outcome.isFinal) return;
           if (outcome.resolvedVrOffset.isNotEmpty) {
             writer.writeLine(
-              l10n.escalationDirtyFragVrOffsetResolved(outcome.resolvedVrOffset),
+              l10n.escalationDirtyFragVrOffsetResolved(
+                outcome.resolvedVrOffset,
+              ),
               color: TerminalTextWriter.dim,
             );
           }
@@ -527,17 +714,18 @@ class ManualEscalationPage extends HookConsumerWidget {
             DirtyFragKind.succeeded => l10n.escalationDirtyFragSucceeded(
               manager?.displayName ?? '',
             ),
-            DirtyFragKind.notVulnerable => l10n.escalationDirtyFragNotVulnerable,
+            DirtyFragKind.notVulnerable =>
+              l10n.escalationDirtyFragNotVulnerable,
             DirtyFragKind.patchFailed => l10n.escalationDirtyFragPatchFailed,
             DirtyFragKind.vrFailed => l10n.escalationDirtyFragVrFailed,
             DirtyFragKind.bootstrapFailed =>
               l10n.escalationDirtyFragBootstrapFailed,
             DirtyFragKind.timedOut => l10n.escalationDirtyFragTimedOut,
             DirtyFragKind.notStarted => l10n.escalationDirtyFragNotStarted(
-              outcome.reason,
+              dirtyFragNotStartedReason(l10n, outcome.reason),
             ),
-            DirtyFragKind.running || DirtyFragKind.failed =>
-              l10n.escalationDirtyFragPatchFailed,
+            DirtyFragKind.running ||
+            DirtyFragKind.failed => l10n.escalationDirtyFragPatchFailed,
           };
           writer.writeLine(
             verdict,
@@ -579,6 +767,60 @@ class ManualEscalationPage extends HookConsumerWidget {
       );
       return null;
     }, <Object?>[dirtyFrag]);
+
+    // GhostKey 每块都写屏：中间块只追加输出，终局块再补结论行。
+    useEffect(() {
+      final AsyncValue<GhostKeyOutcome>? state = ghostKey;
+      if (state == null) return null;
+      state.when(
+        loading: () {},
+        error: (Object error, StackTrace stackTrace) {
+          writer.writeLine(
+            '${l10n.escalationInvokeFailed}：$error',
+            color: TerminalTextWriter.red,
+          );
+        },
+        data: (GhostKeyOutcome outcome) {
+          writer.writeStream(outcome.output);
+          if (!outcome.isFinal) return;
+          final String verdict = switch (outcome.kind) {
+            GhostKeyKind.succeeded => l10n.escalationGhostKeySucceeded(
+              ghostKeyManager == null ? '' : ' ${ghostKeyManager.displayName}',
+            ),
+            GhostKeyKind.degraded => l10n.escalationGhostKeyDegraded,
+            GhostKeyKind.calibFailed => l10n.escalationGhostKeyCalibFailed,
+            GhostKeyKind.pageOffsetFailed =>
+              l10n.escalationGhostKeyPageOffsetFailed,
+            GhostKeyKind.injectFailed => l10n.escalationGhostKeyInjectFailed,
+            GhostKeyKind.verifyFailed => l10n.escalationGhostKeyVerifyFailed,
+            GhostKeyKind.ksuFailed => l10n.escalationGhostKeyKsuFailed,
+            GhostKeyKind.timedOut => l10n.escalationGhostKeyTimedOut,
+            GhostKeyKind.notStarted => l10n.escalationGhostKeyNotStarted(
+              ghostKeyNotStartedReason(l10n, outcome.reason),
+            ),
+            GhostKeyKind.running ||
+            GhostKeyKind.failed => l10n.escalationGhostKeyFailed,
+          };
+          writer.writeLine(
+            verdict,
+            color: outcome.success
+                ? TerminalTextWriter.green
+                : TerminalTextWriter.red,
+          );
+          writer.writeLine(
+            '[${escalationExitTag(outcome.exitCode)} · '
+            '${outcome.durationMs} ms'
+            '${outcome.timedOut ? l10n.escalationTimedOutTag : ''}]',
+            color: TerminalTextWriter.dim,
+          );
+          // 08：落盘 + 诊断。顺序严格为「写屏 -> 落盘 -> finish」，不可换。
+          unawaited(persistGhostKeyChunk(outcome, l10n));
+          // 跑完就复位，否则重进页面会复用上一轮的 Provider 缓存。
+          ghostKeyStarted.value = false;
+        },
+      );
+      return null;
+    }, <Object?>[ghostKey]);
 
     return Scaffold(
       appBar: AppBar(
@@ -642,6 +884,10 @@ class ManualEscalationPage extends HookConsumerWidget {
               ),
             ),
           ),
+          // 未受理时五个阶段都没跑，进度面板没有信息可给。
+          if (ghostKey?.value != null &&
+              ghostKey!.value!.kind != GhostKeyKind.notStarted)
+            GhostKeyProgressPanel(outcome: ghostKey!.value!),
           // 底栏：左侧菜单固定，右侧复制键固定，中间功能键放得下就居中、
           // 放不下就横向滚动。
           TerminalKeyBar(
@@ -652,6 +898,7 @@ class ManualEscalationPage extends HookConsumerWidget {
             leading: EscalationMenuButton(
               onExploit: () => unawaited(startExploit()),
               onDirtyFrag: () => unawaited(startDirtyFrag()),
+              onGhostKey: () => unawaited(startGhostKey()),
               onHandoff: () => unawaited(startHandoff()),
               // 弹窗盖在终端上，键盘收起后用户先看完再关。
               onPayloadCatalog: () => unawaited(openPayloadCatalog()),

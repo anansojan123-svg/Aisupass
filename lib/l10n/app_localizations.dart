@@ -1160,16 +1160,22 @@ abstract class AppLocalizations {
   /// **'设备上没装 {manager}：找不到它的 libksud.so（包名 {package}）。请先安装 {manager}，再回来重试。'**
   String escalationHandoffManagerMissing(String manager, String package);
 
+  /// 手动提权页-移交时设备没有 su
+  ///
+  /// In zh, this message translates to:
+  /// **'设备上没有 su，先跑提权拿到临时 root 再移交。'**
+  String get escalationHandoffNoSu;
+
   /// 手动提权页-移交失败：带上退出码
   ///
   /// In zh, this message translates to:
-  /// **'移交失败（退出码 {code}）。常见原因：管理器版本与内核模块不匹配、授权被拒绝，或管理器正在升级。'**
+  /// **'移交失败（退出码 {code}）'**
   String escalationHandoffFailed(int code);
 
   /// 手动提权页-移交失败但没有退出码
   ///
   /// In zh, this message translates to:
-  /// **'移交失败：命令没跑起来，没拿到退出码。检查授权框是否被拒绝，或管理器是否在升级。'**
+  /// **'移交失败：命令没跑起来，没拿到退出码。'**
   String get escalationHandoffFailedNoCode;
 
   /// 手动提权页-移交前读取管理器选择失败
@@ -1472,10 +1478,10 @@ abstract class AppLocalizations {
   /// **'等待终局标记超时，见上方输出'**
   String get escalationDirtyFragTimedOut;
 
-  /// 原生拒绝受理时的结论；reason 是契约里的技术标识，不做翻译
+  /// 原生拒绝受理时的结论；reason 是「文案（码）」
   ///
   /// In zh, this message translates to:
-  /// **'原生侧未受理，原因码：{reason}'**
+  /// **'原生侧未受理：{reason}'**
   String escalationDirtyFragNotStarted(String reason);
 
   /// 自动解析出偏移时的提示
@@ -1525,6 +1531,366 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'提取失败：{error}'**
   String escalationDirtyFragVrExtractFailed(String error);
+
+  /// 提权菜单里的 GhostKey 菜单项
+  ///
+  /// In zh, this message translates to:
+  /// **'GhostKey 提权'**
+  String get escalationGhostKeyTitle;
+
+  /// GhostKey 开跑提示；manager 为空时是空串
+  ///
+  /// In zh, this message translates to:
+  /// **'开始 GhostKey 提权{manager}'**
+  String escalationGhostKeyRunning(String manager);
+
+  /// GhostKey 前置检查：adb 未连接
+  ///
+  /// In zh, this message translates to:
+  /// **'adb 未连接'**
+  String get escalationGhostKeyNoAdb;
+
+  /// GhostKey 成功的结论行；manager 为空时是空串
+  ///
+  /// In zh, this message translates to:
+  /// **'GhostKey 完成，临时 root 已就绪{manager}'**
+  String escalationGhostKeySucceeded(String manager);
+
+  /// GhostKey 降级成功的结论行
+  ///
+  /// In zh, this message translates to:
+  /// **'GhostKey 完成，但线性映射置信度偏低'**
+  String get escalationGhostKeyDegraded;
+
+  /// GhostKey calib_a 失败
+  ///
+  /// In zh, this message translates to:
+  /// **'KASLR slide 校准失败'**
+  String get escalationGhostKeyCalibFailed;
+
+  /// GhostKey calib_b 失败
+  ///
+  /// In zh, this message translates to:
+  /// **'线性映射基址校准失败'**
+  String get escalationGhostKeyPageOffsetFailed;
+
+  /// GhostKey 注入阶段失败
+  ///
+  /// In zh, this message translates to:
+  /// **'注入失败：rootd 未就绪'**
+  String get escalationGhostKeyInjectFailed;
+
+  /// GhostKey verify 阶段失败
+  ///
+  /// In zh, this message translates to:
+  /// **'临时 root 通道校验失败'**
+  String get escalationGhostKeyVerifyFailed;
+
+  /// GhostKey 成功但 KSU 阶段失败
+  ///
+  /// In zh, this message translates to:
+  /// **'临时 root 已就绪，KernelSU 接管失败'**
+  String get escalationGhostKeyKsuFailed;
+
+  /// GhostKey 会话超时或被取消
+  ///
+  /// In zh, this message translates to:
+  /// **'GhostKey 超时'**
+  String get escalationGhostKeyTimedOut;
+
+  /// GhostKey 被原生拒绝受理；reason 是原因码
+  ///
+  /// In zh, this message translates to:
+  /// **'GhostKey 未启动：{reason}'**
+  String escalationGhostKeyNotStarted(String reason);
+
+  /// 原因码 alreadyRunning
+  ///
+  /// In zh, this message translates to:
+  /// **'已有任务在运行'**
+  String get escalationGhostKeyReasonAlreadyRunning;
+
+  /// 原因码 noAdb
+  ///
+  /// In zh, this message translates to:
+  /// **'ADB 未连接'**
+  String get escalationGhostKeyReasonNoAdb;
+
+  /// 原因码 notShell
+  ///
+  /// In zh, this message translates to:
+  /// **'shell 身份不是 2000'**
+  String get escalationGhostKeyReasonNotShell;
+
+  /// 原因码 seccompFiltered
+  ///
+  /// In zh, this message translates to:
+  /// **'shell 带 seccomp 过滤'**
+  String get escalationGhostKeyReasonSeccomp;
+
+  /// 原因码 missingBinary
+  ///
+  /// In zh, this message translates to:
+  /// **'载荷文件缺失'**
+  String get escalationGhostKeyReasonMissingBinary;
+
+  /// 原因码 noProfile
+  ///
+  /// In zh, this message translates to:
+  /// **'当前内核版本没有对应 profile'**
+  String get escalationGhostKeyReasonNoProfile;
+
+  /// 原因码 badRequest
+  ///
+  /// In zh, this message translates to:
+  /// **'请求参数不合法'**
+  String get escalationGhostKeyReasonBadRequest;
+
+  /// 原因码展示：可读文案后保留原始码，便于对照原生日志
+  ///
+  /// In zh, this message translates to:
+  /// **'{label}（{code}）'**
+  String escalationReasonWithCode(String label, String code);
+
+  /// 原因码 alreadyArmed
+  ///
+  /// In zh, this message translates to:
+  /// **'已有驻留标记'**
+  String get escalationDirtyFragReasonAlreadyArmed;
+
+  /// 原因码 busy
+  ///
+  /// In zh, this message translates to:
+  /// **'有任务正在运行'**
+  String get escalationDirtyFragReasonBusy;
+
+  /// 原因码 noIpSec
+  ///
+  /// In zh, this message translates to:
+  /// **'系统没有 IpSec 服务'**
+  String get escalationDirtyFragReasonNoIpSec;
+
+  /// 原因码 missingBinary
+  ///
+  /// In zh, this message translates to:
+  /// **'管理器或载荷文件缺失'**
+  String get escalationDirtyFragReasonMissingBinary;
+
+  /// 原因码 stagingFailed
+  ///
+  /// In zh, this message translates to:
+  /// **'落位或启动失败'**
+  String get escalationDirtyFragReasonStagingFailed;
+
+  /// 原因码 badRequest
+  ///
+  /// In zh, this message translates to:
+  /// **'请求参数不合法'**
+  String get escalationDirtyFragReasonBadRequest;
+
+  /// GhostKey 兜底失败结论
+  ///
+  /// In zh, this message translates to:
+  /// **'GhostKey 失败'**
+  String get escalationGhostKeyFailed;
+
+  /// GhostKey 确认弹窗标题
+  ///
+  /// In zh, this message translates to:
+  /// **'确认 GhostKey 提权'**
+  String get escalationGhostKeyConfirmTitle;
+
+  /// GhostKey 确认弹窗的风险提示
+  ///
+  /// In zh, this message translates to:
+  /// **'该操作会校准内核映射并注入 rootd，过程中设备可能短暂不可用。'**
+  String get escalationGhostKeyConfirmRisk;
+
+  /// GhostKey 确认弹窗的确认按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'开始提权'**
+  String get escalationGhostKeyConfirmRun;
+
+  /// GhostKey 确认弹窗：管理器字段
+  ///
+  /// In zh, this message translates to:
+  /// **'管理器'**
+  String get escalationGhostKeyFieldManager;
+
+  /// GhostKey 确认弹窗：内核版本字段
+  ///
+  /// In zh, this message translates to:
+  /// **'内核版本'**
+  String get escalationGhostKeyFieldRelease;
+
+  /// GhostKey 确认弹窗：shell uid 字段
+  ///
+  /// In zh, this message translates to:
+  /// **'shell uid'**
+  String get escalationGhostKeyFieldShellUid;
+
+  /// GhostKey 确认弹窗：seccomp 字段
+  ///
+  /// In zh, this message translates to:
+  /// **'seccomp'**
+  String get escalationGhostKeyFieldSeccomp;
+
+  /// GhostKey 确认弹窗：profile 命中字段
+  ///
+  /// In zh, this message translates to:
+  /// **'profile 命中'**
+  String get escalationGhostKeyFieldProfile;
+
+  /// GhostKey 确认弹窗：是否接管 KSU
+  ///
+  /// In zh, this message translates to:
+  /// **'接管 KSU'**
+  String get escalationGhostKeyFieldRunKsu;
+
+  /// GhostKey 确认弹窗：是否接受 fallback
+  ///
+  /// In zh, this message translates to:
+  /// **'接受降级偏移'**
+  String get escalationGhostKeyFieldFallback;
+
+  /// GhostKey 弹窗：取不到的值
+  ///
+  /// In zh, this message translates to:
+  /// **'未知'**
+  String get escalationGhostKeyValueUnknown;
+
+  /// GhostKey 弹窗：未选择管理器
+  ///
+  /// In zh, this message translates to:
+  /// **'未选择'**
+  String get escalationGhostKeyValueNone;
+
+  /// GhostKey 弹窗：布尔值「是」
+  ///
+  /// In zh, this message translates to:
+  /// **'是'**
+  String get escalationGhostKeyValueYes;
+
+  /// GhostKey 弹窗：布尔值「否」
+  ///
+  /// In zh, this message translates to:
+  /// **'否'**
+  String get escalationGhostKeyValueNo;
+
+  /// GhostKey 弹窗：开关为开
+  ///
+  /// In zh, this message translates to:
+  /// **'开'**
+  String get escalationGhostKeyToggleOn;
+
+  /// GhostKey 弹窗：开关为关
+  ///
+  /// In zh, this message translates to:
+  /// **'关'**
+  String get escalationGhostKeyToggleOff;
+
+  /// GhostKey 进度面板标题
+  ///
+  /// In zh, this message translates to:
+  /// **'进度'**
+  String get escalationGhostKeyProgressTitle;
+
+  /// GhostKey 阶段耗时；seconds 是已格式化的一位小数
+  ///
+  /// In zh, this message translates to:
+  /// **'{seconds} s'**
+  String escalationGhostKeyDurationSeconds(String seconds);
+
+  /// 阶段名：calib_a
+  ///
+  /// In zh, this message translates to:
+  /// **'KASLR slide 校准'**
+  String get escalationGhostKeyStageCalibAName;
+
+  /// 阶段名：calib_b
+  ///
+  /// In zh, this message translates to:
+  /// **'线性映射校准'**
+  String get escalationGhostKeyStageCalibBName;
+
+  /// 阶段名：inject
+  ///
+  /// In zh, this message translates to:
+  /// **'注入 rootd'**
+  String get escalationGhostKeyStageInjectName;
+
+  /// 阶段名：verify
+  ///
+  /// In zh, this message translates to:
+  /// **'校验临时 root'**
+  String get escalationGhostKeyStageVerifyName;
+
+  /// 阶段名：ksu
+  ///
+  /// In zh, this message translates to:
+  /// **'接管 KernelSU'**
+  String get escalationGhostKeyStageKsuName;
+
+  /// 阶段进行中提示：calib_a
+  ///
+  /// In zh, this message translates to:
+  /// **'定位内核基址'**
+  String get escalationGhostKeyStageCalibAHint;
+
+  /// 阶段进行中提示：calib_b
+  ///
+  /// In zh, this message translates to:
+  /// **'校准线性映射'**
+  String get escalationGhostKeyStageCalibBHint;
+
+  /// 阶段进行中提示：inject
+  ///
+  /// In zh, this message translates to:
+  /// **'注入并启动 rootd'**
+  String get escalationGhostKeyStageInjectHint;
+
+  /// 阶段进行中提示：verify
+  ///
+  /// In zh, this message translates to:
+  /// **'校验 root 通道'**
+  String get escalationGhostKeyStageVerifyHint;
+
+  /// 阶段进行中提示：ksu
+  ///
+  /// In zh, this message translates to:
+  /// **'移交 KernelSU'**
+  String get escalationGhostKeyStageKsuHint;
+
+  /// 设置页 GhostKey 分组的小标题
+  ///
+  /// In zh, this message translates to:
+  /// **'GhostKey'**
+  String get settingsGhostKeySection;
+
+  /// 设置页：是否在末段接管 KernelSU
+  ///
+  /// In zh, this message translates to:
+  /// **'接管 KernelSU'**
+  String get settingsGhostKeyRunKsuTitle;
+
+  /// 设置页：接管 KernelSU 的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'提权完成后自动把内核能力移交给 KernelSU'**
+  String get settingsGhostKeyRunKsuDesc;
+
+  /// 设置页：是否接受 calib_b 的 fallback
+  ///
+  /// In zh, this message translates to:
+  /// **'接受降级偏移'**
+  String get settingsGhostKeyAcceptFallbackTitle;
+
+  /// 设置页：接受降级偏移的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'线性映射置信度偏低时继续注入，不中止'**
+  String get settingsGhostKeyAcceptFallbackDesc;
 
   /// 设置页这一组的小标题
   ///
@@ -1813,6 +2179,996 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'保存失败：{message}'**
   String rootManagerSaveFailed(String message);
+
+  /// 内核 profile 页面与设置入口的标题
+  ///
+  /// In zh, this message translates to:
+  /// **'内核 profile'**
+  String get kernelProfileTitle;
+
+  /// 设置页内核 profile 入口的副标题
+  ///
+  /// In zh, this message translates to:
+  /// **'从 boot.img 生成本机内核参数'**
+  String get kernelProfileEntrySubtitle;
+
+  /// 内核 profile 页面的说明文字
+  ///
+  /// In zh, this message translates to:
+  /// **'本机内核不在内置表里时，用本机的 boot.img 生成 profile。生成的 profile 只保存在本应用私有目录。'**
+  String get kernelProfilePageDesc;
+
+  /// 选择 boot.img 的按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'选择 boot.img'**
+  String get kernelProfileImportAction;
+
+  /// OTA 链接输入框的提示文字
+  ///
+  /// In zh, this message translates to:
+  /// **'OTA 链接（HTTP/HTTPS）'**
+  String get kernelProfileImportUrlHint;
+
+  /// 按输入的 OTA 链接下载并生成 profile 的按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'从链接导入'**
+  String get kernelProfileImportUrlAction;
+
+  /// OTA 链接输入框下方的提示：必须导入带 BTF 的内核镜像
+  ///
+  /// In zh, this message translates to:
+  /// **'需要带 BTF 调试信息的内核，第三方 ROM 或老机型可能取不到结构偏移'**
+  String get kernelProfileBtfHint;
+
+  /// 把已知可用的示例 OTA 链接填进输入框
+  ///
+  /// In zh, this message translates to:
+  /// **'粘贴示例'**
+  String get kernelProfilePasteExample;
+
+  /// BTF 说明弹窗标题
+  ///
+  /// In zh, this message translates to:
+  /// **'为什么需要 BTF？'**
+  String get kernelProfileWhyBtfTitle;
+
+  /// BTF 说明弹窗正文：解释原理与链接要求
+  ///
+  /// In zh, this message translates to:
+  /// **'生成的 profile 靠 struct cred 各字段的字节偏移来伪造凭据，而这些偏移随内核版本变化，不能写死。\n\n内核镜像若带 BTF（编译开关 CONFIG_DEBUG_INFO_BTF），就能直接从镜像读出 task_struct、cred 的真实布局；没有 BTF 就取不到 task_cred、task_struct_size、cred_uid，profile 生成不了。\n\n另外链接必须支持 HTTP Range（分段下载），否则无法只取 boot 分区。厂商原厂 OTA 和 Pixel 等 GKI 机型一般两者都满足。'**
+  String get kernelProfileWhyBtfBody;
+
+  /// 说明弹窗的关闭按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'知道了'**
+  String get kernelProfileDialogClose;
+
+  /// 打开历史 OTA 清单弹窗的按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'历史版本'**
+  String get otaCatalogBrowseAction;
+
+  /// 历史 OTA 清单弹窗标题
+  ///
+  /// In zh, this message translates to:
+  /// **'历史 OTA 包'**
+  String get otaCatalogTitle;
+
+  /// 历史 OTA 清单的搜索框提示
+  ///
+  /// In zh, this message translates to:
+  /// **'搜索机型或版本号'**
+  String get otaCatalogSearchHint;
+
+  /// 历史 OTA 清单的使用说明
+  ///
+  /// In zh, this message translates to:
+  /// **'点任意版本，把直链填进上面的输入框'**
+  String get otaCatalogPickHint;
+
+  /// 历史 OTA 清单搜索无结果
+  ///
+  /// In zh, this message translates to:
+  /// **'没有匹配的机型或版本'**
+  String get otaCatalogEmpty;
+
+  /// 机型分组右侧的版本数量
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 个版本'**
+  String otaCatalogVersionCount(int count);
+
+  /// 历史 OTA 清单的 Google 品牌标签
+  ///
+  /// In zh, this message translates to:
+  /// **'Google'**
+  String get otaCatalogBrandGoogle;
+
+  /// 历史 OTA 清单的 realme 品牌标签
+  ///
+  /// In zh, this message translates to:
+  /// **'realme'**
+  String get otaCatalogBrandRealme;
+
+  /// 已导入 profile 详情弹窗标题
+  ///
+  /// In zh, this message translates to:
+  /// **'内核参数详情'**
+  String get kernelProfileDetailTitle;
+
+  /// 详情弹窗的概览分区标题
+  ///
+  /// In zh, this message translates to:
+  /// **'基本信息'**
+  String get kernelProfileDetailOverview;
+
+  /// 详情弹窗的偏移量分区标题
+  ///
+  /// In zh, this message translates to:
+  /// **'结构偏移'**
+  String get kernelProfileDetailOffsets;
+
+  /// 详情弹窗的原始 HOCON 分区标题
+  ///
+  /// In zh, this message translates to:
+  /// **'原始配置'**
+  String get kernelProfileDetailRaw;
+
+  /// 概览里的漏洞类型字段名
+  ///
+  /// In zh, this message translates to:
+  /// **'漏洞类型'**
+  String get kernelProfileDetailVulnType;
+
+  /// 概览里的内核页偏移字段名
+  ///
+  /// In zh, this message translates to:
+  /// **'页偏移'**
+  String get kernelProfileDetailPageOffset;
+
+  /// 概览里的导入来源字段名
+  ///
+  /// In zh, this message translates to:
+  /// **'导入来源'**
+  String get kernelProfileDetailSource;
+
+  /// 复制原始配置的按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'复制'**
+  String get kernelProfileDetailCopy;
+
+  /// 复制成功后的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'已复制原始配置'**
+  String get kernelProfileDetailCopied;
+
+  /// profile 文件读不到时的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'读取不到内容，文件可能已被删除'**
+  String get kernelProfileDetailEmpty;
+
+  /// 导入阶段 0：连接服务器并定位 payload.bin
+  ///
+  /// In zh, this message translates to:
+  /// **'定位 OTA 包'**
+  String get kernelProfilePhaseLocate;
+
+  /// 导入阶段 1：读取本地镜像或从链接下载分区数据
+  ///
+  /// In zh, this message translates to:
+  /// **'下载镜像'**
+  String get kernelProfilePhaseRead;
+
+  /// 下载相位的字节进度
+  ///
+  /// In zh, this message translates to:
+  /// **'{done} / {total}'**
+  String kernelProfileBytesProgress(String done, String total);
+
+  /// 导入阶段 2：解析内核
+  ///
+  /// In zh, this message translates to:
+  /// **'解析内核'**
+  String get kernelProfilePhaseParse;
+
+  /// 导入阶段 3：写入 profile
+  ///
+  /// In zh, this message translates to:
+  /// **'写入 profile'**
+  String get kernelProfilePhaseSave;
+
+  /// 导入阶段 4：全部结束
+  ///
+  /// In zh, this message translates to:
+  /// **'完成'**
+  String get kernelProfilePhaseDone;
+
+  /// 导入成功提示；release 是内核版本串，不翻译
+  ///
+  /// In zh, this message translates to:
+  /// **'已生成 profile：{release}'**
+  String kernelProfileImportSuccess(String release);
+
+  /// 导入失败的标题
+  ///
+  /// In zh, this message translates to:
+  /// **'导入失败'**
+  String get kernelProfileImportFailed;
+
+  /// 导入结果缺字段提示；fields 是字段路径列表
+  ///
+  /// In zh, this message translates to:
+  /// **'缺少必填字段：{fields}'**
+  String kernelProfileMissingFields(String fields);
+
+  /// 已导入 profile 列表的小标题
+  ///
+  /// In zh, this message translates to:
+  /// **'已导入的 profile'**
+  String get kernelProfileImportedSection;
+
+  /// 已导入 profile 列表的空态
+  ///
+  /// In zh, this message translates to:
+  /// **'还没有导入过 profile'**
+  String get kernelProfileImportedEmpty;
+
+  /// 删除 profile 的按钮与提示
+  ///
+  /// In zh, this message translates to:
+  /// **'删除'**
+  String get kernelProfileRemove;
+
+  /// 删除 profile 的确认弹窗标题
+  ///
+  /// In zh, this message translates to:
+  /// **'删除这份 profile？'**
+  String get kernelProfileRemoveConfirmTitle;
+
+  /// 删除 profile 的确认弹窗正文；release 不翻译
+  ///
+  /// In zh, this message translates to:
+  /// **'{release} 将被删除。本机若没有其它匹配的 profile，需要重新导入。'**
+  String kernelProfileRemoveConfirmBody(String release);
+
+  /// 导入错误：路径为空
+  ///
+  /// In zh, this message translates to:
+  /// **'没有拿到文件路径'**
+  String get kernelProfileErrorEmptyPath;
+
+  /// 导入错误：文件不存在
+  ///
+  /// In zh, this message translates to:
+  /// **'文件不存在或不可读'**
+  String get kernelProfileErrorNotFound;
+
+  /// 导入错误：文件超过上限
+  ///
+  /// In zh, this message translates to:
+  /// **'文件过大，无法解析'**
+  String get kernelProfileErrorTooLarge;
+
+  /// 导入错误：魔数不符
+  ///
+  /// In zh, this message translates to:
+  /// **'这不是一个 boot.img'**
+  String get kernelProfileErrorNotBootImage;
+
+  /// 导入错误：内核解码失败
+  ///
+  /// In zh, this message translates to:
+  /// **'解压内核失败'**
+  String get kernelProfileErrorDecode;
+
+  /// 导入错误：必填字段缺失
+  ///
+  /// In zh, this message translates to:
+  /// **'解析结果不完整，未保存'**
+  String get kernelProfileErrorIncomplete;
+
+  /// 导入错误：文件读写失败
+  ///
+  /// In zh, this message translates to:
+  /// **'读写文件失败'**
+  String get kernelProfileErrorIo;
+
+  /// 导入错误：内核镜像里没有 BTF 段，通常是 ROM 编译时未开启 CONFIG_DEBUG_INFO_BTF
+  ///
+  /// In zh, this message translates to:
+  /// **'这个 ROM 的内核不含 BTF 调试信息，无法推导结构偏移'**
+  String get kernelProfileErrorNoBtf;
+
+  /// 导入错误：OTA 链接不是 HTTP/HTTPS
+  ///
+  /// In zh, this message translates to:
+  /// **'链接无效，需要 HTTP 或 HTTPS 地址'**
+  String get kernelProfileErrorBadUrl;
+
+  /// 导入错误：远端下载或 payload 解包失败
+  ///
+  /// In zh, this message translates to:
+  /// **'下载或解包 OTA 失败'**
+  String get kernelProfileErrorDownload;
+
+  /// 导入错误追加的原始错误详情；detail 是原生侧异常类名与消息，不翻译
+  ///
+  /// In zh, this message translates to:
+  /// **'详情：{detail}'**
+  String kernelProfileErrorDetail(String detail);
+
+  /// 导入错误：内存不足
+  ///
+  /// In zh, this message translates to:
+  /// **'内存不足，解析中断'**
+  String get kernelProfileErrorOom;
+
+  /// 导入错误：未归类的异常
+  ///
+  /// In zh, this message translates to:
+  /// **'未知错误'**
+  String get kernelProfileErrorUnknown;
+
+  /// 运行记录结果标签：进行中
+  ///
+  /// In zh, this message translates to:
+  /// **'进行中'**
+  String get ghostKeyRunResultRunning;
+
+  /// 运行记录结果标签：成功
+  ///
+  /// In zh, this message translates to:
+  /// **'成功'**
+  String get ghostKeyRunResultSuccess;
+
+  /// 运行记录结果标签：失败
+  ///
+  /// In zh, this message translates to:
+  /// **'失败'**
+  String get ghostKeyRunResultFailed;
+
+  /// 运行记录结果标签：已停止
+  ///
+  /// In zh, this message translates to:
+  /// **'已停止'**
+  String get ghostKeyRunResultStopped;
+
+  /// 运行记录结果标签：中断
+  ///
+  /// In zh, this message translates to:
+  /// **'中断'**
+  String get ghostKeyRunResultInterrupted;
+
+  /// 时长格式：秒；seconds 是整数
+  ///
+  /// In zh, this message translates to:
+  /// **'{seconds}秒'**
+  String ghostKeyDurationSeconds(int seconds);
+
+  /// 时长格式：分秒；minutes 与 seconds 都是整数
+  ///
+  /// In zh, this message translates to:
+  /// **'{minutes}分{seconds}秒'**
+  String ghostKeyDurationMinutesSeconds(int minutes, int seconds);
+
+  /// 运行记录页面与设置入口的标题
+  ///
+  /// In zh, this message translates to:
+  /// **'运行记录'**
+  String get ghostKeyRunLogTitle;
+
+  /// 设置页运行记录入口的副标题
+  ///
+  /// In zh, this message translates to:
+  /// **'查看历史运行明细与失败诊断'**
+  String get ghostKeyRunLogEntrySubtitle;
+
+  /// 运行记录列表首行的条数；count 是整数
+  ///
+  /// In zh, this message translates to:
+  /// **'共 {count} 次 · 最新在最上'**
+  String ghostKeyRunLogCount(int count);
+
+  /// 运行记录列表的空态
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无运行记录'**
+  String get ghostKeyRunLogEmpty;
+
+  /// 导出全部运行记录
+  ///
+  /// In zh, this message translates to:
+  /// **'导出全部'**
+  String get ghostKeyRunLogExportAll;
+
+  /// 导出全部时的默认文件名
+  ///
+  /// In zh, this message translates to:
+  /// **'run-logs-all.log'**
+  String get ghostKeyRunLogExportAllFileName;
+
+  /// 清空全部运行记录
+  ///
+  /// In zh, this message translates to:
+  /// **'清空全部记录'**
+  String get ghostKeyRunLogClearAll;
+
+  /// 清空后的轻提示
+  ///
+  /// In zh, this message translates to:
+  /// **'运行记录已清空'**
+  String get ghostKeyRunLogCleared;
+
+  /// 详情页标题；runId 是整数
+  ///
+  /// In zh, this message translates to:
+  /// **'运行 #{runId}'**
+  String ghostKeyRunLogDetailTitle(int runId);
+
+  /// 复制日志正文
+  ///
+  /// In zh, this message translates to:
+  /// **'复制'**
+  String get ghostKeyRunLogCopy;
+
+  /// 复制成功的轻提示
+  ///
+  /// In zh, this message translates to:
+  /// **'已复制到剪贴板'**
+  String get ghostKeyRunLogCopied;
+
+  /// 另存为按钮与对话框标题
+  ///
+  /// In zh, this message translates to:
+  /// **'另存为'**
+  String get ghostKeyRunLogSaveAs;
+
+  /// 另存为成功的轻提示
+  ///
+  /// In zh, this message translates to:
+  /// **'已保存'**
+  String get ghostKeyRunLogSaved;
+
+  /// 删除单条运行记录
+  ///
+  /// In zh, this message translates to:
+  /// **'删除这一次记录'**
+  String get ghostKeyRunLogDeleteThis;
+
+  /// 失败诊断块：标题行前缀
+  ///
+  /// In zh, this message translates to:
+  /// **'诊断: {title}'**
+  String ghostKeyRunLogDiagTitlePrefix(String title);
+
+  /// 失败诊断块：可能原因行前缀
+  ///
+  /// In zh, this message translates to:
+  /// **'可能原因: {cause}'**
+  String ghostKeyRunLogDiagCausePrefix(String cause);
+
+  /// 失败诊断块：建议行前缀
+  ///
+  /// In zh, this message translates to:
+  /// **'建议: {suggestion}'**
+  String ghostKeyRunLogDiagSuggestionPrefix(String suggestion);
+
+  /// 失败归因规则 CalibANoSlideCandidate 的标题
+  ///
+  /// In zh, this message translates to:
+  /// **'KASLR 偏移解算失败：候选地址里找不到可信的内核基址'**
+  String get ghostKeyDiagCalibANoSlideCandidateTitle;
+
+  /// 失败归因规则 CalibANoSlideCandidate 的原因 1
+  ///
+  /// In zh, this message translates to:
+  /// **'内核刚完成 OTA / 刚重启，运行时布局与 profile 假设不符'**
+  String get ghostKeyDiagCalibANoSlideCandidateCause1;
+
+  /// 失败归因规则 CalibANoSlideCandidate 的原因 2
+  ///
+  /// In zh, this message translates to:
+  /// **'导入的 profile 与当前内核版本不匹配（boot.img 版本对不上）'**
+  String get ghostKeyDiagCalibANoSlideCandidateCause2;
+
+  /// 失败归因规则 CalibANoSlideCandidate 的原因 3
+  ///
+  /// In zh, this message translates to:
+  /// **'设备后台负载异常，k_itimer 采样被污染'**
+  String get ghostKeyDiagCalibANoSlideCandidateCause3;
+
+  /// 失败归因规则 CalibANoSlideCandidate 的原因 4
+  ///
+  /// In zh, this message translates to:
+  /// **'tracefs 采样窗口未抓到任何 k_itimer 记录（SELinux 拦截 / Shizuku 权限不足 / 后台负载过低）'**
+  String get ghostKeyDiagCalibANoSlideCandidateCause4;
+
+  /// 失败归因规则 CalibANoSlideCandidate 的建议 1
+  ///
+  /// In zh, this message translates to:
+  /// **'重启设备后重试一次'**
+  String get ghostKeyDiagCalibANoSlideCandidateSuggestion1;
+
+  /// 失败归因规则 CalibANoSlideCandidate 的建议 2
+  ///
+  /// In zh, this message translates to:
+  /// **'确认 profile 对应当前内核版本（设备信息条上的内核版本）'**
+  String get ghostKeyDiagCalibANoSlideCandidateSuggestion2;
+
+  /// 失败归因规则 CalibANoSlideCandidate 的建议 3
+  ///
+  /// In zh, this message translates to:
+  /// **'若连续失败，请保存运行日志以便排查'**
+  String get ghostKeyDiagCalibANoSlideCandidateSuggestion3;
+
+  /// 失败归因规则 CalibANoKitimerRecords 的标题
+  ///
+  /// In zh, this message translates to:
+  /// **'KASLR 偏移解算失败：多尺寸探针没采到任何 k_itimer 分配记录'**
+  String get ghostKeyDiagCalibANoKitimerRecordsTitle;
+
+  /// 失败归因规则 CalibANoKitimerRecords 的原因 1
+  ///
+  /// In zh, this message translates to:
+  /// **'tracefs 的 kmem_cache_alloc 事件没被打开（被 SELinux 拦截，或 Shizuku 授权 / 挂载异常）'**
+  String get ghostKeyDiagCalibANoKitimerRecordsCause1;
+
+  /// 失败归因规则 CalibANoKitimerRecords 的原因 2
+  ///
+  /// In zh, this message translates to:
+  /// **'本机 k_itimer 结构体尺寸不在候选集 0x108 / 0x100 / 0x110 / 0x118 内，所有尺寸都没匹配到记录'**
+  String get ghostKeyDiagCalibANoKitimerRecordsCause2;
+
+  /// 失败归因规则 CalibANoKitimerRecords 的原因 3
+  ///
+  /// In zh, this message translates to:
+  /// **'采样窗口内系统负载过低，定时器调用点未被充分触发'**
+  String get ghostKeyDiagCalibANoKitimerRecordsCause3;
+
+  /// 失败归因规则 CalibANoKitimerRecords 的建议 1
+  ///
+  /// In zh, this message translates to:
+  /// **'确认 Shizuku 已授权且 tracefs 可写（设置 → 开发者选项）'**
+  String get ghostKeyDiagCalibANoKitimerRecordsSuggestion1;
+
+  /// 失败归因规则 CalibANoKitimerRecords 的建议 2
+  ///
+  /// In zh, this message translates to:
+  /// **'重启设备后重试，让采样在单次开机内完成'**
+  String get ghostKeyDiagCalibANoKitimerRecordsSuggestion2;
+
+  /// 失败归因规则 CalibANoKitimerRecords 的建议 3
+  ///
+  /// In zh, this message translates to:
+  /// **'仍失败请保存运行日志（含 [calib_a] 与 arm_kmem_cache_alloc 行）以便排查'**
+  String get ghostKeyDiagCalibANoKitimerRecordsSuggestion3;
+
+  /// 失败归因规则 CalibATracefsUnusable 的标题
+  ///
+  /// In zh, this message translates to:
+  /// **'tracefs 不可用：内核追踪事件挂载/读取失败'**
+  String get ghostKeyDiagCalibATracefsUnusableTitle;
+
+  /// 失败归因规则 CalibATracefsUnusable 的原因 1
+  ///
+  /// In zh, this message translates to:
+  /// **'SELinux 策略拦截了 tracefs 写入'**
+  String get ghostKeyDiagCalibATracefsUnusableCause1;
+
+  /// 失败归因规则 CalibATracefsUnusable 的原因 2
+  ///
+  /// In zh, this message translates to:
+  /// **'Shizuku 授权异常（未启动或权限被回收）'**
+  String get ghostKeyDiagCalibATracefsUnusableCause2;
+
+  /// 失败归因规则 CalibATracefsUnusable 的原因 3
+  ///
+  /// In zh, this message translates to:
+  /// **'部分 ROM 精简了 tracefs 节点'**
+  String get ghostKeyDiagCalibATracefsUnusableCause3;
+
+  /// 失败归因规则 CalibATracefsUnusable 的建议 1
+  ///
+  /// In zh, this message translates to:
+  /// **'确认 Shizuku 正在运行且已给本应用授权'**
+  String get ghostKeyDiagCalibATracefsUnusableSuggestion1;
+
+  /// 失败归因规则 CalibATracefsUnusable 的建议 2
+  ///
+  /// In zh, this message translates to:
+  /// **'检查开发者选项中 USB 调试（无线调试）是否可用'**
+  String get ghostKeyDiagCalibATracefsUnusableSuggestion2;
+
+  /// 失败归因规则 CalibATracefsUnusable 的建议 3
+  ///
+  /// In zh, this message translates to:
+  /// **'重启 Shizuku 后重试；仍失败请保存日志排查'**
+  String get ghostKeyDiagCalibATracefsUnusableSuggestion3;
+
+  /// 失败归因规则 CalibBNoMatchingRecords 的标题
+  ///
+  /// In zh, this message translates to:
+  /// **'页偏移解算失败：校准 A 得出的基址与实际不符'**
+  String get ghostKeyDiagCalibBNoMatchingRecordsTitle;
+
+  /// 失败归因规则 CalibBNoMatchingRecords 的原因 1
+  ///
+  /// In zh, this message translates to:
+  /// **'校准 A 的 KASLR slide 不准（上游错误，先解决校准 A）'**
+  String get ghostKeyDiagCalibBNoMatchingRecordsCause1;
+
+  /// 失败归因规则 CalibBNoMatchingRecords 的原因 2
+  ///
+  /// In zh, this message translates to:
+  /// **'两次校准之间内核内存布局发生变化'**
+  String get ghostKeyDiagCalibBNoMatchingRecordsCause2;
+
+  /// 失败归因规则 CalibBNoMatchingRecords 的建议 1
+  ///
+  /// In zh, this message translates to:
+  /// **'重启设备让两次校准在同一次开机状态内完成'**
+  String get ghostKeyDiagCalibBNoMatchingRecordsSuggestion1;
+
+  /// 失败归因规则 CalibBNoMatchingRecords 的建议 2
+  ///
+  /// In zh, this message translates to:
+  /// **'重跑完整流水线（不要单独跳过校准步骤）'**
+  String get ghostKeyDiagCalibBNoMatchingRecordsSuggestion2;
+
+  /// 失败归因规则 CalibBInsufficientSamples 的标题
+  ///
+  /// In zh, this message translates to:
+  /// **'采样不足：触发样本太少，无法解算页偏移'**
+  String get ghostKeyDiagCalibBInsufficientSamplesTitle;
+
+  /// 失败归因规则 CalibBInsufficientSamples 的原因 1
+  ///
+  /// In zh, this message translates to:
+  /// **'系统后台负载过低，定时器调用点未被充分触发'**
+  String get ghostKeyDiagCalibBInsufficientSamplesCause1;
+
+  /// 失败归因规则 CalibBInsufficientSamples 的原因 2
+  ///
+  /// In zh, this message translates to:
+  /// **'设备刚冷启动，运行时服务还没起来'**
+  String get ghostKeyDiagCalibBInsufficientSamplesCause2;
+
+  /// 失败归因规则 CalibBInsufficientSamples 的建议 1
+  ///
+  /// In zh, this message translates to:
+  /// **'让设备处于轻度使用状态（如播放音乐）后再重试'**
+  String get ghostKeyDiagCalibBInsufficientSamplesSuggestion1;
+
+  /// 失败归因规则 CalibBInsufficientSamples 的建议 2
+  ///
+  /// In zh, this message translates to:
+  /// **'直接多跑一次，样本量通常第二次更充分'**
+  String get ghostKeyDiagCalibBInsufficientSamplesSuggestion2;
+
+  /// 失败归因规则 InjectResidualProcess 的标题
+  ///
+  /// In zh, this message translates to:
+  /// **'存在上一轮残留进程：残留进程还钉着已释放的页，继续注入会导致内核崩溃'**
+  String get ghostKeyDiagInjectResidualProcessTitle;
+
+  /// 失败归因规则 InjectResidualProcess 的原因 1
+  ///
+  /// In zh, this message translates to:
+  /// **'上一轮提权未走完清理步骤（中途强退 / 断电）'**
+  String get ghostKeyDiagInjectResidualProcessCause1;
+
+  /// 失败归因规则 InjectResidualProcess 的建议 1
+  ///
+  /// In zh, this message translates to:
+  /// **'必须重启设备后再试（杀掉残留进程不解决问题）'**
+  String get ghostKeyDiagInjectResidualProcessSuggestion1;
+
+  /// 失败归因规则 InjectRootdNotReady 的标题
+  ///
+  /// In zh, this message translates to:
+  /// **'漏洞已触发但 root 通道未建立：rootd 超时未就绪'**
+  String get ghostKeyDiagInjectRootdNotReadyTitle;
+
+  /// 失败归因规则 InjectRootdNotReady 的原因 1
+  ///
+  /// In zh, this message translates to:
+  /// **'设备内核对该漏洞打了部分回移植补丁，UAF 窗口不稳定'**
+  String get ghostKeyDiagInjectRootdNotReadyCause1;
+
+  /// 失败归因规则 InjectRootdNotReady 的原因 2
+  ///
+  /// In zh, this message translates to:
+  /// **'系统负载导致竞态时序偏差'**
+  String get ghostKeyDiagInjectRootdNotReadyCause2;
+
+  /// 失败归因规则 InjectRootdNotReady 的建议 1
+  ///
+  /// In zh, this message translates to:
+  /// **'重启设备后再试 1~2 次'**
+  String get ghostKeyDiagInjectRootdNotReadySuggestion1;
+
+  /// 失败归因规则 InjectRootdNotReady 的建议 2
+  ///
+  /// In zh, this message translates to:
+  /// **'若每次都在同一位置超时，内核可能已修复，请记录机型与内核版本以便反馈'**
+  String get ghostKeyDiagInjectRootdNotReadySuggestion2;
+
+  /// 失败归因规则 InjectOffsetTableMissing 的标题
+  ///
+  /// In zh, this message translates to:
+  /// **'内核偏移表未加载：注入缺少 profile 数据'**
+  String get ghostKeyDiagInjectOffsetTableMissingTitle;
+
+  /// 失败归因规则 InjectOffsetTableMissing 的原因 1
+  ///
+  /// In zh, this message translates to:
+  /// **'未导入 / 导入了损坏的 profile 文件'**
+  String get ghostKeyDiagInjectOffsetTableMissingCause1;
+
+  /// 失败归因规则 InjectOffsetTableMissing 的原因 2
+  ///
+  /// In zh, this message translates to:
+  /// **'profile 与当前内核不匹配被引擎拒绝'**
+  String get ghostKeyDiagInjectOffsetTableMissingCause2;
+
+  /// 失败归因规则 InjectOffsetTableMissing 的建议 1
+  ///
+  /// In zh, this message translates to:
+  /// **'重新导入对应内核版本的 profile（boot.img 提取）'**
+  String get ghostKeyDiagInjectOffsetTableMissingSuggestion1;
+
+  /// 失败归因规则 InjectTaskLeakFailed 的标题
+  ///
+  /// In zh, this message translates to:
+  /// **'task_struct 地址泄漏失败：扫描窗口内没有匹配到 task_struct 的 slab 分配记录'**
+  String get ghostKeyDiagInjectTaskLeakFailedTitle;
+
+  /// 失败归因规则 InjectTaskLeakFailed 的原因 1
+  ///
+  /// In zh, this message translates to:
+  /// **'task_struct 缓存尺寸与 BTF 的 sizeof(task_struct) 不一致：缓存由 kmem_cache_create_usercopy(\"task_struct\", arch_task_struct_size, 0x40, ...) 创建，arch_task_struct_size 是运行时变量，厂商可用 android_arch_task_struct_size= 在其上追加（最多 0x400）'**
+  String get ghostKeyDiagInjectTaskLeakFailedCause1;
+
+  /// 失败归因规则 InjectTaskLeakFailed 的原因 2
+  ///
+  /// In zh, this message translates to:
+  /// **'kmem_cache_alloc 事件未被打开（tracefs 不可写 / SELinux 拒绝）'**
+  String get ghostKeyDiagInjectTaskLeakFailedCause2;
+
+  /// 失败归因规则 InjectTaskLeakFailed 的原因 3
+  ///
+  /// In zh, this message translates to:
+  /// **'fork 落在未被读取的 CPU 上（按实际核数扫描，理论上不会）'**
+  String get ghostKeyDiagInjectTaskLeakFailedCause3;
+
+  /// 失败归因规则 InjectTaskLeakFailed 的建议 1
+  ///
+  /// In zh, this message translates to:
+  /// **'更新到本修复之后的版本重试（尺寸匹配已改为 [sizeof, sizeof+0x400] 窗口，兼容厂商扩展）'**
+  String get ghostKeyDiagInjectTaskLeakFailedSuggestion1;
+
+  /// 失败归因规则 InjectTaskLeakFailed 的建议 2
+  ///
+  /// In zh, this message translates to:
+  /// **'日志里 [task] raw=0 说明是事件没开；raw>0 但 hits=0 则是尺寸窗口不对，请把 [task] sizes= 那行保存下来以便排查'**
+  String get ghostKeyDiagInjectTaskLeakFailedSuggestion2;
+
+  /// 失败归因规则 VerifyFailed 的标题
+  ///
+  /// In zh, this message translates to:
+  /// **'临时 root 验证失败：提权通道建立后 su 校验未通过'**
+  String get ghostKeyDiagVerifyFailedTitle;
+
+  /// 失败归因规则 VerifyFailed 的原因 1
+  ///
+  /// In zh, this message translates to:
+  /// **'注入阶段的凭据改写不完整（上游竞态部分成功）'**
+  String get ghostKeyDiagVerifyFailedCause1;
+
+  /// 失败归因规则 VerifyFailed 的原因 2
+  ///
+  /// In zh, this message translates to:
+  /// **'验证子进程被 SELinux 或系统策略拦截'**
+  String get ghostKeyDiagVerifyFailedCause2;
+
+  /// 失败归因规则 VerifyFailed 的建议 1
+  ///
+  /// In zh, this message translates to:
+  /// **'重启设备后重试完整流水线'**
+  String get ghostKeyDiagVerifyFailedSuggestion1;
+
+  /// 失败归因规则 VerifyFailed 的建议 2
+  ///
+  /// In zh, this message translates to:
+  /// **'检查 SELinux 状态（设置 → 开发者选项），不强制改 Permissive'**
+  String get ghostKeyDiagVerifyFailedSuggestion2;
+
+  /// 失败归因规则 KsuAlreadyLive 的标题
+  ///
+  /// In zh, this message translates to:
+  /// **'KernelSU 模块已驻留：旧模块仍在内存，late-load 被跳过'**
+  String get ghostKeyDiagKsuAlreadyLiveTitle;
+
+  /// 失败归因规则 KsuAlreadyLive 的原因 1
+  ///
+  /// In zh, this message translates to:
+  /// **'上一次提权注入的 kernelsu 模块还活着'**
+  String get ghostKeyDiagKsuAlreadyLiveCause1;
+
+  /// 失败归因规则 KsuAlreadyLive 的建议 1
+  ///
+  /// In zh, this message translates to:
+  /// **'重启设备后再跑一次，管理器才能看到新接管'**
+  String get ghostKeyDiagKsuAlreadyLiveSuggestion1;
+
+  /// 失败归因规则 KsuAlreadyLive 的建议 2
+  ///
+  /// In zh, this message translates to:
+  /// **'若只是想用 root，无需重跑——当前已是临时 root 状态'**
+  String get ghostKeyDiagKsuAlreadyLiveSuggestion2;
+
+  /// 失败归因规则 KsuModuleAbsent 的标题
+  ///
+  /// In zh, this message translates to:
+  /// **'KSU late-load 失败：模块没有出现在 /proc/modules'**
+  String get ghostKeyDiagKsuModuleAbsentTitle;
+
+  /// 失败归因规则 KsuModuleAbsent 的原因 1
+  ///
+  /// In zh, this message translates to:
+  /// **'设备上的 KernelSU 管理器 / ksud 版本过旧，KMI 不匹配'**
+  String get ghostKeyDiagKsuModuleAbsentCause1;
+
+  /// 失败归因规则 KsuModuleAbsent 的原因 2
+  ///
+  /// In zh, this message translates to:
+  /// **'模块加载路径被内核限制'**
+  String get ghostKeyDiagKsuModuleAbsentCause2;
+
+  /// 失败归因规则 KsuModuleAbsent 的建议 1
+  ///
+  /// In zh, this message translates to:
+  /// **'更新设备上的 KernelSU 管理器到最新版'**
+  String get ghostKeyDiagKsuModuleAbsentSuggestion1;
+
+  /// 失败归因规则 KsuModuleAbsent 的建议 2
+  ///
+  /// In zh, this message translates to:
+  /// **'重试一次；连续失败请保存日志并注明管理器版本'**
+  String get ghostKeyDiagKsuModuleAbsentSuggestion2;
+
+  /// 失败归因规则 KsuKsudMissing 的标题
+  ///
+  /// In zh, this message translates to:
+  /// **'找不到 ksud：设备上未安装 KernelSU 管理器且内置兜底失效'**
+  String get ghostKeyDiagKsuKsudMissingTitle;
+
+  /// 失败归因规则 KsuKsudMissing 的原因 1
+  ///
+  /// In zh, this message translates to:
+  /// **'KernelSU 管理器未安装'**
+  String get ghostKeyDiagKsuKsudMissingCause1;
+
+  /// 失败归因规则 KsuKsudMissing 的原因 2
+  ///
+  /// In zh, this message translates to:
+  /// **'内置兜底 ksud 与当前架构 / KMI 不兼容'**
+  String get ghostKeyDiagKsuKsudMissingCause2;
+
+  /// 失败归因规则 KsuKsudMissing 的建议 1
+  ///
+  /// In zh, this message translates to:
+  /// **'先安装 KernelSU 官方管理器，再重跑流水线'**
+  String get ghostKeyDiagKsuKsudMissingSuggestion1;
+
+  /// 失败归因规则 HostShizukuUnavailable 的标题
+  ///
+  /// In zh, this message translates to:
+  /// **'Shizuku 环境异常：宿主进程无法启动提权流水线'**
+  String get ghostKeyDiagHostShizukuUnavailableTitle;
+
+  /// 失败归因规则 HostShizukuUnavailable 的原因 1
+  ///
+  /// In zh, this message translates to:
+  /// **'Shizuku 服务未启动（未开无线调试或 adb 未连接）'**
+  String get ghostKeyDiagHostShizukuUnavailableCause1;
+
+  /// 失败归因规则 HostShizukuUnavailable 的原因 2
+  ///
+  /// In zh, this message translates to:
+  /// **'用户拒绝了本应用的 Shizuku 授权'**
+  String get ghostKeyDiagHostShizukuUnavailableCause2;
+
+  /// 失败归因规则 HostShizukuUnavailable 的建议 1
+  ///
+  /// In zh, this message translates to:
+  /// **'打开 Shizuku 应用并确保服务运行（无线调试 / adb 两种方式均可）'**
+  String get ghostKeyDiagHostShizukuUnavailableSuggestion1;
+
+  /// 失败归因规则 HostShizukuUnavailable 的建议 2
+  ///
+  /// In zh, this message translates to:
+  /// **'在本应用内重新发起授权并允许'**
+  String get ghostKeyDiagHostShizukuUnavailableSuggestion2;
+
+  /// 失败归因规则 FallbackExit2 的标题
+  ///
+  /// In zh, this message translates to:
+  /// **'流水线终止（exit=2）：KASLR 偏移解算失败，且未命中任何已知细分模式'**
+  String get ghostKeyDiagFallbackExit2Title;
+
+  /// 失败归因规则 FallbackExit2 的原因 1
+  ///
+  /// In zh, this message translates to:
+  /// **'校准 A 未能从 k_itimer 采样解出可信内核基址（最常见的失败点）'**
+  String get ghostKeyDiagFallbackExit2Cause1;
+
+  /// 失败归因规则 FallbackExit2 的原因 2
+  ///
+  /// In zh, this message translates to:
+  /// **'当前内核布局与所选 profile 不符（刚 OTA/重启、或 profile 版本对不上，导致 timer_link/cred_link 偏移错误）'**
+  String get ghostKeyDiagFallbackExit2Cause2;
+
+  /// 失败归因规则 FallbackExit2 的原因 3
+  ///
+  /// In zh, this message translates to:
+  /// **'tracefs 采样被环境异常打断（SELinux 拦截 / Shizuku 授权失效 / 系统负载异常）'**
+  String get ghostKeyDiagFallbackExit2Cause3;
+
+  /// 失败归因规则 FallbackExit2 的原因 4
+  ///
+  /// In zh, this message translates to:
+  /// **'或本次失败属于尚未被归因器覆盖的新变体（退出码为 2 但日志串未被规则捕获）'**
+  String get ghostKeyDiagFallbackExit2Cause4;
+
+  /// 失败归因规则 FallbackExit2 的建议 1
+  ///
+  /// In zh, this message translates to:
+  /// **'重启设备后重试一次——KASLR 每次开机都不同，重跑通常可解'**
+  String get ghostKeyDiagFallbackExit2Suggestion1;
+
+  /// 失败归因规则 FallbackExit2 的建议 2
+  ///
+  /// In zh, this message translates to:
+  /// **'确认运行的是最新构建（1.1.5），且 profile 由本机 boot.img 提取、release 精确匹配当前内核'**
+  String get ghostKeyDiagFallbackExit2Suggestion2;
+
+  /// 失败归因规则 FallbackExit2 的建议 3
+  ///
+  /// In zh, this message translates to:
+  /// **'不要只靠重试：请把「运行日志」页完整内容（尤其含 [calib_a] / [calib_b] 的行）保存下来，便于定位内核适配问题'**
+  String get ghostKeyDiagFallbackExit2Suggestion3;
+
+  /// 失败归因兜底规则的标题；exit 是整数退出码
+  ///
+  /// In zh, this message translates to:
+  /// **'流水线终止（exit={exit}）：未命中已知失败模式'**
+  String ghostKeyDiagFallbackGenericTitle(int exit);
+
+  /// 失败归因兜底规则的原因 1
+  ///
+  /// In zh, this message translates to:
+  /// **'时序敏感的竞态窗口未命中，或环境临时异常'**
+  String get ghostKeyDiagFallbackGenericCause1;
+
+  /// 失败归因兜底规则的建议 1
+  ///
+  /// In zh, this message translates to:
+  /// **'不要只靠重试：请把「运行日志」页完整内容复制保存，便于定位内核适配问题'**
+  String get ghostKeyDiagFallbackGenericSuggestion1;
+
+  /// 失败归因兜底规则的建议 2
+  ///
+  /// In zh, this message translates to:
+  /// **'连续失败请重启设备后再试；仍失败请保存运行日志以便排查'**
+  String get ghostKeyDiagFallbackGenericSuggestion2;
 }
 
 class _AppLocalizationsDelegate

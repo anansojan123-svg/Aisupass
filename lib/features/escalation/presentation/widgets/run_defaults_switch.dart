@@ -4,11 +4,12 @@ import 'package:Aisupass/features/escalation/domain/models/dirty_frag_run_defaul
 import 'package:Aisupass/features/escalation/presentation/providers/escalation_action_provider.dart';
 import 'package:Aisupass/features/escalation/presentation/widgets/dirty_frag_setting_row.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// 运行默认值里的一项开关：成功后软重启 / VR 反制 / 自动解析。
 ///
-/// 三项共用同一份偏好，写入时整体覆盖，所以每次点击都基于当前整体值改一项。
+/// 三项共用同一份偏好，写入时整体覆盖。渲染用本地值，点击先翻界面再落盘。
 /// 仅在专家模式打开时由外层挂载。
 class RunDefaultsSwitch extends HookConsumerWidget {
   const RunDefaultsSwitch({
@@ -36,41 +37,42 @@ class RunDefaultsSwitch extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<DirtyFragRunDefaults> defaults = ref.watch(
+    final AsyncValue<DirtyFragRunDefaults> async = ref.watch(
       dirtyFragRunDefaultsProvider,
     );
+    // 落盘后的即时值；null 表示还没点过，用读到的值。
+    final ValueNotifier<DirtyFragRunDefaults?> local =
+        useState<DirtyFragRunDefaults?>(null);
 
-    if (defaults.hasError) {
+    if (async.hasError) {
       return RefError(
         onRetry: () => ref.invalidate(dirtyFragRunDefaultsProvider),
       );
     }
 
-    final DirtyFragRunDefaults? current = defaults.value;
-    final bool unlocked =
-        current != null &&
-        !defaults.isLoading &&
-        (unlock?.call(current) ?? true);
+    final DirtyFragRunDefaults? loaded = async.value;
+    final DirtyFragRunDefaults? shown = local.value ?? loaded;
+    final bool unlocked = shown != null && (unlock?.call(shown) ?? true);
+
+    Future<void> save(DirtyFragRunDefaults next) async {
+      // 先翻界面：等 provider 重载再翻，会有一帧回跳。
+      local.value = next;
+      try {
+        await ref.read(dirtyFragActionsProvider).saveRunDefaults(next);
+      } catch (error) {
+        local.value = null;
+        ToastMessage.error(error);
+      }
+    }
 
     return DirtyFragSettingRow(
       icon: icon,
       title: title,
       subtitle: subtitle,
-      value: current != null && read(current),
-      onChanged: unlocked && current != null
-          ? (bool value) => _save(ref, write(current, value))
+      value: shown != null && read(shown),
+      onChanged: unlocked && shown != null
+          ? (bool value) => save(write(shown, value))
           : null,
     );
-  }
-
-  /// 写运行参数。四个字段整体覆盖，原生侧 `writeRunDefaults` 是一次 edit。
-  Future<void> _save(WidgetRef ref, DirtyFragRunDefaults defaults) async {
-    try {
-      await ref.read(
-        saveDirtyFragRunDefaultsProvider(defaults: defaults).future,
-      );
-    } catch (error) {
-      ToastMessage.error(error);
-    }
   }
 }

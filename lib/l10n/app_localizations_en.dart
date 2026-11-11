@@ -596,13 +596,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get escalationHandoffNoSu =>
+      'No su on this device. Escalate first to get temporary root, then hand off.';
+
+  @override
   String escalationHandoffFailed(int code) {
-    return 'Handoff failed (exit code $code). Common causes: manager version does not match the kernel module, permission was denied, or the manager is upgrading.';
+    return 'Handoff failed (exit code $code)';
   }
 
   @override
   String get escalationHandoffFailedNoCode =>
-      'Handoff failed: the command never ran, so there is no exit code. Check whether permission was denied or the manager is upgrading.';
+      'Handoff failed: the command never ran';
 
   @override
   String get escalationHandoffReadManagerFailed =>
@@ -783,7 +787,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String escalationDirtyFragNotStarted(String reason) {
-    return 'Rejected by the native side; reason code: $reason';
+    return 'Rejected by the native side: $reason';
   }
 
   @override
@@ -818,6 +822,208 @@ class AppLocalizationsEn extends AppLocalizations {
   String escalationDirtyFragVrExtractFailed(String error) {
     return 'Extract failed: $error';
   }
+
+  @override
+  String get escalationGhostKeyTitle => 'GhostKey Escalation';
+
+  @override
+  String escalationGhostKeyRunning(String manager) {
+    return 'Starting GhostKey escalation$manager';
+  }
+
+  @override
+  String get escalationGhostKeyNoAdb => 'adb is not connected';
+
+  @override
+  String escalationGhostKeySucceeded(String manager) {
+    return 'GhostKey completed, temporary root ready$manager';
+  }
+
+  @override
+  String get escalationGhostKeyDegraded =>
+      'GhostKey completed with low page-offset confidence';
+
+  @override
+  String get escalationGhostKeyCalibFailed => 'KASLR slide calibration failed';
+
+  @override
+  String get escalationGhostKeyPageOffsetFailed =>
+      'Linear-map page-offset calibration failed';
+
+  @override
+  String get escalationGhostKeyInjectFailed =>
+      'Injection failed: rootd not ready';
+
+  @override
+  String get escalationGhostKeyVerifyFailed =>
+      'Temporary root channel verification failed';
+
+  @override
+  String get escalationGhostKeyKsuFailed =>
+      'Temporary root ready, KernelSU takeover failed';
+
+  @override
+  String get escalationGhostKeyTimedOut => 'GhostKey timed out';
+
+  @override
+  String escalationGhostKeyNotStarted(String reason) {
+    return 'GhostKey not started: $reason';
+  }
+
+  @override
+  String get escalationGhostKeyReasonAlreadyRunning =>
+      'A run is already in progress';
+
+  @override
+  String get escalationGhostKeyReasonNoAdb => 'ADB is not connected';
+
+  @override
+  String get escalationGhostKeyReasonNotShell => 'Shell uid is not 2000';
+
+  @override
+  String get escalationGhostKeyReasonSeccomp => 'Shell is filtered by seccomp';
+
+  @override
+  String get escalationGhostKeyReasonMissingBinary => 'Payload file is missing';
+
+  @override
+  String get escalationGhostKeyReasonNoProfile =>
+      'No profile for the current kernel version';
+
+  @override
+  String get escalationGhostKeyReasonBadRequest => 'Invalid request';
+
+  @override
+  String escalationReasonWithCode(String label, String code) {
+    return '$label ($code)';
+  }
+
+  @override
+  String get escalationDirtyFragReasonAlreadyArmed => 'Already armed';
+
+  @override
+  String get escalationDirtyFragReasonBusy => 'Another run is in progress';
+
+  @override
+  String get escalationDirtyFragReasonNoIpSec => 'IpSec service unavailable';
+
+  @override
+  String get escalationDirtyFragReasonMissingBinary =>
+      'Manager or payload file missing';
+
+  @override
+  String get escalationDirtyFragReasonStagingFailed =>
+      'Staging or start failed';
+
+  @override
+  String get escalationDirtyFragReasonBadRequest => 'Invalid request';
+
+  @override
+  String get escalationGhostKeyFailed => 'GhostKey failed';
+
+  @override
+  String get escalationGhostKeyConfirmTitle => 'Confirm GhostKey Escalation';
+
+  @override
+  String get escalationGhostKeyConfirmRisk =>
+      'This calibrates kernel mappings and injects rootd; the device may be briefly unavailable.';
+
+  @override
+  String get escalationGhostKeyConfirmRun => 'Start escalation';
+
+  @override
+  String get escalationGhostKeyFieldManager => 'Manager';
+
+  @override
+  String get escalationGhostKeyFieldRelease => 'Kernel release';
+
+  @override
+  String get escalationGhostKeyFieldShellUid => 'shell uid';
+
+  @override
+  String get escalationGhostKeyFieldSeccomp => 'seccomp';
+
+  @override
+  String get escalationGhostKeyFieldProfile => 'Profile matched';
+
+  @override
+  String get escalationGhostKeyFieldRunKsu => 'Take over KSU';
+
+  @override
+  String get escalationGhostKeyFieldFallback => 'Accept fallback offset';
+
+  @override
+  String get escalationGhostKeyValueUnknown => 'Unknown';
+
+  @override
+  String get escalationGhostKeyValueNone => 'Not selected';
+
+  @override
+  String get escalationGhostKeyValueYes => 'Yes';
+
+  @override
+  String get escalationGhostKeyValueNo => 'No';
+
+  @override
+  String get escalationGhostKeyToggleOn => 'On';
+
+  @override
+  String get escalationGhostKeyToggleOff => 'Off';
+
+  @override
+  String get escalationGhostKeyProgressTitle => 'Progress';
+
+  @override
+  String escalationGhostKeyDurationSeconds(String seconds) {
+    return '$seconds s';
+  }
+
+  @override
+  String get escalationGhostKeyStageCalibAName => 'KASLR slide calibration';
+
+  @override
+  String get escalationGhostKeyStageCalibBName => 'Linear-map calibration';
+
+  @override
+  String get escalationGhostKeyStageInjectName => 'Inject rootd';
+
+  @override
+  String get escalationGhostKeyStageVerifyName => 'Verify temporary root';
+
+  @override
+  String get escalationGhostKeyStageKsuName => 'Take over KernelSU';
+
+  @override
+  String get escalationGhostKeyStageCalibAHint => 'Locating kernel base';
+
+  @override
+  String get escalationGhostKeyStageCalibBHint => 'Calibrating linear map';
+
+  @override
+  String get escalationGhostKeyStageInjectHint => 'Injecting rootd';
+
+  @override
+  String get escalationGhostKeyStageVerifyHint => 'Verifying root channel';
+
+  @override
+  String get escalationGhostKeyStageKsuHint => 'Handing over to KernelSU';
+
+  @override
+  String get settingsGhostKeySection => 'GhostKey';
+
+  @override
+  String get settingsGhostKeyRunKsuTitle => 'Take over KernelSU';
+
+  @override
+  String get settingsGhostKeyRunKsuDesc =>
+      'Hand kernel capability to KernelSU after escalation';
+
+  @override
+  String get settingsGhostKeyAcceptFallbackTitle => 'Accept fallback offset';
+
+  @override
+  String get settingsGhostKeyAcceptFallbackDesc =>
+      'Continue injection when page-offset confidence is low';
 
   @override
   String get settingsBootAutostartSection => 'Root';
@@ -982,4 +1188,622 @@ class AppLocalizationsEn extends AppLocalizations {
   String rootManagerSaveFailed(String message) {
     return 'Save failed: $message';
   }
+
+  @override
+  String get kernelProfileTitle => 'Kernel profile';
+
+  @override
+  String get kernelProfileEntrySubtitle =>
+      'Generate kernel parameters from boot.img';
+
+  @override
+  String get kernelProfilePageDesc =>
+      'When the device kernel is not in the built-in table, generate a profile from its boot.img. The profile is kept in the private app storage.';
+
+  @override
+  String get kernelProfileImportAction => 'Choose boot.img';
+
+  @override
+  String get kernelProfileImportUrlHint => 'OTA link (HTTP/HTTPS)';
+
+  @override
+  String get kernelProfileImportUrlAction => 'Import from link';
+
+  @override
+  String get kernelProfileBtfHint =>
+      'The kernel must carry BTF info; third-party ROMs and older devices may lack the struct offsets';
+
+  @override
+  String get kernelProfilePasteExample => 'Paste example';
+
+  @override
+  String get kernelProfileWhyBtfTitle => 'Why is BTF required?';
+
+  @override
+  String get kernelProfileWhyBtfBody =>
+      'The generated profile forges credentials by writing to byte offsets inside struct cred, and those offsets change across kernel versions, so they cannot be hard-coded.\n\nIf the kernel image carries BTF (CONFIG_DEBUG_INFO_BTF), the real layout of task_struct and cred can be read straight from the image. Without BTF, task_cred, task_struct_size and cred_uid cannot be obtained and the profile cannot be generated.\n\nThe link must also support HTTP Range (partial download); otherwise the boot partition cannot be fetched on its own. Vendor OTA images and GKI devices such as Pixel usually satisfy both.';
+
+  @override
+  String get kernelProfileDialogClose => 'Got it';
+
+  @override
+  String get otaCatalogBrowseAction => 'History';
+
+  @override
+  String get otaCatalogTitle => 'Historical OTA packages';
+
+  @override
+  String get otaCatalogSearchHint => 'Search device or build';
+
+  @override
+  String get otaCatalogPickHint =>
+      'Tap any version to fill its direct link above';
+
+  @override
+  String get otaCatalogEmpty => 'No matching device or build';
+
+  @override
+  String otaCatalogVersionCount(int count) {
+    return '$count versions';
+  }
+
+  @override
+  String get otaCatalogBrandGoogle => 'Google';
+
+  @override
+  String get otaCatalogBrandRealme => 'realme';
+
+  @override
+  String get kernelProfileDetailTitle => 'Kernel parameters';
+
+  @override
+  String get kernelProfileDetailOverview => 'Overview';
+
+  @override
+  String get kernelProfileDetailOffsets => 'Structure offsets';
+
+  @override
+  String get kernelProfileDetailRaw => 'Raw config';
+
+  @override
+  String get kernelProfileDetailVulnType => 'Vulnerability';
+
+  @override
+  String get kernelProfileDetailPageOffset => 'Page offset';
+
+  @override
+  String get kernelProfileDetailSource => 'Source';
+
+  @override
+  String get kernelProfileDetailCopy => 'Copy';
+
+  @override
+  String get kernelProfileDetailCopied => 'Raw config copied';
+
+  @override
+  String get kernelProfileDetailEmpty =>
+      'Content unavailable; the file may have been removed';
+
+  @override
+  String get kernelProfilePhaseLocate => 'Locating OTA package';
+
+  @override
+  String get kernelProfilePhaseRead => 'Downloading image';
+
+  @override
+  String kernelProfileBytesProgress(String done, String total) {
+    return '$done / $total';
+  }
+
+  @override
+  String get kernelProfilePhaseParse => 'Parsing kernel';
+
+  @override
+  String get kernelProfilePhaseSave => 'Writing profile';
+
+  @override
+  String get kernelProfilePhaseDone => 'Done';
+
+  @override
+  String kernelProfileImportSuccess(String release) {
+    return 'Profile generated: $release';
+  }
+
+  @override
+  String get kernelProfileImportFailed => 'Import failed';
+
+  @override
+  String kernelProfileMissingFields(String fields) {
+    return 'Missing required fields: $fields';
+  }
+
+  @override
+  String get kernelProfileImportedSection => 'Imported profiles';
+
+  @override
+  String get kernelProfileImportedEmpty => 'No imported profile yet';
+
+  @override
+  String get kernelProfileRemove => 'Remove';
+
+  @override
+  String get kernelProfileRemoveConfirmTitle => 'Remove this profile?';
+
+  @override
+  String kernelProfileRemoveConfirmBody(String release) {
+    return '$release will be deleted. If no other profile matches this device, you will need to import again.';
+  }
+
+  @override
+  String get kernelProfileErrorEmptyPath => 'No file path was provided';
+
+  @override
+  String get kernelProfileErrorNotFound => 'File not found or unreadable';
+
+  @override
+  String get kernelProfileErrorTooLarge => 'File is too large to parse';
+
+  @override
+  String get kernelProfileErrorNotBootImage => 'This is not a boot.img';
+
+  @override
+  String get kernelProfileErrorDecode => 'Failed to decompress the kernel';
+
+  @override
+  String get kernelProfileErrorIncomplete =>
+      'The result was incomplete and was not saved';
+
+  @override
+  String get kernelProfileErrorIo => 'Failed to read or write the file';
+
+  @override
+  String get kernelProfileErrorNoBtf =>
+      'This ROM\'s kernel has no BTF info, so struct offsets cannot be derived';
+
+  @override
+  String get kernelProfileErrorBadUrl =>
+      'Invalid link; an HTTP or HTTPS address is required';
+
+  @override
+  String get kernelProfileErrorDownload =>
+      'Failed to download or unpack the OTA';
+
+  @override
+  String kernelProfileErrorDetail(String detail) {
+    return 'Details: $detail';
+  }
+
+  @override
+  String get kernelProfileErrorOom => 'Out of memory while parsing';
+
+  @override
+  String get kernelProfileErrorUnknown => 'Unknown error';
+
+  @override
+  String get ghostKeyRunResultRunning => 'Running';
+
+  @override
+  String get ghostKeyRunResultSuccess => 'Success';
+
+  @override
+  String get ghostKeyRunResultFailed => 'Failed';
+
+  @override
+  String get ghostKeyRunResultStopped => 'Stopped';
+
+  @override
+  String get ghostKeyRunResultInterrupted => 'Interrupted';
+
+  @override
+  String ghostKeyDurationSeconds(int seconds) {
+    return '${seconds}s';
+  }
+
+  @override
+  String ghostKeyDurationMinutesSeconds(int minutes, int seconds) {
+    return '${minutes}m ${seconds}s';
+  }
+
+  @override
+  String get ghostKeyRunLogTitle => 'Run Logs';
+
+  @override
+  String get ghostKeyRunLogEntrySubtitle =>
+      'Review past runs and failure diagnoses';
+
+  @override
+  String ghostKeyRunLogCount(int count) {
+    return '$count runs · newest first';
+  }
+
+  @override
+  String get ghostKeyRunLogEmpty => 'No runs yet';
+
+  @override
+  String get ghostKeyRunLogExportAll => 'Export All';
+
+  @override
+  String get ghostKeyRunLogExportAllFileName => 'run-logs-all.log';
+
+  @override
+  String get ghostKeyRunLogClearAll => 'Clear All Runs';
+
+  @override
+  String get ghostKeyRunLogCleared => 'Run logs cleared';
+
+  @override
+  String ghostKeyRunLogDetailTitle(int runId) {
+    return 'Run #$runId';
+  }
+
+  @override
+  String get ghostKeyRunLogCopy => 'Copy';
+
+  @override
+  String get ghostKeyRunLogCopied => 'Copied to clipboard';
+
+  @override
+  String get ghostKeyRunLogSaveAs => 'Save As';
+
+  @override
+  String get ghostKeyRunLogSaved => 'Saved';
+
+  @override
+  String get ghostKeyRunLogDeleteThis => 'Delete This Run';
+
+  @override
+  String ghostKeyRunLogDiagTitlePrefix(String title) {
+    return 'Diagnosis: $title';
+  }
+
+  @override
+  String ghostKeyRunLogDiagCausePrefix(String cause) {
+    return 'Possible cause: $cause';
+  }
+
+  @override
+  String ghostKeyRunLogDiagSuggestionPrefix(String suggestion) {
+    return 'Suggestion: $suggestion';
+  }
+
+  @override
+  String get ghostKeyDiagCalibANoSlideCandidateTitle =>
+      'KASLR offset solving failed: no trustworthy kernel base address among the candidates';
+
+  @override
+  String get ghostKeyDiagCalibANoSlideCandidateCause1 =>
+      'Kernel just finished an OTA / just rebooted; the runtime layout no longer matches the profile assumptions';
+
+  @override
+  String get ghostKeyDiagCalibANoSlideCandidateCause2 =>
+      'The imported profile does not match the current kernel (boot.img version mismatch)';
+
+  @override
+  String get ghostKeyDiagCalibANoSlideCandidateCause3 =>
+      'Abnormal background load polluted the k_itimer samples';
+
+  @override
+  String get ghostKeyDiagCalibANoSlideCandidateCause4 =>
+      'The tracefs sampling window caught no k_itimer records (SELinux blocking / insufficient Shizuku permission / too low background load)';
+
+  @override
+  String get ghostKeyDiagCalibANoSlideCandidateSuggestion1 =>
+      'Reboot the device and try once more';
+
+  @override
+  String get ghostKeyDiagCalibANoSlideCandidateSuggestion2 =>
+      'Make sure the profile matches the current kernel version (see the kernel version on the device info row)';
+
+  @override
+  String get ghostKeyDiagCalibANoSlideCandidateSuggestion3 =>
+      'If it keeps failing, save the run log for investigation';
+
+  @override
+  String get ghostKeyDiagCalibANoKitimerRecordsTitle =>
+      'KASLR offset solving failed: the multi-size probe collected no k_itimer allocation records';
+
+  @override
+  String get ghostKeyDiagCalibANoKitimerRecordsCause1 =>
+      'The tracefs kmem_cache_alloc event was never enabled (blocked by SELinux, or abnormal Shizuku authorization / mount)';
+
+  @override
+  String get ghostKeyDiagCalibANoKitimerRecordsCause2 =>
+      'The local k_itimer struct size is outside the candidate set 0x108 / 0x100 / 0x110 / 0x118, so no size matched';
+
+  @override
+  String get ghostKeyDiagCalibANoKitimerRecordsCause3 =>
+      'System load was too low during sampling, so timer call sites were not triggered enough';
+
+  @override
+  String get ghostKeyDiagCalibANoKitimerRecordsSuggestion1 =>
+      'Confirm Shizuku is authorized and tracefs is writable (Settings → Developer options)';
+
+  @override
+  String get ghostKeyDiagCalibANoKitimerRecordsSuggestion2 =>
+      'Reboot and retry so that sampling completes within a single boot';
+
+  @override
+  String get ghostKeyDiagCalibANoKitimerRecordsSuggestion3 =>
+      'If it still fails, save the run log (including [calib_a] and arm_kmem_cache_alloc lines) for investigation';
+
+  @override
+  String get ghostKeyDiagCalibATracefsUnusableTitle =>
+      'tracefs unavailable: mounting / reading kernel trace events failed';
+
+  @override
+  String get ghostKeyDiagCalibATracefsUnusableCause1 =>
+      'The SELinux policy blocked writes to tracefs';
+
+  @override
+  String get ghostKeyDiagCalibATracefsUnusableCause2 =>
+      'Shizuku authorization problem (not started, or the permission was revoked)';
+
+  @override
+  String get ghostKeyDiagCalibATracefsUnusableCause3 =>
+      'Some ROMs strip the tracefs nodes';
+
+  @override
+  String get ghostKeyDiagCalibATracefsUnusableSuggestion1 =>
+      'Confirm Shizuku is running and has granted permission to this app';
+
+  @override
+  String get ghostKeyDiagCalibATracefsUnusableSuggestion2 =>
+      'Check whether USB debugging (wireless debugging) is available in Developer options';
+
+  @override
+  String get ghostKeyDiagCalibATracefsUnusableSuggestion3 =>
+      'Restart Shizuku and retry; if it still fails, save the log for investigation';
+
+  @override
+  String get ghostKeyDiagCalibBNoMatchingRecordsTitle =>
+      'Page offset solving failed: the base address from calibration A does not match reality';
+
+  @override
+  String get ghostKeyDiagCalibBNoMatchingRecordsCause1 =>
+      'The KASLR slide from calibration A is wrong (an upstream error; fix calibration A first)';
+
+  @override
+  String get ghostKeyDiagCalibBNoMatchingRecordsCause2 =>
+      'Kernel memory layout changed between the two calibrations';
+
+  @override
+  String get ghostKeyDiagCalibBNoMatchingRecordsSuggestion1 =>
+      'Reboot so both calibrations complete within the same boot session';
+
+  @override
+  String get ghostKeyDiagCalibBNoMatchingRecordsSuggestion2 =>
+      'Re-run the full pipeline (do not skip the calibration steps)';
+
+  @override
+  String get ghostKeyDiagCalibBInsufficientSamplesTitle =>
+      'Insufficient samples: too few triggered samples to solve the page offset';
+
+  @override
+  String get ghostKeyDiagCalibBInsufficientSamplesCause1 =>
+      'Background load was too low, so timer call sites were not triggered enough';
+
+  @override
+  String get ghostKeyDiagCalibBInsufficientSamplesCause2 =>
+      'The device just cold-booted and runtime services are not up yet';
+
+  @override
+  String get ghostKeyDiagCalibBInsufficientSamplesSuggestion1 =>
+      'Put the device under light use (e.g. play music) and retry';
+
+  @override
+  String get ghostKeyDiagCalibBInsufficientSamplesSuggestion2 =>
+      'Just run it again; samples are usually more plentiful the second time';
+
+  @override
+  String get ghostKeyDiagInjectResidualProcessTitle =>
+      'A leftover process from the previous round is still pinning a freed page; injecting again would crash the kernel';
+
+  @override
+  String get ghostKeyDiagInjectResidualProcessCause1 =>
+      'The previous round never reached cleanup (force-quit / power loss)';
+
+  @override
+  String get ghostKeyDiagInjectResidualProcessSuggestion1 =>
+      'You must reboot before retrying (killing the leftover process does not help)';
+
+  @override
+  String get ghostKeyDiagInjectRootdNotReadyTitle =>
+      'The exploit triggered but the root channel was never established: rootd timed out';
+
+  @override
+  String get ghostKeyDiagInjectRootdNotReadyCause1 =>
+      'The device kernel carries a partial backport of the fix, making the UAF window unstable';
+
+  @override
+  String get ghostKeyDiagInjectRootdNotReadyCause2 =>
+      'System load skewed the race timing';
+
+  @override
+  String get ghostKeyDiagInjectRootdNotReadySuggestion1 =>
+      'Reboot and try once or twice more';
+
+  @override
+  String get ghostKeyDiagInjectRootdNotReadySuggestion2 =>
+      'If it times out at the same point every time, the kernel may already be fixed; record the model and kernel version for feedback';
+
+  @override
+  String get ghostKeyDiagInjectOffsetTableMissingTitle =>
+      'Kernel offset table not loaded: injection has no profile data';
+
+  @override
+  String get ghostKeyDiagInjectOffsetTableMissingCause1 =>
+      'No profile was imported, or the imported profile file is corrupt';
+
+  @override
+  String get ghostKeyDiagInjectOffsetTableMissingCause2 =>
+      'The profile does not match the current kernel and was rejected by the engine';
+
+  @override
+  String get ghostKeyDiagInjectOffsetTableMissingSuggestion1 =>
+      'Re-import a profile for this kernel version (extracted from boot.img)';
+
+  @override
+  String get ghostKeyDiagInjectTaskLeakFailedTitle =>
+      'task_struct address leak failed: no matching task_struct slab allocation in the scan window';
+
+  @override
+  String get ghostKeyDiagInjectTaskLeakFailedCause1 =>
+      'The task_struct cache size disagrees with sizeof(task_struct) from BTF: the cache is created via kmem_cache_create_usercopy(\"task_struct\", arch_task_struct_size, 0x40, ...), where arch_task_struct_size is a runtime variable that vendors may extend via android_arch_task_struct_size= (up to 0x400)';
+
+  @override
+  String get ghostKeyDiagInjectTaskLeakFailedCause2 =>
+      'The kmem_cache_alloc event was never enabled (tracefs not writable / SELinux denied)';
+
+  @override
+  String get ghostKeyDiagInjectTaskLeakFailedCause3 =>
+      'A fork landed on a CPU that was not read (scanning covers all real cores, so this should not happen)';
+
+  @override
+  String get ghostKeyDiagInjectTaskLeakFailedSuggestion1 =>
+      'Update to a build that includes this fix and retry (size matching now uses the [sizeof, sizeof+0x400] window, tolerating vendor extensions)';
+
+  @override
+  String get ghostKeyDiagInjectTaskLeakFailedSuggestion2 =>
+      'In the log, [task] raw=0 means the event was not enabled; raw>0 with hits=0 means the size window is wrong — save the [task] sizes= line for investigation';
+
+  @override
+  String get ghostKeyDiagVerifyFailedTitle =>
+      'Temporary root verification failed: the su check did not pass after the escalation channel came up';
+
+  @override
+  String get ghostKeyDiagVerifyFailedCause1 =>
+      'The credential rewrite during injection was incomplete (the upstream race only partly succeeded)';
+
+  @override
+  String get ghostKeyDiagVerifyFailedCause2 =>
+      'The verification subprocess was blocked by SELinux or a system policy';
+
+  @override
+  String get ghostKeyDiagVerifyFailedSuggestion1 =>
+      'Reboot and re-run the full pipeline';
+
+  @override
+  String get ghostKeyDiagVerifyFailedSuggestion2 =>
+      'Check the SELinux state (Settings → Developer options); do not force it to Permissive';
+
+  @override
+  String get ghostKeyDiagKsuAlreadyLiveTitle =>
+      'The KernelSU module is already resident: the old module is still in memory, so late-load was skipped';
+
+  @override
+  String get ghostKeyDiagKsuAlreadyLiveCause1 =>
+      'The kernelsu module injected by the previous escalation is still alive';
+
+  @override
+  String get ghostKeyDiagKsuAlreadyLiveSuggestion1 =>
+      'Reboot and run again so the manager can see the new takeover';
+
+  @override
+  String get ghostKeyDiagKsuAlreadyLiveSuggestion2 =>
+      'If you only want root, there is no need to re-run — you already have temporary root';
+
+  @override
+  String get ghostKeyDiagKsuModuleAbsentTitle =>
+      'KSU late-load failed: the module never appeared in /proc/modules';
+
+  @override
+  String get ghostKeyDiagKsuModuleAbsentCause1 =>
+      'The KernelSU manager / ksud on the device is too old, so the KMI does not match';
+
+  @override
+  String get ghostKeyDiagKsuModuleAbsentCause2 =>
+      'The kernel restricted the module load path';
+
+  @override
+  String get ghostKeyDiagKsuModuleAbsentSuggestion1 =>
+      'Update the KernelSU manager on the device to the latest version';
+
+  @override
+  String get ghostKeyDiagKsuModuleAbsentSuggestion2 =>
+      'Retry once; if it keeps failing, save the log and note the manager version';
+
+  @override
+  String get ghostKeyDiagKsuKsudMissingTitle =>
+      'ksud not found: no KernelSU manager on the device and the bundled fallback failed';
+
+  @override
+  String get ghostKeyDiagKsuKsudMissingCause1 =>
+      'The KernelSU manager is not installed';
+
+  @override
+  String get ghostKeyDiagKsuKsudMissingCause2 =>
+      'The bundled fallback ksud is incompatible with the current architecture / KMI';
+
+  @override
+  String get ghostKeyDiagKsuKsudMissingSuggestion1 =>
+      'Install the official KernelSU manager first, then re-run the pipeline';
+
+  @override
+  String get ghostKeyDiagHostShizukuUnavailableTitle =>
+      'Shizuku environment problem: the host process cannot start the escalation pipeline';
+
+  @override
+  String get ghostKeyDiagHostShizukuUnavailableCause1 =>
+      'The Shizuku service is not running (wireless debugging off or adb not connected)';
+
+  @override
+  String get ghostKeyDiagHostShizukuUnavailableCause2 =>
+      'The user denied the Shizuku authorization for this app';
+
+  @override
+  String get ghostKeyDiagHostShizukuUnavailableSuggestion1 =>
+      'Open the Shizuku app and make sure the service runs (either wireless debugging or adb)';
+
+  @override
+  String get ghostKeyDiagHostShizukuUnavailableSuggestion2 =>
+      'Request authorization again inside this app and allow it';
+
+  @override
+  String get ghostKeyDiagFallbackExit2Title =>
+      'Pipeline terminated (exit=2): KASLR offset solving failed and no known sub-pattern matched';
+
+  @override
+  String get ghostKeyDiagFallbackExit2Cause1 =>
+      'Calibration A could not derive a trustworthy kernel base from k_itimer samples (the most common failure point)';
+
+  @override
+  String get ghostKeyDiagFallbackExit2Cause2 =>
+      'The current kernel layout disagrees with the selected profile (recent OTA / reboot, or a mismatched profile version, gives wrong timer_link/cred_link offsets)';
+
+  @override
+  String get ghostKeyDiagFallbackExit2Cause3 =>
+      'tracefs sampling was interrupted by an environment problem (SELinux blocking / Shizuku authorization lost / abnormal system load)';
+
+  @override
+  String get ghostKeyDiagFallbackExit2Cause4 =>
+      'Or this failure is a new variant not yet covered by the diagnoser (exit code 2 but the log string matched no rule)';
+
+  @override
+  String get ghostKeyDiagFallbackExit2Suggestion1 =>
+      'Reboot and retry once — KASLR differs on every boot, so a re-run usually solves it';
+
+  @override
+  String get ghostKeyDiagFallbackExit2Suggestion2 =>
+      'Make sure you are on the latest build (1.1.5) and the profile was extracted from the device boot.img with a release exactly matching the current kernel';
+
+  @override
+  String get ghostKeyDiagFallbackExit2Suggestion3 =>
+      'Do not just retry: save the full contents of the Run Log page (especially lines containing [calib_a] / [calib_b]) to help locate kernel compatibility issues';
+
+  @override
+  String ghostKeyDiagFallbackGenericTitle(int exit) {
+    return 'Pipeline terminated (exit=$exit): no known failure pattern matched';
+  }
+
+  @override
+  String get ghostKeyDiagFallbackGenericCause1 =>
+      'The timing-sensitive race window was missed, or the environment failed temporarily';
+
+  @override
+  String get ghostKeyDiagFallbackGenericSuggestion1 =>
+      'Do not just retry: copy and save the full contents of the Run Log page to help locate kernel compatibility issues';
+
+  @override
+  String get ghostKeyDiagFallbackGenericSuggestion2 =>
+      'After repeated failures, reboot and retry; if it still fails, save the run log for investigation';
 }

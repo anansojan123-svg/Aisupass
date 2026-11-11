@@ -585,13 +585,15 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get escalationHandoffNoSu => '设备上没有 su，先跑提权拿到临时 root 再移交。';
+
+  @override
   String escalationHandoffFailed(int code) {
-    return '移交失败（退出码 $code）。常见原因：管理器版本与内核模块不匹配、授权被拒绝，或管理器正在升级。';
+    return '移交失败（退出码 $code）';
   }
 
   @override
-  String get escalationHandoffFailedNoCode =>
-      '移交失败：命令没跑起来，没拿到退出码。检查授权框是否被拒绝，或管理器是否在升级。';
+  String get escalationHandoffFailedNoCode => '移交失败：命令没跑起来，没拿到退出码。';
 
   @override
   String get escalationHandoffReadManagerFailed => '移交失败：读不到已选的管理器';
@@ -760,7 +762,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String escalationDirtyFragNotStarted(String reason) {
-    return '原生侧未受理，原因码：$reason';
+    return '原生侧未受理：$reason';
   }
 
   @override
@@ -794,6 +796,197 @@ class AppLocalizationsZh extends AppLocalizations {
   String escalationDirtyFragVrExtractFailed(String error) {
     return '提取失败：$error';
   }
+
+  @override
+  String get escalationGhostKeyTitle => 'GhostKey 提权';
+
+  @override
+  String escalationGhostKeyRunning(String manager) {
+    return '开始 GhostKey 提权$manager';
+  }
+
+  @override
+  String get escalationGhostKeyNoAdb => 'adb 未连接';
+
+  @override
+  String escalationGhostKeySucceeded(String manager) {
+    return 'GhostKey 完成，临时 root 已就绪$manager';
+  }
+
+  @override
+  String get escalationGhostKeyDegraded => 'GhostKey 完成，但线性映射置信度偏低';
+
+  @override
+  String get escalationGhostKeyCalibFailed => 'KASLR slide 校准失败';
+
+  @override
+  String get escalationGhostKeyPageOffsetFailed => '线性映射基址校准失败';
+
+  @override
+  String get escalationGhostKeyInjectFailed => '注入失败：rootd 未就绪';
+
+  @override
+  String get escalationGhostKeyVerifyFailed => '临时 root 通道校验失败';
+
+  @override
+  String get escalationGhostKeyKsuFailed => '临时 root 已就绪，KernelSU 接管失败';
+
+  @override
+  String get escalationGhostKeyTimedOut => 'GhostKey 超时';
+
+  @override
+  String escalationGhostKeyNotStarted(String reason) {
+    return 'GhostKey 未启动：$reason';
+  }
+
+  @override
+  String get escalationGhostKeyReasonAlreadyRunning => '已有任务在运行';
+
+  @override
+  String get escalationGhostKeyReasonNoAdb => 'ADB 未连接';
+
+  @override
+  String get escalationGhostKeyReasonNotShell => 'shell 身份不是 2000';
+
+  @override
+  String get escalationGhostKeyReasonSeccomp => 'shell 带 seccomp 过滤';
+
+  @override
+  String get escalationGhostKeyReasonMissingBinary => '载荷文件缺失';
+
+  @override
+  String get escalationGhostKeyReasonNoProfile => '当前内核版本没有对应 profile';
+
+  @override
+  String get escalationGhostKeyReasonBadRequest => '请求参数不合法';
+
+  @override
+  String escalationReasonWithCode(String label, String code) {
+    return '$label（$code）';
+  }
+
+  @override
+  String get escalationDirtyFragReasonAlreadyArmed => '已有驻留标记';
+
+  @override
+  String get escalationDirtyFragReasonBusy => '有任务正在运行';
+
+  @override
+  String get escalationDirtyFragReasonNoIpSec => '系统没有 IpSec 服务';
+
+  @override
+  String get escalationDirtyFragReasonMissingBinary => '管理器或载荷文件缺失';
+
+  @override
+  String get escalationDirtyFragReasonStagingFailed => '落位或启动失败';
+
+  @override
+  String get escalationDirtyFragReasonBadRequest => '请求参数不合法';
+
+  @override
+  String get escalationGhostKeyFailed => 'GhostKey 失败';
+
+  @override
+  String get escalationGhostKeyConfirmTitle => '确认 GhostKey 提权';
+
+  @override
+  String get escalationGhostKeyConfirmRisk =>
+      '该操作会校准内核映射并注入 rootd，过程中设备可能短暂不可用。';
+
+  @override
+  String get escalationGhostKeyConfirmRun => '开始提权';
+
+  @override
+  String get escalationGhostKeyFieldManager => '管理器';
+
+  @override
+  String get escalationGhostKeyFieldRelease => '内核版本';
+
+  @override
+  String get escalationGhostKeyFieldShellUid => 'shell uid';
+
+  @override
+  String get escalationGhostKeyFieldSeccomp => 'seccomp';
+
+  @override
+  String get escalationGhostKeyFieldProfile => 'profile 命中';
+
+  @override
+  String get escalationGhostKeyFieldRunKsu => '接管 KSU';
+
+  @override
+  String get escalationGhostKeyFieldFallback => '接受降级偏移';
+
+  @override
+  String get escalationGhostKeyValueUnknown => '未知';
+
+  @override
+  String get escalationGhostKeyValueNone => '未选择';
+
+  @override
+  String get escalationGhostKeyValueYes => '是';
+
+  @override
+  String get escalationGhostKeyValueNo => '否';
+
+  @override
+  String get escalationGhostKeyToggleOn => '开';
+
+  @override
+  String get escalationGhostKeyToggleOff => '关';
+
+  @override
+  String get escalationGhostKeyProgressTitle => '进度';
+
+  @override
+  String escalationGhostKeyDurationSeconds(String seconds) {
+    return '$seconds s';
+  }
+
+  @override
+  String get escalationGhostKeyStageCalibAName => 'KASLR slide 校准';
+
+  @override
+  String get escalationGhostKeyStageCalibBName => '线性映射校准';
+
+  @override
+  String get escalationGhostKeyStageInjectName => '注入 rootd';
+
+  @override
+  String get escalationGhostKeyStageVerifyName => '校验临时 root';
+
+  @override
+  String get escalationGhostKeyStageKsuName => '接管 KernelSU';
+
+  @override
+  String get escalationGhostKeyStageCalibAHint => '定位内核基址';
+
+  @override
+  String get escalationGhostKeyStageCalibBHint => '校准线性映射';
+
+  @override
+  String get escalationGhostKeyStageInjectHint => '注入并启动 rootd';
+
+  @override
+  String get escalationGhostKeyStageVerifyHint => '校验 root 通道';
+
+  @override
+  String get escalationGhostKeyStageKsuHint => '移交 KernelSU';
+
+  @override
+  String get settingsGhostKeySection => 'GhostKey';
+
+  @override
+  String get settingsGhostKeyRunKsuTitle => '接管 KernelSU';
+
+  @override
+  String get settingsGhostKeyRunKsuDesc => '提权完成后自动把内核能力移交给 KernelSU';
+
+  @override
+  String get settingsGhostKeyAcceptFallbackTitle => '接受降级偏移';
+
+  @override
+  String get settingsGhostKeyAcceptFallbackDesc => '线性映射置信度偏低时继续注入，不中止';
 
   @override
   String get settingsBootAutostartSection => '提权';
@@ -951,4 +1144,594 @@ class AppLocalizationsZh extends AppLocalizations {
   String rootManagerSaveFailed(String message) {
     return '保存失败：$message';
   }
+
+  @override
+  String get kernelProfileTitle => '内核 profile';
+
+  @override
+  String get kernelProfileEntrySubtitle => '从 boot.img 生成本机内核参数';
+
+  @override
+  String get kernelProfilePageDesc =>
+      '本机内核不在内置表里时，用本机的 boot.img 生成 profile。生成的 profile 只保存在本应用私有目录。';
+
+  @override
+  String get kernelProfileImportAction => '选择 boot.img';
+
+  @override
+  String get kernelProfileImportUrlHint => 'OTA 链接（HTTP/HTTPS）';
+
+  @override
+  String get kernelProfileImportUrlAction => '从链接导入';
+
+  @override
+  String get kernelProfileBtfHint => '需要带 BTF 调试信息的内核，第三方 ROM 或老机型可能取不到结构偏移';
+
+  @override
+  String get kernelProfilePasteExample => '粘贴示例';
+
+  @override
+  String get kernelProfileWhyBtfTitle => '为什么需要 BTF？';
+
+  @override
+  String get kernelProfileWhyBtfBody =>
+      '生成的 profile 靠 struct cred 各字段的字节偏移来伪造凭据，而这些偏移随内核版本变化，不能写死。\n\n内核镜像若带 BTF（编译开关 CONFIG_DEBUG_INFO_BTF），就能直接从镜像读出 task_struct、cred 的真实布局；没有 BTF 就取不到 task_cred、task_struct_size、cred_uid，profile 生成不了。\n\n另外链接必须支持 HTTP Range（分段下载），否则无法只取 boot 分区。厂商原厂 OTA 和 Pixel 等 GKI 机型一般两者都满足。';
+
+  @override
+  String get kernelProfileDialogClose => '知道了';
+
+  @override
+  String get otaCatalogBrowseAction => '历史版本';
+
+  @override
+  String get otaCatalogTitle => '历史 OTA 包';
+
+  @override
+  String get otaCatalogSearchHint => '搜索机型或版本号';
+
+  @override
+  String get otaCatalogPickHint => '点任意版本，把直链填进上面的输入框';
+
+  @override
+  String get otaCatalogEmpty => '没有匹配的机型或版本';
+
+  @override
+  String otaCatalogVersionCount(int count) {
+    return '$count 个版本';
+  }
+
+  @override
+  String get otaCatalogBrandGoogle => 'Google';
+
+  @override
+  String get otaCatalogBrandRealme => 'realme';
+
+  @override
+  String get kernelProfileDetailTitle => '内核参数详情';
+
+  @override
+  String get kernelProfileDetailOverview => '基本信息';
+
+  @override
+  String get kernelProfileDetailOffsets => '结构偏移';
+
+  @override
+  String get kernelProfileDetailRaw => '原始配置';
+
+  @override
+  String get kernelProfileDetailVulnType => '漏洞类型';
+
+  @override
+  String get kernelProfileDetailPageOffset => '页偏移';
+
+  @override
+  String get kernelProfileDetailSource => '导入来源';
+
+  @override
+  String get kernelProfileDetailCopy => '复制';
+
+  @override
+  String get kernelProfileDetailCopied => '已复制原始配置';
+
+  @override
+  String get kernelProfileDetailEmpty => '读取不到内容，文件可能已被删除';
+
+  @override
+  String get kernelProfilePhaseLocate => '定位 OTA 包';
+
+  @override
+  String get kernelProfilePhaseRead => '下载镜像';
+
+  @override
+  String kernelProfileBytesProgress(String done, String total) {
+    return '$done / $total';
+  }
+
+  @override
+  String get kernelProfilePhaseParse => '解析内核';
+
+  @override
+  String get kernelProfilePhaseSave => '写入 profile';
+
+  @override
+  String get kernelProfilePhaseDone => '完成';
+
+  @override
+  String kernelProfileImportSuccess(String release) {
+    return '已生成 profile：$release';
+  }
+
+  @override
+  String get kernelProfileImportFailed => '导入失败';
+
+  @override
+  String kernelProfileMissingFields(String fields) {
+    return '缺少必填字段：$fields';
+  }
+
+  @override
+  String get kernelProfileImportedSection => '已导入的 profile';
+
+  @override
+  String get kernelProfileImportedEmpty => '还没有导入过 profile';
+
+  @override
+  String get kernelProfileRemove => '删除';
+
+  @override
+  String get kernelProfileRemoveConfirmTitle => '删除这份 profile？';
+
+  @override
+  String kernelProfileRemoveConfirmBody(String release) {
+    return '$release 将被删除。本机若没有其它匹配的 profile，需要重新导入。';
+  }
+
+  @override
+  String get kernelProfileErrorEmptyPath => '没有拿到文件路径';
+
+  @override
+  String get kernelProfileErrorNotFound => '文件不存在或不可读';
+
+  @override
+  String get kernelProfileErrorTooLarge => '文件过大，无法解析';
+
+  @override
+  String get kernelProfileErrorNotBootImage => '这不是一个 boot.img';
+
+  @override
+  String get kernelProfileErrorDecode => '解压内核失败';
+
+  @override
+  String get kernelProfileErrorIncomplete => '解析结果不完整，未保存';
+
+  @override
+  String get kernelProfileErrorIo => '读写文件失败';
+
+  @override
+  String get kernelProfileErrorNoBtf => '这个 ROM 的内核不含 BTF 调试信息，无法推导结构偏移';
+
+  @override
+  String get kernelProfileErrorBadUrl => '链接无效，需要 HTTP 或 HTTPS 地址';
+
+  @override
+  String get kernelProfileErrorDownload => '下载或解包 OTA 失败';
+
+  @override
+  String kernelProfileErrorDetail(String detail) {
+    return '详情：$detail';
+  }
+
+  @override
+  String get kernelProfileErrorOom => '内存不足，解析中断';
+
+  @override
+  String get kernelProfileErrorUnknown => '未知错误';
+
+  @override
+  String get ghostKeyRunResultRunning => '进行中';
+
+  @override
+  String get ghostKeyRunResultSuccess => '成功';
+
+  @override
+  String get ghostKeyRunResultFailed => '失败';
+
+  @override
+  String get ghostKeyRunResultStopped => '已停止';
+
+  @override
+  String get ghostKeyRunResultInterrupted => '中断';
+
+  @override
+  String ghostKeyDurationSeconds(int seconds) {
+    return '$seconds秒';
+  }
+
+  @override
+  String ghostKeyDurationMinutesSeconds(int minutes, int seconds) {
+    return '$minutes分$seconds秒';
+  }
+
+  @override
+  String get ghostKeyRunLogTitle => '运行记录';
+
+  @override
+  String get ghostKeyRunLogEntrySubtitle => '查看历史运行明细与失败诊断';
+
+  @override
+  String ghostKeyRunLogCount(int count) {
+    return '共 $count 次 · 最新在最上';
+  }
+
+  @override
+  String get ghostKeyRunLogEmpty => '暂无运行记录';
+
+  @override
+  String get ghostKeyRunLogExportAll => '导出全部';
+
+  @override
+  String get ghostKeyRunLogExportAllFileName => 'run-logs-all.log';
+
+  @override
+  String get ghostKeyRunLogClearAll => '清空全部记录';
+
+  @override
+  String get ghostKeyRunLogCleared => '运行记录已清空';
+
+  @override
+  String ghostKeyRunLogDetailTitle(int runId) {
+    return '运行 #$runId';
+  }
+
+  @override
+  String get ghostKeyRunLogCopy => '复制';
+
+  @override
+  String get ghostKeyRunLogCopied => '已复制到剪贴板';
+
+  @override
+  String get ghostKeyRunLogSaveAs => '另存为';
+
+  @override
+  String get ghostKeyRunLogSaved => '已保存';
+
+  @override
+  String get ghostKeyRunLogDeleteThis => '删除这一次记录';
+
+  @override
+  String ghostKeyRunLogDiagTitlePrefix(String title) {
+    return '诊断: $title';
+  }
+
+  @override
+  String ghostKeyRunLogDiagCausePrefix(String cause) {
+    return '可能原因: $cause';
+  }
+
+  @override
+  String ghostKeyRunLogDiagSuggestionPrefix(String suggestion) {
+    return '建议: $suggestion';
+  }
+
+  @override
+  String get ghostKeyDiagCalibANoSlideCandidateTitle =>
+      'KASLR 偏移解算失败：候选地址里找不到可信的内核基址';
+
+  @override
+  String get ghostKeyDiagCalibANoSlideCandidateCause1 =>
+      '内核刚完成 OTA / 刚重启，运行时布局与 profile 假设不符';
+
+  @override
+  String get ghostKeyDiagCalibANoSlideCandidateCause2 =>
+      '导入的 profile 与当前内核版本不匹配（boot.img 版本对不上）';
+
+  @override
+  String get ghostKeyDiagCalibANoSlideCandidateCause3 =>
+      '设备后台负载异常，k_itimer 采样被污染';
+
+  @override
+  String get ghostKeyDiagCalibANoSlideCandidateCause4 =>
+      'tracefs 采样窗口未抓到任何 k_itimer 记录（SELinux 拦截 / Shizuku 权限不足 / 后台负载过低）';
+
+  @override
+  String get ghostKeyDiagCalibANoSlideCandidateSuggestion1 => '重启设备后重试一次';
+
+  @override
+  String get ghostKeyDiagCalibANoSlideCandidateSuggestion2 =>
+      '确认 profile 对应当前内核版本（设备信息条上的内核版本）';
+
+  @override
+  String get ghostKeyDiagCalibANoSlideCandidateSuggestion3 =>
+      '若连续失败，请保存运行日志以便排查';
+
+  @override
+  String get ghostKeyDiagCalibANoKitimerRecordsTitle =>
+      'KASLR 偏移解算失败：多尺寸探针没采到任何 k_itimer 分配记录';
+
+  @override
+  String get ghostKeyDiagCalibANoKitimerRecordsCause1 =>
+      'tracefs 的 kmem_cache_alloc 事件没被打开（被 SELinux 拦截，或 Shizuku 授权 / 挂载异常）';
+
+  @override
+  String get ghostKeyDiagCalibANoKitimerRecordsCause2 =>
+      '本机 k_itimer 结构体尺寸不在候选集 0x108 / 0x100 / 0x110 / 0x118 内，所有尺寸都没匹配到记录';
+
+  @override
+  String get ghostKeyDiagCalibANoKitimerRecordsCause3 =>
+      '采样窗口内系统负载过低，定时器调用点未被充分触发';
+
+  @override
+  String get ghostKeyDiagCalibANoKitimerRecordsSuggestion1 =>
+      '确认 Shizuku 已授权且 tracefs 可写（设置 → 开发者选项）';
+
+  @override
+  String get ghostKeyDiagCalibANoKitimerRecordsSuggestion2 =>
+      '重启设备后重试，让采样在单次开机内完成';
+
+  @override
+  String get ghostKeyDiagCalibANoKitimerRecordsSuggestion3 =>
+      '仍失败请保存运行日志（含 [calib_a] 与 arm_kmem_cache_alloc 行）以便排查';
+
+  @override
+  String get ghostKeyDiagCalibATracefsUnusableTitle =>
+      'tracefs 不可用：内核追踪事件挂载/读取失败';
+
+  @override
+  String get ghostKeyDiagCalibATracefsUnusableCause1 =>
+      'SELinux 策略拦截了 tracefs 写入';
+
+  @override
+  String get ghostKeyDiagCalibATracefsUnusableCause2 =>
+      'Shizuku 授权异常（未启动或权限被回收）';
+
+  @override
+  String get ghostKeyDiagCalibATracefsUnusableCause3 => '部分 ROM 精简了 tracefs 节点';
+
+  @override
+  String get ghostKeyDiagCalibATracefsUnusableSuggestion1 =>
+      '确认 Shizuku 正在运行且已给本应用授权';
+
+  @override
+  String get ghostKeyDiagCalibATracefsUnusableSuggestion2 =>
+      '检查开发者选项中 USB 调试（无线调试）是否可用';
+
+  @override
+  String get ghostKeyDiagCalibATracefsUnusableSuggestion3 =>
+      '重启 Shizuku 后重试；仍失败请保存日志排查';
+
+  @override
+  String get ghostKeyDiagCalibBNoMatchingRecordsTitle =>
+      '页偏移解算失败：校准 A 得出的基址与实际不符';
+
+  @override
+  String get ghostKeyDiagCalibBNoMatchingRecordsCause1 =>
+      '校准 A 的 KASLR slide 不准（上游错误，先解决校准 A）';
+
+  @override
+  String get ghostKeyDiagCalibBNoMatchingRecordsCause2 => '两次校准之间内核内存布局发生变化';
+
+  @override
+  String get ghostKeyDiagCalibBNoMatchingRecordsSuggestion1 =>
+      '重启设备让两次校准在同一次开机状态内完成';
+
+  @override
+  String get ghostKeyDiagCalibBNoMatchingRecordsSuggestion2 =>
+      '重跑完整流水线（不要单独跳过校准步骤）';
+
+  @override
+  String get ghostKeyDiagCalibBInsufficientSamplesTitle =>
+      '采样不足：触发样本太少，无法解算页偏移';
+
+  @override
+  String get ghostKeyDiagCalibBInsufficientSamplesCause1 =>
+      '系统后台负载过低，定时器调用点未被充分触发';
+
+  @override
+  String get ghostKeyDiagCalibBInsufficientSamplesCause2 => '设备刚冷启动，运行时服务还没起来';
+
+  @override
+  String get ghostKeyDiagCalibBInsufficientSamplesSuggestion1 =>
+      '让设备处于轻度使用状态（如播放音乐）后再重试';
+
+  @override
+  String get ghostKeyDiagCalibBInsufficientSamplesSuggestion2 =>
+      '直接多跑一次，样本量通常第二次更充分';
+
+  @override
+  String get ghostKeyDiagInjectResidualProcessTitle =>
+      '存在上一轮残留进程：残留进程还钉着已释放的页，继续注入会导致内核崩溃';
+
+  @override
+  String get ghostKeyDiagInjectResidualProcessCause1 =>
+      '上一轮提权未走完清理步骤（中途强退 / 断电）';
+
+  @override
+  String get ghostKeyDiagInjectResidualProcessSuggestion1 =>
+      '必须重启设备后再试（杀掉残留进程不解决问题）';
+
+  @override
+  String get ghostKeyDiagInjectRootdNotReadyTitle =>
+      '漏洞已触发但 root 通道未建立：rootd 超时未就绪';
+
+  @override
+  String get ghostKeyDiagInjectRootdNotReadyCause1 =>
+      '设备内核对该漏洞打了部分回移植补丁，UAF 窗口不稳定';
+
+  @override
+  String get ghostKeyDiagInjectRootdNotReadyCause2 => '系统负载导致竞态时序偏差';
+
+  @override
+  String get ghostKeyDiagInjectRootdNotReadySuggestion1 => '重启设备后再试 1~2 次';
+
+  @override
+  String get ghostKeyDiagInjectRootdNotReadySuggestion2 =>
+      '若每次都在同一位置超时，内核可能已修复，请记录机型与内核版本以便反馈';
+
+  @override
+  String get ghostKeyDiagInjectOffsetTableMissingTitle =>
+      '内核偏移表未加载：注入缺少 profile 数据';
+
+  @override
+  String get ghostKeyDiagInjectOffsetTableMissingCause1 =>
+      '未导入 / 导入了损坏的 profile 文件';
+
+  @override
+  String get ghostKeyDiagInjectOffsetTableMissingCause2 =>
+      'profile 与当前内核不匹配被引擎拒绝';
+
+  @override
+  String get ghostKeyDiagInjectOffsetTableMissingSuggestion1 =>
+      '重新导入对应内核版本的 profile（boot.img 提取）';
+
+  @override
+  String get ghostKeyDiagInjectTaskLeakFailedTitle =>
+      'task_struct 地址泄漏失败：扫描窗口内没有匹配到 task_struct 的 slab 分配记录';
+
+  @override
+  String get ghostKeyDiagInjectTaskLeakFailedCause1 =>
+      'task_struct 缓存尺寸与 BTF 的 sizeof(task_struct) 不一致：缓存由 kmem_cache_create_usercopy(\"task_struct\", arch_task_struct_size, 0x40, ...) 创建，arch_task_struct_size 是运行时变量，厂商可用 android_arch_task_struct_size= 在其上追加（最多 0x400）';
+
+  @override
+  String get ghostKeyDiagInjectTaskLeakFailedCause2 =>
+      'kmem_cache_alloc 事件未被打开（tracefs 不可写 / SELinux 拒绝）';
+
+  @override
+  String get ghostKeyDiagInjectTaskLeakFailedCause3 =>
+      'fork 落在未被读取的 CPU 上（按实际核数扫描，理论上不会）';
+
+  @override
+  String get ghostKeyDiagInjectTaskLeakFailedSuggestion1 =>
+      '更新到本修复之后的版本重试（尺寸匹配已改为 [sizeof, sizeof+0x400] 窗口，兼容厂商扩展）';
+
+  @override
+  String get ghostKeyDiagInjectTaskLeakFailedSuggestion2 =>
+      '日志里 [task] raw=0 说明是事件没开；raw>0 但 hits=0 则是尺寸窗口不对，请把 [task] sizes= 那行保存下来以便排查';
+
+  @override
+  String get ghostKeyDiagVerifyFailedTitle => '临时 root 验证失败：提权通道建立后 su 校验未通过';
+
+  @override
+  String get ghostKeyDiagVerifyFailedCause1 => '注入阶段的凭据改写不完整（上游竞态部分成功）';
+
+  @override
+  String get ghostKeyDiagVerifyFailedCause2 => '验证子进程被 SELinux 或系统策略拦截';
+
+  @override
+  String get ghostKeyDiagVerifyFailedSuggestion1 => '重启设备后重试完整流水线';
+
+  @override
+  String get ghostKeyDiagVerifyFailedSuggestion2 =>
+      '检查 SELinux 状态（设置 → 开发者选项），不强制改 Permissive';
+
+  @override
+  String get ghostKeyDiagKsuAlreadyLiveTitle =>
+      'KernelSU 模块已驻留：旧模块仍在内存，late-load 被跳过';
+
+  @override
+  String get ghostKeyDiagKsuAlreadyLiveCause1 => '上一次提权注入的 kernelsu 模块还活着';
+
+  @override
+  String get ghostKeyDiagKsuAlreadyLiveSuggestion1 => '重启设备后再跑一次，管理器才能看到新接管';
+
+  @override
+  String get ghostKeyDiagKsuAlreadyLiveSuggestion2 =>
+      '若只是想用 root，无需重跑——当前已是临时 root 状态';
+
+  @override
+  String get ghostKeyDiagKsuModuleAbsentTitle =>
+      'KSU late-load 失败：模块没有出现在 /proc/modules';
+
+  @override
+  String get ghostKeyDiagKsuModuleAbsentCause1 =>
+      '设备上的 KernelSU 管理器 / ksud 版本过旧，KMI 不匹配';
+
+  @override
+  String get ghostKeyDiagKsuModuleAbsentCause2 => '模块加载路径被内核限制';
+
+  @override
+  String get ghostKeyDiagKsuModuleAbsentSuggestion1 =>
+      '更新设备上的 KernelSU 管理器到最新版';
+
+  @override
+  String get ghostKeyDiagKsuModuleAbsentSuggestion2 => '重试一次；连续失败请保存日志并注明管理器版本';
+
+  @override
+  String get ghostKeyDiagKsuKsudMissingTitle =>
+      '找不到 ksud：设备上未安装 KernelSU 管理器且内置兜底失效';
+
+  @override
+  String get ghostKeyDiagKsuKsudMissingCause1 => 'KernelSU 管理器未安装';
+
+  @override
+  String get ghostKeyDiagKsuKsudMissingCause2 => '内置兜底 ksud 与当前架构 / KMI 不兼容';
+
+  @override
+  String get ghostKeyDiagKsuKsudMissingSuggestion1 =>
+      '先安装 KernelSU 官方管理器，再重跑流水线';
+
+  @override
+  String get ghostKeyDiagHostShizukuUnavailableTitle =>
+      'Shizuku 环境异常：宿主进程无法启动提权流水线';
+
+  @override
+  String get ghostKeyDiagHostShizukuUnavailableCause1 =>
+      'Shizuku 服务未启动（未开无线调试或 adb 未连接）';
+
+  @override
+  String get ghostKeyDiagHostShizukuUnavailableCause2 => '用户拒绝了本应用的 Shizuku 授权';
+
+  @override
+  String get ghostKeyDiagHostShizukuUnavailableSuggestion1 =>
+      '打开 Shizuku 应用并确保服务运行（无线调试 / adb 两种方式均可）';
+
+  @override
+  String get ghostKeyDiagHostShizukuUnavailableSuggestion2 => '在本应用内重新发起授权并允许';
+
+  @override
+  String get ghostKeyDiagFallbackExit2Title =>
+      '流水线终止（exit=2）：KASLR 偏移解算失败，且未命中任何已知细分模式';
+
+  @override
+  String get ghostKeyDiagFallbackExit2Cause1 =>
+      '校准 A 未能从 k_itimer 采样解出可信内核基址（最常见的失败点）';
+
+  @override
+  String get ghostKeyDiagFallbackExit2Cause2 =>
+      '当前内核布局与所选 profile 不符（刚 OTA/重启、或 profile 版本对不上，导致 timer_link/cred_link 偏移错误）';
+
+  @override
+  String get ghostKeyDiagFallbackExit2Cause3 =>
+      'tracefs 采样被环境异常打断（SELinux 拦截 / Shizuku 授权失效 / 系统负载异常）';
+
+  @override
+  String get ghostKeyDiagFallbackExit2Cause4 =>
+      '或本次失败属于尚未被归因器覆盖的新变体（退出码为 2 但日志串未被规则捕获）';
+
+  @override
+  String get ghostKeyDiagFallbackExit2Suggestion1 =>
+      '重启设备后重试一次——KASLR 每次开机都不同，重跑通常可解';
+
+  @override
+  String get ghostKeyDiagFallbackExit2Suggestion2 =>
+      '确认运行的是最新构建（1.1.5），且 profile 由本机 boot.img 提取、release 精确匹配当前内核';
+
+  @override
+  String get ghostKeyDiagFallbackExit2Suggestion3 =>
+      '不要只靠重试：请把「运行日志」页完整内容（尤其含 [calib_a] / [calib_b] 的行）保存下来，便于定位内核适配问题';
+
+  @override
+  String ghostKeyDiagFallbackGenericTitle(int exit) {
+    return '流水线终止（exit=$exit）：未命中已知失败模式';
+  }
+
+  @override
+  String get ghostKeyDiagFallbackGenericCause1 => '时序敏感的竞态窗口未命中，或环境临时异常';
+
+  @override
+  String get ghostKeyDiagFallbackGenericSuggestion1 =>
+      '不要只靠重试：请把「运行日志」页完整内容复制保存，便于定位内核适配问题';
+
+  @override
+  String get ghostKeyDiagFallbackGenericSuggestion2 =>
+      '连续失败请重启设备后再试；仍失败请保存运行日志以便排查';
 }

@@ -3,7 +3,9 @@ import 'package:Aisupass/common/pages/main_page.dart';
 import 'package:Aisupass/features/ai/presentation/pages/ai_config_edit_page.dart';
 import 'package:Aisupass/features/ai/presentation/pages/ai_config_page.dart';
 import 'package:Aisupass/features/chat/presentation/pages/chat_page.dart';
+import 'package:Aisupass/features/escalation/presentation/pages/kernel_profile_page.dart';
 import 'package:Aisupass/features/escalation/presentation/pages/manual_escalation_page.dart';
+import 'package:Aisupass/features/escalation/presentation/pages/run_log_page.dart';
 import 'package:go_router/go_router.dart';
 
 /// 全局路由路径常量。
@@ -28,6 +30,16 @@ class AppRoute {
 
   // 提权
   static const manualEscalation = '/escalation/manual';
+
+  // 内核 profile（boot.img 导入）
+  static const kernelProfile = '/kernelProfile';
+
+  // 运行记录
+  static const String runLog = '/runLog';
+
+  /// 详情页路径。`fileName` 编码后作为 query 参数。
+  static String runLogDetail(String fileName) =>
+      '$runLog?file=${Uri.encodeComponent(fileName)}';
 
   // 桌面端
   static const desktopHome = '/desktop';
@@ -63,6 +75,16 @@ final List<GoRoute> appRoutes = [
   GoRoute(
     path: AppRoute.manualEscalation,
     builder: (context, state) => const ManualEscalationPage(),
+  ),
+  GoRoute(
+    path: AppRoute.kernelProfile,
+    builder: (context, state) => const KernelProfilePage(),
+  ),
+  GoRoute(
+    path: AppRoute.runLog,
+    builder: (context, state) => RunLogPage(
+      openedFile: state.uri.queryParameters['file'],
+    ),
   ),
   GoRoute(
     path: AppRoute.desktopHome,

@@ -145,6 +145,18 @@ class EscalationActionDatasource {
       );
     }
 
+    // 候选路径全 miss 后退回裸 `su`，设备上也没有 —— 提权这一步还没完成。
+    if (HandoffScript.indicatesNoSu(output, handoff.exitCode)) {
+      return HandoffOutcome(
+        kind: HandoffKind.noSu,
+        manager: manager,
+        exitCode: handoff.exitCode,
+        output: output,
+        durationMs: durationMs,
+        timedOut: handoff.timedOut,
+      );
+    }
+
     final String ksudPath = HandoffScript.ksudPathFrom(handoff.stdout);
     // 路径来自设备输出，含引号 / 反引号 / `$` 时原样回显可被复制去拼命令。
     if (ksudPath.isNotEmpty &&

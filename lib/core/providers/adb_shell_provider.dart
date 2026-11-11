@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:Aisupass/generated/adb_shell.g.dart';
 import 'package:flutter/foundation.dart';

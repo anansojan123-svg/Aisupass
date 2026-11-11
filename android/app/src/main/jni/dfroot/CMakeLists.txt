@@ -4,9 +4,10 @@ enable_language(ASM)
 
 set(JNI_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
-# 追加 -I${CMAKE_CURRENT_BINARY_DIR}，让 .incbin "splicehelper" 找得到产物
+# 两处 -I 都要带 ${CMAKE_CURRENT_BINARY_DIR}：exp.c 的内联 .incbin 取 binary dir
+# 下的 splicehelper，libcxx.S 同理；clang 的 .incbin 走 -I 搜索，不走相对路径。
 set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -I${JNI_DIR} -I${CMAKE_CURRENT_BINARY_DIR}")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -I${JNI_DIR} -Wall -Wextra -fno-stack-protector -fomit-frame-pointer")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -I${JNI_DIR} -I${CMAKE_CURRENT_BINARY_DIR} -Wall -Wextra -fno-stack-protector -fomit-frame-pointer")
 
 # splicehelper 产物落 binary dir，不回写源码树
 set(SPLICEHELPER "${CMAKE_CURRENT_BINARY_DIR}/splicehelper")

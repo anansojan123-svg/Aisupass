@@ -4,6 +4,12 @@ import android.content.Context
 import io.flutter.plugin.common.BinaryMessenger
 import org.supass.ai_su_pass.core.bridge.adb_shell_native.AdbShellNative
 import org.supass.ai_su_pass.core.bridge.adb_shell_native.AdbShellNativeImpl
+import org.supass.ai_su_pass.core.bridge.cve98260_native.Cve98260Native
+import org.supass.ai_su_pass.core.bridge.cve98260_native.Cve98260NativeImpl
+import org.supass.ai_su_pass.core.bridge.cve98260_native.Cve98260ProfileNative
+import org.supass.ai_su_pass.core.bridge.cve98260_native.Cve98260ProfileNativeImpl
+import org.supass.ai_su_pass.core.bridge.cve98260_native.Cve98260RunLogNative
+import org.supass.ai_su_pass.core.bridge.cve98260_native.Cve98260RunLogNativeImpl
 import org.supass.ai_su_pass.core.bridge.device_identity_native.DeviceIdentityNative
 import org.supass.ai_su_pass.core.bridge.device_identity_native.DeviceIdentityNativeImpl
 import org.supass.ai_su_pass.core.bridge.dirty_frag_native.DirtyFragNative
@@ -26,6 +32,9 @@ object NativeProvider {
     private var deviceIdentityImpl: DeviceIdentityNativeImpl? = null
     private var rootManagerImpl: RootManagerNativeImpl? = null
     private var dirtyFragImpl: DirtyFragNativeImpl? = null
+    private var cve98260Impl: Cve98260NativeImpl? = null
+    private var cve98260ProfileImpl: Cve98260ProfileNativeImpl? = null
+    private var runLogImpl: Cve98260RunLogNativeImpl? = null
 
     fun registerAll(context: Context, messenger: BinaryMessenger) {
         systemStatusImpl?.dispose()
@@ -54,6 +63,21 @@ object NativeProvider {
         val fragImpl = DirtyFragNativeImpl(context.applicationContext)
         dirtyFragImpl = fragImpl
         DirtyFragNative.setUp(messenger, fragImpl)
+
+        cve98260Impl?.dispose()
+        val ghostKeyImpl = Cve98260NativeImpl(context.applicationContext, shellImpl)
+        cve98260Impl = ghostKeyImpl
+        Cve98260Native.setUp(messenger, ghostKeyImpl)
+
+        cve98260ProfileImpl?.dispose()
+        val profileImpl = Cve98260ProfileNativeImpl(context.applicationContext)
+        cve98260ProfileImpl = profileImpl
+        Cve98260ProfileNative.setUp(messenger, profileImpl)
+
+        runLogImpl?.dispose()
+        val runLogNativeImpl = Cve98260RunLogNativeImpl(context.applicationContext)
+        runLogImpl = runLogNativeImpl
+        Cve98260RunLogNative.setUp(messenger, runLogNativeImpl)
     }
 
     fun dispose() {
@@ -67,5 +91,11 @@ object NativeProvider {
         rootManagerImpl = null
         dirtyFragImpl?.dispose()
         dirtyFragImpl = null
+        cve98260Impl?.dispose()
+        cve98260Impl = null
+        cve98260ProfileImpl?.dispose()
+        cve98260ProfileImpl = null
+        runLogImpl?.dispose()
+        runLogImpl = null
     }
 }
