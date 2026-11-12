@@ -12,6 +12,9 @@ use std::sync::Arc;
 
 use anyhow::Context;
 
+/// GhostLock profile 提取（boot.img / payload.bin / OTA → HOCON）。
+pub mod profile;
+
 /// Progress callback: `(phase, done, total)` where phase is 0 = download,
 /// 1 = extraction. Units are bytes for phase 0, operations for phase 1.
 pub type ProgressFn = dyn Fn(u32, u64, u64) + Sync + Send;
@@ -151,6 +154,12 @@ mod jni {
     static PROG_DONE: AtomicU64 = AtomicU64::new(0);
     static PROG_TOTAL: AtomicU64 = AtomicU64::new(0);
 
+    /// GhostLock profile 提取的进度，与 DirtyFrag 的 `PROG_*` 分开存放，
+    /// 避免两条链路的轮询互相覆盖。
+    static PROFILE_PHASE: AtomicU64 = AtomicU64::new(0);
+    static PROFILE_DONE: AtomicU64 = AtomicU64::new(0);
+    static PROFILE_TOTAL: AtomicU64 = AtomicU64::new(0);
+
     /// Called from Java on a poller thread: "phase done total", phase
     /// 0 = download (bytes), 1 = extraction (ops). Returned as a plain
     /// string to keep the native surface trivial to parse.
@@ -198,6 +207,83 @@ mod jni {
             },
         ));
         let json = derive_json(&input, &work, insecure == 1, progress);
+        let j = env
+            .new_string(json)
+            .or_else(|_| {
+                env.new_string(r#"{"ok":false,"error":"jni new_string failed"}"#)
+            })
+            .map(JString::from);
+        match j {
+            Ok(v) => v,
+            Err(e) => panic!("jni new_string failed twice: {e}"),
+        }
+    }
+
+    /// 轮询 GhostLock profile 提取进度：`"phase done total"`，
+    /// phase 0 = 下载（字节），1 = 解包与解析，2 = 完成。
+    #[no_mangle]
+    pub extern "system" fn Java_org_supass_ai_1su_1pass_cve43499_GhostLockProfileExtractor_nativeProfileProgress<'local>(
+        env: JNIEnv<'local>,
+        _class: JClass,
+    ) -> JString<'local> {
+        let s = format!(
+            "{} {} {}",
+            PROFILE_PHASE.load(Ordering::Relaxed),
+            PROFILE_DONE.load(Ordering::Relaxed),
+            PROFILE_TOTAL.load(Ordering::Relaxed)
+        );
+        let j = env
+            .new_string(s)
+            .or_else(|_| env.new_string("0 0 0"))
+            .map(JString::from);
+        match j {
+            Ok(v) => v,
+            Err(e) => panic!("jni new_string failed twice: {e}"),
+        }
+    }
+
+    /// 提取 GhostLock profile。符号名对应
+    /// `org.supass.ai_su_pass.cve43499.GhostLockProfileExtractor`，与 DirtyFrag
+    /// 的入口分离：两个 CVE 共用同一个 `.so`，但各自持有 JNI 类。
+    /// 返回 `{"ok":true,"release":"...","conf":"...","warnings":[...]}` 或
+    /// `{"ok":false,"error":"..."}`；不抛 Java 异常。
+    #[no_mangle]
+    pub extern "system" fn Java_org_supass_ai_1su_1pass_cve43499_GhostLockProfileExtractor_nativeDeriveProfile<'local>(
+        mut env: JNIEnv<'local>,
+        _class: JClass,
+        input: JString<'local>,
+        work_dir: JString<'local>,
+        insecure: jboolean,
+    ) -> JString<'local> {
+        let input: String = env.get_string(&input).map(|s| s.into()).unwrap_or_default();
+        let work: String = env
+            .get_string(&work_dir)
+            .map(|s| s.into())
+            .unwrap_or_else(|_| "/data/local/tmp".into());
+        PROFILE_PHASE.store(0, Ordering::Relaxed);
+        PROFILE_DONE.store(0, Ordering::Relaxed);
+        PROFILE_TOTAL.store(0, Ordering::Relaxed);
+        let progress: Option<Arc<ProgressFn>> = Some(Arc::new(|phase, done, total| {
+            PROFILE_PHASE.store(phase as u64, Ordering::Relaxed);
+            PROFILE_DONE.store(done, Ordering::Relaxed);
+            PROFILE_TOTAL.store(total, Ordering::Relaxed);
+        }));
+        let json = match crate::profile::derive_profile(
+            &input,
+            std::path::Path::new(&work),
+            insecure == 1,
+            progress,
+        ) {
+            Ok(derived) => serde_json::json!({
+                "ok": true,
+                "release": derived.release,
+                "conf": derived.conf,
+                "warnings": derived.warnings,
+                "bootPath": derived.boot_path,
+            })
+            .to_string(),
+            Err(err) => serde_json::json!({ "ok": false, "error": err.to_string() }).to_string(),
+        };
         let j = env
             .new_string(json)
             .or_else(|_| {

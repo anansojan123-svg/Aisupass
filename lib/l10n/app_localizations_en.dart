@@ -1009,6 +1009,235 @@ class AppLocalizationsEn extends AppLocalizations {
   String get escalationGhostKeyStageKsuHint => 'Handing over to KernelSU';
 
   @override
+  String get escalationGhostLockTitle => 'GhostLock root';
+
+  @override
+  String get escalationGhostLockFieldManager => 'Manager';
+
+  @override
+  String get escalationGhostLockFieldRelease => 'Kernel';
+
+  @override
+  String get escalationGhostLockFieldProfile => 'Kernel table';
+
+  @override
+  String get escalationGhostLockFieldRoute => 'Route';
+
+  @override
+  String get escalationGhostLockFieldSeccomp => 'Seccomp';
+
+  @override
+  String get escalationGhostLockFieldKsud => 'ksud';
+
+  @override
+  String get escalationGhostLockValueYes => 'yes';
+
+  @override
+  String get escalationGhostLockValueNo => 'no';
+
+  @override
+  String get escalationGhostLockValueNone => 'none';
+
+  @override
+  String get escalationGhostLockValueUnknown => 'unknown';
+
+  @override
+  String get escalationGhostLockSafeModeTitle => 'Safe mode';
+
+  @override
+  String get escalationGhostLockSafeModeDesc =>
+      'Marks modules under /data/adb/modules as disabled before the run';
+
+  @override
+  String get escalationGhostLockConfirmRun => 'Start';
+
+  @override
+  String get escalationGhostLockConfirmRisk =>
+      'SELinux is put permissive during the run and may stay that way if it fails. A reboot restores it.';
+
+  @override
+  String get escalationGhostLockNoAdb =>
+      'Wireless debugging is not connected; pair it in settings first';
+
+  @override
+  String get escalationGhostLockMissingBinary =>
+      'libghostlock.so is missing from the installed build; reinstall the app';
+
+  @override
+  String escalationGhostLockNoProfile(String release) {
+    return 'No kernel table entry for $release, and no approximate match is attempted';
+  }
+
+  @override
+  String escalationGhostLockProfileInvalid(String reason) {
+    return 'Kernel table could not be decoded: $reason';
+  }
+
+  @override
+  String get escalationGhostLockSeccompFiltered =>
+      'This shell is seccomp-filtered and the chain cannot clear it';
+
+  @override
+  String escalationGhostLockRunning(String manager) {
+    return 'Running GhostLock$manager…';
+  }
+
+  @override
+  String escalationGhostLockSucceeded(String manager) {
+    return 'Kernel module loaded; KernelSU took over$manager';
+  }
+
+  @override
+  String get escalationGhostLockAlreadyRooted =>
+      'KernelSU already owns this boot; the exploit was skipped';
+
+  @override
+  String get escalationGhostLockTempRootOnly =>
+      'Temporary root obtained, but the KernelSU module is not loaded yet';
+
+  @override
+  String get escalationGhostLockSeccompBlocked =>
+      'The rooted child still runs under a seccomp filter, so KernelSU cannot load';
+
+  @override
+  String get escalationGhostLockKsuFailed =>
+      'KernelSU module load failed; see the ksud output above';
+
+  @override
+  String get escalationGhostLockW1Failed =>
+      'Disabling SELinux failed; see the output above';
+
+  @override
+  String get escalationGhostLockW2Failed =>
+      'The credential stage failed; see the output above';
+
+  @override
+  String get escalationGhostLockW3Failed =>
+      'Clearing seccomp failed; see the output above';
+
+  @override
+  String get escalationGhostLockReleaseMismatch =>
+      'The kernel table does not match the device kernel; native exited';
+
+  @override
+  String get escalationGhostLockDirtyRace =>
+      'The race ended dirty and native stopped itself';
+
+  @override
+  String get escalationGhostLockTimedOut =>
+      'Timed out waiting for the final signal; reading stopped, the device side may still be running';
+
+  @override
+  String escalationGhostLockNotStarted(String reason) {
+    return 'Rejected by the native side; reason code: $reason';
+  }
+
+  @override
+  String get escalationGhostLockFailed =>
+      'No recognisable final marker; see the output above';
+
+  @override
+  String escalationGhostLockHandoffFollowUp(String manager) {
+    return 'Handing root off to $manager';
+  }
+
+  @override
+  String get escalationGhostLockProfileEdit => 'Edit kernel table';
+
+  @override
+  String get escalationGhostLockProfileTabGeneral => 'General';
+
+  @override
+  String get escalationGhostLockProfileTabRoute => 'Route';
+
+  @override
+  String get escalationGhostLockProfileTabAdvanced => 'Advanced';
+
+  @override
+  String get escalationGhostLockProfileNotProvided => 'not provided';
+
+  @override
+  String get escalationGhostLockProfileInvalidField =>
+      'This value violates the offset rules';
+
+  @override
+  String get escalationGhostLockProfileOverridden => 'modified';
+
+  @override
+  String get escalationGhostLockProfileReset => 'Reset all edits';
+
+  @override
+  String get escalationGhostLockProfileExport => 'Export to file';
+
+  @override
+  String get escalationGhostLockProfileSaveAs => 'Save as my profile';
+
+  @override
+  String get escalationGhostLockProfileRouteAuto =>
+      'As declared by the profile';
+
+  @override
+  String get escalationGhostLockProfileRouteLabel => 'Route';
+
+  @override
+  String get escalationGhostLockProfileFallbackLabel => 'Fallback';
+
+  @override
+  String get escalationGhostLockProfileFallbackNone => 'No fallback';
+
+  @override
+  String get escalationGhostLockProfileNoProfile =>
+      'No editable profile for this kernel';
+
+  @override
+  String get escalationGhostLockProfileSelect => 'Active source';
+
+  @override
+  String get escalationGhostLockProfileSelectAuto => 'Follow the device';
+
+  @override
+  String get escalationGhostLockProfileSelectBuiltin => 'Built-in tables';
+
+  @override
+  String get escalationGhostLockProfileSelectSearch => 'Filter by release';
+
+  @override
+  String get escalationGhostLockProfileSelectUser => 'My profiles';
+
+  @override
+  String get escalationGhostLockProfileSelectNoUser =>
+      'Do not use an imported profile';
+
+  @override
+  String get escalationGhostLockImportTitle => 'Import kernel table';
+
+  @override
+  String escalationGhostLockImportFailed(String reason) {
+    return 'Extract failed: $reason';
+  }
+
+  @override
+  String get escalationGhostLockImportOverwrite =>
+      'An entry for the same kernel exists. Overwrite?';
+
+  @override
+  String get escalationGhostLockImportOverwriteAction => 'Overwrite';
+
+  @override
+  String escalationGhostLockImportDone(String release) {
+    return 'Kernel table for $release generated';
+  }
+
+  @override
+  String get escalationGhostLockImportedEmpty => 'No kernel table imported yet';
+
+  @override
+  String get escalationGhostLockImportedRemove => 'Delete';
+
+  @override
+  String get escalationGhostLockImportedParseError => 'File cannot be parsed';
+
+  @override
   String get settingsGhostKeySection => 'GhostKey';
 
   @override
@@ -1190,24 +1419,83 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get kernelProfileTitle => 'Kernel profile';
+  String get kernelProfileTitle => 'Kernel table';
 
   @override
   String get kernelProfileEntrySubtitle =>
-      'Generate kernel parameters from boot.img';
+      'Generate kernel parameters for GhostKey and GhostLock';
 
   @override
   String get kernelProfilePageDesc =>
-      'When the device kernel is not in the built-in table, generate a profile from its boot.img. The profile is kept in the private app storage.';
+      'When the device kernel is not in the built-in table, generate a profile from its boot.img or an OTA. The profile is kept in the private app storage.';
+
+  @override
+  String get kernelProfileTabGhostKey => 'GhostKey imported';
+
+  @override
+  String get kernelProfileTabGhostKeyBuiltin => 'GhostKey built-in';
+
+  @override
+  String get kernelProfileTabGhostLock => 'GhostLock imported';
+
+  @override
+  String get kernelProfileTabGhostLockBuiltin => 'GhostLock built-in';
 
   @override
   String get kernelProfileImportAction => 'Choose boot.img';
 
   @override
+  String get kernelProfileImportChangeFile => 'Change image';
+
+  @override
   String get kernelProfileImportUrlHint => 'OTA link (HTTP/HTTPS)';
 
   @override
-  String get kernelProfileImportUrlAction => 'Import from link';
+  String get kernelProfileImportParseAction => 'Parse kernel';
+
+  @override
+  String get kernelProfileImportNeedInput =>
+      'Pick an image or paste a link first';
+
+  @override
+  String get kernelProfileImportInsecureHint =>
+      'Skip certificate check (for self-signed links)';
+
+  @override
+  String get kernelProfileProbeReady => 'Parsed';
+
+  @override
+  String kernelProfileProbeWarnings(int count) {
+    return '$count warnings';
+  }
+
+  @override
+  String get kernelProfileProbeTapHint =>
+      'Tap to choose which kernel table to import into';
+
+  @override
+  String kernelProfileProbeFailed(String reason) {
+    return 'Parse failed: $reason';
+  }
+
+  @override
+  String kernelProfileChooseTargetTitle(String release) {
+    return 'Import $release into which one?';
+  }
+
+  @override
+  String get kernelProfileChooseTargetGhostKey => 'GhostKey kernel parameters';
+
+  @override
+  String get kernelProfileChooseTargetGhostKeyHint =>
+      'Only derives the offsets CVE-2026-98260 needs';
+
+  @override
+  String get kernelProfileChooseTargetGhostLock => 'GhostLock kernel table';
+
+  @override
+  String get kernelProfileChooseTargetGhostLockHint =>
+      'Writes the offset table parsed for GhostLock';
 
   @override
   String get kernelProfileBtfHint =>
@@ -1261,6 +1549,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get kernelProfileDetailOffsets => 'Structure offsets';
+
+  @override
+  String get kernelProfileDetailSymbolOffsets => 'Symbol offsets';
+
+  @override
+  String get kernelProfileDetailSchema => 'Schema version';
+
+  @override
+  String get kernelProfileDetailKernelMajor => 'Kernel major';
 
   @override
   String get kernelProfileDetailRaw => 'Raw config';
@@ -1318,10 +1615,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get kernelProfileImportedSection => 'Imported profiles';
+  String get kernelProfileImportedSection => 'Kernel profiles';
 
   @override
   String get kernelProfileImportedEmpty => 'No imported profile yet';
+
+  @override
+  String get kernelProfileBuiltinEmpty => 'No built-in profile';
 
   @override
   String get kernelProfileRemove => 'Remove';

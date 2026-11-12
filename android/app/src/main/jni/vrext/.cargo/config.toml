@@ -1,0 +1,23 @@
+# aarch64-linux-android 交叉编译配置。
+#
+# 生效范围：在本目录（或子目录）执行 cargo 时自动读取。
+# 从仓库根用 --manifest-path 调用不会读到这份配置——cargo 只从当前工作目录
+# 向上查找 .cargo/config.toml。
+#
+# 路径写死了 NDK 28.2.13676358，升级 NDK 后需要同步改这三处。
+# 用 clang.exe 而不是 aarch64-linux-androidXX-clang.cmd：cc-rs 靠可执行文件
+# 名推断编译器家族，.cmd 包装脚本会让它去找不存在的 clang.exe；
+# target 前缀改由 CFLAGS / rustflags 显式给出。
+
+[target.aarch64-linux-android]
+linker = 'K:\Android\Sdk\ndk\28.2.13676358\toolchains\llvm\prebuilt\windows-x86_64\bin\clang.exe'
+rustflags = [
+  '-Clink-arg=--target=aarch64-linux-android33',
+]
+
+[env]
+CC_aarch64_linux_android = 'K:\Android\Sdk\ndk\28.2.13676358\toolchains\llvm\prebuilt\windows-x86_64\bin\clang.exe'
+CXX_aarch64_linux_android = 'K:\Android\Sdk\ndk\28.2.13676358\toolchains\llvm\prebuilt\windows-x86_64\bin\clang++.exe'
+AR_aarch64_linux_android = 'K:\Android\Sdk\ndk\28.2.13676358\toolchains\llvm\prebuilt\windows-x86_64\bin\llvm-ar.exe'
+CFLAGS_aarch64_linux_android = '--target=aarch64-linux-android33'
+CXXFLAGS_aarch64_linux_android = '--target=aarch64-linux-android33'

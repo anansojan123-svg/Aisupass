@@ -1067,6 +1067,26 @@ class Cve98260ProfileNative {
     return (pigeonVar_replyValue! as List<Object?>).cast<KernelProfile>();
   }
 
+  /// 列出 13 份内置 profile（不含用户导入），顺序同 `index.conf`。
+  Future<List<KernelProfile>> listBuiltinProfiles() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.Cve98260ProfileNative.listBuiltinProfiles$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return (pigeonVar_replyValue! as List<Object?>).cast<KernelProfile>();
+  }
+
   /// 取导入进度快照。
   Future<String> importProgress() async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.Cve98260ProfileNative.importProgress$pigeonVar_messageChannelSuffix';

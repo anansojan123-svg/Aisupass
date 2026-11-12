@@ -25,6 +25,11 @@ KernelProfileQueryRepository kernelProfileQueryRepository(Ref ref) =>
 Future<List<KernelProfile>> kernelProfileList(Ref ref) =>
     ref.watch(kernelProfileQueryRepositoryProvider).listImported();
 
+/// 内置的 profile 列表（不含用户导入）。
+@riverpod
+Future<List<KernelProfile>> kernelProfileBuiltinList(Ref ref) =>
+    ref.watch(kernelProfileQueryRepositoryProvider).listBuiltin();
+
 /// 单份 profile 的原始 HOCON 文本。
 @riverpod
 Future<String> kernelProfileContent(Ref ref, {required String release}) =>

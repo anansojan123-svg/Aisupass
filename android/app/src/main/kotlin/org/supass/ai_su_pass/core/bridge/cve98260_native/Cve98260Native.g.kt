@@ -1126,6 +1126,8 @@ interface Cve98260Native {
 interface Cve98260ProfileNative {
   /** 列出用户导入的全部 profile（不含 13 份内置）。 */
   fun listImportedProfiles(callback: (Result<List<KernelProfile>>) -> Unit)
+  /** 列出 13 份内置 profile（不含用户导入），顺序同 `index.conf`。 */
+  fun listBuiltinProfiles(callback: (Result<List<KernelProfile>>) -> Unit)
   /** 取导入进度快照。 */
   fun importProgress(callback: (Result<String>) -> Unit)
   /** 解析 boot.img 并落盘；`path` 是 `file_picker` 给的临时路径。 */
@@ -1156,6 +1158,24 @@ interface Cve98260ProfileNative {
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             api.listImportedProfiles{ result: Result<List<KernelProfile>> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(Cve98260NativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(Cve98260NativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.Cve98260ProfileNative.listBuiltinProfiles$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            api.listBuiltinProfiles{ result: Result<List<KernelProfile>> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(Cve98260NativePigeonUtils.wrapError(error))

@@ -1,7 +1,11 @@
 import 'package:Aisupass/common/widgets/toast.dart';
 import 'package:Aisupass/core/extensions/context_extensions.dart';
 import 'package:Aisupass/core/utils/kernel_profile_text.dart';
+import 'package:Aisupass/features/escalation/domain/models/ghost_lock_import_result.dart';
+import 'package:Aisupass/features/escalation/domain/models/ghost_lock_probe.dart';
+import 'package:Aisupass/features/escalation/domain/models/ghost_lock_probe_progress.dart';
 import 'package:Aisupass/features/escalation/domain/models/kernel_profile_import_state.dart';
+import 'package:Aisupass/features/escalation/presentation/providers/escalation_action_provider.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/kernel_profile_action_provider.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/kernel_profile_query_provider.dart';
 import 'package:Aisupass/features/escalation/presentation/widgets/ota_catalog_sheet.dart';
@@ -16,10 +20,13 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 const String kSampleBtfOtaUrl =
     'https://release.calyxos.org/ota/husky/17/husky-ota_update-260800450.zip';
 
-/// boot.img 导入面板：选择文件 + 进度条 + 结果条。
+/// 解析后要导入到哪个漏洞。
+enum _ImportTarget { ghostKey, ghostLock }
+
+/// 内核表导入面板：选镜像 / 填直链 → 解析 → 点击结果卡片选落点。
 ///
-/// 自己持有本次选中的临时路径并订阅导入流；导入成功后失效 profile 列表，
-/// 页面只负责渲染列表。
+/// 解析与落点解耦：解析由 GhostLock 的提取器完成（不落盘），得到 release 与
+/// 自包含文本后才问用户要写进哪一套内核表。
 class KernelProfileImportPanel extends HookConsumerWidget {
   const KernelProfileImportPanel({super.key});
 
@@ -28,37 +35,90 @@ class KernelProfileImportPanel extends HookConsumerWidget {
     final AppLocalizations l10n = context.l10n;
     final ColorScheme scheme = context.colorScheme;
     final bool isDark = context.isDark;
-    final ValueNotifier<String?> importPath = useState<String?>(null);
-    final ValueNotifier<String?> importUrl = useState<String?>(null);
+
+    final ValueNotifier<String?> inputPath = useState<String?>(null);
     final ValueNotifier<String> urlText = useState<String>('');
     final TextEditingController urlController = useTextEditingController();
-    // 同一个 release 只刷新一次列表，避免进度块反复触发 invalidate。
+    final ValueNotifier<bool> insecure = useState<bool>(false);
+
+    // 解析：只出文本，不落盘。
+    final ValueNotifier<bool> probing = useState<bool>(false);
+    final ValueNotifier<GhostLockProbe?> probe = useState<GhostLockProbe?>(null);
+    final ValueNotifier<String?> probeError = useState<String?>(null);
+
+    // 落盘与 GhostKey 导入。
+    final ValueNotifier<bool> busy = useState<bool>(false);
+    final ValueNotifier<String?> doneText = useState<String?>(null);
+    final ValueNotifier<String?> ghostKeyPath = useState<String?>(null);
+    final ValueNotifier<String?> ghostKeyUrl = useState<String?>(null);
     final ObjectRef<String> handledRelease = useRef<String>('');
-    final AsyncValue<KernelProfileImportState>? importing =
-        importPath.value != null
-        ? ref.watch(importKernelProfileProvider(path: importPath.value!))
-        : importUrl.value != null
-        ? ref.watch(importKernelProfileFromUrlProvider(url: importUrl.value!))
+
+    final AsyncValue<KernelProfileImportState>? ghostKeyImport =
+        ghostKeyPath.value != null
+        ? ref.watch(importKernelProfileProvider(path: ghostKeyPath.value!))
+        : ghostKeyUrl.value != null
+        ? ref.watch(
+            importKernelProfileFromUrlProvider(url: ghostKeyUrl.value!),
+          )
         : null;
 
+    // 只在解析期间轮询，结束即退订。
+    final AsyncValue<GhostLockProbeProgress> probeProgress = probing.value
+        ? ref.watch(ghostLockProbeProgressProvider)
+        : const AsyncValue<GhostLockProbeProgress>.data(
+            GhostLockProbeProgress(phase: 0, done: 0, total: 0),
+          );
+
     useEffect(() {
-      final KernelProfileImportState? state = importing?.value;
+      final KernelProfileImportState? state = ghostKeyImport?.value;
       if (state == null) return null;
       if (state.finished &&
           state.result.ok &&
           handledRelease.value != state.result.release) {
         handledRelease.value = state.result.release;
         ref.invalidate(kernelProfileListProvider);
+        doneText.value = l10n.kernelProfileImportSuccess(state.result.release);
       }
       return null;
-    }, <Object?>[importing]);
+    }, <Object?>[ghostKeyImport]);
 
-    Future<void> pickAndImport() async {
+    /// 当前输入源；本地文件优先。
+    String currentInput() =>
+        inputPath.value ?? urlText.value.trim();
+
+    Future<void> parse() async {
+      final String input = currentInput();
+      if (input.isEmpty) {
+        ToastMessage.warning(l10n.kernelProfileImportNeedInput);
+        return;
+      }
+      FocusScope.of(context).unfocus();
+      probing.value = true;
+      probe.value = null;
+      probeError.value = null;
+      doneText.value = null;
+      try {
+        final GhostLockProbe result = await ref
+            .read(ghostLockProfileActionsProvider)
+            .probeProfile(input: input, insecure: insecure.value);
+        if (result.ok) {
+          probe.value = result;
+        } else {
+          probeError.value = result.reason;
+        }
+      } catch (error) {
+        probeError.value = error.toString();
+      } finally {
+        probing.value = false;
+      }
+    }
+
+    Future<void> pickInput() async {
       final FilePickerResult? picked;
       try {
         picked = await FilePicker.pickFiles(
           type: FileType.custom,
-          allowedExtensions: <String>['img', 'bin'],
+          allowedExtensions: <String>['img', 'bin', 'zip'],
           withData: false,
         );
       } catch (error) {
@@ -67,47 +127,174 @@ class KernelProfileImportPanel extends HookConsumerWidget {
       }
       final String? path = picked?.files.firstOrNull?.path;
       if (path == null) return;
-      handledRelease.value = '';
-      importUrl.value = null;
-      importPath.value = path;
-      ref.invalidate(importKernelProfileProvider(path: path));
+      inputPath.value = path;
+      urlText.value = '';
+      urlController.clear();
+      probe.value = null;
+      probeError.value = null;
+      doneText.value = null;
     }
 
-    Future<void> browseCatalog() => showOtaCatalogSheet(
-      context,
-      onPick: (String url) {
-        urlController.value = TextEditingValue(
-          text: url,
-          selection: TextSelection.collapsed(offset: url.length),
+    Future<void> saveToGhostLock(GhostLockProbe result) async {
+      busy.value = true;
+      try {
+        final GhostLockImportResult saved = await ref
+            .read(ghostLockProfileActionsProvider)
+            .saveProfile(release: result.release, conf: result.conf);
+        if (saved.ok) {
+          doneText.value = l10n.escalationGhostLockImportDone(saved.release);
+          probe.value = null;
+          return;
+        }
+        if (saved.requiresOverwrite && context.mounted) {
+          final bool? confirmed = await _confirmOverwrite(context);
+          if (confirmed == true) {
+            final GhostLockImportResult retry = await ref
+                .read(ghostLockProfileActionsProvider)
+                .saveProfile(
+                  release: result.release,
+                  conf: result.conf,
+                  overwrite: true,
+                );
+            if (retry.ok) {
+              doneText.value = l10n.escalationGhostLockImportDone(
+                retry.release,
+              );
+              probe.value = null;
+            } else {
+              ToastMessage.error(
+                l10n.escalationGhostLockImportFailed(retry.reason),
+              );
+            }
+          }
+          return;
+        }
+        ToastMessage.error(
+          l10n.escalationGhostLockImportFailed(saved.reason),
         );
-        urlText.value = url;
-      },
-    );
-
-    void startUrlImport() {
-      final String url = urlText.value.trim();
-      if (url.isEmpty) return;
-      FocusScope.of(context).unfocus();
-      handledRelease.value = '';
-      importPath.value = null;
-      importUrl.value = url;
-      ref.invalidate(importKernelProfileFromUrlProvider(url: url));
+      } catch (error) {
+        ToastMessage.error(error);
+      } finally {
+        busy.value = false;
+      }
     }
 
-    final KernelProfileImportState? state = importing?.value;
+    /// 把解析过的镜像交给 GhostKey。
+    ///
+    /// GhostKey 走自己的 Kotlin 解析链路（表结构不同），但可以复用 probe 已
+    /// 解出的 boot 文件，避免再下载一次整个 OTA。
+    void importToGhostKey(GhostLockProbe result) {
+      final String local = result.bootPath.isNotEmpty
+          ? result.bootPath
+          : inputPath.value ?? '';
+      handledRelease.value = '';
+      doneText.value = null;
+      probe.value = null;
+      ghostKeyUrl.value = null;
+      ghostKeyPath.value = local.isEmpty ? null : local;
+      if (local.isEmpty) {
+        ghostKeyUrl.value = urlText.value.trim();
+        ref.invalidate(
+          importKernelProfileFromUrlProvider(url: ghostKeyUrl.value!),
+        );
+        return;
+      }
+      ref.invalidate(importKernelProfileProvider(path: local));
+    }
+
+    Future<void> chooseTarget(GhostLockProbe result) async {
+      if (!context.mounted) return;
+      final _ImportTarget? target = await showModalBottomSheet<_ImportTarget>(
+        context: context,
+        builder: (BuildContext sheetContext) => SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 4.h),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    l10n.kernelProfileChooseTargetTitle(result.release),
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.vpn_key_rounded),
+                title: Text(l10n.kernelProfileChooseTargetGhostKey),
+                subtitle: Text(l10n.kernelProfileChooseTargetGhostKeyHint),
+                onTap: () =>
+                    Navigator.of(sheetContext).pop(_ImportTarget.ghostKey),
+              ),
+              ListTile(
+                leading: const Icon(Icons.lock_rounded),
+                title: Text(l10n.kernelProfileChooseTargetGhostLock),
+                subtitle: Text(l10n.kernelProfileChooseTargetGhostLockHint),
+                onTap: () =>
+                    Navigator.of(sheetContext).pop(_ImportTarget.ghostLock),
+              ),
+              SizedBox(height: 8.h),
+            ],
+          ),
+        ),
+      );
+      if (target == null) return;
+      switch (target) {
+        case _ImportTarget.ghostLock:
+          await saveToGhostLock(result);
+        case _ImportTarget.ghostKey:
+          importToGhostKey(result);
+      }
+    }
+
+    final GhostLockProbe? probed = probe.value;
+    final KernelProfileImportState? keyState = ghostKeyImport?.value;
     final BorderRadius radius = BorderRadius.circular(12.r);
     final BorderSide side = BorderSide(
       color: scheme.outline.withValues(alpha: isDark ? 0.28 : 0.16),
     );
+    final bool anyBusy = probing.value || busy.value;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        FilledButton.icon(
-          onPressed: pickAndImport,
-          icon: Icon(Icons.folder_open_rounded, size: 18.r),
-          label: Text(l10n.kernelProfileImportAction),
+        // ---- 输入源 ----
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: anyBusy ? null : pickInput,
+                icon: Icon(Icons.folder_open_rounded, size: 18.r),
+                label: Text(
+                  inputPath.value == null
+                      ? l10n.kernelProfileImportAction
+                      : l10n.kernelProfileImportChangeFile,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+          ],
         ),
+        if (inputPath.value != null) ...<Widget>[
+          SizedBox(height: 6.h),
+          _InputChip(
+            icon: Icons.insert_drive_file_outlined,
+            text: inputPath.value!,
+            onClear: anyBusy
+                ? null
+                : () {
+                    inputPath.value = null;
+                    probe.value = null;
+                    probeError.value = null;
+                    doneText.value = null;
+                  },
+          ),
+        ],
         SizedBox(height: 12.h),
         Row(
           children: <Widget>[
@@ -117,7 +304,7 @@ class KernelProfileImportPanel extends HookConsumerWidget {
                 onChanged: (String value) => urlText.value = value,
                 keyboardType: TextInputType.url,
                 textInputAction: TextInputAction.go,
-                onSubmitted: (_) => startUrlImport(),
+                onSubmitted: (_) => parse(),
                 style: TextStyle(fontSize: 13.sp, color: scheme.onSurface),
                 decoration: InputDecoration(
                   isDense: true,
@@ -151,16 +338,50 @@ class KernelProfileImportPanel extends HookConsumerWidget {
                 ),
               ),
             ),
-            SizedBox(width: 8.w),
-            FilledButton.tonal(
-              onPressed: urlText.value.trim().isEmpty ? null : startUrlImport,
-              child: Text(l10n.kernelProfileImportUrlAction),
+          ],
+        ),
+        SizedBox(height: 12.h),
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: Text(
+                l10n.kernelProfileImportInsecureHint,
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            Switch(
+              value: insecure.value,
+              onChanged: anyBusy
+                  ? null
+                  : (bool value) => insecure.value = value,
             ),
           ],
         ),
+        SizedBox(height: 4.h),
+        SizedBox(
+          width: double.infinity,
+          child: FilledButton.icon(
+            onPressed: anyBusy || currentInput().isEmpty ? null : parse,
+            icon: Icon(Icons.playlist_add_check_rounded, size: 18.r),
+            label: Text(l10n.kernelProfileImportParseAction),
+          ),
+        ),
         SizedBox(height: 6.h),
         _BtfHint(
-          onBrowseCatalog: browseCatalog,
+          onBrowseCatalog: () => showOtaCatalogSheet(
+            context,
+            onPick: (String url) {
+              urlController.value = TextEditingValue(
+                text: url,
+                selection: TextSelection.collapsed(offset: url.length),
+              );
+              urlText.value = url;
+              inputPath.value = null;
+            },
+          ),
           onPasteExample: () {
             urlController.value = TextEditingValue(
               text: kSampleBtfOtaUrl,
@@ -169,23 +390,291 @@ class KernelProfileImportPanel extends HookConsumerWidget {
               ),
             );
             urlText.value = kSampleBtfOtaUrl;
+            inputPath.value = null;
           },
         ),
-        if (importing != null) ...<Widget>[
+        if (probing.value) ...<Widget>[
           SizedBox(height: 14.h),
-          _ImportProgress(state: state),
-          if (importing.hasError) ...<Widget>[
+          _ProbeProgress(
+            state:
+                probeProgress.value ??
+                const GhostLockProbeProgress(phase: 0, done: 0, total: 0),
+          ),
+        ],
+        if (probeError.value != null && !probing.value) ...<Widget>[
+          SizedBox(height: 10.h),
+          SelectableText(
+            l10n.kernelProfileProbeFailed(probeError.value!),
+            style: TextStyle(fontSize: 12.sp, height: 1.4, color: scheme.error),
+          ),
+        ],
+        if (probed != null && !probing.value) ...<Widget>[
+          SizedBox(height: 14.h),
+          _ProbeCard(
+            probe: probed,
+            enabled: !anyBusy,
+            onTap: () => chooseTarget(probed),
+          ),
+        ],
+        if (busy.value) ...<Widget>[
+          SizedBox(height: 14.h),
+          SizedBox(height: 36.h, child: const LinearProgressIndicator()),
+        ],
+        if (ghostKeyImport != null) ...<Widget>[
+          SizedBox(height: 14.h),
+          _ImportProgress(state: keyState),
+          if (ghostKeyImport.hasError) ...<Widget>[
             SizedBox(height: 8.h),
             SelectableText(
-              '${l10n.kernelProfileImportFailed}: ${importing.error}',
-              style: TextStyle(fontSize: 12.sp, height: 1.4, color: scheme.error),
+              '${l10n.kernelProfileImportFailed}: ${ghostKeyImport.error}',
+              style: TextStyle(
+                fontSize: 12.sp,
+                height: 1.4,
+                color: scheme.error,
+              ),
             ),
           ],
-          if (state != null && state.finished) ...<Widget>[
+          if (keyState != null && keyState.finished) ...<Widget>[
             SizedBox(height: 8.h),
-            _ImportResult(state: state),
+            _ImportResult(state: keyState),
           ],
         ],
+        if (doneText.value != null && !anyBusy) ...<Widget>[
+          SizedBox(height: 10.h),
+          Text(
+            doneText.value!,
+            style: TextStyle(fontSize: 12.sp, height: 1.4, color: scheme.primary),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Future<bool?> _confirmOverwrite(BuildContext context) => showDialog<bool>(
+    context: context,
+    builder: (BuildContext dialogContext) {
+      final AppLocalizations l10n = dialogContext.l10n;
+      return AlertDialog(
+        title: Text(l10n.escalationGhostLockImportTitle),
+        content: Text(l10n.escalationGhostLockImportOverwrite),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(l10n.aiCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.escalationGhostLockImportOverwriteAction),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+/// 已选镜像的路径条，可清除。
+class _InputChip extends HookWidget {
+  const _InputChip({
+    required this.icon,
+    required this.text,
+    required this.onClear,
+  });
+
+  final IconData icon;
+  final String text;
+  final VoidCallback? onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme scheme = context.colorScheme;
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+      child: Row(
+        children: <Widget>[
+          Icon(icon, size: 15.sp, color: scheme.onSurfaceVariant),
+          SizedBox(width: 6.w),
+          Expanded(
+            child: Text(
+              text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 11.5.sp,
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+          IconButton(
+            onPressed: onClear,
+            icon: Icon(Icons.close_rounded, size: 15.sp),
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: BoxConstraints(minWidth: 24.w, minHeight: 24.h),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 解析结果卡片：绿色光晕 + 点击选落点。
+class _ProbeCard extends HookWidget {
+  const _ProbeCard({
+    required this.probe,
+    required this.enabled,
+    required this.onTap,
+  });
+
+  final GhostLockProbe probe;
+  final bool enabled;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = context.l10n;
+    final ColorScheme scheme = context.colorScheme;
+    final double glow = enabled ? 0.30 : 0.10;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14.r),
+        color: scheme.primaryContainer.withValues(alpha: enabled ? 0.45 : 0.2),
+        border: Border.all(
+          color: scheme.primary.withValues(alpha: enabled ? 0.55 : 0.2),
+        ),
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: scheme.primary.withValues(alpha: glow),
+            blurRadius: 18,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: InkWell(
+        onTap: enabled ? onTap : null,
+        borderRadius: BorderRadius.circular(14.r),
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(14.w, 12.h, 14.w, 12.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  Icon(
+                    Icons.check_circle_rounded,
+                    size: 17.sp,
+                    color: scheme.primary,
+                  ),
+                  SizedBox(width: 6.w),
+                  Expanded(
+                    child: Text(
+                      l10n.kernelProfileProbeReady,
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                        color: scheme.primary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 6.h),
+              SelectableText(
+                probe.release,
+                style: TextStyle(
+                  fontSize: 12.5.sp,
+                  height: 1.4,
+                  color: scheme.onSurface,
+                ),
+              ),
+              if (probe.warnings.isNotEmpty) ...<Widget>[
+                SizedBox(height: 4.h),
+                Text(
+                  l10n.kernelProfileProbeWarnings(probe.warnings.length),
+                  style: TextStyle(
+                    fontSize: 11.sp,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+              SizedBox(height: 8.h),
+              Row(
+                children: <Widget>[
+                  Text(
+                    l10n.kernelProfileProbeTapHint,
+                    style: TextStyle(
+                      fontSize: 11.5.sp,
+                      fontWeight: FontWeight.w600,
+                      color: scheme.primary,
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    size: 16.sp,
+                    color: scheme.primary,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// GhostLock 解析进度：阶段名 + 百分比 + 进度条。
+///
+/// 下载阶段有字节总量，进度条走确定值；解包与解析阶段没有总量，用不确定动画。
+class _ProbeProgress extends HookWidget {
+  const _ProbeProgress({required this.state});
+
+  final GhostLockProbeProgress state;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = context.l10n;
+    final ColorScheme scheme = context.colorScheme;
+    final bool determinate = state.total > 0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: Text(
+                state.downloading
+                    ? l10n.kernelProfilePhaseRead
+                    : l10n.kernelProfilePhaseParse,
+                style: TextStyle(
+                  fontSize: 11.5.sp,
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            Text(
+              determinate ? '${(state.fraction * 100).round()}%' : '',
+              style: TextStyle(
+                fontSize: 11.5.sp,
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 6.h),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(3.r),
+          child: LinearProgressIndicator(
+            value: determinate ? state.fraction : null,
+            minHeight: 4.h,
+            backgroundColor: scheme.surfaceContainerHigh,
+          ),
+        ),
       ],
     );
   }
@@ -341,10 +830,7 @@ class _BtfHint extends HookWidget {
               tooltip: l10n.kernelProfileWhyBtfTitle,
               visualDensity: VisualDensity.compact,
               padding: EdgeInsets.zero,
-              constraints: BoxConstraints(
-                minWidth: 24.w,
-                minHeight: 24.h,
-              ),
+              constraints: BoxConstraints(minWidth: 24.w, minHeight: 24.h),
             ),
           ],
         ),

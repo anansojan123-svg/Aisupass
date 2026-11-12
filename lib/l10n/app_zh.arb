@@ -1383,6 +1383,302 @@
   "@escalationGhostKeyStageKsuHint": {
     "description": "阶段进行中提示：ksu"
   },
+  "escalationGhostLockTitle": "GhostLock 提权",
+  "@escalationGhostLockTitle": {
+    "description": "菜单项与确认弹窗标题"
+  },
+  "escalationGhostLockFieldManager": "管理器",
+  "@escalationGhostLockFieldManager": {
+    "description": "确认弹窗里的管理器字段标签"
+  },
+  "escalationGhostLockFieldRelease": "内核",
+  "@escalationGhostLockFieldRelease": {
+    "description": "确认弹窗里的内核 release 字段标签"
+  },
+  "escalationGhostLockFieldProfile": "内核表",
+  "@escalationGhostLockFieldProfile": {
+    "description": "确认弹窗里的内核表命中字段标签，值用有/无"
+  },
+  "escalationGhostLockFieldRoute": "路由",
+  "@escalationGhostLockFieldRoute": {
+    "description": "确认弹窗里的竞争路由字段标签"
+  },
+  "escalationGhostLockFieldSeccomp": "Seccomp",
+  "@escalationGhostLockFieldSeccomp": {
+    "description": "确认弹窗里的 seccomp 字段标签，值是原始数字"
+  },
+  "escalationGhostLockFieldKsud": "ksud",
+  "@escalationGhostLockFieldKsud": {
+    "description": "确认弹窗里的 ksud 路径字段标签"
+  },
+  "escalationGhostLockValueYes": "有",
+  "@escalationGhostLockValueYes": {
+    "description": "字段值：存在"
+  },
+  "escalationGhostLockValueNo": "无",
+  "@escalationGhostLockValueNo": {
+    "description": "字段值：不存在"
+  },
+  "escalationGhostLockValueNone": "无",
+  "@escalationGhostLockValueNone": {
+    "description": "字段值：未选中或为空"
+  },
+  "escalationGhostLockValueUnknown": "未知",
+  "@escalationGhostLockValueUnknown": {
+    "description": "读不到信息时的替代文字"
+  },
+  "escalationGhostLockSafeModeTitle": "安全模式",
+  "@escalationGhostLockSafeModeTitle": {
+    "description": "确认弹窗里安全模式开关的标题"
+  },
+  "escalationGhostLockSafeModeDesc": "执行前给 /data/adb/modules 下的模块打 disable",
+  "@escalationGhostLockSafeModeDesc": {
+    "description": "确认弹窗里安全模式开关的说明"
+  },
+  "escalationGhostLockConfirmRun": "开始",
+  "@escalationGhostLockConfirmRun": {
+    "description": "确认弹窗的主按钮"
+  },
+  "escalationGhostLockConfirmRisk": "执行期间会把 SELinux 置为宽容模式，失败时可能停在宽容状态。重启即可恢复。",
+  "@escalationGhostLockConfirmRisk": {
+    "description": "确认弹窗底部的风险说明"
+  },
+  "escalationGhostLockNoAdb": "无线调试未连接，先在设置里配对",
+  "@escalationGhostLockNoAdb": {
+    "description": "自检发现 ADB 未连接时的提示"
+  },
+  "escalationGhostLockMissingBinary": "安装包内缺少 libghostlock.so，重新安装应用",
+  "@escalationGhostLockMissingBinary": {
+    "description": "自检发现原生二进制缺失时的提示"
+  },
+  "escalationGhostLockNoProfile": "内核表里没有 {release} 这一型，也不做近似匹配",
+  "@escalationGhostLockNoProfile": {
+    "description": "自检发现内核表未命中时的提示",
+    "placeholders": {
+      "release": {
+        "type": "String"
+      }
+    }
+  },
+  "escalationGhostLockProfileInvalid": "内核表解析失败：{reason}",
+  "@escalationGhostLockProfileInvalid": {
+    "description": "内核表编码失败时的提示；reason 是技术诊断码，不翻译",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "escalationGhostLockSeccompFiltered": "当前 shell 带有 seccomp 过滤，这条链路无法清掉它",
+  "@escalationGhostLockSeccompFiltered": {
+    "description": "自检发现 seccomp 非 0 时的提示"
+  },
+  "escalationGhostLockRunning": "正在执行 GhostLock{manager}…",
+  "@escalationGhostLockRunning": {
+    "description": "开始执行时写进终端的那一行；manager 为空时只有前半个空格",
+    "placeholders": {
+      "manager": {
+        "type": "String"
+      }
+    }
+  },
+  "escalationGhostLockSucceeded": "内核模块已加载，KernelSU 已接管{manager}",
+  "@escalationGhostLockSucceeded": {
+    "description": "全链路成功时的结论",
+    "placeholders": {
+      "manager": {
+        "type": "String"
+      }
+    }
+  },
+  "escalationGhostLockAlreadyRooted": "KernelSU 本次开机已接管，未重复执行",
+  "@escalationGhostLockAlreadyRooted": {
+    "description": "原生因 KernelSU 已加载而提前结束时显示的结论"
+  },
+  "escalationGhostLockTempRootOnly": "拿到临时 root，但 KernelSU 模块尚未加载",
+  "@escalationGhostLockTempRootOnly": {
+    "description": "只拿到临时 root 时的结论"
+  },
+  "escalationGhostLockSeccompBlocked": "临时的 root 子进程仍带 seccomp 过滤，KernelSU 无法加载",
+  "@escalationGhostLockSeccompBlocked": {
+    "description": "W3 未清掉 seccomp 时的结论"
+  },
+  "escalationGhostLockKsuFailed": "KernelSU 模块加载失败，见上方 ksud 输出",
+  "@escalationGhostLockKsuFailed": {
+    "description": "ksud late-load 失败时的结论"
+  },
+  "escalationGhostLockW1Failed": "关闭 SELinux 失败，见上方输出",
+  "@escalationGhostLockW1Failed": {
+    "description": "W1 阶段失败时的结论"
+  },
+  "escalationGhostLockW2Failed": "写凭据阶段失败，见上方输出",
+  "@escalationGhostLockW2Failed": {
+    "description": "W2 阶段失败时的结论"
+  },
+  "escalationGhostLockW3Failed": "清 seccomp 阶段失败，见上方输出",
+  "@escalationGhostLockW3Failed": {
+    "description": "W3 阶段失败时的结论"
+  },
+  "escalationGhostLockReleaseMismatch": "内核表与设备内核不一致，原生已退出",
+  "@escalationGhostLockReleaseMismatch": {
+    "description": "profile release 与 uname -r 不一致时的结论"
+  },
+  "escalationGhostLockDirtyRace": "竞争进入脏状态，原生已自行停止进程",
+  "@escalationGhostLockDirtyRace": {
+    "description": "出现 terminal dirty race 时的结论"
+  },
+  "escalationGhostLockTimedOut": "等待终局信号超时，已停止读取；设备侧可能仍在执行",
+  "@escalationGhostLockTimedOut": {
+    "description": "超时或取消时的结论"
+  },
+  "escalationGhostLockNotStarted": "原生侧未受理，原因码：{reason}",
+  "@escalationGhostLockNotStarted": {
+    "description": "原生拒绝受理时的结论；reason 是技术标识，不做翻译",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "escalationGhostLockFailed": "未拿到可识别的终局标记，见上方输出",
+  "@escalationGhostLockFailed": {
+    "description": "有输出但无结论时的兜底"
+  },
+  "escalationGhostLockHandoffFollowUp": "往下把 root 移交给 {manager}",
+  "@escalationGhostLockHandoffFollowUp": {
+    "description": "成功后自动补跑移交前写的那一行",
+    "placeholders": {
+      "manager": {
+        "type": "String"
+      }
+    }
+  },
+  "escalationGhostLockProfileEdit": "编辑内核表",
+  "@escalationGhostLockProfileEdit": {
+    "description": "确认弹窗与编辑器页标题里打开编辑器的按钮"
+  },
+  "escalationGhostLockProfileTabGeneral": "通用",
+  "@escalationGhostLockProfileTabGeneral": {
+    "description": "编辑器通用参数页签"
+  },
+  "escalationGhostLockProfileTabRoute": "路由",
+  "@escalationGhostLockProfileTabRoute": {
+    "description": "编辑器路由页签"
+  },
+  "escalationGhostLockProfileTabAdvanced": "高级",
+  "@escalationGhostLockProfileTabAdvanced": {
+    "description": "编辑器高级字段页签"
+  },
+  "escalationGhostLockProfileNotProvided": "未提供",
+  "@escalationGhostLockProfileNotProvided": {
+    "description": "字段在 profile 里没有值时的输入框提示"
+  },
+  "escalationGhostLockProfileInvalidField": "该值不满足偏移规则",
+  "@escalationGhostLockProfileInvalidField": {
+    "description": "字段被校验判为违规时的提示"
+  },
+  "escalationGhostLockProfileOverridden": "已修改",
+  "@escalationGhostLockProfileOverridden": {
+    "description": "字段被本地 override 的标记"
+  },
+  "escalationGhostLockProfileReset": "重置全部修改",
+  "@escalationGhostLockProfileReset": {
+    "description": "清掉该 release 的全部 override"
+  },
+  "escalationGhostLockProfileExport": "导出为文件",
+  "@escalationGhostLockProfileExport": {
+    "description": "把当前生效配置导出为 conf"
+  },
+  "escalationGhostLockProfileSaveAs": "另存为我的配置",
+  "@escalationGhostLockProfileSaveAs": {
+    "description": "把当前生效配置存成一份用户文档"
+  },
+  "escalationGhostLockProfileRouteAuto": "按 profile 声明",
+  "@escalationGhostLockProfileRouteAuto": {
+    "description": "路由选择里的默认项"
+  },
+  "escalationGhostLockProfileRouteLabel": "路由",
+  "@escalationGhostLockProfileRouteLabel": {
+    "description": "编辑器路由页的分组标题"
+  },
+  "escalationGhostLockProfileFallbackLabel": "回退",
+  "@escalationGhostLockProfileFallbackLabel": {
+    "description": "编辑器路由页 fallback 分组的标题"
+  },
+  "escalationGhostLockProfileFallbackNone": "关闭回退",
+  "@escalationGhostLockProfileFallbackNone": {
+    "description": "fallback 选择里的 none"
+  },
+  "escalationGhostLockProfileNoProfile": "这个内核没有可编辑的 profile",
+  "@escalationGhostLockProfileNoProfile": {
+    "description": "loadProfile 返回 hasProfile=false 时的提示"
+  },
+  "escalationGhostLockProfileSelect": "指定生效表",
+  "@escalationGhostLockProfileSelect": {
+    "description": "编辑器 AppBar 打开生效来源选择的按钮与弹窗标题"
+  },
+  "escalationGhostLockProfileSelectAuto": "跟随设备",
+  "@escalationGhostLockProfileSelectAuto": {
+    "description": "生效来源里的默认项：用设备自身 release"
+  },
+  "escalationGhostLockProfileSelectBuiltin": "内置表",
+  "@escalationGhostLockProfileSelectBuiltin": {
+    "description": "生效来源弹窗的内置表分组标题"
+  },
+  "escalationGhostLockProfileSelectSearch": "按 release 过滤",
+  "@escalationGhostLockProfileSelectSearch": {
+    "description": "内置表列表的过滤框提示"
+  },
+  "escalationGhostLockProfileSelectUser": "我的配置",
+  "@escalationGhostLockProfileSelectUser": {
+    "description": "生效来源弹窗的导入文档分组标题"
+  },
+  "escalationGhostLockProfileSelectNoUser": "不使用导入文档",
+  "@escalationGhostLockProfileSelectNoUser": {
+    "description": "不使用任何导入文档作为覆盖层"
+  },
+  "escalationGhostLockImportTitle": "导入内核表",
+  "@escalationGhostLockImportTitle": {
+    "description": "导入页标题"
+  },
+  "escalationGhostLockImportFailed": "提取失败：{reason}",
+  "@escalationGhostLockImportFailed": {
+    "description": "提取失败提示；reason 是技术诊断码，不翻译",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "escalationGhostLockImportOverwrite": "已有同内核的条目，覆盖吗？",
+  "@escalationGhostLockImportOverwrite": {
+    "description": "同名 release 已存在时的确认提示"
+  },
+  "escalationGhostLockImportOverwriteAction": "覆盖",
+  "@escalationGhostLockImportOverwriteAction": {
+    "description": "覆盖确认弹窗的主按钮"
+  },
+  "escalationGhostLockImportDone": "已生成 {release} 的内核表",
+  "@escalationGhostLockImportDone": {
+    "description": "提取成功提示",
+    "placeholders": {
+      "release": {
+        "type": "String"
+      }
+    }
+  },
+  "escalationGhostLockImportedEmpty": "还没有导入任何内核表",
+  "@escalationGhostLockImportedEmpty": {
+    "description": "已导入列表为空时的提示"
+  },
+  "escalationGhostLockImportedRemove": "删除",
+  "@escalationGhostLockImportedRemove": {
+    "description": "已导入条目的删除按钮"
+  },
+  "escalationGhostLockImportedParseError": "文件无法解析",
+  "@escalationGhostLockImportedParseError": {
+    "description": "已导入条目的解析失败标记"
+  },
   "settingsGhostKeySection": "GhostKey",
   "@settingsGhostKeySection": {
     "description": "设置页 GhostKey 分组的小标题"
@@ -1625,29 +1921,108 @@
       }
     }
   },
-  "kernelProfileTitle": "内核 profile",
+  "kernelProfileTitle": "内核表",
   "@kernelProfileTitle": {
-    "description": "内核 profile 页面与设置入口的标题"
+    "description": "内核表页面与设置入口的标题；覆盖 GhostKey 与 GhostLock 两个漏洞"
   },
-  "kernelProfileEntrySubtitle": "从 boot.img 生成本机内核参数",
+  "kernelProfileEntrySubtitle": "为 GhostKey 与 GhostLock 生成内核参数",
   "@kernelProfileEntrySubtitle": {
-    "description": "设置页内核 profile 入口的副标题"
+    "description": "设置页内核表入口的副标题"
   },
-  "kernelProfilePageDesc": "本机内核不在内置表里时，用本机的 boot.img 生成 profile。生成的 profile 只保存在本应用私有目录。",
+  "kernelProfilePageDesc": "本机内核不在内置表里时，用本机的 boot.img 或 OTA 生成 profile。生成的 profile 只保存在本应用私有目录。",
   "@kernelProfilePageDesc": {
-    "description": "内核 profile 页面的说明文字"
+    "description": "内核表页面在 GhostKey 页签下的说明文字"
+  },
+  "kernelProfileTabGhostKey": "GhostKey 已导入",
+  "@kernelProfileTabGhostKey": {
+    "description": "内核表页面的 GhostKey 已导入页签标签"
+  },
+  "kernelProfileTabGhostKeyBuiltin": "GhostKey 内置",
+  "@kernelProfileTabGhostKeyBuiltin": {
+    "description": "内核表页面的 GhostKey 内置页签标签"
+  },
+  "kernelProfileTabGhostLock": "GhostLock 已导入",
+  "@kernelProfileTabGhostLock": {
+    "description": "内核表页面的 GhostLock 已导入页签标签"
+  },
+  "kernelProfileTabGhostLockBuiltin": "GhostLock 内置",
+  "@kernelProfileTabGhostLockBuiltin": {
+    "description": "内核表页面的 GhostLock 内置页签标签"
   },
   "kernelProfileImportAction": "选择 boot.img",
   "@kernelProfileImportAction": {
     "description": "选择 boot.img 的按钮"
   },
+  "kernelProfileImportChangeFile": "更换镜像",
+  "@kernelProfileImportChangeFile": {
+    "description": "已选镜像后，选择按钮改为更换"
+  },
   "kernelProfileImportUrlHint": "OTA 链接（HTTP/HTTPS）",
   "@kernelProfileImportUrlHint": {
     "description": "OTA 链接输入框的提示文字"
   },
-  "kernelProfileImportUrlAction": "从链接导入",
-  "@kernelProfileImportUrlAction": {
-    "description": "按输入的 OTA 链接下载并生成 profile 的按钮"
+  "kernelProfileImportParseAction": "解析内核",
+  "@kernelProfileImportParseAction": {
+    "description": "按当前输入解析内核表，只出结果不落盘"
+  },
+  "kernelProfileImportNeedInput": "先选一个镜像或填一个链接",
+  "@kernelProfileImportNeedInput": {
+    "description": "解析前未提供输入源时的提示"
+  },
+  "kernelProfileImportInsecureHint": "跳过证书校验（直链自签时用）",
+  "@kernelProfileImportInsecureHint": {
+    "description": "解析直链时的 TLS 选项说明"
+  },
+  "kernelProfileProbeReady": "解析完成",
+  "@kernelProfileProbeReady": {
+    "description": "解析成功卡片的状态标题"
+  },
+  "kernelProfileProbeWarnings": "{count} 条提示",
+  "@kernelProfileProbeWarnings": {
+    "description": "解析结果里的告警条数",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "kernelProfileProbeTapHint": "点击选择导入到哪一套内核表",
+  "@kernelProfileProbeTapHint": {
+    "description": "解析结果卡片上的操作提示"
+  },
+  "kernelProfileProbeFailed": "解析失败：{reason}",
+  "@kernelProfileProbeFailed": {
+    "description": "解析失败的提示；reason 是技术诊断串",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "kernelProfileChooseTargetTitle": "要把 {release} 导入到哪？",
+  "@kernelProfileChooseTargetTitle": {
+    "description": "选落点弹窗的标题",
+    "placeholders": {
+      "release": {
+        "type": "String"
+      }
+    }
+  },
+  "kernelProfileChooseTargetGhostKey": "GhostKey 内核参数",
+  "@kernelProfileChooseTargetGhostKey": {
+    "description": "选落点弹窗的 GhostKey 选项标题"
+  },
+  "kernelProfileChooseTargetGhostKeyHint": "只推导 CVE-2026-98260 需要的偏移",
+  "@kernelProfileChooseTargetGhostKeyHint": {
+    "description": "选落点弹窗的 GhostKey 选项说明"
+  },
+  "kernelProfileChooseTargetGhostLock": "GhostLock 内核表",
+  "@kernelProfileChooseTargetGhostLock": {
+    "description": "选落点弹窗的 GhostLock 选项标题"
+  },
+  "kernelProfileChooseTargetGhostLockHint": "写入 GhostLock 解析出的偏移表",
+  "@kernelProfileChooseTargetGhostLockHint": {
+    "description": "选落点弹窗的 GhostLock 选项说明"
   },
   "kernelProfileBtfHint": "需要带 BTF 调试信息的内核，第三方 ROM 或老机型可能取不到结构偏移",
   "@kernelProfileBtfHint": {
@@ -1717,6 +2092,18 @@
   "kernelProfileDetailOffsets": "结构偏移",
   "@kernelProfileDetailOffsets": {
     "description": "详情弹窗的偏移量分区标题"
+  },
+  "kernelProfileDetailSymbolOffsets": "符号偏移",
+  "@kernelProfileDetailSymbolOffsets": {
+    "description": "GhostLock 详情弹窗里 offset.* 符号偏移的分区标题"
+  },
+  "kernelProfileDetailSchema": "表版本",
+  "@kernelProfileDetailSchema": {
+    "description": "GhostLock 详情弹窗的 schema_version 字段名"
+  },
+  "kernelProfileDetailKernelMajor": "内核主版本",
+  "@kernelProfileDetailKernelMajor": {
+    "description": "GhostLock 详情弹窗的 kernel_major 字段名"
   },
   "kernelProfileDetailRaw": "原始配置",
   "@kernelProfileDetailRaw": {
@@ -1800,13 +2187,17 @@
       }
     }
   },
-  "kernelProfileImportedSection": "已导入的 profile",
+  "kernelProfileImportedSection": "内核表",
   "@kernelProfileImportedSection": {
-    "description": "已导入 profile 列表的小标题"
+    "description": "页签分区的小标题"
   },
   "kernelProfileImportedEmpty": "还没有导入过 profile",
   "@kernelProfileImportedEmpty": {
     "description": "已导入 profile 列表的空态"
+  },
+  "kernelProfileBuiltinEmpty": "内置表为空",
+  "@kernelProfileBuiltinEmpty": {
+    "description": "内置 profile 列表的空态"
   },
   "kernelProfileRemove": "删除",
   "@kernelProfileRemove": {

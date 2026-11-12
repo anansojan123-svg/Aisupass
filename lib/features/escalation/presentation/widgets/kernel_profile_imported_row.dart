@@ -10,14 +10,21 @@ import 'package:Aisupass/features/escalation/presentation/widgets/kernel_profile
 import 'package:Aisupass/features/escalation/presentation/widgets/kernel_profile_remove_dialog.dart';
 import 'package:Aisupass/l10n/app_localizations.dart';
 
-/// 单行已导入 profile：release + 来源说明 + 删除按钮。
+/// 单行 profile：release + 来源说明 + 可选删除按钮。
 ///
-/// 点行打开详情弹窗；删除前弹二次确认，确认后调 `kernelProfileActions`，
-/// 列表由 Provider 刷新。
+/// 点行打开详情弹窗；[showDelete] 为 true 时删除前弹二次确认，
+/// 确认后调 `kernelProfileActions`，列表由 Provider 刷新。
 class KernelProfileImportedRow extends HookConsumerWidget {
-  const KernelProfileImportedRow({super.key, required this.profile});
+  const KernelProfileImportedRow({
+    super.key,
+    required this.profile,
+    this.showDelete = true,
+  });
 
   final KernelProfile profile;
+
+  /// 内置表只读，不显示删除按钮。
+  final bool showDelete;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -27,7 +34,7 @@ class KernelProfileImportedRow extends HookConsumerWidget {
     Future<void> remove() async {
       final bool? confirmed = await showKernelProfileRemoveDialog(
         context,
-        profile: profile,
+        release: profile.release,
       );
       if (confirmed != true) return;
       try {
@@ -72,15 +79,16 @@ class KernelProfileImportedRow extends HookConsumerWidget {
               size: 18.sp,
               color: scheme.onSurfaceVariant.withValues(alpha: 0.6),
             ),
-            IconButton(
-              onPressed: remove,
-              tooltip: l10n.kernelProfileRemove,
-              icon: Icon(
-                Icons.delete_outline_rounded,
-                size: 20.r,
-                color: scheme.error,
+            if (showDelete)
+              IconButton(
+                onPressed: remove,
+                tooltip: l10n.kernelProfileRemove,
+                icon: Icon(
+                  Icons.delete_outline_rounded,
+                  size: 20.r,
+                  color: scheme.error,
+                ),
               ),
-            ),
           ],
         ),
       ),

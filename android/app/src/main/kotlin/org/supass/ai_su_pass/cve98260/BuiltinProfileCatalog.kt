@@ -27,6 +27,12 @@ class BuiltinProfileCatalog(
 
     fun all(): List<KernelProfile> = profiles
 
+    /** 按 release 读内置 profile 的原始 HOCON 文本；不存在返回空串。 */
+    fun readRaw(release: String): String {
+        val file = loadIndex()[release] ?: return ""
+        return loader.read("$DIR/$file").orEmpty()
+    }
+
     /**
      * 精确匹配：仅当内置 profile 的 release 与入参完全一致才命中。
      *

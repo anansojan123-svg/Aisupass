@@ -4,14 +4,27 @@ import 'package:Aisupass/core/utils/payload_shell.dart';
 import 'package:Aisupass/features/escalation/data/datasources/dirty_frag_action_datasource.dart';
 import 'package:Aisupass/features/escalation/data/datasources/escalation_action_datasource.dart';
 import 'package:Aisupass/features/escalation/data/datasources/ghost_key_action_datasource.dart';
+import 'package:Aisupass/features/escalation/data/datasources/ghost_lock_action_datasource.dart';
+import 'package:Aisupass/features/escalation/data/datasources/ghost_lock_profile_action_datasource.dart';
+import 'package:Aisupass/features/escalation/data/datasources/ghost_lock_profile_edit_action_datasource.dart';
 import 'package:Aisupass/features/escalation/data/repositories/dirty_frag_action_repository_impl.dart';
 import 'package:Aisupass/features/escalation/data/repositories/escalation_action_repository_impl.dart';
 import 'package:Aisupass/features/escalation/data/repositories/ghost_key_action_repository_impl.dart';
+import 'package:Aisupass/features/escalation/data/repositories/ghost_lock_action_repository_impl.dart';
+import 'package:Aisupass/features/escalation/data/repositories/ghost_lock_profile_action_repository_impl.dart';
+import 'package:Aisupass/features/escalation/data/repositories/ghost_lock_profile_edit_action_repository_impl.dart';
 import 'package:Aisupass/features/escalation/domain/models/dirty_frag_outcome.dart';
 import 'package:Aisupass/features/escalation/domain/models/dirty_frag_run_defaults.dart';
 import 'package:Aisupass/features/escalation/domain/models/ghost_key_outcome.dart';
 import 'package:Aisupass/features/escalation/domain/models/ghost_key_preflight.dart';
 import 'package:Aisupass/features/escalation/domain/models/ghost_key_run_defaults.dart';
+import 'package:Aisupass/features/escalation/domain/models/ghost_lock_import_result.dart';
+import 'package:Aisupass/features/escalation/domain/models/ghost_lock_outcome.dart';
+import 'package:Aisupass/features/escalation/domain/models/ghost_lock_preflight.dart';
+import 'package:Aisupass/features/escalation/domain/models/ghost_lock_probe.dart';
+import 'package:Aisupass/features/escalation/domain/models/ghost_lock_probe_progress.dart';
+import 'package:Aisupass/features/escalation/domain/models/ghost_lock_profile_config.dart';
+import 'package:Aisupass/features/escalation/domain/models/ghost_lock_user_profile.dart';
 import 'package:Aisupass/features/escalation/domain/models/handoff_outcome.dart';
 import 'package:Aisupass/features/escalation/domain/models/payload.dart';
 import 'package:Aisupass/features/escalation/domain/models/payload_match.dart';
@@ -22,9 +35,13 @@ import 'package:Aisupass/features/escalation/domain/repositories/dirty_frag_acti
 import 'package:Aisupass/features/escalation/domain/repositories/escalation_action_repository.dart';
 import 'package:Aisupass/features/escalation/domain/repositories/escalation_query_repository.dart';
 import 'package:Aisupass/features/escalation/domain/repositories/ghost_key_action_repository.dart';
+import 'package:Aisupass/features/escalation/domain/repositories/ghost_lock_action_repository.dart';
+import 'package:Aisupass/features/escalation/domain/repositories/ghost_lock_profile_action_repository.dart';
+import 'package:Aisupass/features/escalation/domain/repositories/ghost_lock_profile_edit_action_repository.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/escalation_query_provider.dart';
 import 'package:Aisupass/generated/cve98260.g.dart' as cve98260;
 import 'package:Aisupass/generated/dirty_frag.g.dart' as pigeon;
+import 'package:Aisupass/generated/ghost_lock.g.dart' as ghost_lock;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'escalation_action_provider.g.dart';
@@ -252,3 +269,240 @@ class GhostKeyActions {
 Stream<GhostKeyOutcome> runGhostKey(Ref ref, {RootManager? manager}) => ref
     .watch(ghostKeyActionRepositoryProvider)
     .run(manager: manager);
+
+/// GhostLock 运行数据源。
+@riverpod
+GhostLockActionDatasource ghostLockActionDatasource(Ref ref) =>
+    GhostLockActionDatasource(native: ghost_lock.GhostLockNative());
+
+/// GhostLock 运行仓储。
+@riverpod
+GhostLockActionRepository ghostLockActionRepository(Ref ref) =>
+    GhostLockActionRepositoryImpl(
+      datasource: ref.watch(ghostLockActionDatasourceProvider),
+    );
+
+/// 运行前自检。
+@riverpod
+Future<GhostLockPreflight> ghostLockPreflight(Ref ref) =>
+    ref.watch(ghostLockActionRepositoryProvider).preflight();
+
+/// 跑一次 GhostLock，按块吐出证据。
+@riverpod
+Stream<GhostLockOutcome> runGhostLock(
+  Ref ref, {
+  RootManager? manager,
+  bool safeMode = false,
+}) => ref
+    .watch(ghostLockActionRepositoryProvider)
+    .run(manager: manager, safeMode: safeMode);
+
+/// GhostLock profile 导入数据源。
+@riverpod
+GhostLockProfileActionDatasource ghostLockProfileActionDatasource(Ref ref) =>
+    GhostLockProfileActionDatasource(
+      native: ghost_lock.GhostLockProfileNative(),
+    );
+
+/// GhostLock profile 导入仓储。
+@riverpod
+GhostLockProfileActionRepository ghostLockProfileActionRepository(Ref ref) =>
+    GhostLockProfileActionRepositoryImpl(
+      datasource: ref.watch(ghostLockProfileActionDatasourceProvider),
+    );
+
+/// 用户导入的 profile 列表。
+@riverpod
+Future<List<GhostLockUserProfile>> ghostLockImportedProfiles(Ref ref) =>
+    ref.watch(ghostLockProfileActionRepositoryProvider).listImportedProfiles();
+
+/// 内置 GhostLock 内核表的全部 release，升序。
+@riverpod
+Future<List<String>> ghostLockBuiltinReleases(Ref ref) =>
+    ref.watch(ghostLockProfileActionRepositoryProvider).listBuiltinReleases();
+
+/// 单份用户 profile 的原始 HOCON 文本；不存在返回空串。
+@riverpod
+Future<String> ghostLockImportedProfileContent(
+  Ref ref, {
+  required String name,
+}) => ref
+    .watch(ghostLockProfileActionRepositoryProvider)
+    .readImportedProfile(name: name);
+
+/// GhostLock 解析进度。只在被监听期间轮询，面板收起就停。
+@riverpod
+Stream<GhostLockProbeProgress> ghostLockProbeProgress(Ref ref) async* {
+  while (true) {
+    yield await ref
+        .watch(ghostLockProfileActionRepositoryProvider)
+        .profileProgress();
+    await Future<void>.delayed(const Duration(milliseconds: 200));
+  }
+}
+
+/// GhostLock profile 编辑数据源。
+@riverpod
+GhostLockProfileEditActionDatasource ghostLockProfileEditActionDatasource(
+  Ref ref,
+) => GhostLockProfileEditActionDatasource(
+  native: ghost_lock.GhostLockProfileEditNative(),
+);
+
+/// GhostLock profile 编辑仓储。
+@riverpod
+GhostLockProfileEditActionRepository ghostLockProfileEditActionRepository(
+  Ref ref,
+) => GhostLockProfileEditActionRepositoryImpl(
+  datasource: ref.watch(ghostLockProfileEditActionDatasourceProvider),
+);
+
+/// 某个 release 的解析结果（编辑器视图）。
+@riverpod
+Future<GhostLockProfileConfig> ghostLockProfileConfig(
+  Ref ref, {
+  required String release,
+}) => ref
+    .watch(ghostLockProfileEditActionRepositoryProvider)
+    .load(release: release);
+
+/// GhostLock profile 导入与编辑的写操作。
+///
+/// 同 [ghostKeyActions]：无参类，参数走方法入参。
+@Riverpod(keepAlive: true)
+GhostLockProfileActions ghostLockProfileActions(Ref ref) =>
+    GhostLockProfileActions(ref);
+
+/// 见 [ghostLockProfileActions]。
+class GhostLockProfileActions {
+  GhostLockProfileActions(this._ref);
+
+  final Ref _ref;
+
+  /// 解析内核表但不落盘；结果由调用方暂存，选定落点后再调 [saveProfile]。
+  Future<GhostLockProbe> probeProfile({
+    required String input,
+    bool insecure = false,
+  }) => _ref
+      .read(ghostLockProfileActionRepositoryProvider)
+      .probeProfile(input: input, insecure: insecure);
+
+  /// 把 [probeProfile] 返回的文本落盘。
+  Future<GhostLockImportResult> saveProfile({
+    required String release,
+    required String conf,
+    bool overwrite = false,
+  }) async {
+    final GhostLockImportResult result = await _ref
+        .read(ghostLockProfileActionRepositoryProvider)
+        .saveProfile(release: release, conf: conf, overwrite: overwrite);
+    _ref.invalidate(ghostLockImportedProfilesProvider);
+    _ref.invalidate(ghostLockPreflightProvider);
+    return result;
+  }
+
+  /// 导入一份 profile；同名存在时返回 `requiresOverwrite`，由 UI 询问后重试。
+  Future<GhostLockImportResult> importProfile({
+    required String input,
+    bool insecure = false,
+    bool overwrite = false,
+  }) async {
+    final GhostLockImportResult result = await _ref
+        .read(ghostLockProfileActionRepositoryProvider)
+        .importProfile(input: input, insecure: insecure, overwrite: overwrite);
+    _ref.invalidate(ghostLockImportedProfilesProvider);
+    _ref.invalidate(ghostLockPreflightProvider);
+    return result;
+  }
+
+  /// 删除一份用户 profile。
+  Future<bool> removeImportedProfile({required String name}) async {
+    final bool removed = await _ref
+        .read(ghostLockProfileActionRepositoryProvider)
+        .removeImportedProfile(name: name);
+    _ref.invalidate(ghostLockImportedProfilesProvider);
+    _ref.invalidate(ghostLockPreflightProvider);
+    return removed;
+  }
+
+  /// 写通用参数。
+  Future<GhostLockProfileConfig> updateGeneral({
+    required String release,
+    required Map<String, int> values,
+  }) => _apply(release, (repo) => repo.updateGeneral(release: release, values: values));
+
+  /// 写高级字段。
+  Future<GhostLockProfileConfig> updateAdvanced({
+    required String release,
+    required Map<String, int> values,
+  }) => _apply(
+    release,
+    (repo) => repo.updateAdvanced(release: release, values: values),
+  );
+
+  /// 设置 route；空串恢复为 profile 声明。
+  Future<GhostLockProfileConfig> updateRoute({
+    required String release,
+    required String route,
+  }) => _apply(release, (repo) => repo.updateRoute(release: release, route: route));
+
+  /// 设置 fallback。
+  Future<GhostLockProfileConfig> updateFallback({
+    required String release,
+    required String fallbackTo,
+  }) => _apply(
+    release,
+    (repo) => repo.updateFallback(release: release, fallbackTo: fallbackTo),
+  );
+
+  /// 清掉该 release 的全部 override。
+  Future<GhostLockProfileConfig> reset({required String release}) =>
+      _apply(release, (repo) => repo.reset(release: release));
+
+  /// 指定生效的内置表；空串回到设备自身 release。
+  Future<GhostLockProfileConfig> selectBuiltin({
+    required String release,
+    required String profileRelease,
+  }) => _apply(
+    release,
+    (repo) => repo.selectBuiltin(release: release, profileRelease: profileRelease),
+  );
+
+  /// 指定生效的用户文档；空串不使用导入层。
+  Future<GhostLockProfileConfig> selectUserProfile({
+    required String release,
+    required String name,
+  }) => _apply(
+    release,
+    (repo) => repo.selectUserProfile(release: release, name: name),
+  );
+
+  /// 导出当前生效配置到本地文件。
+  Future<bool> exportProfile({required String release, required String path}) =>
+      _ref
+          .read(ghostLockProfileEditActionRepositoryProvider)
+          .export(release: release, path: path);
+
+  /// 另存为一份用户文档。
+  Future<bool> saveModified({required String release}) async {
+    final bool saved = await _ref
+        .read(ghostLockProfileEditActionRepositoryProvider)
+        .saveModified(release: release);
+    _ref.invalidate(ghostLockImportedProfilesProvider);
+    return saved;
+  }
+
+  /// 写操作共用：落盘后失效该 release 的解析结果与运行前自检。
+  Future<GhostLockProfileConfig> _apply(
+    String release,
+    Future<GhostLockProfileConfig> Function(GhostLockProfileEditActionRepository repo)
+    action,
+  ) async {
+    final GhostLockProfileConfig config = await action(
+      _ref.read(ghostLockProfileEditActionRepositoryProvider),
+    );
+    _ref.invalidate(ghostLockProfileConfigProvider(release: release));
+    _ref.invalidate(ghostLockPreflightProvider);
+    return config;
+  }
+}

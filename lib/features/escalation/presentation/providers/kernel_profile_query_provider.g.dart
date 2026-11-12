@@ -162,6 +162,53 @@ final class KernelProfileListProvider
 
 String _$kernelProfileListHash() => r'7a67a283fb4838394f39e927712e847383ccd0f4';
 
+/// 内置的 profile 列表（不含用户导入）。
+
+@ProviderFor(kernelProfileBuiltinList)
+const kernelProfileBuiltinListProvider = KernelProfileBuiltinListProvider._();
+
+/// 内置的 profile 列表（不含用户导入）。
+
+final class KernelProfileBuiltinListProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<KernelProfile>>,
+          List<KernelProfile>,
+          FutureOr<List<KernelProfile>>
+        >
+    with
+        $FutureModifier<List<KernelProfile>>,
+        $FutureProvider<List<KernelProfile>> {
+  /// 内置的 profile 列表（不含用户导入）。
+  const KernelProfileBuiltinListProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'kernelProfileBuiltinListProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$kernelProfileBuiltinListHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<KernelProfile>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<KernelProfile>> create(Ref ref) {
+    return kernelProfileBuiltinList(ref);
+  }
+}
+
+String _$kernelProfileBuiltinListHash() =>
+    r'83e94a585784edea5d8f95f7cf53b75149541ca7';
+
 /// 单份 profile 的原始 HOCON 文本。
 
 @ProviderFor(kernelProfileContent)

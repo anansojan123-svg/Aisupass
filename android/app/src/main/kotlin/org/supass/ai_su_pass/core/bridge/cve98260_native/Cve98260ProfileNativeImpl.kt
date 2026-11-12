@@ -9,6 +9,8 @@ import java.io.FileInputStream
 import java.io.IOException
 import java.net.URI
 import java.util.concurrent.Executors
+import org.supass.ai_su_pass.cve98260.AssetConfigLoader
+import org.supass.ai_su_pass.cve98260.BuiltinProfileCatalog
 import org.supass.ai_su_pass.cve98260.ProfileConversionException
 import org.supass.ai_su_pass.cve98260.ota.BootImageParser
 import org.supass.ai_su_pass.cve98260.ota.ImgToProfile
@@ -41,6 +43,9 @@ class Cve98260ProfileNativeImpl(private val context: Context) : Cve98260ProfileN
 
     private val store = ImportedProfileStore(context)
 
+    /** 内置表目录，只读 assets。 */
+    private val builtinCatalog = BuiltinProfileCatalog(AssetConfigLoader(context.applicationContext))
+
     private val executor = Executors.newSingleThreadExecutor()
 
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -52,6 +57,13 @@ class Cve98260ProfileNativeImpl(private val context: Context) : Cve98260ProfileN
     override fun listImportedProfiles(callback: (Result<List<KernelProfile>>) -> Unit) {
         runAsync(callback) {
             store.list().map { KernelProfile(release = it.release, detail = it.detail) }
+        }
+    }
+
+    override fun listBuiltinProfiles(callback: (Result<List<KernelProfile>>) -> Unit) {
+        runAsync(callback) {
+            // 内置表没有来源说明，detail 留空。
+            builtinCatalog.all().map { KernelProfile(release = it.release, detail = "") }
         }
     }
 
@@ -85,7 +97,10 @@ class Cve98260ProfileNativeImpl(private val context: Context) : Cve98260ProfileN
         release: String,
         callback: (Result<String>) -> Unit,
     ) {
-        runAsync(callback) { store.readRaw(release) }
+        // 用户导入优先；没有时回退到同名内置表，详情页对两者一视同仁。
+        runAsync(callback) {
+            store.readRaw(release).ifEmpty { builtinCatalog.readRaw(release) }
+        }
     }
 
     fun dispose() {

@@ -1,0 +1,82 @@
+import 'package:Aisupass/features/escalation/data/datasources/ghost_lock_profile_action_datasource.dart';
+import 'package:Aisupass/features/escalation/data/models/ghost_lock_import_result_dto.dart';
+import 'package:Aisupass/features/escalation/data/models/ghost_lock_probe_dto.dart';
+import 'package:Aisupass/features/escalation/data/models/ghost_lock_probe_progress_dto.dart';
+import 'package:Aisupass/features/escalation/data/models/ghost_lock_user_profile_dto.dart';
+import 'package:Aisupass/features/escalation/domain/models/ghost_lock_import_result.dart';
+import 'package:Aisupass/features/escalation/domain/models/ghost_lock_probe.dart';
+import 'package:Aisupass/features/escalation/domain/models/ghost_lock_probe_progress.dart';
+import 'package:Aisupass/features/escalation/domain/models/ghost_lock_user_profile.dart';
+import 'package:Aisupass/features/escalation/domain/repositories/ghost_lock_profile_action_repository.dart';
+import 'package:Aisupass/generated/ghost_lock.g.dart' as pigeon;
+
+/// GhostLock profile 仓储实现：DTO -> Entity 的唯一转换点。
+class GhostLockProfileActionRepositoryImpl
+    implements GhostLockProfileActionRepository {
+  GhostLockProfileActionRepositoryImpl({required this._datasource});
+
+  final GhostLockProfileActionDatasource _datasource;
+
+  @override
+  Future<GhostLockProbe> probeProfile({
+    required String input,
+    bool insecure = false,
+  }) async => GhostLockProbeDto.fromNative(
+    await _datasource.probeProfile(input: input, insecure: insecure),
+  ).toEntity();
+
+  @override
+  Future<GhostLockProbeProgress> profileProgress() async =>
+      GhostLockProbeProgressDto.fromNative(
+        await _datasource.profileProgress(),
+      ).toEntity();
+
+  @override
+  Future<GhostLockImportResult> saveProfile({
+    required String release,
+    required String conf,
+    bool overwrite = false,
+  }) async => GhostLockImportResultDto.fromNative(
+    await _datasource.saveProfile(
+      release: release,
+      conf: conf,
+      overwrite: overwrite,
+    ),
+  ).toEntity();
+
+  @override
+  Future<GhostLockImportResult> importProfile({
+    required String input,
+    bool insecure = false,
+    bool overwrite = false,
+  }) async => GhostLockImportResultDto.fromNative(
+    await _datasource.importProfile(
+      input: input,
+      insecure: insecure,
+      overwrite: overwrite,
+    ),
+  ).toEntity();
+
+  @override
+  Future<List<GhostLockUserProfile>> listImportedProfiles() async {
+    final List<pigeon.GhostLockUserProfile> rows =
+        await _datasource.listImportedProfiles();
+    // 显式排序：不依赖原生返回顺序。
+    return rows
+        .map(GhostLockUserProfileDto.fromNative)
+        .map((dto) => dto.toEntity())
+        .toList()
+      ..sort((a, b) => b.importedAtMs.compareTo(a.importedAtMs));
+  }
+
+  @override
+  Future<List<String>> listBuiltinReleases() => _datasource.listBuiltinReleases();
+
+  @override
+  Future<String> readImportedProfile({required String name}) =>
+      _datasource.readImportedProfile(name: name);
+
+  @override
+  Future<bool> removeImportedProfile({required String name}) =>
+      _datasource.removeImportedProfile(name: name);
+}

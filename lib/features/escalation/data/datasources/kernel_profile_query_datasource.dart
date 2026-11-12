@@ -10,6 +10,10 @@ class KernelProfileQueryDatasource {
   Future<List<pigeon.KernelProfile>> listImportedProfiles() =>
       _native.listImportedProfiles();
 
+  /// 列出内置 profile（不含用户导入）。
+  Future<List<pigeon.KernelProfile>> listBuiltinProfiles() =>
+      _native.listBuiltinProfiles();
+
   /// 取导入进度快照（`"<phase> <done> <total>"`）。
   Future<String> importProgress() => _native.importProgress();
 

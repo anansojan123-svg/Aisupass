@@ -974,6 +974,219 @@ class AppLocalizationsZh extends AppLocalizations {
   String get escalationGhostKeyStageKsuHint => '移交 KernelSU';
 
   @override
+  String get escalationGhostLockTitle => 'GhostLock 提权';
+
+  @override
+  String get escalationGhostLockFieldManager => '管理器';
+
+  @override
+  String get escalationGhostLockFieldRelease => '内核';
+
+  @override
+  String get escalationGhostLockFieldProfile => '内核表';
+
+  @override
+  String get escalationGhostLockFieldRoute => '路由';
+
+  @override
+  String get escalationGhostLockFieldSeccomp => 'Seccomp';
+
+  @override
+  String get escalationGhostLockFieldKsud => 'ksud';
+
+  @override
+  String get escalationGhostLockValueYes => '有';
+
+  @override
+  String get escalationGhostLockValueNo => '无';
+
+  @override
+  String get escalationGhostLockValueNone => '无';
+
+  @override
+  String get escalationGhostLockValueUnknown => '未知';
+
+  @override
+  String get escalationGhostLockSafeModeTitle => '安全模式';
+
+  @override
+  String get escalationGhostLockSafeModeDesc =>
+      '执行前给 /data/adb/modules 下的模块打 disable';
+
+  @override
+  String get escalationGhostLockConfirmRun => '开始';
+
+  @override
+  String get escalationGhostLockConfirmRisk =>
+      '执行期间会把 SELinux 置为宽容模式，失败时可能停在宽容状态。重启即可恢复。';
+
+  @override
+  String get escalationGhostLockNoAdb => '无线调试未连接，先在设置里配对';
+
+  @override
+  String get escalationGhostLockMissingBinary =>
+      '安装包内缺少 libghostlock.so，重新安装应用';
+
+  @override
+  String escalationGhostLockNoProfile(String release) {
+    return '内核表里没有 $release 这一型，也不做近似匹配';
+  }
+
+  @override
+  String escalationGhostLockProfileInvalid(String reason) {
+    return '内核表解析失败：$reason';
+  }
+
+  @override
+  String get escalationGhostLockSeccompFiltered =>
+      '当前 shell 带有 seccomp 过滤，这条链路无法清掉它';
+
+  @override
+  String escalationGhostLockRunning(String manager) {
+    return '正在执行 GhostLock$manager…';
+  }
+
+  @override
+  String escalationGhostLockSucceeded(String manager) {
+    return '内核模块已加载，KernelSU 已接管$manager';
+  }
+
+  @override
+  String get escalationGhostLockAlreadyRooted => 'KernelSU 本次开机已接管，未重复执行';
+
+  @override
+  String get escalationGhostLockTempRootOnly => '拿到临时 root，但 KernelSU 模块尚未加载';
+
+  @override
+  String get escalationGhostLockSeccompBlocked =>
+      '临时的 root 子进程仍带 seccomp 过滤，KernelSU 无法加载';
+
+  @override
+  String get escalationGhostLockKsuFailed => 'KernelSU 模块加载失败，见上方 ksud 输出';
+
+  @override
+  String get escalationGhostLockW1Failed => '关闭 SELinux 失败，见上方输出';
+
+  @override
+  String get escalationGhostLockW2Failed => '写凭据阶段失败，见上方输出';
+
+  @override
+  String get escalationGhostLockW3Failed => '清 seccomp 阶段失败，见上方输出';
+
+  @override
+  String get escalationGhostLockReleaseMismatch => '内核表与设备内核不一致，原生已退出';
+
+  @override
+  String get escalationGhostLockDirtyRace => '竞争进入脏状态，原生已自行停止进程';
+
+  @override
+  String get escalationGhostLockTimedOut => '等待终局信号超时，已停止读取；设备侧可能仍在执行';
+
+  @override
+  String escalationGhostLockNotStarted(String reason) {
+    return '原生侧未受理，原因码：$reason';
+  }
+
+  @override
+  String get escalationGhostLockFailed => '未拿到可识别的终局标记，见上方输出';
+
+  @override
+  String escalationGhostLockHandoffFollowUp(String manager) {
+    return '往下把 root 移交给 $manager';
+  }
+
+  @override
+  String get escalationGhostLockProfileEdit => '编辑内核表';
+
+  @override
+  String get escalationGhostLockProfileTabGeneral => '通用';
+
+  @override
+  String get escalationGhostLockProfileTabRoute => '路由';
+
+  @override
+  String get escalationGhostLockProfileTabAdvanced => '高级';
+
+  @override
+  String get escalationGhostLockProfileNotProvided => '未提供';
+
+  @override
+  String get escalationGhostLockProfileInvalidField => '该值不满足偏移规则';
+
+  @override
+  String get escalationGhostLockProfileOverridden => '已修改';
+
+  @override
+  String get escalationGhostLockProfileReset => '重置全部修改';
+
+  @override
+  String get escalationGhostLockProfileExport => '导出为文件';
+
+  @override
+  String get escalationGhostLockProfileSaveAs => '另存为我的配置';
+
+  @override
+  String get escalationGhostLockProfileRouteAuto => '按 profile 声明';
+
+  @override
+  String get escalationGhostLockProfileRouteLabel => '路由';
+
+  @override
+  String get escalationGhostLockProfileFallbackLabel => '回退';
+
+  @override
+  String get escalationGhostLockProfileFallbackNone => '关闭回退';
+
+  @override
+  String get escalationGhostLockProfileNoProfile => '这个内核没有可编辑的 profile';
+
+  @override
+  String get escalationGhostLockProfileSelect => '指定生效表';
+
+  @override
+  String get escalationGhostLockProfileSelectAuto => '跟随设备';
+
+  @override
+  String get escalationGhostLockProfileSelectBuiltin => '内置表';
+
+  @override
+  String get escalationGhostLockProfileSelectSearch => '按 release 过滤';
+
+  @override
+  String get escalationGhostLockProfileSelectUser => '我的配置';
+
+  @override
+  String get escalationGhostLockProfileSelectNoUser => '不使用导入文档';
+
+  @override
+  String get escalationGhostLockImportTitle => '导入内核表';
+
+  @override
+  String escalationGhostLockImportFailed(String reason) {
+    return '提取失败：$reason';
+  }
+
+  @override
+  String get escalationGhostLockImportOverwrite => '已有同内核的条目，覆盖吗？';
+
+  @override
+  String get escalationGhostLockImportOverwriteAction => '覆盖';
+
+  @override
+  String escalationGhostLockImportDone(String release) {
+    return '已生成 $release 的内核表';
+  }
+
+  @override
+  String get escalationGhostLockImportedEmpty => '还没有导入任何内核表';
+
+  @override
+  String get escalationGhostLockImportedRemove => '删除';
+
+  @override
+  String get escalationGhostLockImportedParseError => '文件无法解析';
+
+  @override
   String get settingsGhostKeySection => 'GhostKey';
 
   @override
@@ -1146,23 +1359,78 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get kernelProfileTitle => '内核 profile';
+  String get kernelProfileTitle => '内核表';
 
   @override
-  String get kernelProfileEntrySubtitle => '从 boot.img 生成本机内核参数';
+  String get kernelProfileEntrySubtitle => '为 GhostKey 与 GhostLock 生成内核参数';
 
   @override
   String get kernelProfilePageDesc =>
-      '本机内核不在内置表里时，用本机的 boot.img 生成 profile。生成的 profile 只保存在本应用私有目录。';
+      '本机内核不在内置表里时，用本机的 boot.img 或 OTA 生成 profile。生成的 profile 只保存在本应用私有目录。';
+
+  @override
+  String get kernelProfileTabGhostKey => 'GhostKey 已导入';
+
+  @override
+  String get kernelProfileTabGhostKeyBuiltin => 'GhostKey 内置';
+
+  @override
+  String get kernelProfileTabGhostLock => 'GhostLock 已导入';
+
+  @override
+  String get kernelProfileTabGhostLockBuiltin => 'GhostLock 内置';
 
   @override
   String get kernelProfileImportAction => '选择 boot.img';
 
   @override
+  String get kernelProfileImportChangeFile => '更换镜像';
+
+  @override
   String get kernelProfileImportUrlHint => 'OTA 链接（HTTP/HTTPS）';
 
   @override
-  String get kernelProfileImportUrlAction => '从链接导入';
+  String get kernelProfileImportParseAction => '解析内核';
+
+  @override
+  String get kernelProfileImportNeedInput => '先选一个镜像或填一个链接';
+
+  @override
+  String get kernelProfileImportInsecureHint => '跳过证书校验（直链自签时用）';
+
+  @override
+  String get kernelProfileProbeReady => '解析完成';
+
+  @override
+  String kernelProfileProbeWarnings(int count) {
+    return '$count 条提示';
+  }
+
+  @override
+  String get kernelProfileProbeTapHint => '点击选择导入到哪一套内核表';
+
+  @override
+  String kernelProfileProbeFailed(String reason) {
+    return '解析失败：$reason';
+  }
+
+  @override
+  String kernelProfileChooseTargetTitle(String release) {
+    return '要把 $release 导入到哪？';
+  }
+
+  @override
+  String get kernelProfileChooseTargetGhostKey => 'GhostKey 内核参数';
+
+  @override
+  String get kernelProfileChooseTargetGhostKeyHint =>
+      '只推导 CVE-2026-98260 需要的偏移';
+
+  @override
+  String get kernelProfileChooseTargetGhostLock => 'GhostLock 内核表';
+
+  @override
+  String get kernelProfileChooseTargetGhostLockHint => '写入 GhostLock 解析出的偏移表';
 
   @override
   String get kernelProfileBtfHint => '需要带 BTF 调试信息的内核，第三方 ROM 或老机型可能取不到结构偏移';
@@ -1214,6 +1482,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get kernelProfileDetailOffsets => '结构偏移';
+
+  @override
+  String get kernelProfileDetailSymbolOffsets => '符号偏移';
+
+  @override
+  String get kernelProfileDetailSchema => '表版本';
+
+  @override
+  String get kernelProfileDetailKernelMajor => '内核主版本';
 
   @override
   String get kernelProfileDetailRaw => '原始配置';
@@ -1270,10 +1547,13 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get kernelProfileImportedSection => '已导入的 profile';
+  String get kernelProfileImportedSection => '内核表';
 
   @override
   String get kernelProfileImportedEmpty => '还没有导入过 profile';
+
+  @override
+  String get kernelProfileBuiltinEmpty => '内置表为空';
 
   @override
   String get kernelProfileRemove => '删除';

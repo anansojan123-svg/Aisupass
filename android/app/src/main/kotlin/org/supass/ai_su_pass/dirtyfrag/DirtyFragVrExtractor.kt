@@ -1,10 +1,13 @@
 package org.supass.ai_su_pass.dirtyfrag
 
 /**
- * `libvrext.so` 的 JNI 入口。
+ * `libvrext.so` 的 JNI 入口（DirtyFrag VR 部分）。
  *
  * 符号名由 Rust 侧的 `#[no_mangle]` 决定：`nativeDerive` / `nativeProgress`
  * 的包名段必须是 `Java_org_supass_ai_1su_1pass_dirtyfrag_DirtyFragVrExtractor_*`。
+ *
+ * GhostLock 的提取入口在同级 `cve43499.GhostLockProfileExtractor`，两者共用
+ * 同一个 `.so`，但 JNI 类各自独立。
  */
 object DirtyFragVrExtractor {
 

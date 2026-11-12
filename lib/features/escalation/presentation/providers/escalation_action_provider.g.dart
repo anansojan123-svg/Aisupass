@@ -1307,3 +1307,842 @@ final class RunGhostKeyFamily extends $Family
   @override
   String toString() => r'runGhostKeyProvider';
 }
+
+/// GhostLock 运行数据源。
+
+@ProviderFor(ghostLockActionDatasource)
+const ghostLockActionDatasourceProvider = GhostLockActionDatasourceProvider._();
+
+/// GhostLock 运行数据源。
+
+final class GhostLockActionDatasourceProvider
+    extends
+        $FunctionalProvider<
+          GhostLockActionDatasource,
+          GhostLockActionDatasource,
+          GhostLockActionDatasource
+        >
+    with $Provider<GhostLockActionDatasource> {
+  /// GhostLock 运行数据源。
+  const GhostLockActionDatasourceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'ghostLockActionDatasourceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$ghostLockActionDatasourceHash();
+
+  @$internal
+  @override
+  $ProviderElement<GhostLockActionDatasource> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  GhostLockActionDatasource create(Ref ref) {
+    return ghostLockActionDatasource(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GhostLockActionDatasource value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GhostLockActionDatasource>(value),
+    );
+  }
+}
+
+String _$ghostLockActionDatasourceHash() =>
+    r'2cb4b33fd214babd05a22777b677532cff88e1e4';
+
+/// GhostLock 运行仓储。
+
+@ProviderFor(ghostLockActionRepository)
+const ghostLockActionRepositoryProvider = GhostLockActionRepositoryProvider._();
+
+/// GhostLock 运行仓储。
+
+final class GhostLockActionRepositoryProvider
+    extends
+        $FunctionalProvider<
+          GhostLockActionRepository,
+          GhostLockActionRepository,
+          GhostLockActionRepository
+        >
+    with $Provider<GhostLockActionRepository> {
+  /// GhostLock 运行仓储。
+  const GhostLockActionRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'ghostLockActionRepositoryProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$ghostLockActionRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<GhostLockActionRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  GhostLockActionRepository create(Ref ref) {
+    return ghostLockActionRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GhostLockActionRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GhostLockActionRepository>(value),
+    );
+  }
+}
+
+String _$ghostLockActionRepositoryHash() =>
+    r'eda6e5758a12c79213a24c595a4862eedc656e41';
+
+/// 运行前自检。
+
+@ProviderFor(ghostLockPreflight)
+const ghostLockPreflightProvider = GhostLockPreflightProvider._();
+
+/// 运行前自检。
+
+final class GhostLockPreflightProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<GhostLockPreflight>,
+          GhostLockPreflight,
+          FutureOr<GhostLockPreflight>
+        >
+    with
+        $FutureModifier<GhostLockPreflight>,
+        $FutureProvider<GhostLockPreflight> {
+  /// 运行前自检。
+  const GhostLockPreflightProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'ghostLockPreflightProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$ghostLockPreflightHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<GhostLockPreflight> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<GhostLockPreflight> create(Ref ref) {
+    return ghostLockPreflight(ref);
+  }
+}
+
+String _$ghostLockPreflightHash() =>
+    r'e0de500eb1a4b835610612e96d64f314865654d5';
+
+/// 跑一次 GhostLock，按块吐出证据。
+
+@ProviderFor(runGhostLock)
+const runGhostLockProvider = RunGhostLockFamily._();
+
+/// 跑一次 GhostLock，按块吐出证据。
+
+final class RunGhostLockProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<GhostLockOutcome>,
+          GhostLockOutcome,
+          Stream<GhostLockOutcome>
+        >
+    with $FutureModifier<GhostLockOutcome>, $StreamProvider<GhostLockOutcome> {
+  /// 跑一次 GhostLock，按块吐出证据。
+  const RunGhostLockProvider._({
+    required RunGhostLockFamily super.from,
+    required ({RootManager? manager, bool safeMode}) super.argument,
+  }) : super(
+         retry: null,
+         name: r'runGhostLockProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$runGhostLockHash();
+
+  @override
+  String toString() {
+    return r'runGhostLockProvider'
+        ''
+        '$argument';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<GhostLockOutcome> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<GhostLockOutcome> create(Ref ref) {
+    final argument = this.argument as ({RootManager? manager, bool safeMode});
+    return runGhostLock(
+      ref,
+      manager: argument.manager,
+      safeMode: argument.safeMode,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is RunGhostLockProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$runGhostLockHash() => r'e14d4fc987028888f7ff80a824161e87333103a0';
+
+/// 跑一次 GhostLock，按块吐出证据。
+
+final class RunGhostLockFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          Stream<GhostLockOutcome>,
+          ({RootManager? manager, bool safeMode})
+        > {
+  const RunGhostLockFamily._()
+    : super(
+        retry: null,
+        name: r'runGhostLockProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// 跑一次 GhostLock，按块吐出证据。
+
+  RunGhostLockProvider call({RootManager? manager, bool safeMode = false}) =>
+      RunGhostLockProvider._(
+        argument: (manager: manager, safeMode: safeMode),
+        from: this,
+      );
+
+  @override
+  String toString() => r'runGhostLockProvider';
+}
+
+/// GhostLock profile 导入数据源。
+
+@ProviderFor(ghostLockProfileActionDatasource)
+const ghostLockProfileActionDatasourceProvider =
+    GhostLockProfileActionDatasourceProvider._();
+
+/// GhostLock profile 导入数据源。
+
+final class GhostLockProfileActionDatasourceProvider
+    extends
+        $FunctionalProvider<
+          GhostLockProfileActionDatasource,
+          GhostLockProfileActionDatasource,
+          GhostLockProfileActionDatasource
+        >
+    with $Provider<GhostLockProfileActionDatasource> {
+  /// GhostLock profile 导入数据源。
+  const GhostLockProfileActionDatasourceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'ghostLockProfileActionDatasourceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$ghostLockProfileActionDatasourceHash();
+
+  @$internal
+  @override
+  $ProviderElement<GhostLockProfileActionDatasource> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  GhostLockProfileActionDatasource create(Ref ref) {
+    return ghostLockProfileActionDatasource(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GhostLockProfileActionDatasource value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GhostLockProfileActionDatasource>(
+        value,
+      ),
+    );
+  }
+}
+
+String _$ghostLockProfileActionDatasourceHash() =>
+    r'0b8dcc61a494b6fdb84bda53cd3c490e00090ef2';
+
+/// GhostLock profile 导入仓储。
+
+@ProviderFor(ghostLockProfileActionRepository)
+const ghostLockProfileActionRepositoryProvider =
+    GhostLockProfileActionRepositoryProvider._();
+
+/// GhostLock profile 导入仓储。
+
+final class GhostLockProfileActionRepositoryProvider
+    extends
+        $FunctionalProvider<
+          GhostLockProfileActionRepository,
+          GhostLockProfileActionRepository,
+          GhostLockProfileActionRepository
+        >
+    with $Provider<GhostLockProfileActionRepository> {
+  /// GhostLock profile 导入仓储。
+  const GhostLockProfileActionRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'ghostLockProfileActionRepositoryProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$ghostLockProfileActionRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<GhostLockProfileActionRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  GhostLockProfileActionRepository create(Ref ref) {
+    return ghostLockProfileActionRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GhostLockProfileActionRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GhostLockProfileActionRepository>(
+        value,
+      ),
+    );
+  }
+}
+
+String _$ghostLockProfileActionRepositoryHash() =>
+    r'ce52af89914b546c990d5ec112032f851947789a';
+
+/// 用户导入的 profile 列表。
+
+@ProviderFor(ghostLockImportedProfiles)
+const ghostLockImportedProfilesProvider = GhostLockImportedProfilesProvider._();
+
+/// 用户导入的 profile 列表。
+
+final class GhostLockImportedProfilesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<GhostLockUserProfile>>,
+          List<GhostLockUserProfile>,
+          FutureOr<List<GhostLockUserProfile>>
+        >
+    with
+        $FutureModifier<List<GhostLockUserProfile>>,
+        $FutureProvider<List<GhostLockUserProfile>> {
+  /// 用户导入的 profile 列表。
+  const GhostLockImportedProfilesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'ghostLockImportedProfilesProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$ghostLockImportedProfilesHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<GhostLockUserProfile>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<GhostLockUserProfile>> create(Ref ref) {
+    return ghostLockImportedProfiles(ref);
+  }
+}
+
+String _$ghostLockImportedProfilesHash() =>
+    r'770ed9d1239d2d25272b6925b94418cf9fdd5742';
+
+/// 内置 GhostLock 内核表的全部 release，升序。
+
+@ProviderFor(ghostLockBuiltinReleases)
+const ghostLockBuiltinReleasesProvider = GhostLockBuiltinReleasesProvider._();
+
+/// 内置 GhostLock 内核表的全部 release，升序。
+
+final class GhostLockBuiltinReleasesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<String>>,
+          List<String>,
+          FutureOr<List<String>>
+        >
+    with $FutureModifier<List<String>>, $FutureProvider<List<String>> {
+  /// 内置 GhostLock 内核表的全部 release，升序。
+  const GhostLockBuiltinReleasesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'ghostLockBuiltinReleasesProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$ghostLockBuiltinReleasesHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<String>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<String>> create(Ref ref) {
+    return ghostLockBuiltinReleases(ref);
+  }
+}
+
+String _$ghostLockBuiltinReleasesHash() =>
+    r'7a942eef2fc2f1a19af7e8e0dd1b70f963017574';
+
+/// 单份用户 profile 的原始 HOCON 文本；不存在返回空串。
+
+@ProviderFor(ghostLockImportedProfileContent)
+const ghostLockImportedProfileContentProvider =
+    GhostLockImportedProfileContentFamily._();
+
+/// 单份用户 profile 的原始 HOCON 文本；不存在返回空串。
+
+final class GhostLockImportedProfileContentProvider
+    extends $FunctionalProvider<AsyncValue<String>, String, FutureOr<String>>
+    with $FutureModifier<String>, $FutureProvider<String> {
+  /// 单份用户 profile 的原始 HOCON 文本；不存在返回空串。
+  const GhostLockImportedProfileContentProvider._({
+    required GhostLockImportedProfileContentFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'ghostLockImportedProfileContentProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$ghostLockImportedProfileContentHash();
+
+  @override
+  String toString() {
+    return r'ghostLockImportedProfileContentProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<String> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<String> create(Ref ref) {
+    final argument = this.argument as String;
+    return ghostLockImportedProfileContent(ref, name: argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GhostLockImportedProfileContentProvider &&
+        other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$ghostLockImportedProfileContentHash() =>
+    r'd6cef0630202b23c23f711f70cba2b9cda6ebb41';
+
+/// 单份用户 profile 的原始 HOCON 文本；不存在返回空串。
+
+final class GhostLockImportedProfileContentFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<String>, String> {
+  const GhostLockImportedProfileContentFamily._()
+    : super(
+        retry: null,
+        name: r'ghostLockImportedProfileContentProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// 单份用户 profile 的原始 HOCON 文本；不存在返回空串。
+
+  GhostLockImportedProfileContentProvider call({required String name}) =>
+      GhostLockImportedProfileContentProvider._(argument: name, from: this);
+
+  @override
+  String toString() => r'ghostLockImportedProfileContentProvider';
+}
+
+/// GhostLock 解析进度。只在被监听期间轮询，面板收起就停。
+
+@ProviderFor(ghostLockProbeProgress)
+const ghostLockProbeProgressProvider = GhostLockProbeProgressProvider._();
+
+/// GhostLock 解析进度。只在被监听期间轮询，面板收起就停。
+
+final class GhostLockProbeProgressProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<GhostLockProbeProgress>,
+          GhostLockProbeProgress,
+          Stream<GhostLockProbeProgress>
+        >
+    with
+        $FutureModifier<GhostLockProbeProgress>,
+        $StreamProvider<GhostLockProbeProgress> {
+  /// GhostLock 解析进度。只在被监听期间轮询，面板收起就停。
+  const GhostLockProbeProgressProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'ghostLockProbeProgressProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$ghostLockProbeProgressHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<GhostLockProbeProgress> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<GhostLockProbeProgress> create(Ref ref) {
+    return ghostLockProbeProgress(ref);
+  }
+}
+
+String _$ghostLockProbeProgressHash() =>
+    r'ed94f952c1482338c49f5f0f651e9d71a6132be4';
+
+/// GhostLock profile 编辑数据源。
+
+@ProviderFor(ghostLockProfileEditActionDatasource)
+const ghostLockProfileEditActionDatasourceProvider =
+    GhostLockProfileEditActionDatasourceProvider._();
+
+/// GhostLock profile 编辑数据源。
+
+final class GhostLockProfileEditActionDatasourceProvider
+    extends
+        $FunctionalProvider<
+          GhostLockProfileEditActionDatasource,
+          GhostLockProfileEditActionDatasource,
+          GhostLockProfileEditActionDatasource
+        >
+    with $Provider<GhostLockProfileEditActionDatasource> {
+  /// GhostLock profile 编辑数据源。
+  const GhostLockProfileEditActionDatasourceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'ghostLockProfileEditActionDatasourceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() =>
+      _$ghostLockProfileEditActionDatasourceHash();
+
+  @$internal
+  @override
+  $ProviderElement<GhostLockProfileEditActionDatasource> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  GhostLockProfileEditActionDatasource create(Ref ref) {
+    return ghostLockProfileEditActionDatasource(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GhostLockProfileEditActionDatasource value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride:
+          $SyncValueProvider<GhostLockProfileEditActionDatasource>(value),
+    );
+  }
+}
+
+String _$ghostLockProfileEditActionDatasourceHash() =>
+    r'43e18924d57c5e37a75d0e1bb0015684a64a5a0d';
+
+/// GhostLock profile 编辑仓储。
+
+@ProviderFor(ghostLockProfileEditActionRepository)
+const ghostLockProfileEditActionRepositoryProvider =
+    GhostLockProfileEditActionRepositoryProvider._();
+
+/// GhostLock profile 编辑仓储。
+
+final class GhostLockProfileEditActionRepositoryProvider
+    extends
+        $FunctionalProvider<
+          GhostLockProfileEditActionRepository,
+          GhostLockProfileEditActionRepository,
+          GhostLockProfileEditActionRepository
+        >
+    with $Provider<GhostLockProfileEditActionRepository> {
+  /// GhostLock profile 编辑仓储。
+  const GhostLockProfileEditActionRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'ghostLockProfileEditActionRepositoryProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() =>
+      _$ghostLockProfileEditActionRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<GhostLockProfileEditActionRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  GhostLockProfileEditActionRepository create(Ref ref) {
+    return ghostLockProfileEditActionRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GhostLockProfileEditActionRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride:
+          $SyncValueProvider<GhostLockProfileEditActionRepository>(value),
+    );
+  }
+}
+
+String _$ghostLockProfileEditActionRepositoryHash() =>
+    r'e52c967f2b27c072e4a13041ac256ab04459521a';
+
+/// 某个 release 的解析结果（编辑器视图）。
+
+@ProviderFor(ghostLockProfileConfig)
+const ghostLockProfileConfigProvider = GhostLockProfileConfigFamily._();
+
+/// 某个 release 的解析结果（编辑器视图）。
+
+final class GhostLockProfileConfigProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<GhostLockProfileConfig>,
+          GhostLockProfileConfig,
+          FutureOr<GhostLockProfileConfig>
+        >
+    with
+        $FutureModifier<GhostLockProfileConfig>,
+        $FutureProvider<GhostLockProfileConfig> {
+  /// 某个 release 的解析结果（编辑器视图）。
+  const GhostLockProfileConfigProvider._({
+    required GhostLockProfileConfigFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'ghostLockProfileConfigProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$ghostLockProfileConfigHash();
+
+  @override
+  String toString() {
+    return r'ghostLockProfileConfigProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<GhostLockProfileConfig> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<GhostLockProfileConfig> create(Ref ref) {
+    final argument = this.argument as String;
+    return ghostLockProfileConfig(ref, release: argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GhostLockProfileConfigProvider &&
+        other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$ghostLockProfileConfigHash() =>
+    r'6cf93438b0d2069a8b1b79d3a08a75ab6764b6d7';
+
+/// 某个 release 的解析结果（编辑器视图）。
+
+final class GhostLockProfileConfigFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<GhostLockProfileConfig>, String> {
+  const GhostLockProfileConfigFamily._()
+    : super(
+        retry: null,
+        name: r'ghostLockProfileConfigProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// 某个 release 的解析结果（编辑器视图）。
+
+  GhostLockProfileConfigProvider call({required String release}) =>
+      GhostLockProfileConfigProvider._(argument: release, from: this);
+
+  @override
+  String toString() => r'ghostLockProfileConfigProvider';
+}
+
+/// GhostLock profile 导入与编辑的写操作。
+///
+/// 同 [ghostKeyActions]：无参类，参数走方法入参。
+
+@ProviderFor(ghostLockProfileActions)
+const ghostLockProfileActionsProvider = GhostLockProfileActionsProvider._();
+
+/// GhostLock profile 导入与编辑的写操作。
+///
+/// 同 [ghostKeyActions]：无参类，参数走方法入参。
+
+final class GhostLockProfileActionsProvider
+    extends
+        $FunctionalProvider<
+          GhostLockProfileActions,
+          GhostLockProfileActions,
+          GhostLockProfileActions
+        >
+    with $Provider<GhostLockProfileActions> {
+  /// GhostLock profile 导入与编辑的写操作。
+  ///
+  /// 同 [ghostKeyActions]：无参类，参数走方法入参。
+  const GhostLockProfileActionsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'ghostLockProfileActionsProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$ghostLockProfileActionsHash();
+
+  @$internal
+  @override
+  $ProviderElement<GhostLockProfileActions> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  GhostLockProfileActions create(Ref ref) {
+    return ghostLockProfileActions(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GhostLockProfileActions value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GhostLockProfileActions>(value),
+    );
+  }
+}
+
+String _$ghostLockProfileActionsHash() =>
+    r'e7a0278569bf2af14cbad4aead04ec26a6e53b2f';

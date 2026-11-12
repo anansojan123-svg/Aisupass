@@ -226,6 +226,10 @@ abstract class Cve98260ProfileNative {
   @async
   List<KernelProfile> listImportedProfiles();
 
+  /// 列出 13 份内置 profile（不含用户导入），顺序同 `index.conf`。
+  @async
+  List<KernelProfile> listBuiltinProfiles();
+
   /// 取导入进度快照。
   @async
   String importProgress();

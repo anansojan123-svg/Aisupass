@@ -9,6 +9,7 @@ import 'package:Aisupass/core/utils/run_log_diagnosis_text.dart';
 import 'package:Aisupass/core/utils/terminal_text_writer.dart';
 import 'package:Aisupass/features/escalation/domain/enums/dirty_frag_kind.dart';
 import 'package:Aisupass/features/escalation/domain/enums/ghost_key_kind.dart';
+import 'package:Aisupass/features/escalation/domain/enums/ghost_lock_kind.dart';
 import 'package:Aisupass/features/escalation/domain/enums/run_log_result.dart';
 import 'package:Aisupass/features/escalation/domain/models/device_identity.dart';
 import 'package:Aisupass/features/escalation/domain/models/dirty_frag_outcome.dart';
@@ -16,6 +17,8 @@ import 'package:Aisupass/features/escalation/domain/models/dirty_frag_run_defaul
 import 'package:Aisupass/features/escalation/domain/models/ghost_key_outcome.dart';
 import 'package:Aisupass/features/escalation/domain/models/ghost_key_preflight.dart';
 import 'package:Aisupass/features/escalation/domain/models/ghost_key_run_defaults.dart';
+import 'package:Aisupass/features/escalation/domain/models/ghost_lock_outcome.dart';
+import 'package:Aisupass/features/escalation/domain/models/ghost_lock_preflight.dart';
 import 'package:Aisupass/features/escalation/domain/models/handoff_outcome.dart';
 import 'package:Aisupass/features/escalation/domain/models/payload.dart';
 import 'package:Aisupass/features/escalation/domain/models/root_manager.dart';
@@ -28,6 +31,7 @@ import 'package:Aisupass/features/escalation/presentation/widgets/dirty_frag_con
 import 'package:Aisupass/features/escalation/presentation/widgets/escalation_menu_button.dart';
 import 'package:Aisupass/features/escalation/presentation/widgets/ghost_key_confirm_dialog.dart';
 import 'package:Aisupass/features/escalation/presentation/widgets/ghost_key_progress_panel.dart';
+import 'package:Aisupass/features/escalation/presentation/widgets/ghost_lock_confirm_dialog.dart';
 import 'package:Aisupass/features/escalation/presentation/widgets/payload_catalog_dialog.dart';
 import 'package:Aisupass/features/escalation/presentation/widgets/payload_confirm_dialog.dart';
 import 'package:Aisupass/features/escalation/presentation/widgets/terminal_key_bar.dart';
@@ -144,11 +148,26 @@ class ManualEscalationPage extends HookConsumerWidget {
         ? null
         : ref.watch(runGhostKeyProvider(manager: ghostKeyManager));
 
+    final RootManager? ghostLockManager = ref
+        .watch(selectedRootManagerProvider)
+        .value;
+    final ValueNotifier<bool> ghostLockStarted = useState<bool>(false);
+    final ValueNotifier<bool> ghostLockSafeMode = useState<bool>(false);
+    final AsyncValue<GhostLockOutcome>? ghostLock = !ghostLockStarted.value
+        ? null
+        : ref.watch(
+            runGhostLockProvider(
+              manager: ghostLockManager,
+              safeMode: ghostLockSafeMode.value,
+            ),
+          );
+
     final bool running =
         busy.value ||
         (handoff?.isLoading ?? false) ||
         (dirtyFrag?.isLoading ?? false) ||
-        (ghostKey?.isLoading ?? false);
+        (ghostKey?.isLoading ?? false) ||
+        (ghostLock?.isLoading ?? false);
 
     // 招牌要按真实列数挑排版；画好之前到达的输出先攒着，顺序才不会颠倒。
     final ObjectRef<bool> bannerDrawn = useRef<bool>(false);
@@ -570,6 +589,89 @@ class ManualEscalationPage extends HookConsumerWidget {
       ref.invalidate(runGhostKeyProvider(manager: manager));
     }
 
+    /// 跑一次 GhostLock。
+    ///
+    /// 前置检查全走原生的 `preflight()`：内核表是否命中、seccomp 是否可用、
+    /// 二进制是否在包里，都由原生一次取回，Dart 侧不重复读设备。
+    Future<void> startGhostLock() async {
+      if (busy.value) return;
+
+      final GhostLockPreflight preflight;
+      try {
+        preflight = await ref.read(ghostLockPreflightProvider.future);
+      } catch (error) {
+        writer.writeLine(
+          '${l10n.escalationInvokeFailed}：$error',
+          color: TerminalTextWriter.red,
+        );
+        return;
+      }
+
+      if (!preflight.adbConnected) {
+        writer.writeLine(
+          l10n.escalationGhostLockNoAdb,
+          color: TerminalTextWriter.red,
+        );
+        return;
+      }
+      if (!preflight.binaryPresent) {
+        writer.writeLine(
+          l10n.escalationGhostLockMissingBinary,
+          color: TerminalTextWriter.red,
+        );
+        return;
+      }
+      if (preflight.profileError.isNotEmpty) {
+        writer.writeLine(
+          l10n.escalationGhostLockProfileInvalid(preflight.profileError),
+          color: TerminalTextWriter.red,
+        );
+        return;
+      }
+      if (!preflight.profileMatched) {
+        writer.writeLine(
+          l10n.escalationGhostLockNoProfile(
+            preflight.release.isEmpty
+                ? l10n.escalationGhostLockValueUnknown
+                : preflight.release,
+          ),
+          color: TerminalTextWriter.red,
+        );
+        return;
+      }
+      if (preflight.seccomp != 0) {
+        writer.writeLine(
+          l10n.escalationGhostLockSeccompFiltered,
+          color: TerminalTextWriter.red,
+        );
+        return;
+      }
+
+      final RootManager? manager = ghostLockManager;
+
+      if (!context.mounted) return;
+      final bool? safeMode = await showGhostLockConfirmDialog(
+        context,
+        manager: manager,
+        preflight: preflight,
+      );
+      if (safeMode == null) return;
+
+      writer.writeLine('');
+      writer.writeLine(
+        l10n.escalationGhostLockRunning(
+          manager == null ? '' : ' ${manager.displayName}',
+        ),
+        color: TerminalTextWriter.yellow,
+      );
+      ref.invalidate(shellConnectionProvider);
+      ghostLockSafeMode.value = safeMode;
+      ghostLockStarted.value = true;
+      ref.invalidate(
+        runGhostLockProvider(manager: manager, safeMode: safeMode),
+      );
+    }
+
     /// 把终端里选中的文本复制到剪贴板。
     ///
     /// 安卓上没有 `Ctrl+Shift+C`，xterm3 的复制只挂在桌面快捷键上，触摸端唯一
@@ -822,6 +924,84 @@ class ManualEscalationPage extends HookConsumerWidget {
       return null;
     }, <Object?>[ghostKey]);
 
+    // GhostLock 每块都写屏：中间块只追加输出，终局块再补结论行。
+    useEffect(() {
+      final AsyncValue<GhostLockOutcome>? state = ghostLock;
+      if (state == null) return null;
+      state.when(
+        loading: () {},
+        error: (Object error, StackTrace stackTrace) {
+          writer.writeLine(
+            '${l10n.escalationInvokeFailed}：$error',
+            color: TerminalTextWriter.red,
+          );
+        },
+        data: (GhostLockOutcome outcome) {
+          writer.writeStream(outcome.output);
+          if (!outcome.isFinal) return;
+          final String name = ghostLockManager == null
+              ? ''
+              : ' ${ghostLockManager.displayName}';
+          final String verdict = switch (outcome.kind) {
+            GhostLockKind.succeeded => l10n.escalationGhostLockSucceeded(name),
+            GhostLockKind.alreadyRooted => l10n.escalationGhostLockAlreadyRooted,
+            GhostLockKind.tempRootOnly => l10n.escalationGhostLockTempRootOnly,
+            GhostLockKind.seccompBlocked =>
+              l10n.escalationGhostLockSeccompBlocked,
+            GhostLockKind.ksuFailed => l10n.escalationGhostLockKsuFailed,
+            GhostLockKind.w1Failed => l10n.escalationGhostLockW1Failed,
+            GhostLockKind.w2Failed => l10n.escalationGhostLockW2Failed,
+            GhostLockKind.w3Failed => l10n.escalationGhostLockW3Failed,
+            GhostLockKind.releaseMismatch =>
+              l10n.escalationGhostLockReleaseMismatch,
+            GhostLockKind.dirtyRace => l10n.escalationGhostLockDirtyRace,
+            GhostLockKind.timedOut => l10n.escalationGhostLockTimedOut,
+            GhostLockKind.notStarted => l10n.escalationGhostLockNotStarted(
+              outcome.reason,
+            ),
+            GhostLockKind.running || GhostLockKind.failed =>
+              l10n.escalationGhostLockFailed,
+          };
+          writer.writeLine(
+            verdict,
+            color: outcome.success
+                ? TerminalTextWriter.green
+                : TerminalTextWriter.red,
+          );
+          writer.writeLine(
+            '[${escalationExitTag(outcome.exitCode)} · '
+            '${outcome.durationMs} ms'
+            '${outcome.timedOut ? l10n.escalationTimedOutTag : ''}]',
+            color: TerminalTextWriter.dim,
+          );
+          // 跑完就复位，否则重进页面会复用上一轮的 Provider 缓存。
+          ghostLockStarted.value = false;
+          ref.invalidate(ghostLockPreflightProvider);
+
+          // D8：成功后自动补跑移交。
+          //
+          // 上游 root 脚本只做 `late-load --kmi`，不带 --allow-shell，
+          // 内核能力只进了管理器，本进程（uid 2000）仍没有 root。
+          // 既有移交脚本带 --allow-shell，是 shell 侧拿到 root 的唯一路径。
+          if (outcome.success && ghostLockManager != null) {
+            writer.writeLine('');
+            writer.writeLine(
+              l10n.escalationGhostLockHandoffFollowUp(
+                ghostLockManager.displayName,
+              ),
+              color: TerminalTextWriter.dim,
+            );
+            if (handoffTarget.value == ghostLockManager) {
+              ref.invalidate(handoffRootProvider(manager: ghostLockManager));
+            } else {
+              handoffTarget.value = ghostLockManager;
+            }
+          }
+        },
+      );
+      return null;
+    }, <Object?>[ghostLock]);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.escalationTitle),
@@ -899,6 +1079,7 @@ class ManualEscalationPage extends HookConsumerWidget {
               onExploit: () => unawaited(startExploit()),
               onDirtyFrag: () => unawaited(startDirtyFrag()),
               onGhostKey: () => unawaited(startGhostKey()),
+              onGhostLock: () => unawaited(startGhostLock()),
               onHandoff: () => unawaited(startHandoff()),
               // 弹窗盖在终端上，键盘收起后用户先看完再关。
               onPayloadCatalog: () => unawaited(openPayloadCatalog()),

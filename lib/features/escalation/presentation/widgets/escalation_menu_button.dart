@@ -20,6 +20,7 @@ class EscalationMenuButton extends HookWidget {
     required this.onExploit,
     required this.onDirtyFrag,
     required this.onGhostKey,
+    required this.onGhostLock,
     required this.onHandoff,
     required this.onPayloadCatalog,
     required this.onClear,
@@ -33,6 +34,9 @@ class EscalationMenuButton extends HookWidget {
 
   /// 用户选择「GhostKey 提权」。
   final VoidCallback onGhostKey;
+
+  /// 用户选择「GhostLock 提权」。
+  final VoidCallback onGhostLock;
 
   /// 用户选择「移交给当前管理器」。
   final VoidCallback onHandoff;
@@ -94,6 +98,8 @@ class EscalationMenuButton extends HookWidget {
           onDirtyFrag();
         case _MenuAction.ghostKey:
           onGhostKey();
+        case _MenuAction.ghostLock:
+          onGhostLock();
         case _MenuAction.handoff:
           onHandoff();
         case _MenuAction.payloadCatalog:
@@ -126,7 +132,15 @@ class EscalationMenuButton extends HookWidget {
 }
 
 /// 菜单项。只在本文件内流转，不对外暴露。
-enum _MenuAction { exploit, dirtyFrag, ghostKey, handoff, payloadCatalog, clear }
+enum _MenuAction {
+  exploit,
+  dirtyFrag,
+  ghostKey,
+  ghostLock,
+  handoff,
+  payloadCatalog,
+  clear,
+}
 
 /// 一条菜单项；[action] 为空时是分组分隔线。
 class _MenuEntry {
@@ -156,6 +170,11 @@ List<_MenuEntry> _menuEntries(AppLocalizations l10n) => <_MenuEntry>[
     _MenuAction.ghostKey,
     Icons.vpn_key_rounded,
     l10n.escalationGhostKeyTitle,
+  ),
+  _MenuEntry(
+    _MenuAction.ghostLock,
+    Icons.gpp_maybe_rounded,
+    l10n.escalationGhostLockTitle,
   ),
   const _MenuEntry.separator(),
   _MenuEntry(

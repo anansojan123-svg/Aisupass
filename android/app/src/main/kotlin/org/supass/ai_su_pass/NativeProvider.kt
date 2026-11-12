@@ -14,6 +14,12 @@ import org.supass.ai_su_pass.core.bridge.device_identity_native.DeviceIdentityNa
 import org.supass.ai_su_pass.core.bridge.device_identity_native.DeviceIdentityNativeImpl
 import org.supass.ai_su_pass.core.bridge.dirty_frag_native.DirtyFragNative
 import org.supass.ai_su_pass.core.bridge.dirty_frag_native.DirtyFragNativeImpl
+import org.supass.ai_su_pass.core.bridge.ghost_lock_native.GhostLockNative
+import org.supass.ai_su_pass.core.bridge.ghost_lock_native.GhostLockNativeImpl
+import org.supass.ai_su_pass.core.bridge.ghost_lock_native.GhostLockProfileEditNative
+import org.supass.ai_su_pass.core.bridge.ghost_lock_native.GhostLockProfileEditNativeImpl
+import org.supass.ai_su_pass.core.bridge.ghost_lock_native.GhostLockProfileNative
+import org.supass.ai_su_pass.core.bridge.ghost_lock_native.GhostLockProfileNativeImpl
 import org.supass.ai_su_pass.core.bridge.root_manager_native.RootManagerNative
 import org.supass.ai_su_pass.core.bridge.root_manager_native.RootManagerNativeImpl
 import org.supass.ai_su_pass.core.bridge.system_status_native.SystemStatusNative
@@ -32,6 +38,9 @@ object NativeProvider {
     private var deviceIdentityImpl: DeviceIdentityNativeImpl? = null
     private var rootManagerImpl: RootManagerNativeImpl? = null
     private var dirtyFragImpl: DirtyFragNativeImpl? = null
+    private var ghostLockImpl: GhostLockNativeImpl? = null
+    private var ghostLockProfileImpl: GhostLockProfileNativeImpl? = null
+    private var ghostLockProfileEditImpl: GhostLockProfileEditNativeImpl? = null
     private var cve98260Impl: Cve98260NativeImpl? = null
     private var cve98260ProfileImpl: Cve98260ProfileNativeImpl? = null
     private var runLogImpl: Cve98260RunLogNativeImpl? = null
@@ -78,6 +87,21 @@ object NativeProvider {
         val runLogNativeImpl = Cve98260RunLogNativeImpl(context.applicationContext)
         runLogImpl = runLogNativeImpl
         Cve98260RunLogNative.setUp(messenger, runLogNativeImpl)
+
+        ghostLockImpl?.dispose()
+        val lockImpl = GhostLockNativeImpl(context.applicationContext, shellImpl)
+        ghostLockImpl = lockImpl
+        GhostLockNative.setUp(messenger, lockImpl)
+
+        ghostLockProfileImpl?.dispose()
+        val lockProfileImpl = GhostLockProfileNativeImpl(context.applicationContext)
+        ghostLockProfileImpl = lockProfileImpl
+        GhostLockProfileNative.setUp(messenger, lockProfileImpl)
+
+        ghostLockProfileEditImpl?.dispose()
+        val lockProfileEditImpl = GhostLockProfileEditNativeImpl(context.applicationContext)
+        ghostLockProfileEditImpl = lockProfileEditImpl
+        GhostLockProfileEditNative.setUp(messenger, lockProfileEditImpl)
     }
 
     fun dispose() {
@@ -97,5 +121,11 @@ object NativeProvider {
         cve98260ProfileImpl = null
         runLogImpl?.dispose()
         runLogImpl = null
+        ghostLockImpl?.dispose()
+        ghostLockImpl = null
+        ghostLockProfileImpl?.dispose()
+        ghostLockProfileImpl = null
+        ghostLockProfileEditImpl?.dispose()
+        ghostLockProfileEditImpl = null
     }
 }

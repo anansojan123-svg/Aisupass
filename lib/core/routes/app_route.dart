@@ -3,6 +3,7 @@ import 'package:Aisupass/common/pages/main_page.dart';
 import 'package:Aisupass/features/ai/presentation/pages/ai_config_edit_page.dart';
 import 'package:Aisupass/features/ai/presentation/pages/ai_config_page.dart';
 import 'package:Aisupass/features/chat/presentation/pages/chat_page.dart';
+import 'package:Aisupass/features/escalation/presentation/pages/ghost_lock_profile_page.dart';
 import 'package:Aisupass/features/escalation/presentation/pages/kernel_profile_page.dart';
 import 'package:Aisupass/features/escalation/presentation/pages/manual_escalation_page.dart';
 import 'package:Aisupass/features/escalation/presentation/pages/run_log_page.dart';
@@ -31,8 +32,19 @@ class AppRoute {
   // 提权
   static const manualEscalation = '/escalation/manual';
 
-  // 内核 profile（boot.img 导入）
+  // 内核表（boot.img 导入，GhostKey / GhostLock 两个 Tab）
   static const kernelProfile = '/kernelProfile';
+
+  /// 内核表页路径；[tab] 为 `ghostlock` 时直接落在 GhostLock 页签。
+  static String kernelProfilePath({String tab = ''}) =>
+      tab.isEmpty ? kernelProfile : '$kernelProfile?tab=$tab';
+
+  // GhostLock 内核表编辑器
+  static const ghostLockProfile = '/ghostLock/profile';
+
+  /// 编辑器路径；release 编码后作为 query 参数。
+  static String ghostLockProfilePath(String release) =>
+      '$ghostLockProfile?release=${Uri.encodeComponent(release)}';
 
   // 运行记录
   static const String runLog = '/runLog';
@@ -78,7 +90,15 @@ final List<GoRoute> appRoutes = [
   ),
   GoRoute(
     path: AppRoute.kernelProfile,
-    builder: (context, state) => const KernelProfilePage(),
+    builder: (context, state) => KernelProfilePage(
+      initialTab: state.uri.queryParameters['tab'] == 'ghostlock' ? 2 : 0,
+    ),
+  ),
+  GoRoute(
+    path: AppRoute.ghostLockProfile,
+    builder: (context, state) => GhostLockProfilePage(
+      release: state.uri.queryParameters['release'] ?? '',
+    ),
   ),
   GoRoute(
     path: AppRoute.runLog,
