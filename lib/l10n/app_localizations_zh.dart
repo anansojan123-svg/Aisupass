@@ -1004,6 +1004,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get escalationGhostLockValueNone => '无';
 
   @override
+  String get escalationGhostLockKsudFromManager => '由所选管理器提供';
+
+  @override
   String get escalationGhostLockValueUnknown => '未知';
 
   @override
@@ -1089,6 +1092,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get escalationGhostLockFailed => '未拿到可识别的终局标记，见上方输出';
+
+  @override
+  String escalationGhostLockFailureCode(String code) {
+    return '原生诊断：$code';
+  }
+
+  @override
+  String get escalationGhostLockStop => '停止读取';
 
   @override
   String escalationGhostLockHandoffFollowUp(String manager) {

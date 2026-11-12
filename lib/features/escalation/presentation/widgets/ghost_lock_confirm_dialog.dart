@@ -97,9 +97,12 @@ class _GhostLockConfirmDialog extends HookWidget {
             ),
             _Field(
               label: l10n.escalationGhostLockFieldKsud,
-              value: preflight.ksudPath.isEmpty
+              // preflight 只查包内 ksud；为空时实际执行会回退到所选管理器的。
+              value: preflight.ksudPath.isNotEmpty
+                  ? preflight.ksudPath
+                  : manager == null
                   ? l10n.escalationGhostLockValueNone
-                  : preflight.ksudPath,
+                  : l10n.escalationGhostLockKsudFromManager,
             ),
             SizedBox(height: 4.h),
             SwitchListTile(

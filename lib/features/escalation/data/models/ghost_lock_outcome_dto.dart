@@ -58,5 +58,6 @@ abstract class GhostLockOutcomeDto with _$GhostLockOutcomeDto {
     durationMs: durationMs,
     timedOut: timedOut,
     reason: reason,
+    failure: failure,
   );
 }

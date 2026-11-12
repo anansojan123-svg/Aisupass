@@ -1922,6 +1922,12 @@ abstract class AppLocalizations {
   /// **'无'**
   String get escalationGhostLockValueNone;
 
+  /// 包内没有 ksud、将由所选管理器提供时的字段值
+  ///
+  /// In zh, this message translates to:
+  /// **'由所选管理器提供'**
+  String get escalationGhostLockKsudFromManager;
+
   /// 读不到信息时的替代文字
   ///
   /// In zh, this message translates to:
@@ -2065,6 +2071,18 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'未拿到可识别的终局标记，见上方输出'**
   String get escalationGhostLockFailed;
+
+  /// 原生异常/本侧诊断码；code 是技术标识，不做翻译
+  ///
+  /// In zh, this message translates to:
+  /// **'原生诊断：{code}'**
+  String escalationGhostLockFailureCode(String code);
+
+  /// 运行中底栏的停止按钮；只停止本侧读取
+  ///
+  /// In zh, this message translates to:
+  /// **'停止读取'**
+  String get escalationGhostLockStop;
 
   /// 成功后自动补跑移交前写的那一行
   ///

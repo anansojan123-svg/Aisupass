@@ -45,19 +45,6 @@ class GhostLockProfileActionRepositoryImpl
   ).toEntity();
 
   @override
-  Future<GhostLockImportResult> importProfile({
-    required String input,
-    bool insecure = false,
-    bool overwrite = false,
-  }) async => GhostLockImportResultDto.fromNative(
-    await _datasource.importProfile(
-      input: input,
-      insecure: insecure,
-      overwrite: overwrite,
-    ),
-  ).toEntity();
-
-  @override
   Future<List<GhostLockUserProfile>> listImportedProfiles() async {
     final List<pigeon.GhostLockUserProfile> rows =
         await _datasource.listImportedProfiles();

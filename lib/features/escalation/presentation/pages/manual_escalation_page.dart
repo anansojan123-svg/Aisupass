@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:Aisupass/common/widgets/toast.dart';
 import 'package:Aisupass/core/extensions/context_extensions.dart';
 import 'package:Aisupass/core/providers/adb_shell_provider.dart';
 import 'package:Aisupass/core/utils/escalation_reason.dart';
@@ -153,6 +154,12 @@ class ManualEscalationPage extends HookConsumerWidget {
         .value;
     final ValueNotifier<bool> ghostLockStarted = useState<bool>(false);
     final ValueNotifier<bool> ghostLockSafeMode = useState<bool>(false);
+    // 本轮日志文件名。null = 当前没有在写盘的运行。
+    final ObjectRef<String?> ghostLockRunFile = useRef<String?>(null);
+    // 已写出的字符数；终局块按累积输出切片。
+    final ObjectRef<int> ghostLockLoggedLength = useRef<int>(0);
+    // 本侧累积输出：原生每块只给增量。
+    final ObjectRef<String> ghostLockLog = useRef<String>('');
     final AsyncValue<GhostLockOutcome>? ghostLock = !ghostLockStarted.value
         ? null
         : ref.watch(
@@ -532,8 +539,123 @@ class ManualEscalationPage extends HookConsumerWidget {
       }
     }
 
+    /// 开一轮 GhostLock 运行日志。失败不阻断提权。
+    Future<void> openGhostLockRun(GhostLockPreflight preflight) async {
+      try {
+        final DeviceIdentity device = await ref.read(
+          currentDeviceIdentityProvider.future,
+        );
+        final meta = await ref
+            .read(runLogActionsProvider)
+            .begin(
+              device: device.model,
+              kernel: device.kernelRelease,
+              profile: preflight.release,
+            );
+        ghostLockRunFile.value = meta.fileName;
+        ghostLockLoggedLength.value = 0;
+        ghostLockLog.value = '';
+      } catch (_) {
+        ghostLockRunFile.value = null;
+      }
+    }
+
+    /// 终局结果 → 日志结果枚举。
+    RunLogResult resultOfGhostLock(GhostLockOutcome outcome) {
+      if (outcome.success) return RunLogResult.success;
+      if (outcome.kind == GhostLockKind.timedOut) {
+        return RunLogResult.interrupted;
+      }
+      return RunLogResult.failed;
+    }
+
+    /// 落盘 + 诊断。顺序严格为「写屏 -> 落盘 -> finish」，不可换。
+    Future<void> persistGhostLockChunk(
+      GhostLockOutcome outcome,
+      AppLocalizations l10n,
+    ) async {
+      final String? fileName = ghostLockRunFile.value;
+      if (fileName == null) return;
+      ghostLockLog.value += outcome.output;
+      final String full = ghostLockLog.value;
+
+      // ① 增量切片 -> 追加到文件。异常静默：落盘失败不影响提权结果。
+      final int logged = ghostLockLoggedLength.value;
+      if (full.length > logged) {
+        ghostLockLoggedLength.value = full.length;
+        final String delta = full.substring(logged);
+        final List<String> deltaLines = delta
+            .split('\n')
+            .map((String line) => line.trimRight())
+            .where((String line) => line.isNotEmpty)
+            .toList(growable: false);
+        if (deltaLines.isNotEmpty) {
+          try {
+            await ref
+                .read(runLogActionsProvider)
+                .append(fileName: fileName, lines: deltaLines);
+          } catch (_) {
+            // 静默：日志缺行不影响流水线。
+          }
+        }
+      }
+
+      if (!outcome.isFinal) return;
+
+      // ② 终态且失败 -> 诊断。诊断行必须「先上屏、再落盘」。
+      if (!outcome.success) {
+        try {
+          final RunLogDiagnosis diagnosis = await ref.read(
+            diagnoseRunLogProvider(
+              lines: full.split('\n'),
+              exitCode: outcome.exitCode,
+            ).future,
+          );
+          final List<String> diagnosisLines = diagnosis.lines(l10n);
+          for (final String line in diagnosisLines) {
+            writer.writeLine(line);
+          }
+          try {
+            await ref
+                .read(runLogActionsProvider)
+                .append(fileName: fileName, lines: diagnosisLines);
+          } catch (_) {
+            // 静默
+          }
+        } catch (_) {
+          // 诊断本身失败：只丢诊断块，不能丢 finishRun。
+        }
+      }
+
+      // ③ 收尾。finishRun 必须最后调用。
+      try {
+        await ref
+            .read(runLogActionsProvider)
+            .finish(
+              fileName: fileName,
+              result: resultOfGhostLock(outcome),
+              exitCode: outcome.exitCode,
+              durationMs: outcome.durationMs,
+            );
+      } catch (_) {
+        // 静默
+      } finally {
+        ghostLockRunFile.value = null;
+        ghostLockLoggedLength.value = 0;
+        ghostLockLog.value = '';
+      }
+    }
+
+    /// 停止本侧读取；设备侧进程继续跑。
+    Future<void> stopGhostLock() async {
+      try {
+        await ref.read(ghostLockActionRepositoryProvider).cancel();
+      } catch (error) {
+        ToastMessage.error(error);
+      }
+    }
+
     /// 跑一次 GhostKey。
-    ///
     /// 与 DirtyFrag 的区别：管理器可以没选（原生自己按 profile 找），不查内核版本
     /// （支持面由原生 profile 表决定），前置检查全走原生的 `preflight()`。
     Future<void> startGhostKey() async {
@@ -665,6 +787,9 @@ class ManualEscalationPage extends HookConsumerWidget {
         color: TerminalTextWriter.yellow,
       );
       ref.invalidate(shellConnectionProvider);
+      // 先建好运行日志再起跑：被拒时首块立刻就到，晚一步就没有文件可写。
+      await openGhostLockRun(preflight);
+      if (!context.mounted) return;
       ghostLockSafeMode.value = safeMode;
       ghostLockStarted.value = true;
       ref.invalidate(
@@ -974,6 +1099,14 @@ class ManualEscalationPage extends HookConsumerWidget {
             '${outcome.timedOut ? l10n.escalationTimedOutTag : ''}]',
             color: TerminalTextWriter.dim,
           );
+          if (outcome.failure.isNotEmpty) {
+            writer.writeLine(
+              l10n.escalationGhostLockFailureCode(outcome.failure),
+              color: TerminalTextWriter.red,
+            );
+          }
+          // 写屏 -> 落盘 -> finish，顺序不可换。
+          unawaited(persistGhostLockChunk(outcome, l10n));
           // 跑完就复位，否则重进页面会复用上一轮的 Provider 缓存。
           ghostLockStarted.value = false;
           ref.invalidate(ghostLockPreflightProvider);
@@ -1014,6 +1147,17 @@ class ManualEscalationPage extends HookConsumerWidget {
                   dimension: 16.r,
                   child: const CircularProgressIndicator(strokeWidth: 2),
                 ),
+              ),
+            ),
+          // 运行中给一个停止入口：只停止本侧读取，设备侧进程继续跑。
+          if (ghostLockStarted.value && ghostLock?.value?.isFinal != true)
+            IconButton(
+              tooltip: l10n.escalationGhostLockStop,
+              onPressed: () => unawaited(stopGhostLock()),
+              icon: Icon(
+                Icons.stop_circle_outlined,
+                size: 20.r,
+                color: theme.colorScheme.error,
               ),
             ),
           // 连接状态放图标上，省一行地方。

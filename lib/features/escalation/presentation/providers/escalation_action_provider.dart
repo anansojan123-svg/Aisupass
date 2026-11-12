@@ -401,20 +401,6 @@ class GhostLockProfileActions {
     return result;
   }
 
-  /// 导入一份 profile；同名存在时返回 `requiresOverwrite`，由 UI 询问后重试。
-  Future<GhostLockImportResult> importProfile({
-    required String input,
-    bool insecure = false,
-    bool overwrite = false,
-  }) async {
-    final GhostLockImportResult result = await _ref
-        .read(ghostLockProfileActionRepositoryProvider)
-        .importProfile(input: input, insecure: insecure, overwrite: overwrite);
-    _ref.invalidate(ghostLockImportedProfilesProvider);
-    _ref.invalidate(ghostLockPreflightProvider);
-    return result;
-  }
-
   /// 删除一份用户 profile。
   Future<bool> removeImportedProfile({required String name}) async {
     final bool removed = await _ref

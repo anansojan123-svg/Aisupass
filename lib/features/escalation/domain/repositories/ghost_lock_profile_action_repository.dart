@@ -24,16 +24,6 @@ abstract class GhostLockProfileActionRepository {
     bool overwrite = false,
   });
 
-  /// 从本地镜像路径或 http(s) 直链提取并落盘。
-  ///
-  /// [overwrite] 为 false 时，同名文件存在会返回
-  /// `requiresOverwrite`，由 UI 询问后再以 true 重试。
-  Future<GhostLockImportResult> importProfile({
-    required String input,
-    bool insecure = false,
-    bool overwrite = false,
-  });
-
   /// 列出用户导入的全部 profile，按导入时间倒序。
   Future<List<GhostLockUserProfile>> listImportedProfiles();
 

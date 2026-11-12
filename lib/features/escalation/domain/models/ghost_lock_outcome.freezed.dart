@@ -22,7 +22,9 @@ mixin _$GhostLockOutcome {
  int get exitCode;/// 从受理到终局的耗时（毫秒）。
  int get durationMs;/// 是否因本侧取消或超时停止读取；**不代表设备侧进程已停止**。
  bool get timedOut;/// 受理失败原因码；受理成功时为空串。
- String get reason;
+ String get reason;/// 原生侧诊断码（`profileWriteFailed` / `launchFailed` / `nativeNotStarted`
+/// / `unknownSession` 或异常类名）；无异常时为空串。
+ String get failure;
 /// Create a copy of GhostLockOutcome
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -33,16 +35,16 @@ $GhostLockOutcomeCopyWith<GhostLockOutcome> get copyWith => _$GhostLockOutcomeCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is GhostLockOutcome&&(identical(other.kind, kind) || other.kind == kind)&&(identical(other.sessionId, sessionId) || other.sessionId == sessionId)&&(identical(other.output, output) || other.output == output)&&(identical(other.log, log) || other.log == log)&&(identical(other.exitCode, exitCode) || other.exitCode == exitCode)&&(identical(other.durationMs, durationMs) || other.durationMs == durationMs)&&(identical(other.timedOut, timedOut) || other.timedOut == timedOut)&&(identical(other.reason, reason) || other.reason == reason));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is GhostLockOutcome&&(identical(other.kind, kind) || other.kind == kind)&&(identical(other.sessionId, sessionId) || other.sessionId == sessionId)&&(identical(other.output, output) || other.output == output)&&(identical(other.log, log) || other.log == log)&&(identical(other.exitCode, exitCode) || other.exitCode == exitCode)&&(identical(other.durationMs, durationMs) || other.durationMs == durationMs)&&(identical(other.timedOut, timedOut) || other.timedOut == timedOut)&&(identical(other.reason, reason) || other.reason == reason)&&(identical(other.failure, failure) || other.failure == failure));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,kind,sessionId,output,log,exitCode,durationMs,timedOut,reason);
+int get hashCode => Object.hash(runtimeType,kind,sessionId,output,log,exitCode,durationMs,timedOut,reason,failure);
 
 @override
 String toString() {
-  return 'GhostLockOutcome(kind: $kind, sessionId: $sessionId, output: $output, log: $log, exitCode: $exitCode, durationMs: $durationMs, timedOut: $timedOut, reason: $reason)';
+  return 'GhostLockOutcome(kind: $kind, sessionId: $sessionId, output: $output, log: $log, exitCode: $exitCode, durationMs: $durationMs, timedOut: $timedOut, reason: $reason, failure: $failure)';
 }
 
 
@@ -53,7 +55,7 @@ abstract mixin class $GhostLockOutcomeCopyWith<$Res>  {
   factory $GhostLockOutcomeCopyWith(GhostLockOutcome value, $Res Function(GhostLockOutcome) _then) = _$GhostLockOutcomeCopyWithImpl;
 @useResult
 $Res call({
- GhostLockKind kind, String sessionId, String output, String log, int exitCode, int durationMs, bool timedOut, String reason
+ GhostLockKind kind, String sessionId, String output, String log, int exitCode, int durationMs, bool timedOut, String reason, String failure
 });
 
 
@@ -70,7 +72,7 @@ class _$GhostLockOutcomeCopyWithImpl<$Res>
 
 /// Create a copy of GhostLockOutcome
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? kind = null,Object? sessionId = null,Object? output = null,Object? log = null,Object? exitCode = null,Object? durationMs = null,Object? timedOut = null,Object? reason = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? kind = null,Object? sessionId = null,Object? output = null,Object? log = null,Object? exitCode = null,Object? durationMs = null,Object? timedOut = null,Object? reason = null,Object? failure = null,}) {
   return _then(_self.copyWith(
 kind: null == kind ? _self.kind : kind // ignore: cast_nullable_to_non_nullable
 as GhostLockKind,sessionId: null == sessionId ? _self.sessionId : sessionId // ignore: cast_nullable_to_non_nullable
@@ -80,6 +82,7 @@ as String,exitCode: null == exitCode ? _self.exitCode : exitCode // ignore: cast
 as int,durationMs: null == durationMs ? _self.durationMs : durationMs // ignore: cast_nullable_to_non_nullable
 as int,timedOut: null == timedOut ? _self.timedOut : timedOut // ignore: cast_nullable_to_non_nullable
 as bool,reason: null == reason ? _self.reason : reason // ignore: cast_nullable_to_non_nullable
+as String,failure: null == failure ? _self.failure : failure // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -165,10 +168,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( GhostLockKind kind,  String sessionId,  String output,  String log,  int exitCode,  int durationMs,  bool timedOut,  String reason)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( GhostLockKind kind,  String sessionId,  String output,  String log,  int exitCode,  int durationMs,  bool timedOut,  String reason,  String failure)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _GhostLockOutcome() when $default != null:
-return $default(_that.kind,_that.sessionId,_that.output,_that.log,_that.exitCode,_that.durationMs,_that.timedOut,_that.reason);case _:
+return $default(_that.kind,_that.sessionId,_that.output,_that.log,_that.exitCode,_that.durationMs,_that.timedOut,_that.reason,_that.failure);case _:
   return orElse();
 
 }
@@ -186,10 +189,10 @@ return $default(_that.kind,_that.sessionId,_that.output,_that.log,_that.exitCode
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( GhostLockKind kind,  String sessionId,  String output,  String log,  int exitCode,  int durationMs,  bool timedOut,  String reason)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( GhostLockKind kind,  String sessionId,  String output,  String log,  int exitCode,  int durationMs,  bool timedOut,  String reason,  String failure)  $default,) {final _that = this;
 switch (_that) {
 case _GhostLockOutcome():
-return $default(_that.kind,_that.sessionId,_that.output,_that.log,_that.exitCode,_that.durationMs,_that.timedOut,_that.reason);case _:
+return $default(_that.kind,_that.sessionId,_that.output,_that.log,_that.exitCode,_that.durationMs,_that.timedOut,_that.reason,_that.failure);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -206,10 +209,10 @@ return $default(_that.kind,_that.sessionId,_that.output,_that.log,_that.exitCode
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( GhostLockKind kind,  String sessionId,  String output,  String log,  int exitCode,  int durationMs,  bool timedOut,  String reason)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( GhostLockKind kind,  String sessionId,  String output,  String log,  int exitCode,  int durationMs,  bool timedOut,  String reason,  String failure)?  $default,) {final _that = this;
 switch (_that) {
 case _GhostLockOutcome() when $default != null:
-return $default(_that.kind,_that.sessionId,_that.output,_that.log,_that.exitCode,_that.durationMs,_that.timedOut,_that.reason);case _:
+return $default(_that.kind,_that.sessionId,_that.output,_that.log,_that.exitCode,_that.durationMs,_that.timedOut,_that.reason,_that.failure);case _:
   return null;
 
 }
@@ -221,7 +224,7 @@ return $default(_that.kind,_that.sessionId,_that.output,_that.log,_that.exitCode
 
 
 class _GhostLockOutcome extends GhostLockOutcome {
-  const _GhostLockOutcome({required this.kind, required this.sessionId, required this.output, required this.log, required this.exitCode, required this.durationMs, required this.timedOut, required this.reason}): super._();
+  const _GhostLockOutcome({required this.kind, required this.sessionId, required this.output, required this.log, required this.exitCode, required this.durationMs, required this.timedOut, required this.reason, required this.failure}): super._();
   
 
 /// 终局分类；[GhostLockKind.running] 表示还有后续块。
@@ -240,6 +243,9 @@ class _GhostLockOutcome extends GhostLockOutcome {
 @override final  bool timedOut;
 /// 受理失败原因码；受理成功时为空串。
 @override final  String reason;
+/// 原生侧诊断码（`profileWriteFailed` / `launchFailed` / `nativeNotStarted`
+/// / `unknownSession` 或异常类名）；无异常时为空串。
+@override final  String failure;
 
 /// Create a copy of GhostLockOutcome
 /// with the given fields replaced by the non-null parameter values.
@@ -251,16 +257,16 @@ _$GhostLockOutcomeCopyWith<_GhostLockOutcome> get copyWith => __$GhostLockOutcom
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GhostLockOutcome&&(identical(other.kind, kind) || other.kind == kind)&&(identical(other.sessionId, sessionId) || other.sessionId == sessionId)&&(identical(other.output, output) || other.output == output)&&(identical(other.log, log) || other.log == log)&&(identical(other.exitCode, exitCode) || other.exitCode == exitCode)&&(identical(other.durationMs, durationMs) || other.durationMs == durationMs)&&(identical(other.timedOut, timedOut) || other.timedOut == timedOut)&&(identical(other.reason, reason) || other.reason == reason));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GhostLockOutcome&&(identical(other.kind, kind) || other.kind == kind)&&(identical(other.sessionId, sessionId) || other.sessionId == sessionId)&&(identical(other.output, output) || other.output == output)&&(identical(other.log, log) || other.log == log)&&(identical(other.exitCode, exitCode) || other.exitCode == exitCode)&&(identical(other.durationMs, durationMs) || other.durationMs == durationMs)&&(identical(other.timedOut, timedOut) || other.timedOut == timedOut)&&(identical(other.reason, reason) || other.reason == reason)&&(identical(other.failure, failure) || other.failure == failure));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,kind,sessionId,output,log,exitCode,durationMs,timedOut,reason);
+int get hashCode => Object.hash(runtimeType,kind,sessionId,output,log,exitCode,durationMs,timedOut,reason,failure);
 
 @override
 String toString() {
-  return 'GhostLockOutcome(kind: $kind, sessionId: $sessionId, output: $output, log: $log, exitCode: $exitCode, durationMs: $durationMs, timedOut: $timedOut, reason: $reason)';
+  return 'GhostLockOutcome(kind: $kind, sessionId: $sessionId, output: $output, log: $log, exitCode: $exitCode, durationMs: $durationMs, timedOut: $timedOut, reason: $reason, failure: $failure)';
 }
 
 
@@ -271,7 +277,7 @@ abstract mixin class _$GhostLockOutcomeCopyWith<$Res> implements $GhostLockOutco
   factory _$GhostLockOutcomeCopyWith(_GhostLockOutcome value, $Res Function(_GhostLockOutcome) _then) = __$GhostLockOutcomeCopyWithImpl;
 @override @useResult
 $Res call({
- GhostLockKind kind, String sessionId, String output, String log, int exitCode, int durationMs, bool timedOut, String reason
+ GhostLockKind kind, String sessionId, String output, String log, int exitCode, int durationMs, bool timedOut, String reason, String failure
 });
 
 
@@ -288,7 +294,7 @@ class __$GhostLockOutcomeCopyWithImpl<$Res>
 
 /// Create a copy of GhostLockOutcome
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? kind = null,Object? sessionId = null,Object? output = null,Object? log = null,Object? exitCode = null,Object? durationMs = null,Object? timedOut = null,Object? reason = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? kind = null,Object? sessionId = null,Object? output = null,Object? log = null,Object? exitCode = null,Object? durationMs = null,Object? timedOut = null,Object? reason = null,Object? failure = null,}) {
   return _then(_GhostLockOutcome(
 kind: null == kind ? _self.kind : kind // ignore: cast_nullable_to_non_nullable
 as GhostLockKind,sessionId: null == sessionId ? _self.sessionId : sessionId // ignore: cast_nullable_to_non_nullable
@@ -298,6 +304,7 @@ as String,exitCode: null == exitCode ? _self.exitCode : exitCode // ignore: cast
 as int,durationMs: null == durationMs ? _self.durationMs : durationMs // ignore: cast_nullable_to_non_nullable
 as int,timedOut: null == timedOut ? _self.timedOut : timedOut // ignore: cast_nullable_to_non_nullable
 as bool,reason: null == reason ? _self.reason : reason // ignore: cast_nullable_to_non_nullable
+as String,failure: null == failure ? _self.failure : failure // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }

@@ -1423,6 +1423,10 @@
   "@escalationGhostLockValueNone": {
     "description": "字段值：未选中或为空"
   },
+  "escalationGhostLockKsudFromManager": "由所选管理器提供",
+  "@escalationGhostLockKsudFromManager": {
+    "description": "包内没有 ksud、将由所选管理器提供时的字段值"
+  },
   "escalationGhostLockValueUnknown": "未知",
   "@escalationGhostLockValueUnknown": {
     "description": "读不到信息时的替代文字"
@@ -1543,6 +1547,19 @@
   "escalationGhostLockFailed": "未拿到可识别的终局标记，见上方输出",
   "@escalationGhostLockFailed": {
     "description": "有输出但无结论时的兜底"
+  },
+  "escalationGhostLockFailureCode": "原生诊断：{code}",
+  "@escalationGhostLockFailureCode": {
+    "description": "原生异常/本侧诊断码；code 是技术标识，不做翻译",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "escalationGhostLockStop": "停止读取",
+  "@escalationGhostLockStop": {
+    "description": "运行中底栏的停止按钮；只停止本侧读取"
   },
   "escalationGhostLockHandoffFollowUp": "往下把 root 移交给 {manager}",
   "@escalationGhostLockHandoffFollowUp": {

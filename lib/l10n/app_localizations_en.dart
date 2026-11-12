@@ -1039,6 +1039,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get escalationGhostLockValueNone => 'none';
 
   @override
+  String get escalationGhostLockKsudFromManager =>
+      'Provided by the selected manager';
+
+  @override
   String get escalationGhostLockValueUnknown => 'unknown';
 
   @override
@@ -1135,6 +1139,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get escalationGhostLockFailed =>
       'No recognisable final marker; see the output above';
+
+  @override
+  String escalationGhostLockFailureCode(String code) {
+    return 'Native diagnostic: $code';
+  }
+
+  @override
+  String get escalationGhostLockStop => 'Stop reading';
 
   @override
   String escalationGhostLockHandoffFollowUp(String manager) {

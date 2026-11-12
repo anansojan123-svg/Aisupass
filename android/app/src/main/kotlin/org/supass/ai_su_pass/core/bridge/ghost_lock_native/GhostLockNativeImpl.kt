@@ -131,6 +131,7 @@ class GhostLockNativeImpl(
             profileRelease = matched?.getOrNull()?.release.orEmpty(),
             route = matched?.getOrNull()?.route.orEmpty(),
             binaryPresent = File(context.applicationInfo.nativeLibraryDir, BIN_NAME).isFile,
+            // 自检不带管理器，只报包内 ksud；为空时执行阶段会回退到所选管理器的。
             ksudPath = resolveKsud(""),
             profileError = matched?.exceptionOrNull()?.message.orEmpty(),
         )

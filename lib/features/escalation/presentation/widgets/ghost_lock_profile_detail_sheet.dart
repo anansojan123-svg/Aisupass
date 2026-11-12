@@ -2,6 +2,7 @@ import 'package:Aisupass/common/widgets/loading.dart';
 import 'package:Aisupass/common/widgets/ref_error.dart';
 import 'package:Aisupass/common/widgets/toast.dart';
 import 'package:Aisupass/core/extensions/context_extensions.dart';
+import 'package:Aisupass/core/routes/app_route.dart';
 import 'package:Aisupass/core/themes/app_fonts.dart';
 import 'package:Aisupass/core/utils/hocon_text.dart';
 import 'package:Aisupass/core/utils/kernel_profile_text.dart';
@@ -12,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// 打开一份已导入 GhostLock 内核表的详情弹窗。
@@ -85,6 +87,18 @@ class GhostLockProfileDetailSheet extends HookConsumerWidget {
                     ),
                   ),
                 ),
+                if (builtin)
+                  IconButton(
+                    tooltip: l10n.escalationGhostLockProfileEdit,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      context.push(
+                        AppRoute.ghostLockProfilePath(profile.release),
+                      );
+                    },
+                    icon: Icon(Icons.edit_outlined, size: 18.sp),
+                    visualDensity: VisualDensity.compact,
+                  ),
                 IconButton(
                   onPressed: () => Navigator.of(context).pop(),
                   icon: Icon(Icons.close_rounded, size: 18.sp),

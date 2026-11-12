@@ -24,13 +24,6 @@ class GhostLockProfileActionDatasource {
     bool overwrite = false,
   }) => _native.saveProfile(release, conf, overwrite);
 
-  /// 从本地路径或 http(s) 直链提取并直接落盘。
-  Future<pigeon.GhostLockImportResult> importProfile({
-    required String input,
-    bool insecure = false,
-    bool overwrite = false,
-  }) => _native.importProfile(input, insecure, overwrite);
-
   /// 列出用户导入的 profile。
   Future<List<pigeon.GhostLockUserProfile>> listImportedProfiles() =>
       _native.listImportedProfiles();

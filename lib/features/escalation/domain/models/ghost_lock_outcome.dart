@@ -34,6 +34,10 @@ abstract class GhostLockOutcome with _$GhostLockOutcome {
 
     /// 受理失败原因码；受理成功时为空串。
     required String reason,
+
+    /// 原生侧诊断码（`profileWriteFailed` / `launchFailed` / `nativeNotStarted`
+    /// / `unknownSession` 或异常类名）；无异常时为空串。
+    required String failure,
   }) = _GhostLockOutcome;
 
   /// 是否拿到 KSU 接管。
