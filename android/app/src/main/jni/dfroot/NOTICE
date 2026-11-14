@@ -1,0 +1,12 @@
+dfroot — DirtyFrag (CVE-2026-43284)
+
+来源：https://github.com/DONGDERS/DirtyFalg-vr  commit d4f5c9f  (app/src/main/jni/)
+许可证：GNU General Public License v2.0 (GPL-2.0-only)
+
+已修改的文件（其余与上游逐字节一致）：
+  - bootstrap.c      改为在本项目包名下运行并适配 NDK
+  - lkm/dfroot.c     扩展为当前内核模块实现
+  - CMakeLists.txt   重写为 NDK/CMake 目标
+
+许可证全文：仓库根 LICENSES/GPL-2.0.txt
+完整组件与改动清单：仓库根 THIRD_PARTY_NOTICES.md

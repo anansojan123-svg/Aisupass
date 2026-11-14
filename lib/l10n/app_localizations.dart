@@ -161,8 +161,44 @@ abstract class AppLocalizations {
   /// 协议全文页标题
   ///
   /// In zh, this message translates to:
-  /// **'开源协议'**
+  /// **'开源许可'**
   String get openSourceLicensePageTitle;
+
+  /// 协议页切换条-本项目 GPL-3.0
+  ///
+  /// In zh, this message translates to:
+  /// **'本项目协议'**
+  String get licenseDocProjectTitle;
+
+  /// 协议页切换条-第三方组件声明
+  ///
+  /// In zh, this message translates to:
+  /// **'第三方声明'**
+  String get licenseDocThirdPartyTitle;
+
+  /// 协议页切换条-Apache 2.0 全文
+  ///
+  /// In zh, this message translates to:
+  /// **'Apache-2.0'**
+  String get licenseDocApacheTitle;
+
+  /// 协议页切换条-GPL 2.0 全文
+  ///
+  /// In zh, this message translates to:
+  /// **'GPL-2.0'**
+  String get licenseDocGpl2Title;
+
+  /// 设置页关于分组-第三方声明入口
+  ///
+  /// In zh, this message translates to:
+  /// **'第三方开源声明'**
+  String get settingsAboutThirdPartyTitle;
+
+  /// 设置页关于分组-第三方声明副标题
+  ///
+  /// In zh, this message translates to:
+  /// **'组件来源与许可证'**
+  String get settingsAboutThirdPartySubtitle;
 
   /// 协议全文读取失败提示
   ///

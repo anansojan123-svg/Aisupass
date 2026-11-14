@@ -40,7 +40,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAboutLicenseSubtitle => 'GNU General Public License v3.0';
 
   @override
-  String get openSourceLicensePageTitle => 'License';
+  String get openSourceLicensePageTitle => 'Licenses';
+
+  @override
+  String get licenseDocProjectTitle => 'Project License';
+
+  @override
+  String get licenseDocThirdPartyTitle => 'Third-party';
+
+  @override
+  String get licenseDocApacheTitle => 'Apache-2.0';
+
+  @override
+  String get licenseDocGpl2Title => 'GPL-2.0';
+
+  @override
+  String get settingsAboutThirdPartyTitle => 'Third-party Notices';
+
+  @override
+  String get settingsAboutThirdPartySubtitle =>
+      'Component credits and licenses';
 
   @override
   String get openSourceLicenseLoadFailed => 'Failed to load license text';

@@ -11,7 +11,7 @@ import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-/// 设置页「关于」分组：版本号、开源地址、开源协议。
+/// 设置页「关于」分组：版本号、开源地址、开源协议、第三方声明。
 class AboutSettingSection extends HookWidget {
   const AboutSettingSection({super.key});
 
@@ -47,7 +47,16 @@ class AboutSettingSection extends HookWidget {
           icon: Icons.description_outlined,
           title: context.l10n.settingsAboutLicenseTitle,
           subtitle: context.l10n.settingsAboutLicenseSubtitle,
-          onTap: () => context.push(AppRoute.openSourceLicense),
+          onTap: () => context.push(AppRoute.licenseDocPath(0)),
+        ),
+        const _AboutDivider(),
+        _AboutRow(
+          icon: Icons.inventory_2_outlined,
+          title: context.l10n.settingsAboutThirdPartyTitle,
+          subtitle: context.l10n.settingsAboutThirdPartySubtitle,
+          onTap: () => context.push(
+            AppRoute.licenseDocPath(AppLinks.thirdPartyNoticesDocIndex),
+          ),
         ),
       ],
     );

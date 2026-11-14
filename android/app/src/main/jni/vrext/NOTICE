@@ -1,0 +1,15 @@
+vrext — kernel offset extractor JNI wrapper
+
+来源：https://github.com/DONGDERS/DirtyFalg-vr  commit d4f5c9f  (app/src/main/jni/vrext/)
+依赖：https://github.com/YuKongA/payload_extract_rs  commit 5534f07  (GPL-2.0)
+许可证：GNU General Public License v2.0 (GPL-2.0-only)
+
+已修改/新增的文件：
+  - src/lib.rs        JNI 入口按本项目契约调整
+  - src/profile.rs    本项目新增
+  - Cargo.toml        指向本仓库内的 ghostlock-extract
+
+编译产物 libvrext.so 通过 JNI 在本进程内加载，内含上述 GPL-2.0 代码。
+
+许可证全文：仓库根 LICENSES/GPL-2.0.txt
+完整组件与改动清单：仓库根 THIRD_PARTY_NOTICES.md

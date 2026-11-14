@@ -1,0 +1,10 @@
+GhostLock native core (CVE-2026-43499)
+
+来源：https://github.com/YuKongA/ghostlock-app  commit 4ebc726  (src/core/)
+许可证：Apache License 2.0
+
+本目录下的 .c / .cpp / .h / .hpp 与上游逐字节一致（SHA-256 比对），未做修改；
+CMakeLists.txt 为本项目新增的 NDK 构建文件。
+
+许可证全文：仓库根 LICENSES/Apache-2.0.txt
+完整组件与改动清单：仓库根 THIRD_PARTY_NOTICES.md

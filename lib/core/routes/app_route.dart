@@ -71,8 +71,11 @@ class AppRoute {
   static String runLogDetail(String fileName) =>
       '$runLog?file=${Uri.encodeComponent(fileName)}';
 
-  // 开源协议全文
+  // 开源许可（本项目协议、第三方声明与许可证全文）
   static const openSourceLicense = '/openSourceLicense';
+
+  /// 许可页路径；[doc] 是文档下标，见 `AppLinks.licenseDocAssets`。
+  static String licenseDocPath(int doc) => '$openSourceLicense?doc=$doc';
 
   // 桌面端
   static const desktopHome = '/desktop';
@@ -141,7 +144,9 @@ final List<GoRoute> appRoutes = [
   ),
   GoRoute(
     path: AppRoute.openSourceLicense,
-    builder: (context, state) => const OpenSourceLicensePage(),
+    builder: (context, state) => OpenSourceLicensePage(
+      initialDoc: int.tryParse(state.uri.queryParameters['doc'] ?? ''),
+    ),
   ),
   GoRoute(
     path: AppRoute.desktopHome,

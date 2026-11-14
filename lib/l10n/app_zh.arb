@@ -40,9 +40,33 @@
   "@settingsAboutLicenseSubtitle": {
     "description": "设置页关于分组-协议名称副标题"
   },
-  "openSourceLicensePageTitle": "开源协议",
+  "openSourceLicensePageTitle": "开源许可",
   "@openSourceLicensePageTitle": {
     "description": "协议全文页标题"
+  },
+  "licenseDocProjectTitle": "本项目协议",
+  "@licenseDocProjectTitle": {
+    "description": "协议页切换条-本项目 GPL-3.0"
+  },
+  "licenseDocThirdPartyTitle": "第三方声明",
+  "@licenseDocThirdPartyTitle": {
+    "description": "协议页切换条-第三方组件声明"
+  },
+  "licenseDocApacheTitle": "Apache-2.0",
+  "@licenseDocApacheTitle": {
+    "description": "协议页切换条-Apache 2.0 全文"
+  },
+  "licenseDocGpl2Title": "GPL-2.0",
+  "@licenseDocGpl2Title": {
+    "description": "协议页切换条-GPL 2.0 全文"
+  },
+  "settingsAboutThirdPartyTitle": "第三方开源声明",
+  "@settingsAboutThirdPartyTitle": {
+    "description": "设置页关于分组-第三方声明入口"
+  },
+  "settingsAboutThirdPartySubtitle": "组件来源与许可证",
+  "@settingsAboutThirdPartySubtitle": {
+    "description": "设置页关于分组-第三方声明副标题"
   },
   "openSourceLicenseLoadFailed": "协议文本加载失败",
   "@openSourceLicenseLoadFailed": {

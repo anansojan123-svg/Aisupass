@@ -40,7 +40,25 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsAboutLicenseSubtitle => 'GNU General Public License v3.0';
 
   @override
-  String get openSourceLicensePageTitle => '开源协议';
+  String get openSourceLicensePageTitle => '开源许可';
+
+  @override
+  String get licenseDocProjectTitle => '本项目协议';
+
+  @override
+  String get licenseDocThirdPartyTitle => '第三方声明';
+
+  @override
+  String get licenseDocApacheTitle => 'Apache-2.0';
+
+  @override
+  String get licenseDocGpl2Title => 'GPL-2.0';
+
+  @override
+  String get settingsAboutThirdPartyTitle => '第三方开源声明';
+
+  @override
+  String get settingsAboutThirdPartySubtitle => '组件来源与许可证';
 
   @override
   String get openSourceLicenseLoadFailed => '协议文本加载失败';

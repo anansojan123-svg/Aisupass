@@ -149,8 +149,10 @@ flutter:
     # 历史 OTA 清单，由 .bin/build_ota_catalog.py 生成
     - assets/escalation/ota/pixel.json
     - assets/escalation/ota/realme.json
-    # 设置页「开源协议」展示的 GPL-3.0 全文
+    # 设置页「开源许可」展示的协议与第三方声明
     - LICENSE
+    - THIRD_PARTY_NOTICES.md
+    - LICENSES/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
