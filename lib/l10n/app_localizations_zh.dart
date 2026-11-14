@@ -498,6 +498,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatCodeLabel => '代码';
 
   @override
+  String get chatCodeExpand => '展开全文';
+
+  @override
+  String chatCodeLines(int lines) {
+    return '$lines 行';
+  }
+
+  @override
   String get chatImageLabel => '图片';
 
   @override
@@ -517,6 +525,72 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get chatToolWebSearch => '联网搜索';
+
+  @override
+  String get chatToolOpenInBrowser => '用浏览器打开网页';
+
+  @override
+  String get chatToolFetchWebPage => '获取网页源码';
+
+  @override
+  String get chatBrowserPanelTitle => '网页';
+
+  @override
+  String get chatBrowserOpen => '用浏览器打开';
+
+  @override
+  String get chatBrowserOpenInApp => '在应用内打开';
+
+  @override
+  String get chatBrowserBack => '后退';
+
+  @override
+  String get chatBrowserForward => '前进';
+
+  @override
+  String get chatBrowserReload => '刷新';
+
+  @override
+  String get chatBrowserHandoffSource => '把页面交给 AI';
+
+  @override
+  String get chatBrowserHandoffUrl => '只回传网址';
+
+  @override
+  String get chatBrowserHandoffFile => '选择已下载文件';
+
+  @override
+  String get chatBrowserDesktopUnsupported => '桌面端没有内置浏览器，请用系统浏览器打开后把文件选回来';
+
+  @override
+  String get chatBrowserEmptyUrl => '没有可打开的网址';
+
+  @override
+  String get chatBrowserOpenAgain => '再次打开';
+
+  @override
+  String get chatBrowserCopyLink => '复制链接';
+
+  @override
+  String get chatBrowserLinkCopied => '链接已复制';
+
+  @override
+  String get chatBrowserOpenFailed => '无法打开浏览器，可复制链接手动访问';
+
+  @override
+  String get chatBrowserLoadFailed => '页面加载失败';
+
+  @override
+  String get chatBrowserLoadTimeout =>
+      '加载超时：站点可能拒绝内置 WebView，或需要登录、验证后才能访问，可改用系统浏览器';
+
+  @override
+  String get chatBrowserRetry => '重试';
+
+  @override
+  String chatBrowserLoadingPercent(int percent) {
+    return '载入中 $percent%';
+  }
 
   @override
   String get chatAdbPanelTitle => '无线调试连接';

@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-label="AiSuPass app icon frosted">
+  <defs>
+    <linearGradient id="base" x1="96" y1="32" x2="944" y2="1000" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4AD3FF"/>
+      <stop offset="0.5" stop-color="#7C6BFF"/>
+      <stop offset="1" stop-color="#FF6FB5"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="324" y1="356" x2="702" y2="668" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#08B4E0"/>
+      <stop offset="0.5" stop-color="#6A5AE8"/>
+      <stop offset="1" stop-color="#F2519E"/>
+    </linearGradient>
+    <linearGradient id="spark" x1="654" y1="246" x2="790" y2="382" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6A5AE8"/>
+      <stop offset="1" stop-color="#F2519E"/>
+    </linearGradient>
+    <filter id="frost" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="78"/>
+    </filter>
+    <filter id="tint" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="96"/>
+    </filter>
+    <filter id="glow" x="-70%" y="-70%" width="240%" height="240%">
+      <feGaussianBlur stdDeviation="26"/>
+    </filter>
+    <clipPath id="card">
+      <rect width="1024" height="1024" rx="232"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#card)">
+    <rect width="1024" height="1024" fill="url(#base)"/>
+    <g filter="url(#tint)">
+      <ellipse cx="806" cy="196" rx="330" ry="280" fill="#38D6FF" opacity="0.55"/>
+      <ellipse cx="222" cy="846" rx="360" ry="300" fill="#FF7BC0" opacity="0.5"/>
+    </g>
+    <g filter="url(#frost)">
+      <ellipse cx="392" cy="330" rx="470" ry="380" fill="#FFFFFF" opacity="0.86"/>
+      <ellipse cx="742" cy="742" rx="420" ry="350" fill="#FFFFFF" opacity="0.72"/>
+    </g>
+    <rect width="1024" height="1024" fill="#FFFFFF" opacity="0.5"/>
+  </g>
+
+  <g filter="url(#glow)" opacity="0.42">
+    <path d="M324 356 L478 512 L324 668" fill="none" stroke="url(#mark)" stroke-width="92"
+          stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="532" y="576" width="170" height="92" rx="46" fill="url(#mark)"/>
+  </g>
+
+  <path d="M324 356 L478 512 L324 668" fill="none" stroke="url(#mark)" stroke-width="92"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="532" y="576" width="170" height="92" rx="46" fill="url(#mark)"/>
+
+  <path d="M722 246 C730 292 744 306 790 314 C744 322 730 336 722 382 C714 336 700 322 654 314 C700 306 714 292 722 246 Z"
+        fill="url(#spark)"/>
+  <path d="M838 400 C842 426 850 434 876 438 C850 442 842 450 838 476 C834 450 826 442 800 438 C826 434 834 426 838 400 Z"
+        fill="url(#spark)" opacity="0.8"/>
+
+  <rect x="3" y="3" width="1018" height="1018" rx="230" fill="none" stroke="#FFFFFF"
+        stroke-opacity="0.75" stroke-width="6"/>
+</svg>

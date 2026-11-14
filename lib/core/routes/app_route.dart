@@ -3,6 +3,7 @@ import 'package:Aisupass/common/pages/main_page.dart';
 import 'package:Aisupass/features/ai/presentation/pages/ai_config_edit_page.dart';
 import 'package:Aisupass/features/ai/presentation/pages/ai_config_page.dart';
 import 'package:Aisupass/features/chat/presentation/pages/chat_page.dart';
+import 'package:Aisupass/features/chat/presentation/pages/in_app_browser_page.dart';
 import 'package:Aisupass/features/escalation/presentation/pages/ghost_lock_profile_page.dart';
 import 'package:Aisupass/features/escalation/presentation/pages/kernel_profile_edit_page.dart';
 import 'package:Aisupass/features/escalation/presentation/pages/kernel_profile_page.dart';
@@ -19,6 +20,13 @@ class AppRoute {
   // 移动端
   static const home = '/';
   static const chat = '/chat';
+
+  // 应用内浏览器（对话内网页卡片进入）
+  static const browser = '/browser';
+
+  /// 浏览器路径；[url] 会编码进 query，避免 `&` 被当成参数分隔符。
+  static String browserPath(String url) =>
+      '$browser?url=${Uri.encodeComponent(url)}';
 
   // AI 配置
   static const aiConfig = '/aiConfig';
@@ -96,6 +104,12 @@ final List<GoRoute> appRoutes = [
   GoRoute(
     path: AppRoute.manualEscalation,
     builder: (context, state) => const ManualEscalationPage(),
+  ),
+  GoRoute(
+    path: AppRoute.browser,
+    builder: (context, state) => InAppBrowserPage(
+      initialUrl: state.uri.queryParameters['url'] ?? '',
+    ),
   ),
   GoRoute(
     path: AppRoute.kernelProfile,

@@ -692,6 +692,19 @@
   "@chatCodeLabel": {
     "description": "围栏代码块未标注语言时的标签"
   },
+  "chatCodeExpand": "展开全文",
+  "@chatCodeExpand": {
+    "description": "用户气泡-长代码块展开"
+  },
+  "chatCodeLines": "{lines} 行",
+  "@chatCodeLines": {
+    "description": "用户气泡-代码块行数",
+    "placeholders": {
+      "lines": {
+        "type": "int"
+      }
+    }
+  },
   "chatImageLabel": "图片",
   "@chatImageLabel": {
     "description": "Markdown 图片缺失替代文本时的占位说明"
@@ -719,6 +732,95 @@
   "chatToolWebSearch": "联网搜索",
   "@chatToolWebSearch": {
     "description": "工具动作名-web_search"
+  },
+  "chatToolOpenInBrowser": "用浏览器打开网页",
+  "@chatToolOpenInBrowser": {
+    "description": "工具动作名-open_in_browser"
+  },
+  "chatToolFetchWebPage": "获取网页源码",
+  "@chatToolFetchWebPage": {
+    "description": "工具动作名-fetch_web_page"
+  },
+  "chatBrowserPanelTitle": "网页",
+  "@chatBrowserPanelTitle": {
+    "description": "对话内网页卡片-取不到域名时的标题"
+  },
+  "chatBrowserOpen": "用浏览器打开",
+  "@chatBrowserOpen": {
+    "description": "对话内网页卡片-打开按钮"
+  },
+  "chatBrowserOpenInApp": "在应用内打开",
+  "@chatBrowserOpenInApp": {
+    "description": "对话内网页卡片-用内置浏览器打开"
+  },
+  "chatBrowserBack": "后退",
+  "@chatBrowserBack": {
+    "description": "内置浏览器-后退"
+  },
+  "chatBrowserForward": "前进",
+  "@chatBrowserForward": {
+    "description": "内置浏览器-前进"
+  },
+  "chatBrowserReload": "刷新",
+  "@chatBrowserReload": {
+    "description": "内置浏览器-刷新"
+  },
+  "chatBrowserHandoffSource": "把页面交给 AI",
+  "@chatBrowserHandoffSource": {
+    "description": "内置浏览器-回传当前页面源码"
+  },
+  "chatBrowserHandoffUrl": "只回传网址",
+  "@chatBrowserHandoffUrl": {
+    "description": "内置浏览器-只回传当前 URL"
+  },
+  "chatBrowserHandoffFile": "选择已下载文件",
+  "@chatBrowserHandoffFile": {
+    "description": "内置浏览器-选择本地已下载的固件文件"
+  },
+  "chatBrowserDesktopUnsupported": "桌面端没有内置浏览器，请用系统浏览器打开后把文件选回来",
+  "@chatBrowserDesktopUnsupported": {
+    "description": "内置浏览器-桌面端不支持"
+  },
+  "chatBrowserEmptyUrl": "没有可打开的网址",
+  "@chatBrowserEmptyUrl": {
+    "description": "内置浏览器-缺少起始地址"
+  },
+  "chatBrowserOpenAgain": "再次打开",
+  "@chatBrowserOpenAgain": {
+    "description": "对话内网页卡片-已打开过之后的按钮"
+  },
+  "chatBrowserCopyLink": "复制链接",
+  "@chatBrowserCopyLink": {
+    "description": "对话内网页卡片-复制链接按钮"
+  },
+  "chatBrowserLinkCopied": "链接已复制",
+  "@chatBrowserLinkCopied": {
+    "description": "对话内网页卡片-复制成功"
+  },
+  "chatBrowserOpenFailed": "无法打开浏览器，可复制链接手动访问",
+  "@chatBrowserOpenFailed": {
+    "description": "对话内网页卡片-拉起浏览器失败"
+  },
+  "chatBrowserLoadFailed": "页面加载失败",
+  "@chatBrowserLoadFailed": {
+    "description": "内置浏览器-主文档加载失败"
+  },
+  "chatBrowserLoadTimeout": "加载超时：站点可能拒绝内置 WebView，或需要登录、验证后才能访问，可改用系统浏览器",
+  "@chatBrowserLoadTimeout": {
+    "description": "内置浏览器-加载超时提示"
+  },
+  "chatBrowserRetry": "重试",
+  "@chatBrowserRetry": {
+    "description": "内置浏览器-重新加载按钮"
+  },
+  "chatBrowserLoadingPercent": "载入中 {percent}%",
+  "@chatBrowserLoadingPercent": {
+    "description": "内置浏览器-标题栏进度",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
   },
   "chatAdbPanelTitle": "无线调试连接",
   "@chatAdbPanelTitle": {

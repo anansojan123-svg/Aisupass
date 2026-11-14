@@ -25,6 +25,7 @@ import 'package:Aisupass/features/chat/domain/repositories/chat_session_action_r
 import 'package:Aisupass/features/chat/presentation/controllers/chat_stream_session.dart';
 import 'package:Aisupass/features/chat/presentation/providers/chat_query_provider.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/adb_tools.dart';
+import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/browser_tools.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/dirty_frag_tools.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/escalation_action_tools.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/escalation_query_tools.dart';
@@ -213,6 +214,7 @@ List<ChatToolDefinition> chatTools(Ref ref) => <ChatToolDefinition>[
     },
   ),
   ...adbTools(ref),
+  ...browserTools(ref),
   ...webSearchTools(ref),
   ...escalationQueryTools(ref),
   ...escalationActionTools(ref),
@@ -320,6 +322,43 @@ class ChatController extends _$ChatController {
     if (!job.resumeFromUser()) return false;
     state = state.copyWith(awaitingTurnId: '');
     return true;
+  }
+
+  /// 把内置浏览器回传的内容作为一条用户消息发出。
+  ///
+  /// [source] 是页面源码全文，不做截断；[filePath] 是用户选中的本地文件；
+  /// 两者都可以为空，此时只回传 URL。界面上的折叠由用户气泡自己处理。
+  Future<void> sendBrowserHandoff({
+    required String url,
+    required String source,
+    required String filePath,
+  }) async {
+    final String link = url.trim();
+    final String code = source.trim();
+    final String file = filePath.trim();
+    if (link.isEmpty && code.isEmpty && file.isEmpty) return;
+
+    final StringBuffer buffer = StringBuffer();
+    if (link.isNotEmpty) {
+      buffer
+        ..writeln('我用应用内浏览器查看了这个页面：')
+        ..writeln(link);
+    }
+    if (code.isNotEmpty) {
+      buffer
+        ..writeln()
+        ..writeln('页面源码：')
+        ..writeln('```html')
+        ..writeln(code)
+        ..writeln('```');
+    }
+    if (file.isNotEmpty) {
+      buffer
+        ..writeln()
+        ..writeln('已选好的本地文件：$file');
+    }
+
+    await send(buffer.toString());
   }
 
   /// 中止当前会话的流；其他会话的后台任务不受影响，已收到的内容保留。

@@ -506,6 +506,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatCodeLabel => 'Code';
 
   @override
+  String get chatCodeExpand => 'Show all';
+
+  @override
+  String chatCodeLines(int lines) {
+    return '$lines lines';
+  }
+
+  @override
   String get chatImageLabel => 'Image';
 
   @override
@@ -525,6 +533,74 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatToolWebSearch => 'Search the web';
+
+  @override
+  String get chatToolOpenInBrowser => 'Open page in browser';
+
+  @override
+  String get chatToolFetchWebPage => 'Fetch page source';
+
+  @override
+  String get chatBrowserPanelTitle => 'Web page';
+
+  @override
+  String get chatBrowserOpen => 'Open in browser';
+
+  @override
+  String get chatBrowserOpenInApp => 'Open in app';
+
+  @override
+  String get chatBrowserBack => 'Back';
+
+  @override
+  String get chatBrowserForward => 'Forward';
+
+  @override
+  String get chatBrowserReload => 'Reload';
+
+  @override
+  String get chatBrowserHandoffSource => 'Hand page to AI';
+
+  @override
+  String get chatBrowserHandoffUrl => 'Send URL only';
+
+  @override
+  String get chatBrowserHandoffFile => 'Pick downloaded file';
+
+  @override
+  String get chatBrowserDesktopUnsupported =>
+      'The in-app browser is Android only; use a system browser and then pick the file back';
+
+  @override
+  String get chatBrowserEmptyUrl => 'No URL to open';
+
+  @override
+  String get chatBrowserOpenAgain => 'Open again';
+
+  @override
+  String get chatBrowserCopyLink => 'Copy link';
+
+  @override
+  String get chatBrowserLinkCopied => 'Link copied';
+
+  @override
+  String get chatBrowserOpenFailed =>
+      'Could not open a browser; copy the link instead';
+
+  @override
+  String get chatBrowserLoadFailed => 'Page failed to load';
+
+  @override
+  String get chatBrowserLoadTimeout =>
+      'Timed out: the site may reject the built-in WebView, or need a sign-in/verification first. Try a system browser';
+
+  @override
+  String get chatBrowserRetry => 'Retry';
+
+  @override
+  String chatBrowserLoadingPercent(int percent) {
+    return 'Loading $percent%';
+  }
 
   @override
   String get chatAdbPanelTitle => 'Wireless debugging';

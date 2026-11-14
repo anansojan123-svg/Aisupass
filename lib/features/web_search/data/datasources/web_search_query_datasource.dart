@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:Aisupass/features/web_search/data/models/web_page_content_dto.dart';
 import 'package:Aisupass/features/web_search/data/models/web_search_result_dto.dart';
 import 'package:dio/dio.dart';
 
@@ -89,6 +92,70 @@ class WebSearchQueryDatasource {
     }
 
     return _parseRss(response.data ?? '');
+  }
+
+  /// 抓取网页原始正文。
+  ///
+  /// 非 2xx 也照常返回：403 的挑战页、登录跳转页本身就是模型要看的证据。
+  /// 按字节读取后自行解码，避免 Dio 在缺少 charset 时直接抛解码错误。
+  Future<WebPageContentDto> fetchPage({
+    required String url,
+    required int maxChars,
+  }) async {
+    final Uri? uri = Uri.tryParse(url.trim());
+    if (uri == null ||
+        (uri.scheme != 'http' && uri.scheme != 'https') ||
+        uri.host.isEmpty) {
+      throw WebSearchException('Not an absolute http or https URL: $url');
+    }
+
+    final Response<List<int>> response;
+    try {
+      response = await _dio.get<List<int>>(
+        uri.toString(),
+        options: Options(
+          responseType: ResponseType.bytes,
+          // 状态码交给调用方判断，4xx/5xx 的正文同样要拿回来。
+          validateStatus: (int? status) => status != null,
+          headers: const <String, String>{
+            'Accept':
+                'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          },
+        ),
+      );
+    } on DioException catch (error) {
+      throw WebSearchException(
+        error.message ?? error.type.name,
+        statusCode: error.response?.statusCode,
+      );
+    }
+
+    final List<int> bytes = response.data ?? const <int>[];
+    final String decoded = _decodeBody(bytes);
+
+    final int total = decoded.length;
+    final String text = total > maxChars ? decoded.substring(0, maxChars) : decoded;
+
+    return WebPageContentDto(
+      url: url.trim(),
+      finalUrl: response.realUri.toString(),
+      statusCode: response.statusCode ?? 0,
+      contentType: response.headers.value('content-type') ?? '',
+      text: text,
+      totalChars: total,
+    );
+  }
+
+  /// 先按 UTF-8 严格解码，失败再带替换符解一次。
+  ///
+  /// 非 UTF-8 编码（如 GBK）的页面会出现替换符，但至少能看清结构，
+  /// 好过整次请求因为解码异常直接失败。
+  String _decodeBody(List<int> bytes) {
+    try {
+      return utf8.decode(bytes);
+    } on FormatException {
+      return utf8.decode(bytes, allowMalformed: true);
+    }
   }
 
   /// 从 RSS 文本里抽 `<item>`，逐条映射成 DTO。

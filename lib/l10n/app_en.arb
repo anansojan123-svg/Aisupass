@@ -337,6 +337,19 @@
   },
   "chatToolCollapse": "Collapse",
   "chatCodeLabel": "Code",
+  "chatCodeExpand": "Show all",
+  "@chatCodeExpand": {
+    "description": "用户气泡-长代码块展开"
+  },
+  "chatCodeLines": "{lines} lines",
+  "@chatCodeLines": {
+    "description": "用户气泡-代码块行数",
+    "placeholders": {
+      "lines": {
+        "type": "int"
+      }
+    }
+  },
   "chatImageLabel": "Image",
   "chatToolReadDevice": "Read device info",
   "chatToolCheckRoot": "Check ROOT status",
@@ -355,6 +368,95 @@
   "chatToolWebSearch": "Search the web",
   "@chatToolWebSearch": {
     "description": "工具动作名-web_search"
+  },
+  "chatToolOpenInBrowser": "Open page in browser",
+  "@chatToolOpenInBrowser": {
+    "description": "工具动作名-open_in_browser"
+  },
+  "chatToolFetchWebPage": "Fetch page source",
+  "@chatToolFetchWebPage": {
+    "description": "工具动作名-fetch_web_page"
+  },
+  "chatBrowserPanelTitle": "Web page",
+  "@chatBrowserPanelTitle": {
+    "description": "对话内网页卡片-取不到域名时的标题"
+  },
+  "chatBrowserOpen": "Open in browser",
+  "@chatBrowserOpen": {
+    "description": "对话内网页卡片-打开按钮"
+  },
+  "chatBrowserOpenInApp": "Open in app",
+  "@chatBrowserOpenInApp": {
+    "description": "对话内网页卡片-用内置浏览器打开"
+  },
+  "chatBrowserBack": "Back",
+  "@chatBrowserBack": {
+    "description": "内置浏览器-后退"
+  },
+  "chatBrowserForward": "Forward",
+  "@chatBrowserForward": {
+    "description": "内置浏览器-前进"
+  },
+  "chatBrowserReload": "Reload",
+  "@chatBrowserReload": {
+    "description": "内置浏览器-刷新"
+  },
+  "chatBrowserHandoffSource": "Hand page to AI",
+  "@chatBrowserHandoffSource": {
+    "description": "内置浏览器-回传当前页面源码"
+  },
+  "chatBrowserHandoffUrl": "Send URL only",
+  "@chatBrowserHandoffUrl": {
+    "description": "内置浏览器-只回传当前 URL"
+  },
+  "chatBrowserHandoffFile": "Pick downloaded file",
+  "@chatBrowserHandoffFile": {
+    "description": "内置浏览器-选择本地已下载的固件文件"
+  },
+  "chatBrowserDesktopUnsupported": "The in-app browser is Android only; use a system browser and then pick the file back",
+  "@chatBrowserDesktopUnsupported": {
+    "description": "内置浏览器-桌面端不支持"
+  },
+  "chatBrowserEmptyUrl": "No URL to open",
+  "@chatBrowserEmptyUrl": {
+    "description": "内置浏览器-缺少起始地址"
+  },
+  "chatBrowserOpenAgain": "Open again",
+  "@chatBrowserOpenAgain": {
+    "description": "对话内网页卡片-已打开过之后的按钮"
+  },
+  "chatBrowserCopyLink": "Copy link",
+  "@chatBrowserCopyLink": {
+    "description": "对话内网页卡片-复制链接按钮"
+  },
+  "chatBrowserLinkCopied": "Link copied",
+  "@chatBrowserLinkCopied": {
+    "description": "对话内网页卡片-复制成功"
+  },
+  "chatBrowserOpenFailed": "Could not open a browser; copy the link instead",
+  "@chatBrowserOpenFailed": {
+    "description": "对话内网页卡片-拉起浏览器失败"
+  },
+  "chatBrowserLoadFailed": "Page failed to load",
+  "@chatBrowserLoadFailed": {
+    "description": "内置浏览器-主文档加载失败"
+  },
+  "chatBrowserLoadTimeout": "Timed out: the site may reject the built-in WebView, or need a sign-in/verification first. Try a system browser",
+  "@chatBrowserLoadTimeout": {
+    "description": "内置浏览器-加载超时提示"
+  },
+  "chatBrowserRetry": "Retry",
+  "@chatBrowserRetry": {
+    "description": "内置浏览器-重新加载按钮"
+  },
+  "chatBrowserLoadingPercent": "Loading {percent}%",
+  "@chatBrowserLoadingPercent": {
+    "description": "内置浏览器-标题栏进度",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
   },
   "chatAdbPanelTitle": "Wireless debugging",
   "@chatAdbPanelTitle": {

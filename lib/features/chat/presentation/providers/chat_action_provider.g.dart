@@ -337,7 +337,7 @@ final class ChatToolsProvider
   }
 }
 
-String _$chatToolsHash() => r'99c8056154621342e1e428089ed29c5058489d65';
+String _$chatToolsHash() => r'3c57f533d7f0b0dd2ae9c62ccd6a965a6052ba88';
 
 /// 对话控制器。
 ///
@@ -387,7 +387,7 @@ final class ChatControllerProvider
   }
 }
 
-String _$chatControllerHash() => r'fc29796322bbb864f9f7be8c354f32995b1bb389';
+String _$chatControllerHash() => r'2cf335412155e1280d989a2f4cbaeaec5a0c6f61';
 
 /// 对话控制器。
 ///

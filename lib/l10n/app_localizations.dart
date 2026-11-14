@@ -1010,6 +1010,18 @@ abstract class AppLocalizations {
   /// **'代码'**
   String get chatCodeLabel;
 
+  /// 用户气泡-长代码块展开
+  ///
+  /// In zh, this message translates to:
+  /// **'展开全文'**
+  String get chatCodeExpand;
+
+  /// 用户气泡-代码块行数
+  ///
+  /// In zh, this message translates to:
+  /// **'{lines} 行'**
+  String chatCodeLines(int lines);
+
   /// Markdown 图片缺失替代文本时的占位说明
   ///
   /// In zh, this message translates to:
@@ -1051,6 +1063,132 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'联网搜索'**
   String get chatToolWebSearch;
+
+  /// 工具动作名-open_in_browser
+  ///
+  /// In zh, this message translates to:
+  /// **'用浏览器打开网页'**
+  String get chatToolOpenInBrowser;
+
+  /// 工具动作名-fetch_web_page
+  ///
+  /// In zh, this message translates to:
+  /// **'获取网页源码'**
+  String get chatToolFetchWebPage;
+
+  /// 对话内网页卡片-取不到域名时的标题
+  ///
+  /// In zh, this message translates to:
+  /// **'网页'**
+  String get chatBrowserPanelTitle;
+
+  /// 对话内网页卡片-打开按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'用浏览器打开'**
+  String get chatBrowserOpen;
+
+  /// 对话内网页卡片-用内置浏览器打开
+  ///
+  /// In zh, this message translates to:
+  /// **'在应用内打开'**
+  String get chatBrowserOpenInApp;
+
+  /// 内置浏览器-后退
+  ///
+  /// In zh, this message translates to:
+  /// **'后退'**
+  String get chatBrowserBack;
+
+  /// 内置浏览器-前进
+  ///
+  /// In zh, this message translates to:
+  /// **'前进'**
+  String get chatBrowserForward;
+
+  /// 内置浏览器-刷新
+  ///
+  /// In zh, this message translates to:
+  /// **'刷新'**
+  String get chatBrowserReload;
+
+  /// 内置浏览器-回传当前页面源码
+  ///
+  /// In zh, this message translates to:
+  /// **'把页面交给 AI'**
+  String get chatBrowserHandoffSource;
+
+  /// 内置浏览器-只回传当前 URL
+  ///
+  /// In zh, this message translates to:
+  /// **'只回传网址'**
+  String get chatBrowserHandoffUrl;
+
+  /// 内置浏览器-选择本地已下载的固件文件
+  ///
+  /// In zh, this message translates to:
+  /// **'选择已下载文件'**
+  String get chatBrowserHandoffFile;
+
+  /// 内置浏览器-桌面端不支持
+  ///
+  /// In zh, this message translates to:
+  /// **'桌面端没有内置浏览器，请用系统浏览器打开后把文件选回来'**
+  String get chatBrowserDesktopUnsupported;
+
+  /// 内置浏览器-缺少起始地址
+  ///
+  /// In zh, this message translates to:
+  /// **'没有可打开的网址'**
+  String get chatBrowserEmptyUrl;
+
+  /// 对话内网页卡片-已打开过之后的按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'再次打开'**
+  String get chatBrowserOpenAgain;
+
+  /// 对话内网页卡片-复制链接按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'复制链接'**
+  String get chatBrowserCopyLink;
+
+  /// 对话内网页卡片-复制成功
+  ///
+  /// In zh, this message translates to:
+  /// **'链接已复制'**
+  String get chatBrowserLinkCopied;
+
+  /// 对话内网页卡片-拉起浏览器失败
+  ///
+  /// In zh, this message translates to:
+  /// **'无法打开浏览器，可复制链接手动访问'**
+  String get chatBrowserOpenFailed;
+
+  /// 内置浏览器-主文档加载失败
+  ///
+  /// In zh, this message translates to:
+  /// **'页面加载失败'**
+  String get chatBrowserLoadFailed;
+
+  /// 内置浏览器-加载超时提示
+  ///
+  /// In zh, this message translates to:
+  /// **'加载超时：站点可能拒绝内置 WebView，或需要登录、验证后才能访问，可改用系统浏览器'**
+  String get chatBrowserLoadTimeout;
+
+  /// 内置浏览器-重新加载按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'重试'**
+  String get chatBrowserRetry;
+
+  /// 内置浏览器-标题栏进度
+  ///
+  /// In zh, this message translates to:
+  /// **'载入中 {percent}%'**
+  String chatBrowserLoadingPercent(int percent);
 
   /// 对话内 ADB 连接组件标题
   ///

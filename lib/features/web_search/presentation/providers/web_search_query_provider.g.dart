@@ -230,3 +230,104 @@ final class WebSearchFamily extends $Family
   @override
   String toString() => r'webSearchProvider';
 }
+
+/// 抓取单个网页的原始正文。
+///
+/// 同样不缓存：同一 URL 在不同时间返回的可能是挑战页、登录页或已更新内容。
+
+@ProviderFor(webPageContent)
+const webPageContentProvider = WebPageContentFamily._();
+
+/// 抓取单个网页的原始正文。
+///
+/// 同样不缓存：同一 URL 在不同时间返回的可能是挑战页、登录页或已更新内容。
+
+final class WebPageContentProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<WebPageContent>,
+          WebPageContent,
+          FutureOr<WebPageContent>
+        >
+    with $FutureModifier<WebPageContent>, $FutureProvider<WebPageContent> {
+  /// 抓取单个网页的原始正文。
+  ///
+  /// 同样不缓存：同一 URL 在不同时间返回的可能是挑战页、登录页或已更新内容。
+  const WebPageContentProvider._({
+    required WebPageContentFamily super.from,
+    required ({String url, int maxChars}) super.argument,
+  }) : super(
+         retry: null,
+         name: r'webPageContentProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$webPageContentHash();
+
+  @override
+  String toString() {
+    return r'webPageContentProvider'
+        ''
+        '$argument';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<WebPageContent> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<WebPageContent> create(Ref ref) {
+    final argument = this.argument as ({String url, int maxChars});
+    return webPageContent(ref, url: argument.url, maxChars: argument.maxChars);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is WebPageContentProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$webPageContentHash() => r'b95715dd8d213e695058ec7418ed92095b8c7f7e';
+
+/// 抓取单个网页的原始正文。
+///
+/// 同样不缓存：同一 URL 在不同时间返回的可能是挑战页、登录页或已更新内容。
+
+final class WebPageContentFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<WebPageContent>,
+          ({String url, int maxChars})
+        > {
+  const WebPageContentFamily._()
+    : super(
+        retry: null,
+        name: r'webPageContentProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// 抓取单个网页的原始正文。
+  ///
+  /// 同样不缓存：同一 URL 在不同时间返回的可能是挑战页、登录页或已更新内容。
+
+  WebPageContentProvider call({required String url, required int maxChars}) =>
+      WebPageContentProvider._(
+        argument: (url: url, maxChars: maxChars),
+        from: this,
+      );
+
+  @override
+  String toString() => r'webPageContentProvider';
+}

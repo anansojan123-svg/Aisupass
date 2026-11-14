@@ -1,5 +1,6 @@
 import 'package:Aisupass/features/web_search/data/datasources/web_search_query_datasource.dart';
 import 'package:Aisupass/features/web_search/data/repositories/web_search_query_repository_impl.dart';
+import 'package:Aisupass/features/web_search/domain/models/web_page_content.dart';
 import 'package:Aisupass/features/web_search/domain/models/web_search_result.dart';
 import 'package:Aisupass/features/web_search/domain/repositories/web_search_query_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -31,3 +32,15 @@ Future<List<WebSearchResult>> webSearch(
 }) => ref
     .watch(webSearchQueryRepositoryProvider)
     .search(query: query, count: count, market: market);
+
+/// 抓取单个网页的原始正文。
+///
+/// 同样不缓存：同一 URL 在不同时间返回的可能是挑战页、登录页或已更新内容。
+@riverpod
+Future<WebPageContent> webPageContent(
+  Ref ref, {
+  required String url,
+  required int maxChars,
+}) => ref
+    .watch(webSearchQueryRepositoryProvider)
+    .fetchPage(url: url, maxChars: maxChars);

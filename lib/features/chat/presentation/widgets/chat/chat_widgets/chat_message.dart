@@ -12,6 +12,7 @@ import 'package:Aisupass/features/chat/presentation/widgets/chat/chat_widgets/ch
 import 'package:Aisupass/features/chat/presentation/widgets/chat/chat_widgets/chat_reasoning_card.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/chat_widgets/chat_tool_card.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/chat_widgets/chat_tool_panels.dart';
+import 'package:Aisupass/features/chat/presentation/widgets/chat/chat_widgets/chat_user_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -48,7 +49,7 @@ class ChatMessageView extends HookWidget {
   Widget build(BuildContext context) {
     final bool isDesktop = isDesktopPlatform;
     final Widget content = turn.isUser
-        ? _UserBubble(text: turn.text)
+        ? ChatUserBubble(text: turn.text)
         : _AssistantMessage(
             turn: turn,
             brand: brand,
@@ -204,57 +205,6 @@ class _AssistantAvatar extends StatelessWidget {
         borderRadius: BorderRadius.circular(radius),
       ),
       child: AiBrandIcon(brand: brand, size: size * 0.58),
-    );
-  }
-}
-
-/// 用户消息气泡，右对齐，右下角收一个小圆角。
-class _UserBubble extends StatelessWidget {
-  const _UserBubble({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final ColorScheme colors = context.colorScheme;
-    final bool isDark = context.isDark;
-    final bool isDesktop = isDesktopPlatform;
-    final double radius = isDesktop ? 16 : 16.r;
-    final double maxWidth = isDesktop
-        ? 560
-        : MediaQuery.sizeOf(context).width * 0.78;
-
-    return Align(
-      alignment: Alignment.centerRight,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: maxWidth),
-        child: Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: isDesktop ? 14 : 14.w,
-            vertical: isDesktop ? 10 : 10.h,
-          ),
-          decoration: BoxDecoration(
-            color: colors.primary.withValues(alpha: isDark ? 0.24 : 0.1),
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(radius),
-              topRight: Radius.circular(radius),
-              bottomLeft: Radius.circular(radius),
-              bottomRight: Radius.circular(radius * 0.35),
-            ),
-            border: Border.all(
-              color: colors.primary.withValues(alpha: isDark ? 0.26 : 0.14),
-            ),
-          ),
-          child: SelectableText(
-            text,
-            style: TextStyle(
-              fontSize: isDesktop ? 13.5 : 13.5.sp,
-              height: 1.5,
-              color: colors.onSurface,
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

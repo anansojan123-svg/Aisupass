@@ -14,10 +14,13 @@
     <!-- 开机执行期间按住 CPU，避免跑到一半被系统休眠打断 -->
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <!-- largeHeap：解析 boot.img 需把上百 MB 的镜像和解压结果同时放内存 -->
+    <!-- 内置浏览器需要打开 http 站点：大量 ROM / 固件站仍是明文协议，
+         targetSdk 28+ 默认拦截，不放开会直接白屏 -->
     <application
         android:label="Aisupass"
         android:name="${applicationName}"
         android:largeHeap="true"
+        android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
