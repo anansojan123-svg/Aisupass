@@ -716,6 +716,10 @@
   "@chatToolRequestAdbPairing": {
     "description": "工具动作名-adb_pairing_request"
   },
+  "chatToolWebSearch": "联网搜索",
+  "@chatToolWebSearch": {
+    "description": "工具动作名-web_search"
+  },
   "chatAdbPanelTitle": "无线调试连接",
   "@chatAdbPanelTitle": {
     "description": "对话内 ADB 连接组件标题"

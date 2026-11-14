@@ -1031,7 +1031,7 @@ final class VrDeriveProgressProvider
   }
 }
 
-String _$vrDeriveProgressHash() => r'6328101a05e6d604b5067d9539040d603605a839';
+String _$vrDeriveProgressHash() => r'd5664c5663df2891f859e97c89981ec58be9a7a6';
 
 /// 提取进度的单次快照，供一次性查询使用。
 
@@ -1927,7 +1927,7 @@ final class GhostLockBuiltinReleasesProvider
 }
 
 String _$ghostLockBuiltinReleasesHash() =>
-    r'4beb4b951d9e6e0ccd7f5e665526f244da7f8fd4';
+    r'a977c4dc1372308b77a177ce9ee86d56cff79772';
 
 /// 某 release 的生效 GhostLock 配置。
 
@@ -2236,7 +2236,7 @@ final class GhostLockProbeProgressProvider
 }
 
 String _$ghostLockProbeProgressHash() =>
-    r'ed94f952c1482338c49f5f0f651e9d71a6132be4';
+    r'ce040afc80f91953087ed26cf09f4c293b8f3417';
 
 /// GhostLock profile 编辑数据源。
 

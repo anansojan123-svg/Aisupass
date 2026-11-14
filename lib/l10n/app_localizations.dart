@@ -1046,6 +1046,12 @@ abstract class AppLocalizations {
   /// **'请求无线调试配对'**
   String get chatToolRequestAdbPairing;
 
+  /// 工具动作名-web_search
+  ///
+  /// In zh, this message translates to:
+  /// **'联网搜索'**
+  String get chatToolWebSearch;
+
   /// 对话内 ADB 连接组件标题
   ///
   /// In zh, this message translates to:

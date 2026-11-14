@@ -352,6 +352,10 @@
   "@chatToolRequestAdbPairing": {
     "description": "工具动作名-adb_pairing_request"
   },
+  "chatToolWebSearch": "Search the web",
+  "@chatToolWebSearch": {
+    "description": "工具动作名-web_search"
+  },
   "chatAdbPanelTitle": "Wireless debugging",
   "@chatAdbPanelTitle": {
     "description": "对话内 ADB 连接组件标题"

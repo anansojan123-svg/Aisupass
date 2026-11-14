@@ -516,6 +516,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatToolRequestAdbPairing => '请求无线调试配对';
 
   @override
+  String get chatToolWebSearch => '联网搜索';
+
+  @override
   String get chatAdbPanelTitle => '无线调试连接';
 
   @override

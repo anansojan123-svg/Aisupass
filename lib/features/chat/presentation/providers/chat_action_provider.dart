@@ -35,6 +35,7 @@ import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/kernel_pr
 import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/ota_tools.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/run_log_tools.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/tool_schema.dart';
+import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/web_search_tools.dart';
 import 'package:flutter/foundation.dart';
 
 part 'chat_action_provider.g.dart';
@@ -212,6 +213,7 @@ List<ChatToolDefinition> chatTools(Ref ref) => <ChatToolDefinition>[
     },
   ),
   ...adbTools(ref),
+  ...webSearchTools(ref),
   ...escalationQueryTools(ref),
   ...escalationActionTools(ref),
   ...ghostKeyTools(ref),

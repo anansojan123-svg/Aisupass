@@ -283,14 +283,14 @@ String _$chatSessionActionRepositoryHash() =>
 
 /// 提供给模型的本地工具清单。
 ///
-/// 当前批次全部为只读能力，保证对话阶段零副作用；执行类工具后续按批次接入。
+/// 只读能力与执行能力分开注册，执行类工具调用前必须由用户确认。
 
 @ProviderFor(chatTools)
 const chatToolsProvider = ChatToolsProvider._();
 
 /// 提供给模型的本地工具清单。
 ///
-/// 当前批次全部为只读能力，保证对话阶段零副作用；执行类工具后续按批次接入。
+/// 只读能力与执行能力分开注册，执行类工具调用前必须由用户确认。
 
 final class ChatToolsProvider
     extends
@@ -302,7 +302,7 @@ final class ChatToolsProvider
     with $Provider<List<ChatToolDefinition>> {
   /// 提供给模型的本地工具清单。
   ///
-  /// 当前批次全部为只读能力，保证对话阶段零副作用；执行类工具后续按批次接入。
+  /// 只读能力与执行能力分开注册，执行类工具调用前必须由用户确认。
   const ChatToolsProvider._()
     : super(
         from: null,
@@ -337,35 +337,29 @@ final class ChatToolsProvider
   }
 }
 
-String _$chatToolsHash() => r'fa4816e0a067d1bc0c41737a0287d977956dc2c7';
+String _$chatToolsHash() => r'99c8056154621342e1e428089ed29c5058489d65';
 
 /// 对话控制器。
 ///
-/// 一轮发送可能包含多次模型调用：模型发起工具调用 → 本地执行 → 结果回填 →
-/// 自动续跑，直到模型给出最终回答或达到轮次上限。
-///
-/// 每个会话的执行上下文独立保存在 [_jobs] 里，切换会话不会中断正在进行的
-/// 流式请求；后台会话跑完后自动落盘，切回时直接看到最终内容。
+/// 负责会话级调度：发送、停止、重发、切换会话与落盘；单轮的多步推进由
+/// [ChatStreamSession] 承担。每个会话的执行上下文独立保存在 [_jobs] 里，
+/// 切换会话不会中断正在进行的流式请求。
 
 @ProviderFor(ChatController)
 const chatControllerProvider = ChatControllerProvider._();
 
 /// 对话控制器。
 ///
-/// 一轮发送可能包含多次模型调用：模型发起工具调用 → 本地执行 → 结果回填 →
-/// 自动续跑，直到模型给出最终回答或达到轮次上限。
-///
-/// 每个会话的执行上下文独立保存在 [_jobs] 里，切换会话不会中断正在进行的
-/// 流式请求；后台会话跑完后自动落盘，切回时直接看到最终内容。
+/// 负责会话级调度：发送、停止、重发、切换会话与落盘；单轮的多步推进由
+/// [ChatStreamSession] 承担。每个会话的执行上下文独立保存在 [_jobs] 里，
+/// 切换会话不会中断正在进行的流式请求。
 final class ChatControllerProvider
     extends $NotifierProvider<ChatController, ChatState> {
   /// 对话控制器。
   ///
-  /// 一轮发送可能包含多次模型调用：模型发起工具调用 → 本地执行 → 结果回填 →
-  /// 自动续跑，直到模型给出最终回答或达到轮次上限。
-  ///
-  /// 每个会话的执行上下文独立保存在 [_jobs] 里，切换会话不会中断正在进行的
-  /// 流式请求；后台会话跑完后自动落盘，切回时直接看到最终内容。
+  /// 负责会话级调度：发送、停止、重发、切换会话与落盘；单轮的多步推进由
+  /// [ChatStreamSession] 承担。每个会话的执行上下文独立保存在 [_jobs] 里，
+  /// 切换会话不会中断正在进行的流式请求。
   const ChatControllerProvider._()
     : super(
         from: null,
@@ -393,15 +387,13 @@ final class ChatControllerProvider
   }
 }
 
-String _$chatControllerHash() => r'608ede98097479ff46f5228eaa554954a79ef0c5';
+String _$chatControllerHash() => r'fc29796322bbb864f9f7be8c354f32995b1bb389';
 
 /// 对话控制器。
 ///
-/// 一轮发送可能包含多次模型调用：模型发起工具调用 → 本地执行 → 结果回填 →
-/// 自动续跑，直到模型给出最终回答或达到轮次上限。
-///
-/// 每个会话的执行上下文独立保存在 [_jobs] 里，切换会话不会中断正在进行的
-/// 流式请求；后台会话跑完后自动落盘，切回时直接看到最终内容。
+/// 负责会话级调度：发送、停止、重发、切换会话与落盘；单轮的多步推进由
+/// [ChatStreamSession] 承担。每个会话的执行上下文独立保存在 [_jobs] 里，
+/// 切换会话不会中断正在进行的流式请求。
 
 abstract class _$ChatController extends $Notifier<ChatState> {
   ChatState build();

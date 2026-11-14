@@ -524,6 +524,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatToolRequestAdbPairing => 'Request wireless debugging pairing';
 
   @override
+  String get chatToolWebSearch => 'Search the web';
+
+  @override
   String get chatAdbPanelTitle => 'Wireless debugging';
 
   @override

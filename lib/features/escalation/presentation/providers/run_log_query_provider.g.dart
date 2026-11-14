@@ -256,7 +256,7 @@ final class RunLogBodyProvider
   }
 }
 
-String _$runLogBodyHash() => r'54fc46e1bbafc0e638090025d799b11dfc53a528';
+String _$runLogBodyHash() => r'1c772c49aa4026ef610a8047ac39117e2851b46c';
 
 /// 单条日志正文。参数是 `RunLogMeta.fileName`。
 
