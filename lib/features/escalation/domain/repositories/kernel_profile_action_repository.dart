@@ -11,18 +11,28 @@ abstract class KernelProfileActionRepository {
     required String url,
   });
 
-  /// 删除一份用户 profile；文件不存在返回 false。
-  Future<bool> removeImportedProfile({required String release});
+  /// 删除一份用户文档；文件不存在返回 false。
+  Future<bool> removeImportedProfile({required String name});
 
-  /// 把编辑值合并回用户文档；校验完整后才落盘。
+  /// 把编辑值写回同一份文档；校验完整后才落盘。
   Future<KernelProfileImportResult> saveEditor({
-    required String release,
+    required String name,
+    required Map<String, String> values,
+  });
+
+  /// 把编辑值另存为新文档；返回新文档名，失败为空串。
+  Future<String> saveEditorAs({
+    required String name,
+    required String documentName,
     required Map<String, String> values,
   });
 
   /// 渲染编辑后的 HOCON 文本；失败返回空串。
   Future<String> renderEditor({
-    required String release,
+    required String name,
     required Map<String, String> values,
   });
+
+  /// 指定生效的用户文档；空串回到自动匹配。
+  Future<bool> selectImportedProfile({required String name});
 }

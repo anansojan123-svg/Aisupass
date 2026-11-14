@@ -11,6 +11,7 @@ import org.supass.ai_su_pass.cve98260.AssetConfigLoader
 import org.supass.ai_su_pass.cve98260.BuiltinProfileCatalog
 import org.supass.ai_su_pass.cve98260.Cve98260Session
 import org.supass.ai_su_pass.cve98260.KernelProfileSerializer
+import org.supass.ai_su_pass.cve98260.ota.ImportedProfileSelection
 import org.supass.ai_su_pass.cve98260.ota.ImportedProfileStore
 
 /**
@@ -36,6 +37,7 @@ class Cve98260NativeImpl(
     private val catalog = BuiltinProfileCatalog(
         AssetConfigLoader(context.applicationContext),
         ImportedProfileStore(context.applicationContext),
+        ImportedProfileSelection(context.applicationContext),
     )
 
     private val sessionExecutor = Executors.newSingleThreadExecutor()

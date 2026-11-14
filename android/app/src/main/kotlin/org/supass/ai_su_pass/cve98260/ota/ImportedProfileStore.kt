@@ -24,17 +24,18 @@ class ImportedProfileStore(private val context: Context) {
     )
 
     /** 列出全部文档，最近修改优先；解析失败的仍返回，便于用户删掉。 */
-    fun list(): List<ImportedProfile> = files().map { file ->
-        val doc = runCatching { ProfileDocument.parse(file.readText(Charsets.UTF_8)) }
-            .onFailure { Log.w(TAG, "读取 ${file.name} 失败: ${it.message}") }
-            .getOrNull()
-        ImportedProfile(
-            name = file.name,
-            release = doc?.release ?: file.nameWithoutExtension,
-            detail = doc?.getString("_source").orEmpty(),
-            parseError = doc == null,
-            importedAt = file.lastModified(),
-        )
+    fun list(): List<ImportedProfile> {
+        val documents = documents()
+        return files().map { file ->
+            val doc = parse(file.name, documents)
+            ImportedProfile(
+                name = file.name,
+                release = doc?.release ?: file.nameWithoutExtension,
+                detail = doc?.getString("_source").orEmpty(),
+                parseError = doc == null,
+                importedAt = file.lastModified(),
+            )
+        }
     }
 
     /** 全部已存文档的原始文本，按文件名索引，供 HOCON `include` 解析。 */
@@ -54,14 +55,15 @@ class ImportedProfileStore(private val context: Context) {
     }
 
     /** 按文档名读可编辑文档；不存在或解析失败返回 null。 */
-    fun readDocument(name: String): ProfileDocument? {
+    fun readDocument(name: String): ProfileDocument? = parse(name, documents())
+
+    /** 解析指定文档；`include` 在已存文档里查找。 */
+    private fun parse(name: String, documents: Map<String, String>): ProfileDocument? {
         val file = fileOf(name)
         if (!file.isFile) return null
-        val documents = documents()
         return runCatching {
             ProfileDocument.parse(file.readText(Charsets.UTF_8)) { path ->
-                val key = path.substringAfterLast('/')
-                documents[key]
+                documents[path.substringAfterLast('/')]
             }
         }.onFailure { Log.w(TAG, "解析 ${file.name} 失败: ${it.message}") }
             .getOrNull()
@@ -104,18 +106,6 @@ class ImportedProfileStore(private val context: Context) {
     }
 
     fun remove(name: String): Boolean = fileOf(name).delete()
-
-    /** 重命名；目标已存在或源不存在返回空串。 */
-    fun rename(name: String, newName: String): String {
-        val file = fileOf(name)
-        if (!file.isFile) return ""
-        val stem = sanitize(newName.removeSuffix(".$EXT"))
-        if (stem.isEmpty()) return ""
-        val target = File(dir(), "$stem.$EXT")
-        if (target.name == file.name) return file.name
-        if (target.exists()) return ""
-        return if (file.renameTo(target)) target.name else ""
-    }
 
     private fun files(): List<File> = dir().listFiles { f -> f.isFile && f.extension == EXT }
         .orEmpty()

@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$KernelProfileDto {
 
- String get release; String get detail;
+ String get name; String get release; String get detail;
 /// Create a copy of KernelProfileDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $KernelProfileDtoCopyWith<KernelProfileDto> get copyWith => _$KernelProfileDtoCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is KernelProfileDto&&(identical(other.release, release) || other.release == release)&&(identical(other.detail, detail) || other.detail == detail));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is KernelProfileDto&&(identical(other.name, name) || other.name == name)&&(identical(other.release, release) || other.release == release)&&(identical(other.detail, detail) || other.detail == detail));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,release,detail);
+int get hashCode => Object.hash(runtimeType,name,release,detail);
 
 @override
 String toString() {
-  return 'KernelProfileDto(release: $release, detail: $detail)';
+  return 'KernelProfileDto(name: $name, release: $release, detail: $detail)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $KernelProfileDtoCopyWith<$Res>  {
   factory $KernelProfileDtoCopyWith(KernelProfileDto value, $Res Function(KernelProfileDto) _then) = _$KernelProfileDtoCopyWithImpl;
 @useResult
 $Res call({
- String release, String detail
+ String name, String release, String detail
 });
 
 
@@ -65,9 +65,10 @@ class _$KernelProfileDtoCopyWithImpl<$Res>
 
 /// Create a copy of KernelProfileDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? release = null,Object? detail = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? release = null,Object? detail = null,}) {
   return _then(_self.copyWith(
-release: null == release ? _self.release : release // ignore: cast_nullable_to_non_nullable
+name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,release: null == release ? _self.release : release // ignore: cast_nullable_to_non_nullable
 as String,detail: null == detail ? _self.detail : detail // ignore: cast_nullable_to_non_nullable
 as String,
   ));
@@ -154,10 +155,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String release,  String detail)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String release,  String detail)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _KernelProfileDto() when $default != null:
-return $default(_that.release,_that.detail);case _:
+return $default(_that.name,_that.release,_that.detail);case _:
   return orElse();
 
 }
@@ -175,10 +176,10 @@ return $default(_that.release,_that.detail);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String release,  String detail)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String release,  String detail)  $default,) {final _that = this;
 switch (_that) {
 case _KernelProfileDto():
-return $default(_that.release,_that.detail);case _:
+return $default(_that.name,_that.release,_that.detail);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -195,10 +196,10 @@ return $default(_that.release,_that.detail);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String release,  String detail)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String release,  String detail)?  $default,) {final _that = this;
 switch (_that) {
 case _KernelProfileDto() when $default != null:
-return $default(_that.release,_that.detail);case _:
+return $default(_that.name,_that.release,_that.detail);case _:
   return null;
 
 }
@@ -210,9 +211,10 @@ return $default(_that.release,_that.detail);case _:
 @JsonSerializable()
 
 class _KernelProfileDto extends KernelProfileDto {
-  const _KernelProfileDto({this.release = '', this.detail = ''}): super._();
+  const _KernelProfileDto({this.name = '', this.release = '', this.detail = ''}): super._();
   factory _KernelProfileDto.fromJson(Map<String, dynamic> json) => _$KernelProfileDtoFromJson(json);
 
+@override@JsonKey() final  String name;
 @override@JsonKey() final  String release;
 @override@JsonKey() final  String detail;
 
@@ -229,16 +231,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _KernelProfileDto&&(identical(other.release, release) || other.release == release)&&(identical(other.detail, detail) || other.detail == detail));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _KernelProfileDto&&(identical(other.name, name) || other.name == name)&&(identical(other.release, release) || other.release == release)&&(identical(other.detail, detail) || other.detail == detail));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,release,detail);
+int get hashCode => Object.hash(runtimeType,name,release,detail);
 
 @override
 String toString() {
-  return 'KernelProfileDto(release: $release, detail: $detail)';
+  return 'KernelProfileDto(name: $name, release: $release, detail: $detail)';
 }
 
 
@@ -249,7 +251,7 @@ abstract mixin class _$KernelProfileDtoCopyWith<$Res> implements $KernelProfileD
   factory _$KernelProfileDtoCopyWith(_KernelProfileDto value, $Res Function(_KernelProfileDto) _then) = __$KernelProfileDtoCopyWithImpl;
 @override @useResult
 $Res call({
- String release, String detail
+ String name, String release, String detail
 });
 
 
@@ -266,9 +268,10 @@ class __$KernelProfileDtoCopyWithImpl<$Res>
 
 /// Create a copy of KernelProfileDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? release = null,Object? detail = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? release = null,Object? detail = null,}) {
   return _then(_KernelProfileDto(
-release: null == release ? _self.release : release // ignore: cast_nullable_to_non_nullable
+name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,release: null == release ? _self.release : release // ignore: cast_nullable_to_non_nullable
 as String,detail: null == detail ? _self.detail : detail // ignore: cast_nullable_to_non_nullable
 as String,
   ));

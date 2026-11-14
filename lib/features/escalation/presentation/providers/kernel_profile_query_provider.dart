@@ -23,7 +23,7 @@ KernelProfileQueryRepository kernelProfileQueryRepository(Ref ref) =>
       datasource: ref.watch(kernelProfileQueryDatasourceProvider),
     );
 
-/// 已导入的 profile 列表。
+/// 已导入的 profile 列表（最近修改优先）。
 @riverpod
 Future<List<KernelProfile>> kernelProfileList(Ref ref) =>
     ref.watch(kernelProfileQueryRepositoryProvider).listImported();
@@ -33,17 +33,26 @@ Future<List<KernelProfile>> kernelProfileList(Ref ref) =>
 Future<List<KernelProfile>> kernelProfileBuiltinList(Ref ref) =>
     ref.watch(kernelProfileQueryRepositoryProvider).listBuiltin();
 
-/// 单份 profile 的原始 HOCON 文本。
+/// 当前生效的用户文档名；未选择返回空串。
 @riverpod
-Future<String> kernelProfileContent(Ref ref, {required String release}) => ref
-    .watch(kernelProfileQueryRepositoryProvider)
-    .readContent(release: release);
+Future<String> kernelProfileActiveName(Ref ref) =>
+    ref.watch(kernelProfileQueryRepositoryProvider).activeImportedProfile();
 
-/// 单份用户 profile 的可编辑字段。
+/// 单份 profile 的原始 HOCON 文本；`name` 为空时按 `release` 读内置表。
 @riverpod
-Future<KernelProfileEditorState> kernelProfileEditor(
+Future<String> kernelProfileContent(
   Ref ref, {
+  required String name,
   required String release,
 }) => ref
     .watch(kernelProfileQueryRepositoryProvider)
-    .readEditor(release: release);
+    .readContent(name: name, release: release);
+
+/// 单份用户文档的可编辑字段。
+@riverpod
+Future<KernelProfileEditorState> kernelProfileEditor(
+  Ref ref, {
+  required String name,
+}) => ref
+    .watch(kernelProfileQueryRepositoryProvider)
+    .readEditor(name: name);

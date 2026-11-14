@@ -1,6 +1,7 @@
 package org.supass.ai_su_pass.cve98260
 
 import android.util.Log
+import org.supass.ai_su_pass.cve98260.ota.ImportedProfileSelection
 import org.supass.ai_su_pass.cve98260.ota.ImportedProfileStore
 
 /**
@@ -15,12 +16,13 @@ import org.supass.ai_su_pass.cve98260.ota.ImportedProfileStore
  * timer_link / cred_link 偏移，导致 calib_a 解 KASLR 失败（日志中 exit=2）。
  * 没有精确匹配的机型应导入对应 boot.img 生成 profile，而不是复用其它机型的。
  *
- * 现有的 pkj110.conf（`release = ...` + 嵌套 `offset { ... }` 块）本身即合法 HOCON，
- * 因此无需改动 assets 即可由 HoconSupport 直接解析。
+ * 用户文档与 GhostLock 一致：文件名即文档名，同 release 可以有多份；
+ * 选中的那份优先，未选中时取最近修改的一份。
  */
 class BuiltinProfileCatalog(
     private val loader: AssetConfigLoader,
     private val userStore: ImportedProfileStore? = null,
+    private val selection: ImportedProfileSelection? = null,
 ) {
 
     private val profiles: List<KernelProfile> by lazy { loadAll() }
@@ -33,15 +35,33 @@ class BuiltinProfileCatalog(
         return loader.read("$DIR/$file").orEmpty()
     }
 
+    /** 当前选中的用户文档名；未选择返回空串。 */
+    fun activeUserName(): String = selection?.activeName().orEmpty()
+
     /**
-     * 精确匹配：仅当内置 profile 的 release 与入参完全一致才命中。
+     * 精确匹配，来源优先级：选中的用户文档 → 最近修改的同 release 文档 → 内置表。
      *
-     * 不再做 KMI 前缀回退（原因见类注释）：同 KMI 不同构建的内核符号偏移并不一致，
-     * 回退会套用错误的 timer_link / cred_link，导致 KASLR 解算失败。
-     * 没有精确匹配的机型，应导入对应 boot.img 生成 profile。
+     * 选中文档与设备 release 不符时**不回退内置表**：用户显式选错了要如实报
+     * `noProfile`，否则运行侧会悄悄换成另一份偏移表。
      */
     fun match(release: String): KernelProfile? {
-        userStore?.load(release)?.let { return it }
+        val store = userStore
+        if (store != null) {
+            val active = selection?.activeName()
+            if (!active.isNullOrEmpty()) {
+                val chosen = store.loadByName(active)
+                if (chosen != null) {
+                    return chosen.takeIf { it.release == release }
+                }
+                /* 选中的文档已被删除或损坏：清掉选择，回到自动匹配。 */
+                Log.w(TAG, "选中的文档不可用，清除选择: $active")
+                selection?.setActiveName(null)
+            }
+            store.list()
+                .firstOrNull { it.release == release && !it.parseError }
+                ?.let { store.loadByName(it.name) }
+                ?.let { return it }
+        }
         return profiles.firstOrNull { it.release == release }
     }
 

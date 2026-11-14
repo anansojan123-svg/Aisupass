@@ -2465,21 +2465,62 @@
   "@kernelProfileEditWriteBackHint": {
     "description": "写回动作的副标题"
   },
-  "kernelProfileEditSaveAs": "另存为文件",
+  "kernelProfileEditSaveAs": "另存为我的配置",
   "@kernelProfileEditSaveAs": {
-    "description": "保存菜单：把编辑结果导出为本地文件"
+    "description": "保存菜单：把编辑结果另存为一份新的用户文档"
   },
-  "kernelProfileEditSaveAsHint": "把编辑结果导出为本地 .conf",
+  "kernelProfileEditSaveAsHint": "存成一份新的用户文档，原文件不动",
   "@kernelProfileEditSaveAsHint": {
     "description": "另存为动作的副标题"
   },
-  "kernelProfileEditExportOriginal": "导出原始文档",
-  "@kernelProfileEditExportOriginal": {
-    "description": "保存菜单：导出未修改的原始文档"
+  "kernelProfileEditExport": "导出为文件",
+  "@kernelProfileEditExport": {
+    "description": "保存菜单：把编辑结果导出为本地文件"
   },
-  "kernelProfileEditExportOriginalHint": "备份当前未修改的 HOCON",
-  "@kernelProfileEditExportOriginalHint": {
-    "description": "导出原始文档动作的副标题"
+  "kernelProfileEditExportHint": "把编辑结果导出为本地 .conf",
+  "@kernelProfileEditExportHint": {
+    "description": "导出动作的副标题"
+  },
+  "kernelProfileEditDocument": "文档",
+  "@kernelProfileEditDocument": {
+    "description": "编辑页顶部文档名标签"
+  },
+  "kernelProfileEditSaveFailed": "保存失败",
+  "@kernelProfileEditSaveFailed": {
+    "description": "另存为新文档失败提示"
+  },
+  "kernelProfileEditSavedAs": "已另存为 {name}",
+  "@kernelProfileEditSavedAs": {
+    "description": "另存为新文档成功提示；name 是文档名",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "kernelProfileActiveBadge": "生效中",
+  "@kernelProfileActiveBadge": {
+    "description": "用户显式选中生效时行内的徽标"
+  },
+  "kernelProfileSetActive": "设为生效",
+  "@kernelProfileSetActive": {
+    "description": "详情弹窗里指定该文档生效"
+  },
+  "kernelProfileClearActive": "取消指定",
+  "@kernelProfileClearActive": {
+    "description": "详情弹窗里取消该文档的显式选择"
+  },
+  "kernelProfileUseBuiltin": "使用内置表",
+  "@kernelProfileUseBuiltin": {
+    "description": "内置表详情弹窗里清除用户文档选择"
+  },
+  "kernelProfileActivated": "已设为生效",
+  "@kernelProfileActivated": {
+    "description": "设为生效成功的提示"
+  },
+  "kernelProfileClearedActive": "已恢复自动匹配",
+  "@kernelProfileClearedActive": {
+    "description": "取消指定生效后的提示"
   },
   "kernelProfileEditSaved": "已保存",
   "@kernelProfileEditSaved": {
@@ -2554,6 +2595,14 @@
   "kernelProfileImportFailed": "导入失败",
   "@kernelProfileImportFailed": {
     "description": "导入失败的标题"
+  },
+  "kernelProfileErrorCopy": "复制错误信息",
+  "@kernelProfileErrorCopy": {
+    "description": "解析/导入错误旁的复制按钮提示"
+  },
+  "kernelProfileErrorCopied": "已复制错误信息",
+  "@kernelProfileErrorCopied": {
+    "description": "复制错误信息成功的提示"
   },
   "kernelProfileMissingFields": "缺少必填字段：{fields}",
   "@kernelProfileMissingFields": {

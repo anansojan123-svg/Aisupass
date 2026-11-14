@@ -17,6 +17,7 @@ import 'package:Aisupass/features/escalation/presentation/widgets/kernel_profile
 import 'package:Aisupass/l10n/app_localizations.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -562,13 +563,8 @@ class KernelProfileImportPanel extends HookConsumerWidget {
                 ],
                 if (probeError.value != null && !probing.value) ...<Widget>[
                   SizedBox(height: 12.h),
-                  SelectableText(
-                    l10n.kernelProfileProbeFailed(probeError.value!),
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      height: 1.4,
-                      color: scheme.error,
-                    ),
+                  _CopyableError(
+                    text: l10n.kernelProfileProbeFailed(probeError.value!),
                   ),
                   if (failedAnalysis.value != null) ...<Widget>[
                     SizedBox(height: 6.h),
@@ -594,14 +590,10 @@ class KernelProfileImportPanel extends HookConsumerWidget {
                   _ImportProgress(state: keyState),
                   if (ghostKeyImport.hasError) ...<Widget>[
                     SizedBox(height: 8.h),
-                    SelectableText(
-                      '${l10n.kernelProfileImportFailed}: '
-                      '${ghostKeyImport.error}',
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        height: 1.4,
-                        color: scheme.error,
-                      ),
+                    _CopyableError(
+                      text:
+                          '${l10n.kernelProfileImportFailed}: '
+                          '${ghostKeyImport.error}',
                     ),
                   ],
                   if (keyState != null && keyState.finished) ...<Widget>[
@@ -770,10 +762,49 @@ class _ImportResult extends HookWidget {
         style: TextStyle(fontSize: 12.sp, height: 1.4, color: scheme.primary),
       );
     }
-    return SelectableText(
-      '${l10n.kernelProfileImportFailed}: '
-      '${kernelProfileErrorText(l10n, state)}',
-      style: TextStyle(fontSize: 12.sp, height: 1.4, color: scheme.error),
+    return _CopyableError(
+      text:
+          '${l10n.kernelProfileImportFailed}: '
+          '${kernelProfileErrorText(l10n, state)}',
+    );
+  }
+}
+
+/// 错误文本 + 一键复制按钮。
+///
+/// 解析失败的原因常要贴到别处排查，长按选区在弹层里不好用，这里直接给复制按钮。
+class _CopyableError extends StatelessWidget {
+  const _CopyableError({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = context.l10n;
+    final ColorScheme scheme = context.colorScheme;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Expanded(
+          child: SelectableText(
+            text,
+            style: TextStyle(fontSize: 12.sp, height: 1.4, color: scheme.error),
+          ),
+        ),
+        IconButton(
+          onPressed: () async {
+            await Clipboard.setData(ClipboardData(text: text));
+            if (context.mounted) {
+              ToastMessage.success(l10n.kernelProfileErrorCopied);
+            }
+          },
+          tooltip: l10n.kernelProfileErrorCopy,
+          icon: Icon(Icons.copy_rounded, size: 15.sp),
+          visualDensity: VisualDensity.compact,
+          constraints: BoxConstraints(minWidth: 28.w, minHeight: 28.h),
+          padding: EdgeInsets.zero,
+        ),
+      ],
     );
   }
 }

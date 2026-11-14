@@ -30,10 +30,6 @@ class ImportedProfileSelection(
         if (activeName() == name) setActiveName(null)
     }
 
-    fun clearIfActiveRenamed(from: String, to: String) {
-        if (activeName() == from) setActiveName(to)
-    }
-
     private companion object {
         const val PREF_FILE = "ghostkey_profile_selection"
         const val KEY_ACTIVE = "active_profile_name"

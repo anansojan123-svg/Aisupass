@@ -28,10 +28,13 @@ class KernelProfileQueryRepositoryImpl implements KernelProfileQueryRepository {
   }
 
   @override
-  Future<String> readContent({required String release}) =>
-      _datasource.readImportedProfile(release: release);
+  Future<String> readContent({required String name, required String release}) =>
+      _datasource.readProfileText(name: name, release: release);
 
   @override
-  Future<KernelProfileEditorState> readEditor({required String release}) async =>
-      (await _datasource.readEditor(release: release)).toEntity();
+  Future<KernelProfileEditorState> readEditor({required String name}) async =>
+      (await _datasource.readEditor(name: name)).toEntity();
+
+  @override
+  Future<String> activeImportedProfile() => _datasource.activeImportedProfile();
 }

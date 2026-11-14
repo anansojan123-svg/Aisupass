@@ -116,12 +116,12 @@ final class KernelProfileQueryRepositoryProvider
 String _$kernelProfileQueryRepositoryHash() =>
     r'7017b3b7309cd85b00b96088918cb316a808ac1f';
 
-/// 已导入的 profile 列表。
+/// 已导入的 profile 列表（最近修改优先）。
 
 @ProviderFor(kernelProfileList)
 const kernelProfileListProvider = KernelProfileListProvider._();
 
-/// 已导入的 profile 列表。
+/// 已导入的 profile 列表（最近修改优先）。
 
 final class KernelProfileListProvider
     extends
@@ -133,7 +133,7 @@ final class KernelProfileListProvider
     with
         $FutureModifier<List<KernelProfile>>,
         $FutureProvider<List<KernelProfile>> {
-  /// 已导入的 profile 列表。
+  /// 已导入的 profile 列表（最近修改优先）。
   const KernelProfileListProvider._()
     : super(
         from: null,
@@ -209,20 +209,59 @@ final class KernelProfileBuiltinListProvider
 String _$kernelProfileBuiltinListHash() =>
     r'83e94a585784edea5d8f95f7cf53b75149541ca7';
 
-/// 单份 profile 的原始 HOCON 文本。
+/// 当前生效的用户文档名；未选择返回空串。
+
+@ProviderFor(kernelProfileActiveName)
+const kernelProfileActiveNameProvider = KernelProfileActiveNameProvider._();
+
+/// 当前生效的用户文档名；未选择返回空串。
+
+final class KernelProfileActiveNameProvider
+    extends $FunctionalProvider<AsyncValue<String>, String, FutureOr<String>>
+    with $FutureModifier<String>, $FutureProvider<String> {
+  /// 当前生效的用户文档名；未选择返回空串。
+  const KernelProfileActiveNameProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'kernelProfileActiveNameProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$kernelProfileActiveNameHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<String> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<String> create(Ref ref) {
+    return kernelProfileActiveName(ref);
+  }
+}
+
+String _$kernelProfileActiveNameHash() =>
+    r'304f90f76c0be8e69e02501cf340cb7af7a2047d';
+
+/// 单份 profile 的原始 HOCON 文本；`name` 为空时按 `release` 读内置表。
 
 @ProviderFor(kernelProfileContent)
 const kernelProfileContentProvider = KernelProfileContentFamily._();
 
-/// 单份 profile 的原始 HOCON 文本。
+/// 单份 profile 的原始 HOCON 文本；`name` 为空时按 `release` 读内置表。
 
 final class KernelProfileContentProvider
     extends $FunctionalProvider<AsyncValue<String>, String, FutureOr<String>>
     with $FutureModifier<String>, $FutureProvider<String> {
-  /// 单份 profile 的原始 HOCON 文本。
+  /// 单份 profile 的原始 HOCON 文本；`name` 为空时按 `release` 读内置表。
   const KernelProfileContentProvider._({
     required KernelProfileContentFamily super.from,
-    required String super.argument,
+    required ({String name, String release}) super.argument,
   }) : super(
          retry: null,
          name: r'kernelProfileContentProvider',
@@ -238,7 +277,7 @@ final class KernelProfileContentProvider
   String toString() {
     return r'kernelProfileContentProvider'
         ''
-        '($argument)';
+        '$argument';
   }
 
   @$internal
@@ -248,8 +287,12 @@ final class KernelProfileContentProvider
 
   @override
   FutureOr<String> create(Ref ref) {
-    final argument = this.argument as String;
-    return kernelProfileContent(ref, release: argument);
+    final argument = this.argument as ({String name, String release});
+    return kernelProfileContent(
+      ref,
+      name: argument.name,
+      release: argument.release,
+    );
   }
 
   @override
@@ -264,12 +307,16 @@ final class KernelProfileContentProvider
 }
 
 String _$kernelProfileContentHash() =>
-    r'36c8bb0bef4a2df19b1e2c42ca6cba55d51a3988';
+    r'22cdea87517227a9ae05e788fa62512be7266735';
 
-/// 单份 profile 的原始 HOCON 文本。
+/// 单份 profile 的原始 HOCON 文本；`name` 为空时按 `release` 读内置表。
 
 final class KernelProfileContentFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<String>, String> {
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<String>,
+          ({String name, String release})
+        > {
   const KernelProfileContentFamily._()
     : super(
         retry: null,
@@ -279,21 +326,26 @@ final class KernelProfileContentFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// 单份 profile 的原始 HOCON 文本。
+  /// 单份 profile 的原始 HOCON 文本；`name` 为空时按 `release` 读内置表。
 
-  KernelProfileContentProvider call({required String release}) =>
-      KernelProfileContentProvider._(argument: release, from: this);
+  KernelProfileContentProvider call({
+    required String name,
+    required String release,
+  }) => KernelProfileContentProvider._(
+    argument: (name: name, release: release),
+    from: this,
+  );
 
   @override
   String toString() => r'kernelProfileContentProvider';
 }
 
-/// 单份用户 profile 的可编辑字段。
+/// 单份用户文档的可编辑字段。
 
 @ProviderFor(kernelProfileEditor)
 const kernelProfileEditorProvider = KernelProfileEditorFamily._();
 
-/// 单份用户 profile 的可编辑字段。
+/// 单份用户文档的可编辑字段。
 
 final class KernelProfileEditorProvider
     extends
@@ -305,7 +357,7 @@ final class KernelProfileEditorProvider
     with
         $FutureModifier<KernelProfileEditorState>,
         $FutureProvider<KernelProfileEditorState> {
-  /// 单份用户 profile 的可编辑字段。
+  /// 单份用户文档的可编辑字段。
   const KernelProfileEditorProvider._({
     required KernelProfileEditorFamily super.from,
     required String super.argument,
@@ -336,7 +388,7 @@ final class KernelProfileEditorProvider
   @override
   FutureOr<KernelProfileEditorState> create(Ref ref) {
     final argument = this.argument as String;
-    return kernelProfileEditor(ref, release: argument);
+    return kernelProfileEditor(ref, name: argument);
   }
 
   @override
@@ -351,9 +403,9 @@ final class KernelProfileEditorProvider
 }
 
 String _$kernelProfileEditorHash() =>
-    r'0a3a524fe2ecf8e530526edaaae962204970b4f8';
+    r'206bc014b708ef705c59d7140d7c534bd96586f7';
 
-/// 单份用户 profile 的可编辑字段。
+/// 单份用户文档的可编辑字段。
 
 final class KernelProfileEditorFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<KernelProfileEditorState>, String> {
@@ -366,10 +418,10 @@ final class KernelProfileEditorFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// 单份用户 profile 的可编辑字段。
+  /// 单份用户文档的可编辑字段。
 
-  KernelProfileEditorProvider call({required String release}) =>
-      KernelProfileEditorProvider._(argument: release, from: this);
+  KernelProfileEditorProvider call({required String name}) =>
+      KernelProfileEditorProvider._(argument: name, from: this);
 
   @override
   String toString() => r'kernelProfileEditorProvider';

@@ -178,7 +178,16 @@ abstract class Cve98260Native {
 
 /// 一条已导入的 profile。
 class KernelProfile {
-  KernelProfile({required this.release, required this.detail});
+  KernelProfile({
+    required this.name,
+    required this.release,
+    required this.detail,
+  });
+
+  /// 用户文档名（含 `.conf`）；内置表为空串。
+  ///
+  /// 同一 release 可以有多份文档，删除/编辑/生效选择都以它为准。
+  String name;
 
   /// 内核 release，与 `uname -r` 精确比对。
   String release;
@@ -235,14 +244,18 @@ class KernelProfileFieldValue {
   bool advanced;
 }
 
-/// 一次编辑器读取结果；`release` 为空串表示没有可编辑的用户文档。
+/// 一次编辑器读取结果；`name` 为空串表示没有可编辑的用户文档。
 class KernelProfileEditorState {
   KernelProfileEditorState({
+    required this.name,
     required this.release,
     required this.vulnType,
     required this.detail,
     required this.fields,
   });
+
+  /// 文档名（含 `.conf`）。
+  String name;
 
   String release;
   String vulnType;
@@ -282,28 +295,48 @@ abstract class Cve98260ProfileNative {
   @async
   KernelProfileImportResult importBootImageFromUrl(String url);
 
-  /// 删除一份用户 profile；文件不存在返回 false。
+  /// 删除一份用户文档；文件不存在返回 false。
   @async
-  bool removeImportedProfile(String release);
+  bool removeImportedProfile(String name);
 
-  /// 读取一份用户 profile 的完整 HOCON 文本；文件不存在或解析失败返回空串。
+  /// 读一份 profile 的完整 HOCON 文本。
+  ///
+  /// `name` 非空时读用户文档；为空时按 `release` 读内置表。
   @async
-  String readImportedProfile(String release);
+  String readImportedProfile(String name, String release);
 
-  /// 读取用户文档的可编辑字段；没有对应用户文档时 `release` 为空串。
+  /// 读取用户文档的可编辑字段；没有对应文档时 `name` 为空串。
   @async
-  KernelProfileEditorState readProfileEditor(String release);
+  KernelProfileEditorState readProfileEditor(String name);
 
   /// 把编辑值合并回用户文档；校验完整后才落盘。
   @async
   KernelProfileImportResult saveProfileEditor(
-    String release,
+    String name,
+    Map<String, String> values,
+  );
+
+  /// 把编辑值另存为一份新文档；返回新文档名，失败为空串。
+  ///
+  /// `documentName` 为空时用 release 派生默认名。
+  @async
+  String saveProfileEditorAs(
+    String name,
+    String documentName,
     Map<String, String> values,
   );
 
   /// 渲染编辑后的 HOCON 文本；失败返回空串。
   @async
-  String renderProfileEditor(String release, Map<String, String> values);
+  String renderProfileEditor(String name, Map<String, String> values);
+
+  /// 当前生效的用户文档名；未选择返回空串。
+  @async
+  String activeImportedProfile();
+
+  /// 指定生效的用户文档；空串表示回到自动匹配（最近修改的同 release 文档）。
+  @async
+  bool selectImportedProfile(String name);
 }
 
 /// 开一轮新日志。`runId` 由原生侧自算并回传，不要在这里传。

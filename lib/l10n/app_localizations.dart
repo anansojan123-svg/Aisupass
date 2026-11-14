@@ -3308,29 +3308,83 @@ abstract class AppLocalizations {
   /// **'覆盖当前用户文档'**
   String get kernelProfileEditWriteBackHint;
 
-  /// 保存菜单：把编辑结果导出为本地文件
+  /// 保存菜单：把编辑结果另存为一份新的用户文档
   ///
   /// In zh, this message translates to:
-  /// **'另存为文件'**
+  /// **'另存为我的配置'**
   String get kernelProfileEditSaveAs;
 
   /// 另存为动作的副标题
   ///
   /// In zh, this message translates to:
-  /// **'把编辑结果导出为本地 .conf'**
+  /// **'存成一份新的用户文档，原文件不动'**
   String get kernelProfileEditSaveAsHint;
 
-  /// 保存菜单：导出未修改的原始文档
+  /// 保存菜单：把编辑结果导出为本地文件
   ///
   /// In zh, this message translates to:
-  /// **'导出原始文档'**
-  String get kernelProfileEditExportOriginal;
+  /// **'导出为文件'**
+  String get kernelProfileEditExport;
 
-  /// 导出原始文档动作的副标题
+  /// 导出动作的副标题
   ///
   /// In zh, this message translates to:
-  /// **'备份当前未修改的 HOCON'**
-  String get kernelProfileEditExportOriginalHint;
+  /// **'把编辑结果导出为本地 .conf'**
+  String get kernelProfileEditExportHint;
+
+  /// 编辑页顶部文档名标签
+  ///
+  /// In zh, this message translates to:
+  /// **'文档'**
+  String get kernelProfileEditDocument;
+
+  /// 另存为新文档失败提示
+  ///
+  /// In zh, this message translates to:
+  /// **'保存失败'**
+  String get kernelProfileEditSaveFailed;
+
+  /// 另存为新文档成功提示；name 是文档名
+  ///
+  /// In zh, this message translates to:
+  /// **'已另存为 {name}'**
+  String kernelProfileEditSavedAs(String name);
+
+  /// 用户显式选中生效时行内的徽标
+  ///
+  /// In zh, this message translates to:
+  /// **'生效中'**
+  String get kernelProfileActiveBadge;
+
+  /// 详情弹窗里指定该文档生效
+  ///
+  /// In zh, this message translates to:
+  /// **'设为生效'**
+  String get kernelProfileSetActive;
+
+  /// 详情弹窗里取消该文档的显式选择
+  ///
+  /// In zh, this message translates to:
+  /// **'取消指定'**
+  String get kernelProfileClearActive;
+
+  /// 内置表详情弹窗里清除用户文档选择
+  ///
+  /// In zh, this message translates to:
+  /// **'使用内置表'**
+  String get kernelProfileUseBuiltin;
+
+  /// 设为生效成功的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'已设为生效'**
+  String get kernelProfileActivated;
+
+  /// 取消指定生效后的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'已恢复自动匹配'**
+  String get kernelProfileClearedActive;
 
   /// 写回成功提示
   ///
@@ -3415,6 +3469,18 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'导入失败'**
   String get kernelProfileImportFailed;
+
+  /// 解析/导入错误旁的复制按钮提示
+  ///
+  /// In zh, this message translates to:
+  /// **'复制错误信息'**
+  String get kernelProfileErrorCopy;
+
+  /// 复制错误信息成功的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'已复制错误信息'**
+  String get kernelProfileErrorCopied;
 
   /// 导入结果缺字段提示；fields 是字段路径列表
   ///

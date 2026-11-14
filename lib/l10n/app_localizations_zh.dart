@@ -1766,16 +1766,45 @@ class AppLocalizationsZh extends AppLocalizations {
   String get kernelProfileEditWriteBackHint => '覆盖当前用户文档';
 
   @override
-  String get kernelProfileEditSaveAs => '另存为文件';
+  String get kernelProfileEditSaveAs => '另存为我的配置';
 
   @override
-  String get kernelProfileEditSaveAsHint => '把编辑结果导出为本地 .conf';
+  String get kernelProfileEditSaveAsHint => '存成一份新的用户文档，原文件不动';
 
   @override
-  String get kernelProfileEditExportOriginal => '导出原始文档';
+  String get kernelProfileEditExport => '导出为文件';
 
   @override
-  String get kernelProfileEditExportOriginalHint => '备份当前未修改的 HOCON';
+  String get kernelProfileEditExportHint => '把编辑结果导出为本地 .conf';
+
+  @override
+  String get kernelProfileEditDocument => '文档';
+
+  @override
+  String get kernelProfileEditSaveFailed => '保存失败';
+
+  @override
+  String kernelProfileEditSavedAs(String name) {
+    return '已另存为 $name';
+  }
+
+  @override
+  String get kernelProfileActiveBadge => '生效中';
+
+  @override
+  String get kernelProfileSetActive => '设为生效';
+
+  @override
+  String get kernelProfileClearActive => '取消指定';
+
+  @override
+  String get kernelProfileUseBuiltin => '使用内置表';
+
+  @override
+  String get kernelProfileActivated => '已设为生效';
+
+  @override
+  String get kernelProfileClearedActive => '已恢复自动匹配';
 
   @override
   String get kernelProfileEditSaved => '已保存';
@@ -1824,6 +1853,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get kernelProfileImportFailed => '导入失败';
+
+  @override
+  String get kernelProfileErrorCopy => '复制错误信息';
+
+  @override
+  String get kernelProfileErrorCopied => '已复制错误信息';
 
   @override
   String kernelProfileMissingFields(String fields) {

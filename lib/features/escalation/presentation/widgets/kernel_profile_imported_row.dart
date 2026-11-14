@@ -11,16 +11,16 @@ import 'package:Aisupass/features/escalation/presentation/widgets/kernel_profile
 import 'package:Aisupass/features/escalation/presentation/widgets/kernel_profile_remove_dialog.dart';
 import 'package:Aisupass/l10n/app_localizations.dart';
 
-/// 单行 profile：release + 来源说明 + 可选删除按钮。
+/// 单行 profile：release + 文档名/来源 + 可选删除按钮。
 ///
-/// [matched] 表示该行与设备内核一致（GhostKey 按内核精确匹配生效），
-/// 用主题色高亮并加一枚「与本机内核一致」标记。
+/// [matched] 表示该行当前生效（与本机内核一致），[active] 表示用户显式选中了它。
 class KernelProfileImportedRow extends HookConsumerWidget {
   const KernelProfileImportedRow({
     super.key,
     required this.profile,
     this.showDelete = true,
     this.matched = false,
+    this.active = false,
     this.editable = false,
   });
 
@@ -29,8 +29,11 @@ class KernelProfileImportedRow extends HookConsumerWidget {
   /// 内置表只读，不显示删除按钮。
   final bool showDelete;
 
-  /// 与设备内核一致，即当前会生效的那份。
+  /// 当前生效的那份。
   final bool matched;
+
+  /// 用户显式指定生效的文档。
+  final bool active;
 
   /// 用户导入文档可在详情弹窗内编辑。
   final bool editable;
@@ -39,7 +42,11 @@ class KernelProfileImportedRow extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
     final ColorScheme scheme = context.colorScheme;
-    final bool hasSubtitle = matched || profile.detail.isNotEmpty;
+    final String subtitle = <String>[
+      if (profile.detail.isNotEmpty) profile.detail,
+      if (profile.name.isNotEmpty) profile.name,
+    ].join(' · ');
+    final bool hasSubtitle = matched || active || subtitle.isNotEmpty;
 
     Future<void> remove() async {
       final bool? confirmed = await showKernelProfileRemoveDialog(
@@ -48,7 +55,7 @@ class KernelProfileImportedRow extends HookConsumerWidget {
       );
       if (confirmed != true) return;
       try {
-        await ref.read(kernelProfileActionsProvider).remove(profile.release);
+        await ref.read(kernelProfileActionsProvider).remove(profile.name);
       } catch (error) {
         ToastMessage.error(error);
       }
@@ -104,15 +111,16 @@ class KernelProfileImportedRow extends HookConsumerWidget {
                           children: <Widget>[
                             if (matched) ...<Widget>[
                               _MatchBadge(
-                                text: l10n.kernelProfileMatchesDevice,
+                                text: active
+                                    ? l10n.kernelProfileActiveBadge
+                                    : l10n.kernelProfileMatchesDevice,
                               ),
-                              if (profile.detail.isNotEmpty)
-                                SizedBox(width: 6.w),
+                              if (subtitle.isNotEmpty) SizedBox(width: 6.w),
                             ],
-                            if (profile.detail.isNotEmpty)
+                            if (subtitle.isNotEmpty)
                               Expanded(
                                 child: Text(
-                                  profile.detail,
+                                  subtitle,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(

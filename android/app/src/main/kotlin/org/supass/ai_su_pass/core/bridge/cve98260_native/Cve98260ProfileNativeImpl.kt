@@ -13,8 +13,10 @@ import org.supass.ai_su_pass.cve98260.AssetConfigLoader
 import org.supass.ai_su_pass.cve98260.BuiltinProfileCatalog
 import org.supass.ai_su_pass.cve98260.KernelProfileEditor
 import org.supass.ai_su_pass.cve98260.ProfileConversionException
+import org.supass.ai_su_pass.cve98260.ProfileDocument
 import org.supass.ai_su_pass.cve98260.ota.BootImageParser
 import org.supass.ai_su_pass.cve98260.ota.ImgToProfile
+import org.supass.ai_su_pass.cve98260.ota.ImportedProfileSelection
 import org.supass.ai_su_pass.cve98260.ota.ImportedProfileStore
 import org.supass.ai_su_pass.cve98260.ota.OtaPayloadExtractor
 
@@ -44,8 +46,15 @@ class Cve98260ProfileNativeImpl(private val context: Context) : Cve98260ProfileN
 
     private val store = ImportedProfileStore(context)
 
-    /** 内置表目录，只读 assets。 */
-    private val builtinCatalog = BuiltinProfileCatalog(AssetConfigLoader(context.applicationContext))
+    /** 生效选择：存文档名，与同一 release 的多份文档区分。 */
+    private val selection = ImportedProfileSelection(context)
+
+    /** 内置表目录，只读 assets；匹配时结合用户文档与选择。 */
+    private val builtinCatalog = BuiltinProfileCatalog(
+        AssetConfigLoader(context.applicationContext),
+        store,
+        selection,
+    )
 
     private val executor = Executors.newSingleThreadExecutor()
 
@@ -57,14 +66,18 @@ class Cve98260ProfileNativeImpl(private val context: Context) : Cve98260ProfileN
 
     override fun listImportedProfiles(callback: (Result<List<KernelProfile>>) -> Unit) {
         runAsync(callback) {
-            store.list().map { KernelProfile(release = it.release, detail = it.detail) }
+            store.list().map {
+                KernelProfile(name = it.name, release = it.release, detail = it.detail)
+            }
         }
     }
 
     override fun listBuiltinProfiles(callback: (Result<List<KernelProfile>>) -> Unit) {
         runAsync(callback) {
-            // 内置表没有来源说明，detail 留空。
-            builtinCatalog.all().map { KernelProfile(release = it.release, detail = "") }
+            // 内置表没有文档名与来源说明。
+            builtinCatalog.all().map {
+                KernelProfile(name = "", release = it.release, detail = "")
+            }
         }
     }
 
@@ -88,19 +101,48 @@ class Cve98260ProfileNativeImpl(private val context: Context) : Cve98260ProfileN
     }
 
     override fun removeImportedProfile(
-        release: String,
+        name: String,
         callback: (Result<Boolean>) -> Unit,
     ) {
-        runAsync(callback) { store.remove(release) }
+        runAsync(callback) {
+            val removed = store.remove(name)
+            if (removed) {
+                selection.clearIfActive(name)
+                Log.i(TAG, "removed profile $name")
+            }
+            removed
+        }
     }
 
     override fun readImportedProfile(
+        name: String,
         release: String,
         callback: (Result<String>) -> Unit,
     ) {
-        // 用户导入优先；没有时回退到同名内置表，详情页对两者一视同仁。
+        // 有文档名读用户文档；否则按 release 读内置表，详情页对两者一视同仁。
         runAsync(callback) {
-            store.readRaw(release).ifEmpty { builtinCatalog.readRaw(release) }
+            if (name.isNotEmpty()) {
+                store.readRaw(name)
+            } else {
+                builtinCatalog.readRaw(release)
+            }
+        }
+    }
+
+    override fun activeImportedProfile(callback: (Result<String>) -> Unit) {
+        runAsync(callback) { selection.activeName().orEmpty() }
+    }
+
+    override fun selectImportedProfile(name: String, callback: (Result<Boolean>) -> Unit) {
+        runAsync(callback) {
+            if (name.isEmpty()) {
+                selection.setActiveName(null)
+                true
+            } else {
+                selection.setActiveName(name)
+                Log.i(TAG, "selected profile $name")
+                true
+            }
         }
     }
 
@@ -108,16 +150,17 @@ class Cve98260ProfileNativeImpl(private val context: Context) : Cve98260ProfileN
         executor.shutdownNow()
     }
 
-    /** 读可编辑字段；只有用户导入的文档可编辑，内置表返回空 release。 */
+    /** 读可编辑字段；只有用户文档可编辑，找不到文档时 name 为空串。 */
     override fun readProfileEditor(
-        release: String,
+        name: String,
         callback: (Result<KernelProfileEditorState>) -> Unit,
     ) {
         runAsync(callback) {
-            val doc = store.readDocument(release)
+            val doc = store.readDocument(name)
             if (doc == null) {
-                Log.w(TAG, "readProfileEditor: no user profile for $release")
+                Log.w(TAG, "readProfileEditor: no user profile for $name")
                 return@runAsync KernelProfileEditorState(
+                    name = "",
                     release = "",
                     vulnType = "",
                     detail = "",
@@ -126,6 +169,7 @@ class Cve98260ProfileNativeImpl(private val context: Context) : Cve98260ProfileN
             }
             val values = KernelProfileEditor.read(doc)
             KernelProfileEditorState(
+                name = name,
                 release = doc.release,
                 vulnType = doc.getString("vuln_type") ?: "cve-2026-98260",
                 detail = doc.getString("_source").orEmpty(),
@@ -141,60 +185,83 @@ class Cve98260ProfileNativeImpl(private val context: Context) : Cve98260ProfileN
         }
     }
 
-    /** 把编辑值合并回用户文档；校验完整后才落盘。 */
+    /** 把编辑值写回同一份文档；校验完整后才落盘。 */
     override fun saveProfileEditor(
-        release: String,
+        name: String,
         values: Map<String, String>,
         callback: (Result<KernelProfileImportResult>) -> Unit,
     ) {
-        runAsync(callback) { saveEditorInternal(release, values) }
+        runAsync(callback) {
+            val edited = try {
+                applyEditor(name, values)
+            } catch (e: ProfileConversionException) {
+                Log.w(TAG, "editor field rejected: ${e.message}")
+                return@runAsync KernelProfileImportResult(
+                    ok = false,
+                    release = "",
+                    missing = emptyList(),
+                    errorCode = "invalidField",
+                    error = e.message.orEmpty(),
+                )
+            } ?: return@runAsync editorNotFound()
+            if (!store.save(name, edited)) return@runAsync editorIoFailure(edited.release)
+            Log.i(TAG, "editor saved $name")
+            KernelProfileImportResult(true, edited.release, emptyList(), "", "")
+        }
     }
 
-    /** 渲染编辑后的 HOCON 文本；无法解析时返回空串。 */
-    override fun renderProfileEditor(
-        release: String,
+    /** 另存为新文档，原文档保留；返回新文档名。 */
+    override fun saveProfileEditorAs(
+        name: String,
+        documentName: String,
         values: Map<String, String>,
         callback: (Result<String>) -> Unit,
     ) {
         runAsync(callback) {
-            val doc = store.readDocument(release) ?: return@runAsync ""
+            val edited = runCatching { applyEditor(name, values) }.getOrElse {
+                Log.w(TAG, "editor saveAs rejected: ${it.message}")
+                return@runAsync ""
+            } ?: return@runAsync ""
+            val saved = store.saveAs(edited, documentName)
+            Log.i(TAG, "editor saved as $saved (from $name)")
+            saved
+        }
+    }
+
+    /** 渲染编辑后的 HOCON 文本；无法解析时返回空串。 */
+    override fun renderProfileEditor(
+        name: String,
+        values: Map<String, String>,
+        callback: (Result<String>) -> Unit,
+    ) {
+        runAsync(callback) {
+            val doc = store.readDocument(name) ?: return@runAsync ""
             runCatching { KernelProfileEditor.apply(doc, values).toHocon() }
                 .getOrDefault("")
         }
     }
 
-    private fun saveEditorInternal(
-        release: String,
-        values: Map<String, String>,
-    ): KernelProfileImportResult {
-        val doc = store.readDocument(release)
-            ?: return KernelProfileImportResult(false, "", emptyList(), "notFound", "")
-        val next = try {
-            KernelProfileEditor.apply(doc, values)
-        } catch (e: ProfileConversionException) {
-            Log.w(TAG, "editor field rejected: ${e.message}")
-            return KernelProfileImportResult(
-                ok = false,
-                release = doc.release,
-                missing = emptyList(),
-                errorCode = "invalidField",
-                error = e.message.orEmpty(),
-            )
-        }
+    /**
+     * 合并编辑值并校验完整性；不落盘。
+     *
+     * 返回 null 表示文档不存在；字段非法直接抛 [ProfileConversionException]，
+     * 由调用方转错误码。
+     */
+    private fun applyEditor(name: String, values: Map<String, String>): ProfileDocument? {
+        val doc = store.readDocument(name) ?: return null
+        val next = KernelProfileEditor.apply(doc, values)
         val missing = next.missingRequiredFields()
         if (missing.isNotEmpty()) {
-            Log.w(TAG, "editor save rejected, missing=$missing")
-            return KernelProfileImportResult(false, next.release, missing, "incomplete", "")
+            throw ProfileConversionException("缺少必填字段: ${missing.joinToString()}")
         }
-        return try {
-            val saved = store.save(next)
-            Log.i(TAG, "editor saved release=$saved")
-            KernelProfileImportResult(true, saved, emptyList(), "", "")
-        } catch (e: IOException) {
-            Log.w(TAG, "editor save failed: ${e.javaClass.simpleName}: ${e.message}")
-            KernelProfileImportResult(false, next.release, emptyList(), "io", detailOf(e))
-        }
+        return next
     }
+
+    private fun editorNotFound(): KernelProfileImportResult =
+        KernelProfileImportResult(false, "", emptyList(), "notFound", "")
+
+    private fun editorIoFailure(release: String): KernelProfileImportResult =
+        KernelProfileImportResult(false, release, emptyList(), "io", "")
 
     private fun importInternal(path: String): KernelProfileImportResult {
         Log.i(TAG, "importBootImage path=$path")
@@ -333,13 +400,17 @@ class Cve98260ProfileNativeImpl(private val context: Context) : Cve98260ProfileN
                 throw it
             }
             progress = "$PHASE_SAVE 0 1"
-            val release = store.save(doc)
+            val name = store.saveImported(doc)
+            if (name.isEmpty()) {
+                Log.w(TAG, "profile save failed release=${doc.release}")
+                return failed("io")
+            }
             progress = "$PHASE_DONE 1 1"
-            val saved = File(File(context.filesDir, ImportedProfileStore.DIR), "${ImportedProfileStore.fileNameOf(release)}.conf")
-            Log.i(TAG, "profile saved release=$release path=${saved.absolutePath} size=${saved.length()}")
+            val saved = File(File(context.filesDir, ImportedProfileStore.DIR), name)
+            Log.i(TAG, "profile saved name=$name path=${saved.absolutePath} size=${saved.length()}")
             KernelProfileImportResult(
                 ok = true,
-                release = release,
+                release = doc.release,
                 missing = emptyList(),
                 errorCode = "",
                 error = "",

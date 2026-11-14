@@ -4,12 +4,14 @@ import 'package:Aisupass/generated/cve98260.g.dart' as pigeon;
 /// [KernelProfileEditorState] 的传输形态，字段与 `pigeon` 一一对应。
 class KernelProfileEditorDto {
   const KernelProfileEditorDto({
+    required this.name,
     required this.release,
     required this.vulnType,
     required this.detail,
     required this.fields,
   });
 
+  final String name;
   final String release;
   final String vulnType;
   final String detail;
@@ -18,6 +20,7 @@ class KernelProfileEditorDto {
   factory KernelProfileEditorDto.fromNative(
     pigeon.KernelProfileEditorState native,
   ) => KernelProfileEditorDto(
+    name: native.name,
     release: native.release,
     vulnType: native.vulnType,
     detail: native.detail,
@@ -27,6 +30,7 @@ class KernelProfileEditorDto {
   );
 
   KernelProfileEditorState toEntity() => KernelProfileEditorState(
+    name: name,
     release: release,
     vulnType: vulnType,
     detail: detail,

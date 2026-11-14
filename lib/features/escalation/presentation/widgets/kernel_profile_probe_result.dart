@@ -1,10 +1,37 @@
+import 'package:Aisupass/common/widgets/toast.dart';
 import 'package:Aisupass/core/extensions/context_extensions.dart';
 import 'package:Aisupass/features/escalation/domain/models/ghost_lock_probe.dart';
 import 'package:Aisupass/features/escalation/domain/models/ghost_lock_probe_progress.dart';
 import 'package:Aisupass/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+/// 复制按钮：把失败原因整段写进剪贴板。
+class _CopyIcon extends StatelessWidget {
+  const _CopyIcon({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = context.l10n;
+    return IconButton(
+      onPressed: () async {
+        await Clipboard.setData(ClipboardData(text: text));
+        if (context.mounted) {
+          ToastMessage.success(l10n.kernelProfileErrorCopied);
+        }
+      },
+      tooltip: l10n.kernelProfileErrorCopy,
+      icon: Icon(Icons.copy_rounded, size: 14.sp),
+      visualDensity: VisualDensity.compact,
+      padding: EdgeInsets.zero,
+      constraints: BoxConstraints(minWidth: 28.w, minHeight: 28.h),
+    );
+  }
+}
 
 /// 解析结果卡片：只做展示，写入由弹层底部主按钮触发。
 class KernelProfileProbeCard extends HookWidget {
@@ -68,19 +95,32 @@ class KernelProfileProbeCard extends HookWidget {
             if (_geometryWarnings(probe.warnings) case final List<String> gaps
                 when gaps.isNotEmpty) ...<Widget>[
               SizedBox(height: 4.h),
-              Text(
-                l10n.kernelProfileProbeRouteIncomplete,
-                style: TextStyle(
-                  fontSize: 11.5.sp,
-                  height: 1.4,
-                  fontWeight: FontWeight.w600,
-                  color: scheme.error,
-                ),
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Text(
+                      l10n.kernelProfileProbeRouteIncomplete,
+                      style: TextStyle(
+                        fontSize: 11.5.sp,
+                        height: 1.4,
+                        fontWeight: FontWeight.w600,
+                        color: scheme.error,
+                      ),
+                    ),
+                  ),
+                  _CopyIcon(
+                    text: <String>[
+                      l10n.kernelProfileProbeRouteIncomplete,
+                      for (final String line in gaps) '· $line',
+                      l10n.kernelProfileProbeRouteIncompleteHint,
+                    ].join('\n'),
+                  ),
+                ],
               ),
               for (final String line in gaps)
                 Padding(
                   padding: EdgeInsets.only(top: 2.h),
-                  child: Text(
+                  child: SelectableText(
                     '· $line',
                     style: TextStyle(
                       fontSize: 10.5.sp,
@@ -91,7 +131,7 @@ class KernelProfileProbeCard extends HookWidget {
                 ),
               Padding(
                 padding: EdgeInsets.only(top: 2.h),
-                child: Text(
+                child: SelectableText(
                   l10n.kernelProfileProbeRouteIncompleteHint,
                   style: TextStyle(
                     fontSize: 10.5.sp,
@@ -129,18 +169,31 @@ class KernelProfileProbeCard extends HookWidget {
             /* 未取到时展开物理基址相关的告警。 */
             if (!probe.hasKernelPhysLoad) ...<Widget>[
               SizedBox(height: 2.h),
-              Text(
-                l10n.kernelProfileProbePhysUnsetHint,
-                style: TextStyle(
-                  fontSize: 10.5.sp,
-                  height: 1.4,
-                  color: scheme.onSurfaceVariant.withValues(alpha: 0.8),
-                ),
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: SelectableText(
+                      l10n.kernelProfileProbePhysUnsetHint,
+                      style: TextStyle(
+                        fontSize: 10.5.sp,
+                        height: 1.4,
+                        color: scheme.onSurfaceVariant.withValues(alpha: 0.8),
+                      ),
+                    ),
+                  ),
+                  _CopyIcon(
+                    text: <String>[
+                      l10n.kernelProfileProbePhysUnsetHint,
+                      for (final String line in _physWarnings(probe.warnings))
+                        '· $line',
+                    ].join('\n'),
+                  ),
+                ],
               ),
               for (final String line in _physWarnings(probe.warnings))
                 Padding(
                   padding: EdgeInsets.only(top: 2.h),
-                  child: Text(
+                  child: SelectableText(
                     '· $line',
                     style: TextStyle(
                       fontSize: 10.5.sp,

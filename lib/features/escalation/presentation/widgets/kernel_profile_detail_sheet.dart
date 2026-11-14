@@ -14,6 +14,7 @@ import 'package:Aisupass/core/themes/app_fonts.dart';
 import 'package:Aisupass/core/utils/hocon_text.dart';
 import 'package:Aisupass/core/utils/kernel_profile_text.dart';
 import 'package:Aisupass/features/escalation/domain/models/kernel_profile.dart';
+import 'package:Aisupass/features/escalation/presentation/providers/kernel_profile_action_provider.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/kernel_profile_query_provider.dart';
 import 'package:Aisupass/l10n/app_localizations.dart';
 
@@ -28,10 +29,8 @@ Future<void> showKernelProfileDetailSheet(
   context: context,
   isScrollControlled: true,
   useSafeArea: true,
-  builder: (BuildContext _) => KernelProfileDetailSheet(
-    profile: profile,
-    editable: editable,
-  ),
+  builder: (BuildContext _) =>
+      KernelProfileDetailSheet(profile: profile, editable: editable),
 );
 
 /// 详情弹窗：概览字段 + 偏移量表 + 可展开的原始 HOCON 文本。
@@ -52,9 +51,17 @@ class KernelProfileDetailSheet extends HookConsumerWidget {
     final AppLocalizations l10n = context.l10n;
     final ColorScheme scheme = context.colorScheme;
     final AsyncValue<String> contentAsync = ref.watch(
-      kernelProfileContentProvider(release: profile.release),
+      kernelProfileContentProvider(
+        name: profile.name,
+        release: profile.release,
+      ),
     );
     final ValueNotifier<bool> showRaw = useState<bool>(false);
+    final String activeName =
+        ref.watch(kernelProfileActiveNameProvider).value ?? '';
+    final ValueNotifier<bool> busy = useState<bool>(false);
+    final bool isBusy = useValueListenable(busy);
+    final bool isActive = profile.name.isNotEmpty && profile.name == activeName;
 
     return FractionallySizedBox(
       heightFactor: 0.9,
@@ -88,7 +95,10 @@ class KernelProfileDetailSheet extends HookConsumerWidget {
               error: (Object error, StackTrace _) => RefError(
                 message: '$error',
                 onRetry: () => ref.invalidate(
-                  kernelProfileContentProvider(release: profile.release),
+                  kernelProfileContentProvider(
+                    name: profile.name,
+                    release: profile.release,
+                  ),
                 ),
               ),
               data: (String text) {
@@ -176,33 +186,110 @@ class KernelProfileDetailSheet extends HookConsumerWidget {
               },
             ),
           ),
-          if (editable)
+          if (profile.name.isNotEmpty || activeName.isNotEmpty)
             SafeArea(
               top: false,
               child: Padding(
                 padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 12.h),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 42.h,
-                  child: FilledButton.icon(
-                    onPressed: () async {
-                      await context.push(
-                        AppRoute.kernelProfileEditPath(profile.release),
-                      );
-                      /* 编辑可能已写回，返回后重取详情内容。 */
-                      ref.invalidate(
-                        kernelProfileContentProvider(release: profile.release),
-                      );
-                    },
-                    icon: Icon(Icons.edit_rounded, size: 17.r),
-                    label: Text(context.l10n.kernelProfileEditAction),
-                  ),
+                child: Row(
+                  children: <Widget>[
+                    /* 内置表行只在有显式选择时出现，用于回到自动匹配。 */
+                    if (profile.name.isEmpty)
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: isBusy
+                              ? null
+                              : () => _clearActive(context, ref, busy),
+                          child: Text(l10n.kernelProfileUseBuiltin),
+                        ),
+                      ),
+                    if (profile.name.isNotEmpty) ...<Widget>[
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: isBusy
+                              ? null
+                              : () =>
+                                    _toggleActive(context, ref, busy, isActive),
+                          child: Text(
+                            isActive
+                                ? l10n.kernelProfileClearActive
+                                : l10n.kernelProfileSetActive,
+                          ),
+                        ),
+                      ),
+                      if (editable) ...<Widget>[
+                        SizedBox(width: 10.w),
+                        Expanded(
+                          child: FilledButton.icon(
+                            onPressed: () async {
+                              await context.push(
+                                AppRoute.kernelProfileEditPath(profile.name),
+                              );
+                              /* 编辑可能已写回，返回后重取详情内容。 */
+                              ref.invalidate(
+                                kernelProfileContentProvider(
+                                  name: profile.name,
+                                  release: profile.release,
+                                ),
+                              );
+                            },
+                            icon: Icon(Icons.edit_rounded, size: 16.r),
+                            label: Text(l10n.kernelProfileEditAction),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ],
                 ),
               ),
             ),
         ],
       ),
     );
+  }
+
+  /// 把该文档设为生效，或取消指定回到自动匹配。
+  Future<void> _toggleActive(
+    BuildContext context,
+    WidgetRef ref,
+    ValueNotifier<bool> busy,
+    bool isActive,
+  ) async {
+    final AppLocalizations l10n = context.l10n;
+    busy.value = true;
+    try {
+      await ref
+          .read(kernelProfileActionsProvider)
+          .select(isActive ? '' : profile.name);
+      if (!context.mounted) return;
+      ToastMessage.success(
+        isActive
+            ? l10n.kernelProfileClearedActive
+            : l10n.kernelProfileActivated,
+      );
+    } catch (error) {
+      if (context.mounted) ToastMessage.error(error);
+    } finally {
+      busy.value = false;
+    }
+  }
+
+  /// 清掉显式选择，恢复「最近修改的同 release 文档」自动匹配。
+  Future<void> _clearActive(
+    BuildContext context,
+    WidgetRef ref,
+    ValueNotifier<bool> busy,
+  ) async {
+    busy.value = true;
+    try {
+      await ref.read(kernelProfileActionsProvider).select('');
+      if (!context.mounted) return;
+      ToastMessage.success(context.l10n.kernelProfileClearedActive);
+    } catch (error) {
+      if (context.mounted) ToastMessage.error(error);
+    } finally {
+      busy.value = false;
+    }
   }
 }
 

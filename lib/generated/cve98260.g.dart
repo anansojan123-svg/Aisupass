@@ -438,9 +438,15 @@ class Cve98260Chunk {
 /// 一条已导入的 profile。
 class KernelProfile {
   KernelProfile({
+    required this.name,
     required this.release,
     required this.detail,
   });
+
+  /// 用户文档名（含 `.conf`）；内置表为空串。
+  ///
+  /// 同一 release 可以有多份文档，删除/编辑/生效选择都以它为准。
+  String name;
 
   /// 内核 release，与 `uname -r` 精确比对。
   String release;
@@ -450,6 +456,7 @@ class KernelProfile {
 
   List<Object?> _toList() {
     return <Object?>[
+      name,
       release,
       detail,
     ];
@@ -461,8 +468,9 @@ class KernelProfile {
   static KernelProfile decode(Object result) {
     result as List<Object?>;
     return KernelProfile(
-      release: result[0]! as String,
-      detail: result[1]! as String,
+      name: result[0]! as String,
+      release: result[1]! as String,
+      detail: result[2]! as String,
     );
   }
 
@@ -475,7 +483,7 @@ class KernelProfile {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(release, other.release) && _deepEquals(detail, other.detail);
+    return _deepEquals(name, other.name) && _deepEquals(release, other.release) && _deepEquals(detail, other.detail);
   }
 
   @override
@@ -609,14 +617,18 @@ class KernelProfileFieldValue {
   int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
 }
 
-/// 一次编辑器读取结果；`release` 为空串表示没有可编辑的用户文档。
+/// 一次编辑器读取结果；`name` 为空串表示没有可编辑的用户文档。
 class KernelProfileEditorState {
   KernelProfileEditorState({
+    required this.name,
     required this.release,
     required this.vulnType,
     required this.detail,
     required this.fields,
   });
+
+  /// 文档名（含 `.conf`）。
+  String name;
 
   String release;
 
@@ -628,6 +640,7 @@ class KernelProfileEditorState {
 
   List<Object?> _toList() {
     return <Object?>[
+      name,
       release,
       vulnType,
       detail,
@@ -641,10 +654,11 @@ class KernelProfileEditorState {
   static KernelProfileEditorState decode(Object result) {
     result as List<Object?>;
     return KernelProfileEditorState(
-      release: result[0]! as String,
-      vulnType: result[1]! as String,
-      detail: result[2]! as String,
-      fields: (result[3]! as List<Object?>).cast<KernelProfileFieldValue>(),
+      name: result[0]! as String,
+      release: result[1]! as String,
+      vulnType: result[2]! as String,
+      detail: result[3]! as String,
+      fields: (result[4]! as List<Object?>).cast<KernelProfileFieldValue>(),
     );
   }
 
@@ -657,7 +671,7 @@ class KernelProfileEditorState {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(release, other.release) && _deepEquals(vulnType, other.vulnType) && _deepEquals(detail, other.detail) && _deepEquals(fields, other.fields);
+    return _deepEquals(name, other.name) && _deepEquals(release, other.release) && _deepEquals(vulnType, other.vulnType) && _deepEquals(detail, other.detail) && _deepEquals(fields, other.fields);
   }
 
   @override
@@ -1276,15 +1290,15 @@ class Cve98260ProfileNative {
     return pigeonVar_replyValue! as KernelProfileImportResult;
   }
 
-  /// 删除一份用户 profile；文件不存在返回 false。
-  Future<bool> removeImportedProfile(String release) async {
+  /// 删除一份用户文档；文件不存在返回 false。
+  Future<bool> removeImportedProfile(String name) async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.Cve98260ProfileNative.removeImportedProfile$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[release]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[name]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
@@ -1296,15 +1310,17 @@ class Cve98260ProfileNative {
     return pigeonVar_replyValue! as bool;
   }
 
-  /// 读取一份用户 profile 的完整 HOCON 文本；文件不存在或解析失败返回空串。
-  Future<String> readImportedProfile(String release) async {
+  /// 读一份 profile 的完整 HOCON 文本。
+  ///
+  /// `name` 非空时读用户文档；为空时按 `release` 读内置表。
+  Future<String> readImportedProfile(String name, String release) async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.Cve98260ProfileNative.readImportedProfile$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[release]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[name, release]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
@@ -1316,15 +1332,15 @@ class Cve98260ProfileNative {
     return pigeonVar_replyValue! as String;
   }
 
-  /// 读取用户文档的可编辑字段；没有对应用户文档时 `release` 为空串。
-  Future<KernelProfileEditorState> readProfileEditor(String release) async {
+  /// 读取用户文档的可编辑字段；没有对应文档时 `name` 为空串。
+  Future<KernelProfileEditorState> readProfileEditor(String name) async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.Cve98260ProfileNative.readProfileEditor$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[release]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[name]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
@@ -1337,14 +1353,14 @@ class Cve98260ProfileNative {
   }
 
   /// 把编辑值合并回用户文档；校验完整后才落盘。
-  Future<KernelProfileImportResult> saveProfileEditor(String release, Map<String, String> values) async {
+  Future<KernelProfileImportResult> saveProfileEditor(String name, Map<String, String> values) async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.Cve98260ProfileNative.saveProfileEditor$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[release, values]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[name, values]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
@@ -1356,15 +1372,17 @@ class Cve98260ProfileNative {
     return pigeonVar_replyValue! as KernelProfileImportResult;
   }
 
-  /// 渲染编辑后的 HOCON 文本；失败返回空串。
-  Future<String> renderProfileEditor(String release, Map<String, String> values) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.Cve98260ProfileNative.renderProfileEditor$pigeonVar_messageChannelSuffix';
+  /// 把编辑值另存为一份新文档；返回新文档名，失败为空串。
+  ///
+  /// `documentName` 为空时用 release 派生默认名。
+  Future<String> saveProfileEditorAs(String name, String documentName, Map<String, String> values) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.Cve98260ProfileNative.saveProfileEditorAs$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[release, values]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[name, documentName, values]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
@@ -1374,6 +1392,66 @@ class Cve98260ProfileNative {
     )
     ;
     return pigeonVar_replyValue! as String;
+  }
+
+  /// 渲染编辑后的 HOCON 文本；失败返回空串。
+  Future<String> renderProfileEditor(String name, Map<String, String> values) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.Cve98260ProfileNative.renderProfileEditor$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[name, values]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as String;
+  }
+
+  /// 当前生效的用户文档名；未选择返回空串。
+  Future<String> activeImportedProfile() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.Cve98260ProfileNative.activeImportedProfile$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as String;
+  }
+
+  /// 指定生效的用户文档；空串表示回到自动匹配（最近修改的同 release 文档）。
+  Future<bool> selectImportedProfile(String name) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.Cve98260ProfileNative.selectImportedProfile$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[name]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as bool;
   }
 }
 

@@ -54,36 +54,68 @@ class KernelProfileActions {
 
   final Ref _ref;
 
-  /// 删除一份用户 profile，成功后刷新列表。
-  Future<bool> remove(String release) async {
+  /// 删除一份用户文档，成功后刷新列表与生效来源。
+  Future<bool> remove(String name) async {
     final bool removed = await _ref
         .read(kernelProfileActionRepositoryProvider)
-        .removeImportedProfile(release: release);
-    _ref.invalidate(kernelProfileListProvider);
+        .removeImportedProfile(name: name);
+    if (removed) _invalidateAll();
     return removed;
   }
 
-  /// 写回用户文档，成功后刷新列表、详情与编辑器缓存。
+  /// 写回同一份文档，成功后刷新列表、详情与编辑器缓存。
   Future<KernelProfileImportResult> saveEditor({
-    required String release,
+    required String name,
     required Map<String, String> values,
   }) async {
     final KernelProfileImportResult result = await _ref
         .read(kernelProfileActionRepositoryProvider)
-        .saveEditor(release: release, values: values);
+        .saveEditor(name: name, values: values);
     if (result.ok) {
       _ref.invalidate(kernelProfileListProvider);
-      _ref.invalidate(kernelProfileContentProvider(release: release));
-      _ref.invalidate(kernelProfileEditorProvider(release: release));
+      _ref.invalidate(
+        kernelProfileContentProvider(name: name, release: result.release),
+      );
+      _ref.invalidate(kernelProfileEditorProvider(name: name));
     }
     return result;
   }
 
-  /// 渲染编辑后的 HOCON 文本，供另存为使用。
+  /// 另存为新文档，成功后刷新列表；返回新文档名，失败为空串。
+  Future<String> saveEditorAs({
+    required String name,
+    required String documentName,
+    required Map<String, String> values,
+  }) async {
+    final String saved = await _ref
+        .read(kernelProfileActionRepositoryProvider)
+        .saveEditorAs(name: name, documentName: documentName, values: values);
+    if (saved.isNotEmpty) _ref.invalidate(kernelProfileListProvider);
+    return saved;
+  }
+
+  /// 渲染编辑后的 HOCON 文本，供导出使用。
   Future<String> renderEditor({
-    required String release,
+    required String name,
     required Map<String, String> values,
   }) => _ref
       .read(kernelProfileActionRepositoryProvider)
-      .renderEditor(release: release, values: values);
+      .renderEditor(name: name, values: values);
+
+  /// 指定生效的用户文档；空串回到自动匹配。
+  Future<bool> select(String name) async {
+    final bool ok = await _ref
+        .read(kernelProfileActionRepositoryProvider)
+        .selectImportedProfile(name: name);
+    if (ok) {
+      _ref.invalidate(kernelProfileActiveNameProvider);
+      _ref.invalidate(kernelProfileListProvider);
+    }
+    return ok;
+  }
+
+  void _invalidateAll() {
+    _ref.invalidate(kernelProfileListProvider);
+    _ref.invalidate(kernelProfileActiveNameProvider);
+  }
 }

@@ -17,23 +17,23 @@ import 'package:Aisupass/features/escalation/presentation/providers/kernel_profi
 import 'package:Aisupass/features/escalation/presentation/providers/kernel_profile_query_provider.dart';
 import 'package:Aisupass/l10n/app_localizations.dart';
 
-/// 保存菜单动作：写回原文档 / 另存为文件 / 导出原始文档。
-enum _SaveAction { writeBack, saveAs, exportOriginal }
+/// 保存动作：写回本文档 / 另存为新文档 / 导出到本地文件。
+enum _SaveAction { writeBack, saveAsDocument, exportFile }
 
 /// GhostKey 用户内核表的字段编辑器。
 ///
 /// 只有用户导入文档可编辑；release 是匹配键，只读。
 class KernelProfileEditPage extends HookConsumerWidget {
-  const KernelProfileEditPage({super.key, required this.release});
+  const KernelProfileEditPage({super.key, required this.name});
 
-  /// 目标用户文档的 release。
-  final String release;
+  /// 目标用户文档名（含 `.conf`）。
+  final String name;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
     final AsyncValue<KernelProfileEditorState> editorAsync = ref.watch(
-      kernelProfileEditorProvider(release: release),
+      kernelProfileEditorProvider(name: name),
     );
     /* 只登记用户改过的输入，保存时统一提交。 */
     final ValueNotifier<Map<String, String>> draft =
@@ -59,26 +59,27 @@ class KernelProfileEditPage extends HookConsumerWidget {
                       busy,
                       action,
                     ),
-                    itemBuilder: (BuildContext _) => <PopupMenuEntry<_SaveAction>>[
-                      _menuEntry(
-                        value: _SaveAction.writeBack,
-                        icon: Icons.save_alt_rounded,
-                        title: l10n.kernelProfileEditWriteBack,
-                        subtitle: l10n.kernelProfileEditWriteBackHint,
-                      ),
-                      _menuEntry(
-                        value: _SaveAction.saveAs,
-                        icon: Icons.file_download_outlined,
-                        title: l10n.kernelProfileEditSaveAs,
-                        subtitle: l10n.kernelProfileEditSaveAsHint,
-                      ),
-                      _menuEntry(
-                        value: _SaveAction.exportOriginal,
-                        icon: Icons.description_outlined,
-                        title: l10n.kernelProfileEditExportOriginal,
-                        subtitle: l10n.kernelProfileEditExportOriginalHint,
-                      ),
-                    ],
+                    itemBuilder: (BuildContext _) =>
+                        <PopupMenuEntry<_SaveAction>>[
+                          _menuEntry(
+                            value: _SaveAction.writeBack,
+                            icon: Icons.save_alt_rounded,
+                            title: l10n.kernelProfileEditWriteBack,
+                            subtitle: l10n.kernelProfileEditWriteBackHint,
+                          ),
+                          _menuEntry(
+                            value: _SaveAction.saveAsDocument,
+                            icon: Icons.content_copy_rounded,
+                            title: l10n.kernelProfileEditSaveAs,
+                            subtitle: l10n.kernelProfileEditSaveAsHint,
+                          ),
+                          _menuEntry(
+                            value: _SaveAction.exportFile,
+                            icon: Icons.file_download_outlined,
+                            title: l10n.kernelProfileEditExport,
+                            subtitle: l10n.kernelProfileEditExportHint,
+                          ),
+                        ],
                   )
                 : const SizedBox.shrink(),
             orElse: () => const SizedBox.shrink(),
@@ -89,7 +90,7 @@ class KernelProfileEditPage extends HookConsumerWidget {
         loading: () => const Loading(),
         error: (Object _, StackTrace _) => RefError(
           onRetry: () =>
-              ref.invalidate(kernelProfileEditorProvider(release: release)),
+              ref.invalidate(kernelProfileEditorProvider(name: name)),
         ),
         data: (KernelProfileEditorState state) {
           if (!state.available) {
@@ -172,11 +173,6 @@ class KernelProfileEditPage extends HookConsumerWidget {
     _SaveAction action,
   ) async {
     final AppLocalizations l10n = context.l10n;
-    if (action == _SaveAction.exportOriginal) {
-      await _exportOriginal(context, ref, state);
-      return;
-    }
-
     final Map<String, String> changed = <String, String>{};
     final List<String> invalid = <String>[];
     for (final KernelProfileEditorField field in state.fields) {
@@ -190,7 +186,9 @@ class KernelProfileEditPage extends HookConsumerWidget {
       }
     }
     if (invalid.isNotEmpty) {
-      ToastMessage.error(l10n.kernelProfileEditInvalidFields(invalid.join(', ')));
+      ToastMessage.error(
+        l10n.kernelProfileEditInvalidFields(invalid.join(', ')),
+      );
       return;
     }
     if (changed.isEmpty) {
@@ -200,27 +198,49 @@ class KernelProfileEditPage extends HookConsumerWidget {
 
     busy.value = true;
     try {
-      if (action == _SaveAction.writeBack) {
-        final result = await ref
-            .read(kernelProfileActionsProvider)
-            .saveEditor(release: state.release, values: changed);
-        if (!context.mounted) return;
-        if (result.ok) {
-          draft.value = const <String, String>{};
-          ToastMessage.success(l10n.kernelProfileEditSaved);
-        } else {
-          ToastMessage.error(kernelProfileEditErrorText(l10n, result));
-        }
-      } else {
-        final String text = await ref
-            .read(kernelProfileActionsProvider)
-            .renderEditor(release: state.release, values: changed);
-        if (!context.mounted) return;
-        if (text.isEmpty) {
-          ToastMessage.error(l10n.kernelProfileEditExportFailed);
-          return;
-        }
-        await _saveTextFile(context, state.release, text);
+      switch (action) {
+        case _SaveAction.writeBack:
+          final result = await ref
+              .read(kernelProfileActionsProvider)
+              .saveEditor(name: state.name, values: changed);
+          if (!context.mounted) return;
+          if (result.ok) {
+            draft.value = const <String, String>{};
+            ToastMessage.success(l10n.kernelProfileEditSaved);
+          } else {
+            ToastMessage.error(kernelProfileEditErrorText(l10n, result));
+          }
+        case _SaveAction.saveAsDocument:
+          if (!context.mounted) return;
+          final String? documentName = await _promptDocumentName(
+            context,
+            _defaultCopyName(state.name),
+          );
+          if (documentName == null) return;
+          final String saved = await ref
+              .read(kernelProfileActionsProvider)
+              .saveEditorAs(
+                name: state.name,
+                documentName: documentName,
+                values: changed,
+              );
+          if (!context.mounted) return;
+          if (saved.isEmpty) {
+            ToastMessage.error(l10n.kernelProfileEditSaveFailed);
+          } else {
+            draft.value = const <String, String>{};
+            ToastMessage.success(l10n.kernelProfileEditSavedAs(saved));
+          }
+        case _SaveAction.exportFile:
+          final String text = await ref
+              .read(kernelProfileActionsProvider)
+              .renderEditor(name: state.name, values: changed);
+          if (!context.mounted) return;
+          if (text.isEmpty) {
+            ToastMessage.error(l10n.kernelProfileEditExportFailed);
+            return;
+          }
+          await _saveTextFile(context, state.release, text);
       }
     } catch (error) {
       if (context.mounted) ToastMessage.error(error);
@@ -229,27 +249,20 @@ class KernelProfileEditPage extends HookConsumerWidget {
     }
   }
 
-  /// 导出未修改的原始文档，便于编辑前备份。
-  Future<void> _exportOriginal(
-    BuildContext context,
-    WidgetRef ref,
-    KernelProfileEditorState state,
-  ) async {
-    final AppLocalizations l10n = context.l10n;
-    try {
-      final String text = await ref.read(
-        kernelProfileContentProvider(release: state.release).future,
-      );
-      if (!context.mounted) return;
-      if (text.trim().isEmpty) {
-        ToastMessage.error(l10n.kernelProfileEditExportFailed);
-        return;
-      }
-      await _saveTextFile(context, state.release, text);
-    } catch (error) {
-      if (context.mounted) ToastMessage.error(error);
-    }
+  /// 另存为的默认名字：原文档名去掉 `.conf` 后加 `-copy`。
+  String _defaultCopyName(String name) {
+    final String stem = name.toLowerCase().endsWith('.conf')
+        ? name.substring(0, name.length - 5)
+        : name;
+    return '$stem-copy';
   }
+
+  /// 输入新文档名；取消返回 null，留空按默认名生成。
+  Future<String?> _promptDocumentName(BuildContext context, String initial) =>
+      showDialog<String>(
+        context: context,
+        builder: (BuildContext _) => _DocumentNameDialog(initial: initial),
+      );
 
   /// 让用户选择路径保存 .conf 文本。
   Future<void> _saveTextFile(
@@ -258,11 +271,57 @@ class KernelProfileEditPage extends HookConsumerWidget {
     String text,
   ) async {
     await FilePicker.saveFile(
-      dialogTitle: context.l10n.kernelProfileEditSaveAs,
-      fileName:
-          '${release.replaceAll(RegExp(r'[^A-Za-z0-9._-]'), '_')}.conf',
+      dialogTitle: context.l10n.kernelProfileEditExport,
+      fileName: '${release.replaceAll(RegExp(r'[^A-Za-z0-9._-]'), '_')}.conf',
       bytes: utf8.encode(text),
       type: FileType.any,
+    );
+  }
+}
+
+/// 另存为文档名输入框。
+class _DocumentNameDialog extends HookWidget {
+  const _DocumentNameDialog({required this.initial});
+
+  final String initial;
+
+  static const String _suffix = '.conf';
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = context.l10n;
+    final TextEditingController controller = useTextEditingController(
+      text: initial,
+    );
+
+    void submit() {
+      /* 用户手动补了后缀也剥掉，避免出现 xx.conf.conf。 */
+      String name = controller.text.trim();
+      if (name.toLowerCase().endsWith(_suffix)) {
+        name = name.substring(0, name.length - _suffix.length).trim();
+      }
+      Navigator.of(context).pop(name);
+    }
+
+    return AlertDialog(
+      title: Text(l10n.kernelProfileEditSaveAs),
+      content: TextField(
+        controller: controller,
+        autofocus: true,
+        textInputAction: TextInputAction.done,
+        onSubmitted: (_) => submit(),
+        decoration: InputDecoration(
+          hintText: l10n.kernelProfileEditSaveAsHint,
+          suffixText: _suffix,
+        ),
+      ),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.aiCancel),
+        ),
+        FilledButton(onPressed: submit, child: Text(l10n.aiSave)),
+      ],
     );
   }
 }
@@ -335,8 +394,17 @@ class _HeaderCard extends StatelessWidget {
             l10n.kernelProfileEditReleaseHint,
             style: TextStyle(fontSize: 10.5.sp, color: scheme.onSurfaceVariant),
           ),
+          SizedBox(height: 6.h),
+          Text(
+            '${l10n.kernelProfileEditDocument} · ${state.name}',
+            style: TextStyle(
+              fontSize: 11.sp,
+              fontFamily: AppFonts.code,
+              color: scheme.onSurfaceVariant,
+            ),
+          ),
           if (state.detail.isNotEmpty) ...<Widget>[
-            SizedBox(height: 6.h),
+            SizedBox(height: 4.h),
             Text(
               '${l10n.kernelProfileEditSource} · ${state.detail}',
               style: TextStyle(fontSize: 11.sp, color: scheme.onSurfaceVariant),
@@ -420,10 +488,7 @@ class _EditorField extends HookWidget {
             color: scheme.onSurfaceVariant,
           ),
           border: const OutlineInputBorder(),
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: 10.w,
-            vertical: 8.h,
-          ),
+          contentPadding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
         ),
       ),
     );

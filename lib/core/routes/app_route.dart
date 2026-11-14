@@ -43,9 +43,9 @@ class AppRoute {
   // GhostKey 内核表字段编辑器
   static const kernelProfileEdit = '/kernelProfile/edit';
 
-  /// 编辑器路径；[release] 是目标用户文档的 release。
-  static String kernelProfileEditPath(String release) =>
-      '$kernelProfileEdit?release=${Uri.encodeComponent(release)}';
+  /// 编辑器路径；[name] 是目标用户文档名（含 `.conf`）。
+  static String kernelProfileEditPath(String name) =>
+      '$kernelProfileEdit?name=${Uri.encodeComponent(name)}';
 
   // GhostLock 内核表编辑器
   static const ghostLockProfile = '/ghostLock/profile';
@@ -106,7 +106,7 @@ final List<GoRoute> appRoutes = [
   GoRoute(
     path: AppRoute.kernelProfileEdit,
     builder: (context, state) => KernelProfileEditPage(
-      release: state.uri.queryParameters['release'] ?? '',
+      name: state.uri.queryParameters['name'] ?? '',
     ),
   ),
   GoRoute(

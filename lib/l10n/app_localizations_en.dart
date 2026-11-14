@@ -1849,18 +1849,47 @@ class AppLocalizationsEn extends AppLocalizations {
       'Overwrite the current user profile';
 
   @override
-  String get kernelProfileEditSaveAs => 'Save as file';
+  String get kernelProfileEditSaveAs => 'Save as new profile';
 
   @override
   String get kernelProfileEditSaveAsHint =>
+      'Create a new user document; the original stays';
+
+  @override
+  String get kernelProfileEditExport => 'Export to file';
+
+  @override
+  String get kernelProfileEditExportHint =>
       'Export the edited result as a local .conf';
 
   @override
-  String get kernelProfileEditExportOriginal => 'Export original';
+  String get kernelProfileEditDocument => 'Document';
 
   @override
-  String get kernelProfileEditExportOriginalHint =>
-      'Back up the unmodified HOCON';
+  String get kernelProfileEditSaveFailed => 'Save failed';
+
+  @override
+  String kernelProfileEditSavedAs(String name) {
+    return 'Saved as $name';
+  }
+
+  @override
+  String get kernelProfileActiveBadge => 'Active';
+
+  @override
+  String get kernelProfileSetActive => 'Set active';
+
+  @override
+  String get kernelProfileClearActive => 'Clear selection';
+
+  @override
+  String get kernelProfileUseBuiltin => 'Use built-in table';
+
+  @override
+  String get kernelProfileActivated => 'Set as active';
+
+  @override
+  String get kernelProfileClearedActive => 'Automatic matching restored';
 
   @override
   String get kernelProfileEditSaved => 'Saved';
@@ -1910,6 +1939,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get kernelProfileImportFailed => 'Import failed';
+
+  @override
+  String get kernelProfileErrorCopy => 'Copy error';
+
+  @override
+  String get kernelProfileErrorCopied => 'Error copied';
 
   @override
   String kernelProfileMissingFields(String fields) {

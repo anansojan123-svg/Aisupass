@@ -14,7 +14,10 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$KernelProfile {
 
- String get release; String get detail;
+/// 用户文档名（含 `.conf`）；内置表为空串。
+///
+/// 同一 release 可以有多份文档，删除/编辑/生效选择都以它为准。
+ String get name; String get release; String get detail;
 /// Create a copy of KernelProfile
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +28,16 @@ $KernelProfileCopyWith<KernelProfile> get copyWith => _$KernelProfileCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is KernelProfile&&(identical(other.release, release) || other.release == release)&&(identical(other.detail, detail) || other.detail == detail));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is KernelProfile&&(identical(other.name, name) || other.name == name)&&(identical(other.release, release) || other.release == release)&&(identical(other.detail, detail) || other.detail == detail));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,release,detail);
+int get hashCode => Object.hash(runtimeType,name,release,detail);
 
 @override
 String toString() {
-  return 'KernelProfile(release: $release, detail: $detail)';
+  return 'KernelProfile(name: $name, release: $release, detail: $detail)';
 }
 
 
@@ -45,7 +48,7 @@ abstract mixin class $KernelProfileCopyWith<$Res>  {
   factory $KernelProfileCopyWith(KernelProfile value, $Res Function(KernelProfile) _then) = _$KernelProfileCopyWithImpl;
 @useResult
 $Res call({
- String release, String detail
+ String name, String release, String detail
 });
 
 
@@ -62,9 +65,10 @@ class _$KernelProfileCopyWithImpl<$Res>
 
 /// Create a copy of KernelProfile
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? release = null,Object? detail = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? release = null,Object? detail = null,}) {
   return _then(_self.copyWith(
-release: null == release ? _self.release : release // ignore: cast_nullable_to_non_nullable
+name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,release: null == release ? _self.release : release // ignore: cast_nullable_to_non_nullable
 as String,detail: null == detail ? _self.detail : detail // ignore: cast_nullable_to_non_nullable
 as String,
   ));
@@ -151,10 +155,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String release,  String detail)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String release,  String detail)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _KernelProfile() when $default != null:
-return $default(_that.release,_that.detail);case _:
+return $default(_that.name,_that.release,_that.detail);case _:
   return orElse();
 
 }
@@ -172,10 +176,10 @@ return $default(_that.release,_that.detail);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String release,  String detail)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String release,  String detail)  $default,) {final _that = this;
 switch (_that) {
 case _KernelProfile():
-return $default(_that.release,_that.detail);case _:
+return $default(_that.name,_that.release,_that.detail);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -192,10 +196,10 @@ return $default(_that.release,_that.detail);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String release,  String detail)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String release,  String detail)?  $default,) {final _that = this;
 switch (_that) {
 case _KernelProfile() when $default != null:
-return $default(_that.release,_that.detail);case _:
+return $default(_that.name,_that.release,_that.detail);case _:
   return null;
 
 }
@@ -207,9 +211,13 @@ return $default(_that.release,_that.detail);case _:
 
 
 class _KernelProfile extends KernelProfile {
-  const _KernelProfile({required this.release, required this.detail}): super._();
+  const _KernelProfile({this.name = '', required this.release, required this.detail}): super._();
   
 
+/// 用户文档名（含 `.conf`）；内置表为空串。
+///
+/// 同一 release 可以有多份文档，删除/编辑/生效选择都以它为准。
+@override@JsonKey() final  String name;
 @override final  String release;
 @override final  String detail;
 
@@ -223,16 +231,16 @@ _$KernelProfileCopyWith<_KernelProfile> get copyWith => __$KernelProfileCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _KernelProfile&&(identical(other.release, release) || other.release == release)&&(identical(other.detail, detail) || other.detail == detail));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _KernelProfile&&(identical(other.name, name) || other.name == name)&&(identical(other.release, release) || other.release == release)&&(identical(other.detail, detail) || other.detail == detail));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,release,detail);
+int get hashCode => Object.hash(runtimeType,name,release,detail);
 
 @override
 String toString() {
-  return 'KernelProfile(release: $release, detail: $detail)';
+  return 'KernelProfile(name: $name, release: $release, detail: $detail)';
 }
 
 
@@ -243,7 +251,7 @@ abstract mixin class _$KernelProfileCopyWith<$Res> implements $KernelProfileCopy
   factory _$KernelProfileCopyWith(_KernelProfile value, $Res Function(_KernelProfile) _then) = __$KernelProfileCopyWithImpl;
 @override @useResult
 $Res call({
- String release, String detail
+ String name, String release, String detail
 });
 
 
@@ -260,9 +268,10 @@ class __$KernelProfileCopyWithImpl<$Res>
 
 /// Create a copy of KernelProfile
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? release = null,Object? detail = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? release = null,Object? detail = null,}) {
   return _then(_KernelProfile(
-release: null == release ? _self.release : release // ignore: cast_nullable_to_non_nullable
+name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,release: null == release ? _self.release : release // ignore: cast_nullable_to_non_nullable
 as String,detail: null == detail ? _self.detail : detail // ignore: cast_nullable_to_non_nullable
 as String,
   ));

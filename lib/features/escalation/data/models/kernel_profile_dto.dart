@@ -11,6 +11,7 @@ abstract class KernelProfileDto with _$KernelProfileDto {
   const KernelProfileDto._();
 
   const factory KernelProfileDto({
+    @Default('') String name,
     @Default('') String release,
     @Default('') String detail,
   }) = _KernelProfileDto;
@@ -18,5 +19,6 @@ abstract class KernelProfileDto with _$KernelProfileDto {
   factory KernelProfileDto.fromJson(Map<String, dynamic> json) =>
       _$KernelProfileDtoFromJson(json);
 
-  KernelProfile toEntity() => KernelProfile(release: release, detail: detail);
+  KernelProfile toEntity() =>
+      KernelProfile(name: name, release: release, detail: detail);
 }

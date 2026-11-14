@@ -14,12 +14,13 @@ import 'package:Aisupass/features/escalation/presentation/widgets/kernel_profile
 import 'package:Aisupass/features/escalation/presentation/widgets/kernel_profile_row_card.dart';
 import 'package:Aisupass/l10n/app_localizations.dart';
 
-/// GhostKey 生效来源：`BuiltinProfileCatalog.match()` 先查用户文档，再查内置表。
+/// GhostKey 生效来源：显式选中的用户文档 → 最近修改的同 release 文档 → 内置表。
 enum _KeySource { user, builtin, none }
 
 /// GhostKey 内核表页签：我的配置与内置表两个页签，各占一屏独立滚动。
 ///
-/// GhostKey 按 `uname -r` 精确匹配，用户文档优先，没有选择动作。
+/// GhostKey 按 `uname -r` 精确匹配；同一 release 可以有多份用户文档，
+/// 由「我的配置」里显式选择生效，未选择时取最近修改的一份。
 class KernelProfileGhostKeyTab extends HookConsumerWidget {
   const KernelProfileGhostKeyTab({super.key, this.onImport});
 
@@ -38,14 +39,27 @@ class KernelProfileGhostKeyTab extends HookConsumerWidget {
     final List<KernelProfile> builtin =
         ref.watch(kernelProfileBuiltinListProvider).value ??
         const <KernelProfile>[];
+    final String activeName =
+        ref.watch(kernelProfileActiveNameProvider).value ?? '';
 
-    /* 用户文档优先，命中即屏蔽同 release 的内置表，与原生 match() 一致。 */
-    final _KeySource source =
+    /* 显式选择优先；未选择时列表已按最近修改倒序，第一条匹配即实际生效。 */
+    final KernelProfile? userHit = activeName.isNotEmpty
+        ? imported
+              .where(
+                (KernelProfile p) =>
+                    p.name == activeName && p.release == deviceRelease,
+              )
+              .firstOrNull
+        : imported
+              .where((KernelProfile p) => p.release == deviceRelease)
+              .firstOrNull;
+    final bool builtinHit =
+        userHit == null &&
         deviceRelease.isNotEmpty &&
-            imported.any((KernelProfile p) => p.release == deviceRelease)
+        builtin.any((KernelProfile p) => p.release == deviceRelease);
+    final _KeySource source = userHit != null
         ? _KeySource.user
-        : deviceRelease.isNotEmpty &&
-              builtin.any((KernelProfile p) => p.release == deviceRelease)
+        : builtinHit
         ? _KeySource.builtin
         : _KeySource.none;
 
@@ -63,8 +77,8 @@ class KernelProfileGhostKeyTab extends HookConsumerWidget {
             controller: tabController,
             children: <Widget>[
               _ImportedTab(
-                deviceRelease: deviceRelease,
-                source: source,
+                userHit: userHit,
+                activeName: activeName,
                 onImport: onImport,
               ),
               _BuiltinTab(deviceRelease: deviceRelease, source: source),
@@ -79,13 +93,13 @@ class KernelProfileGhostKeyTab extends HookConsumerWidget {
 /// 我的配置：独立滚动列表。
 class _ImportedTab extends HookConsumerWidget {
   const _ImportedTab({
-    required this.deviceRelease,
-    required this.source,
+    required this.userHit,
+    required this.activeName,
     required this.onImport,
   });
 
-  final String deviceRelease;
-  final _KeySource source;
+  final KernelProfile? userHit;
+  final String activeName;
   final VoidCallback? onImport;
 
   @override
@@ -115,9 +129,8 @@ class _ImportedTab extends HookConsumerWidget {
                     KernelProfileImportedRow(
                       profile: profile,
                       editable: true,
-                      matched:
-                          source == _KeySource.user &&
-                          profile.release == deviceRelease,
+                      active: profile.name == activeName,
+                      matched: profile.name == userHit?.name,
                     ),
                 ],
               ),

@@ -23,14 +23,18 @@ class KernelProfileEditorField {
   String get name => path.split('.').last;
 }
 
-/// 一次编辑器读取结果；[release] 为空串表示没有可编辑的用户文档。
+/// 一次编辑器读取结果；[name] 为空串表示没有可编辑的用户文档。
 class KernelProfileEditorState {
   const KernelProfileEditorState({
+    required this.name,
     required this.release,
     required this.vulnType,
     required this.detail,
     required this.fields,
   });
+
+  /// 文档名（含 `.conf`）。
+  final String name;
 
   final String release;
 
@@ -40,5 +44,5 @@ class KernelProfileEditorState {
 
   final List<KernelProfileEditorField> fields;
 
-  bool get available => release.isNotEmpty;
+  bool get available => name.isNotEmpty;
 }

@@ -33,23 +33,36 @@ class KernelProfileActionRepositoryImpl
   }) => _watch(_datasource.importBootImageFromUrl(url: url));
 
   @override
-  Future<bool> removeImportedProfile({required String release}) =>
-      _datasource.removeImportedProfile(release: release);
+  Future<bool> removeImportedProfile({required String name}) =>
+      _datasource.removeImportedProfile(name: name);
 
   @override
   Future<KernelProfileImportResult> saveEditor({
-    required String release,
+    required String name,
     required Map<String, String> values,
-  }) async => (await _datasource.saveEditor(
-    release: release,
+  }) async =>
+      (await _datasource.saveEditor(name: name, values: values)).toEntity();
+
+  @override
+  Future<String> saveEditorAs({
+    required String name,
+    required String documentName,
+    required Map<String, String> values,
+  }) => _datasource.saveEditorAs(
+    name: name,
+    documentName: documentName,
     values: values,
-  )).toEntity();
+  );
 
   @override
   Future<String> renderEditor({
-    required String release,
+    required String name,
     required Map<String, String> values,
-  }) => _datasource.renderEditor(release: release, values: values);
+  }) => _datasource.renderEditor(name: name, values: values);
+
+  @override
+  Future<bool> selectImportedProfile({required String name}) =>
+      _datasource.selectImportedProfile(name: name);
 
   /// 订阅一侧的导入任务，同时轮询进度；任务结束补一帧带真结果的进度块。
   Stream<KernelProfileImportState> _watch(
