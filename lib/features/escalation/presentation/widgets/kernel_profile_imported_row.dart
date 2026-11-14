@@ -65,9 +65,7 @@ class KernelProfileImportedRow extends HookConsumerWidget {
             child: Row(
               children: <Widget>[
                 Icon(
-                  matched
-                      ? Icons.check_circle_rounded
-                      : Icons.circle_outlined,
+                  matched ? Icons.check_circle_rounded : Icons.circle_outlined,
                   size: 15.sp,
                   color: matched
                       ? scheme.primary
@@ -97,7 +95,9 @@ class KernelProfileImportedRow extends HookConsumerWidget {
                         Row(
                           children: <Widget>[
                             if (matched) ...<Widget>[
-                              _MatchBadge(text: l10n.kernelProfileMatchesDevice),
+                              _MatchBadge(
+                                text: l10n.kernelProfileMatchesDevice,
+                              ),
                               if (profile.detail.isNotEmpty)
                                 SizedBox(width: 6.w),
                             ],

@@ -121,8 +121,12 @@ class KernelProfileDetailSheet extends HookConsumerWidget {
                         children: <Widget>[
                           IconButton(
                             onPressed: () async {
-                              await Clipboard.setData(ClipboardData(text: text));
-                              ToastMessage.success(l10n.kernelProfileDetailCopied);
+                              await Clipboard.setData(
+                                ClipboardData(text: text),
+                              );
+                              ToastMessage.success(
+                                l10n.kernelProfileDetailCopied,
+                              );
                             },
                             tooltip: l10n.kernelProfileDetailCopy,
                             icon: Icon(Icons.copy_rounded, size: 15.sp),
@@ -197,10 +201,7 @@ class _ReleaseCard extends StatelessWidget {
             SizedBox(height: 6.h),
             Text(
               '${l10n.kernelProfileDetailSource} · ${profile.detail}',
-              style: TextStyle(
-                fontSize: 11.sp,
-                color: scheme.onSurfaceVariant,
-              ),
+              style: TextStyle(fontSize: 11.sp, color: scheme.onSurfaceVariant),
             ),
           ],
         ],
@@ -317,10 +318,7 @@ class _OffsetGrid extends StatelessWidget {
             child: Row(
               children: <Widget>[
                 Expanded(
-                  child: _OffsetCell(
-                    label: rows[i].$1,
-                    value: rows[i].$2,
-                  ),
+                  child: _OffsetCell(label: rows[i].$1, value: rows[i].$2),
                 ),
                 SizedBox(width: 10.w),
                 Expanded(

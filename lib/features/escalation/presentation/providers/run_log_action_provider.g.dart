@@ -55,10 +55,14 @@ final class RunLogActionDatasourceProvider
 }
 
 String _$runLogActionDatasourceHash() =>
-    r'13324dbfd56bef279369c764516c4d5c7ae225aa';
+    r'62363c60325403ace779fb3d2dba3076fce59430';
+
+/// 写侧仓储。持有本轮写盘游标，故不随页面回收。
 
 @ProviderFor(runLogActionRepository)
 const runLogActionRepositoryProvider = RunLogActionRepositoryProvider._();
+
+/// 写侧仓储。持有本轮写盘游标，故不随页面回收。
 
 final class RunLogActionRepositoryProvider
     extends
@@ -68,13 +72,14 @@ final class RunLogActionRepositoryProvider
           RunLogActionRepository
         >
     with $Provider<RunLogActionRepository> {
+  /// 写侧仓储。持有本轮写盘游标，故不随页面回收。
   const RunLogActionRepositoryProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'runLogActionRepositoryProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -103,7 +108,7 @@ final class RunLogActionRepositoryProvider
 }
 
 String _$runLogActionRepositoryHash() =>
-    r'766caf7a22f6d30d3c48b79807d3f73988ce6a12';
+    r'3762da693a1db86ba0c0b206c4389344e0f253c8';
 
 /// 运行日志的写操作。
 ///

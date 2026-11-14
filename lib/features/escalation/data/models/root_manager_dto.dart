@@ -1,8 +1,9 @@
 import 'dart:typed_data';
 
-import 'package:Aisupass/features/escalation/domain/models/root_manager.dart';
-import 'package:Aisupass/generated/root_manager.g.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
+import 'package:Aisupass/features/escalation/domain/models/root_manager.dart';
+import 'package:Aisupass/generated/root_manager.g.dart' as pigeon;
 
 part 'root_manager_dto.freezed.dart';
 part 'root_manager_dto.g.dart';
@@ -24,12 +25,13 @@ abstract class RootManagerDto with _$RootManagerDto {
   factory RootManagerDto.fromJson(Map<String, dynamic> json) =>
       _$RootManagerDtoFromJson(json);
 
-  /// 从原生桥接结果构造。
-  factory RootManagerDto.fromNative(RootManagerInfo info) => RootManagerDto(
-    packageName: info.packageName,
-    displayName: info.displayName,
-    icon: info.icon,
-  );
+  /// 原生 `RootManagerInfo` -> 本 DTO：纯字段搬运。
+  factory RootManagerDto.fromNative(pigeon.RootManagerInfo raw) =>
+      RootManagerDto(
+        packageName: raw.packageName,
+        displayName: raw.displayName,
+        icon: raw.icon,
+      );
 
   /// 转成领域实体。
   RootManager toEntity() => RootManager(

@@ -32,17 +32,10 @@ abstract class VrDeriveProgressDto with _$VrDeriveProgressDto {
       return value == null || value < 0 ? 0 : value;
     }
 
-    return VrDeriveProgressDto(
-      phase: at(0),
-      done: at(1),
-      total: at(2),
-    );
+    return VrDeriveProgressDto(phase: at(0), done: at(1), total: at(2));
   }
 
   /// 转成领域实体。
-  VrDeriveProgress toEntity() => VrDeriveProgress(
-    phase: phase,
-    done: done,
-    total: total,
-  );
+  VrDeriveProgress toEntity() =>
+      VrDeriveProgress(phase: phase, done: done, total: total);
 }

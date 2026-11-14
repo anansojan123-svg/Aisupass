@@ -1,6 +1,7 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import 'package:Aisupass/features/escalation/domain/models/device_identity.dart';
 import 'package:Aisupass/generated/device_identity.g.dart' as pigeon;
-import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'device_identity_dto.freezed.dart';
 part 'device_identity_dto.g.dart';
@@ -23,16 +24,16 @@ abstract class DeviceIdentityDto with _$DeviceIdentityDto {
   factory DeviceIdentityDto.fromJson(Map<String, dynamic> json) =>
       _$DeviceIdentityDtoFromJson(json);
 
-  /// 从原生桥接结果构造。
-  factory DeviceIdentityDto.fromNative(pigeon.DeviceIdentity identity) =>
+  /// 原生 `DeviceIdentity` -> 本 DTO：纯字段搬运。
+  factory DeviceIdentityDto.fromNative(pigeon.DeviceIdentity raw) =>
       DeviceIdentityDto(
-        identityText: identity.identityText,
-        kernelRelease: identity.kernelRelease,
-        kernelVersion: identity.kernelVersion,
-        kernelCommit: identity.kernelCommit,
-        manufacturer: identity.manufacturer,
-        model: identity.model,
-        pageSize: identity.pageSize,
+        identityText: raw.identityText,
+        kernelRelease: raw.kernelRelease,
+        kernelVersion: raw.kernelVersion,
+        kernelCommit: raw.kernelCommit,
+        manufacturer: raw.manufacturer,
+        model: raw.model,
+        pageSize: raw.pageSize,
       );
 
   /// 转成领域实体。

@@ -31,17 +31,10 @@ abstract class GhostLockProbeProgressDto with _$GhostLockProbeProgressDto {
       return value == null || value < 0 ? 0 : value;
     }
 
-    return GhostLockProbeProgressDto(
-      phase: at(0),
-      done: at(1),
-      total: at(2),
-    );
+    return GhostLockProbeProgressDto(phase: at(0), done: at(1), total: at(2));
   }
 
   /// 转成领域实体。
-  GhostLockProbeProgress toEntity() => GhostLockProbeProgress(
-    phase: phase,
-    done: done,
-    total: total,
-  );
+  GhostLockProbeProgress toEntity() =>
+      GhostLockProbeProgress(phase: phase, done: done, total: total);
 }

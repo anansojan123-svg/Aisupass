@@ -1,15 +1,18 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+
 import 'package:Aisupass/common/widgets/loading.dart';
 import 'package:Aisupass/common/widgets/ref_error.dart';
 import 'package:Aisupass/core/extensions/context_extensions.dart';
 import 'package:Aisupass/features/escalation/domain/models/kernel_profile.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/escalation_query_provider.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/kernel_profile_query_provider.dart';
+import 'package:Aisupass/features/escalation/presentation/widgets/kernel_profile_empty_hint.dart';
 import 'package:Aisupass/features/escalation/presentation/widgets/kernel_profile_imported_row.dart';
+import 'package:Aisupass/features/escalation/presentation/widgets/kernel_profile_row_card.dart';
 import 'package:Aisupass/l10n/app_localizations.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// GhostKey 生效来源：`BuiltinProfileCatalog.match()` 先查用户文档，再查内置表。
 enum _KeySource { user, builtin, none }
@@ -17,8 +20,8 @@ enum _KeySource { user, builtin, none }
 /// GhostKey 内核表页签：我的配置与内置表两个页签，各占一屏独立滚动。
 ///
 /// GhostKey 按 `uname -r` 精确匹配，用户文档优先，没有选择动作。
-class GhostKeyProfileTab extends HookConsumerWidget {
-  const GhostKeyProfileTab({super.key, this.onImport});
+class KernelProfileGhostKeyTab extends HookConsumerWidget {
+  const KernelProfileGhostKeyTab({super.key, this.onImport});
 
   /// 空列表时的导入入口，由页面传入以复用同一个导入弹窗与页签切换。
   final VoidCallback? onImport;
@@ -73,92 +76,6 @@ class GhostKeyProfileTab extends HookConsumerWidget {
   }
 }
 
-/// 列表卡片：浅底圆角容器，行间细线分隔，与详情页的信息卡片同一套样式。
-class _RowCard extends StatelessWidget {
-  const _RowCard({required this.children});
-
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    final ColorScheme scheme = context.colorScheme;
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(10.r),
-      ),
-      child: Column(
-        children: <Widget>[
-          for (int i = 0; i < children.length; i++) ...<Widget>[
-            if (i > 0)
-              Divider(
-                height: 1.h,
-                indent: 12.w,
-                endIndent: 12.w,
-                color: scheme.outline.withValues(alpha: 0.12),
-              ),
-            children[i],
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-/// 空状态：图标 + 提示，可选导入入口，对齐 GhostLock 已导入列表的空态。
-class _EmptyHint extends StatelessWidget {
-  const _EmptyHint({required this.text, this.onImport});
-
-  final String text;
-  final VoidCallback? onImport;
-
-  @override
-  Widget build(BuildContext context) {
-    final AppLocalizations l10n = context.l10n;
-    final ColorScheme scheme = context.colorScheme;
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: 20.h),
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(10.r),
-      ),
-      child: Column(
-        children: <Widget>[
-          Icon(
-            Icons.inbox_outlined,
-            size: 30.sp,
-            color: scheme.onSurfaceVariant.withValues(alpha: 0.5),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 11.5.sp,
-              color: scheme.onSurfaceVariant,
-            ),
-          ),
-          if (onImport != null) ...<Widget>[
-            SizedBox(height: 10.h),
-            OutlinedButton.icon(
-              onPressed: onImport,
-              icon: Icon(Icons.add_rounded, size: 16.sp),
-              label: Text(
-                l10n.kernelProfileImportEntry,
-                style: TextStyle(fontSize: 12.sp),
-              ),
-              style: OutlinedButton.styleFrom(
-                visualDensity: VisualDensity.compact,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
 /// 我的配置：独立滚动列表。
 class _ImportedTab extends HookConsumerWidget {
   const _ImportedTab({
@@ -180,20 +97,19 @@ class _ImportedTab extends HookConsumerWidget {
 
     return listAsync.when(
       loading: () => SizedBox(height: 60.h, child: const Loading()),
-      error: (Object error, StackTrace stackTrace) => RefError(
-        onRetry: () => ref.invalidate(kernelProfileListProvider),
-      ),
+      error: (Object error, StackTrace stackTrace) =>
+          RefError(onRetry: () => ref.invalidate(kernelProfileListProvider)),
       data: (List<KernelProfile> list) {
         return ListView(
           padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 24.h),
           children: <Widget>[
             if (list.isEmpty)
-              _EmptyHint(
+              KernelProfileEmptyHint(
                 text: l10n.kernelProfileImportedEmpty,
                 onImport: onImport,
               )
             else
-              _RowCard(
+              KernelProfileRowCard(
                 children: <Widget>[
                   for (final KernelProfile profile in list)
                     KernelProfileImportedRow(
@@ -322,12 +238,14 @@ class _BuiltinPickList extends HookWidget {
           child: matches.isEmpty
               ? Padding(
                   padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 0),
-                  child: _EmptyHint(text: l10n.kernelProfileBuiltinEmpty),
+                  child: KernelProfileEmptyHint(
+                    text: l10n.kernelProfileBuiltinEmpty,
+                  ),
                 )
               : ListView(
                   padding: EdgeInsets.fromLTRB(16.w, 6.h, 16.w, 24.h),
                   children: <Widget>[
-                    _RowCard(
+                    KernelProfileRowCard(
                       children: <Widget>[
                         for (final KernelProfile profile in visible)
                           KernelProfileImportedRow(

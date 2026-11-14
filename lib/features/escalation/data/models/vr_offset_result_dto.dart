@@ -20,10 +20,6 @@ abstract class VrOffsetResultDto with _$VrOffsetResultDto {
       _$VrOffsetResultDtoFromJson(json);
 
   /// 转成领域实体。
-  VrOffsetResult toEntity() => VrOffsetResult(
-    ok: ok,
-    member: member,
-    release: release,
-    error: error,
-  );
+  VrOffsetResult toEntity() =>
+      VrOffsetResult(ok: ok, member: member, release: release, error: error);
 }

@@ -3,10 +3,10 @@ import 'package:Aisupass/common/widgets/ref_error.dart';
 import 'package:Aisupass/common/widgets/toast.dart';
 import 'package:Aisupass/core/extensions/context_extensions.dart';
 import 'package:Aisupass/core/utils/run_log_format.dart';
+import 'package:Aisupass/core/utils/run_log_save.dart';
 import 'package:Aisupass/features/escalation/domain/models/run_log_meta.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/run_log_action_provider.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/run_log_query_provider.dart';
-import 'package:Aisupass/features/escalation/presentation/widgets/run_log_save.dart';
 import 'package:Aisupass/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -43,7 +43,14 @@ class RunLogDetail extends HookConsumerWidget {
       final List<String> lines = body.data ?? const <String>[];
       if (!context.mounted) return;
       try {
-        await saveRunLogAs(context, l10n, lines.join('\n'), meta.fileName);
+        final bool saved = await saveRunLogToFile(
+          text: lines.join('\n'),
+          fileName: meta.fileName,
+          dialogTitle: l10n.ghostKeyRunLogSaveAs,
+        );
+        if (saved && context.mounted) {
+          ToastMessage.success(l10n.ghostKeyRunLogSaved);
+        }
       } catch (error) {
         ToastMessage.error(error);
       }
@@ -114,9 +121,8 @@ class RunLogDetail extends HookConsumerWidget {
           Expanded(
             child: _Body(
               body: body,
-              onRetry: () => ref.invalidate(
-                runLogBodyProvider(fileName: meta.fileName),
-              ),
+              onRetry: () =>
+                  ref.invalidate(runLogBodyProvider(fileName: meta.fileName)),
             ),
           ),
           SafeArea(

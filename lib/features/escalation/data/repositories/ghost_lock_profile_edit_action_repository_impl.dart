@@ -1,5 +1,4 @@
 import 'package:Aisupass/features/escalation/data/datasources/ghost_lock_profile_edit_action_datasource.dart';
-import 'package:Aisupass/features/escalation/data/models/ghost_lock_profile_config_dto.dart';
 import 'package:Aisupass/features/escalation/domain/models/ghost_lock_profile_config.dart';
 import 'package:Aisupass/features/escalation/domain/repositories/ghost_lock_profile_edit_action_repository.dart';
 
@@ -12,66 +11,65 @@ class GhostLockProfileEditActionRepositoryImpl
 
   @override
   Future<GhostLockProfileConfig> load({required String release}) async =>
-      GhostLockProfileConfigDto.fromNative(
-        await _datasource.loadProfile(release: release),
-      ).toEntity();
+      (await _datasource.loadProfile(release: release)).toEntity();
 
   @override
   Future<GhostLockProfileConfig> updateGeneral({
     required String release,
     required Map<String, int> values,
-  }) async => GhostLockProfileConfigDto.fromNative(
-    await _datasource.updateGeneralFields(release: release, values: values),
-  ).toEntity();
+  }) async => (await _datasource.updateGeneralFields(
+    release: release,
+    values: values,
+  )).toEntity();
 
   @override
   Future<GhostLockProfileConfig> updateAdvanced({
     required String release,
     required Map<String, int> values,
-  }) async => GhostLockProfileConfigDto.fromNative(
-    await _datasource.updateAdvancedFields(release: release, values: values),
-  ).toEntity();
+  }) async => (await _datasource.updateAdvancedFields(
+    release: release,
+    values: values,
+  )).toEntity();
 
   @override
   Future<GhostLockProfileConfig> updateRoute({
     required String release,
     required String route,
-  }) async => GhostLockProfileConfigDto.fromNative(
-    await _datasource.updateRoute(release: release, route: route),
-  ).toEntity();
+  }) async => (await _datasource.updateRoute(
+    release: release,
+    route: route,
+  )).toEntity();
 
   @override
   Future<GhostLockProfileConfig> updateFallback({
     required String release,
     required String fallbackTo,
-  }) async => GhostLockProfileConfigDto.fromNative(
-    await _datasource.updateFallback(release: release, fallbackTo: fallbackTo),
-  ).toEntity();
+  }) async => (await _datasource.updateFallback(
+    release: release,
+    fallbackTo: fallbackTo,
+  )).toEntity();
 
   @override
   Future<GhostLockProfileConfig> reset({required String release}) async =>
-      GhostLockProfileConfigDto.fromNative(
-        await _datasource.resetProfile(release: release),
-      ).toEntity();
+      (await _datasource.resetProfile(release: release)).toEntity();
 
   @override
   Future<GhostLockProfileConfig> selectBuiltin({
     required String release,
     required String profileRelease,
-  }) async => GhostLockProfileConfigDto.fromNative(
-    await _datasource.selectBuiltin(
-      release: release,
-      profileRelease: profileRelease,
-    ),
-  ).toEntity();
+  }) async => (await _datasource.selectBuiltin(
+    release: release,
+    profileRelease: profileRelease,
+  )).toEntity();
 
   @override
   Future<GhostLockProfileConfig> selectUserProfile({
     required String release,
     required String name,
-  }) async => GhostLockProfileConfigDto.fromNative(
-    await _datasource.selectUserProfile(release: release, name: name),
-  ).toEntity();
+  }) async => (await _datasource.selectUserProfile(
+    release: release,
+    name: name,
+  )).toEntity();
 
   @override
   Future<bool> export({required String release, required String path}) =>
@@ -86,16 +84,16 @@ class GhostLockProfileEditActionRepositoryImpl
       _datasource.saveModifiedProfile(release: release);
 
   @override
-  Future<GhostLockProfileConfig> resetGeneral({required String release}) async =>
-      GhostLockProfileConfigDto.fromNative(
-        await _datasource.resetGeneralFields(release: release),
-      ).toEntity();
+  Future<GhostLockProfileConfig> resetGeneral({
+    required String release,
+  }) async =>
+      (await _datasource.resetGeneralFields(release: release)).toEntity();
 
   @override
-  Future<GhostLockProfileConfig> resetAdvanced({required String release}) async =>
-      GhostLockProfileConfigDto.fromNative(
-        await _datasource.resetAdvancedFields(release: release),
-      ).toEntity();
+  Future<GhostLockProfileConfig> resetAdvanced({
+    required String release,
+  }) async =>
+      (await _datasource.resetAdvancedFields(release: release)).toEntity();
 
   @override
   Future<bool> overwriteProfile({
@@ -107,18 +105,14 @@ class GhostLockProfileEditActionRepositoryImpl
   Future<GhostLockProfileConfig> beginEditSession({
     required String name,
     required String deviceRelease,
-  }) async => GhostLockProfileConfigDto.fromNative(
-    await _datasource.beginEditSession(
-      name: name,
-      deviceRelease: deviceRelease,
-    ),
-  ).toEntity();
+  }) async => (await _datasource.beginEditSession(
+    name: name,
+    deviceRelease: deviceRelease,
+  )).toEntity();
 
   @override
   Future<GhostLockProfileConfig> reloadEditSession() async =>
-      GhostLockProfileConfigDto.fromNative(
-        await _datasource.reloadEditSession(),
-      ).toEntity();
+      (await _datasource.reloadEditSession()).toEntity();
 
   @override
   Future<bool> editSessionIsLive() => _datasource.editSessionIsLive();

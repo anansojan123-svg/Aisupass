@@ -1,6 +1,7 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import 'package:Aisupass/features/escalation/domain/models/ghost_lock_user_profile.dart';
 import 'package:Aisupass/generated/ghost_lock.g.dart' as pigeon;
-import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'ghost_lock_user_profile_dto.freezed.dart';
 part 'ghost_lock_user_profile_dto.g.dart';
@@ -23,15 +24,16 @@ abstract class GhostLockUserProfileDto with _$GhostLockUserProfileDto {
   factory GhostLockUserProfileDto.fromJson(Map<String, dynamic> json) =>
       _$GhostLockUserProfileDtoFromJson(json);
 
-  /// 原生快照 → DTO。
-  factory GhostLockUserProfileDto.fromNative(pigeon.GhostLockUserProfile profile) =>
-      GhostLockUserProfileDto(
-        name: profile.name,
-        release: profile.release,
-        sizeBytes: profile.sizeBytes,
-        importedAtMs: profile.importedAtMs,
-        parseError: profile.parseError,
-      );
+  /// 原生 `GhostLockUserProfile` -> 本 DTO：纯字段搬运。
+  factory GhostLockUserProfileDto.fromNative(
+    pigeon.GhostLockUserProfile profile,
+  ) => GhostLockUserProfileDto(
+    name: profile.name,
+    release: profile.release,
+    sizeBytes: profile.sizeBytes,
+    importedAtMs: profile.importedAtMs,
+    parseError: profile.parseError,
+  );
 
   /// 转成领域实体。
   GhostLockUserProfile toEntity() => GhostLockUserProfile(

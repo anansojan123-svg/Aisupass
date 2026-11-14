@@ -1,18 +1,13 @@
 import 'dart:convert';
 
 import 'package:Aisupass/core/themes/app_fonts.dart';
+import 'package:Aisupass/features/escalation/domain/enums/terminal_modifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:xterm3/xterm.dart';
 
 /// 菜单按钮用的三点图标（纵向排列）。
 const String kMoreVertIconAsset = 'assets/images/icons/more_vert.svg';
-
-/// 可粘滞的修饰键。
-///
-/// 与原生终端一致：点一下先把修饰键「扣住」，下一次按键才生效，生效后自动
-/// 弹起；再点一下取消。这样 Ctrl+C 只需要两下，不必按住不放。
-enum TerminalModifier { ctrl, alt }
 
 /// 按键栏上的一个功能键。
 @immutable

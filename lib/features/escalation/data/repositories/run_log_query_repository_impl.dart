@@ -13,9 +13,7 @@ class RunLogQueryRepositoryImpl implements RunLogQueryRepository {
 
   @override
   Future<List<RunLogMeta>> listRuns() async {
-    final List<RunLogMetaDto> dtos = (await _datasource.listRuns())
-        .map(RunLogMetaDto.fromNative)
-        .toList(growable: false);
+    final List<RunLogMetaDto> dtos = await _datasource.listRuns();
     return dtos
         .map((RunLogMetaDto dto) => dto.toEntity())
         .toList(growable: false);
@@ -33,8 +31,8 @@ class RunLogQueryRepositoryImpl implements RunLogQueryRepository {
     required List<String> lines,
     required int exitCode,
   }) async {
-    final RunLogDiagnosisDto dto = RunLogDiagnosisDto.fromNative(
-      await _datasource.diagnose(lines: lines, exitCode: exitCode),
+    final RunLogDiagnosisDto dto = await _datasource.diagnose(
+      lines: lines,
       exitCode: exitCode,
     );
     return dto.toEntity();

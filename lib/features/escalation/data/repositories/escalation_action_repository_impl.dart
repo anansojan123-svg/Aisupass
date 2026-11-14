@@ -1,4 +1,5 @@
 import 'package:Aisupass/features/escalation/data/datasources/escalation_action_datasource.dart';
+import 'package:Aisupass/features/escalation/data/models/handoff_outcome_dto.dart';
 import 'package:Aisupass/features/escalation/domain/models/handoff_outcome.dart';
 import 'package:Aisupass/features/escalation/domain/models/payload.dart';
 import 'package:Aisupass/features/escalation/domain/models/root_manager.dart';
@@ -11,15 +12,18 @@ class EscalationActionRepositoryImpl implements EscalationActionRepository {
   final EscalationActionDatasource _datasource;
 
   @override
-  Future<String> runPayload(Payload payload) =>
-      _datasource.runPayload(payload);
+  Future<String> runPayload(Payload payload) => _datasource.runPayload(payload);
 
   @override
   void observeOutput(String text) => _datasource.observeOutput(text);
 
   @override
-  Future<HandoffOutcome> handoffRoot({required RootManager manager}) =>
-      _datasource.handoffRoot(manager: manager);
+  Future<HandoffOutcome> handoffRoot({required RootManager manager}) async {
+    final HandoffOutcomeDto dto = await _datasource.handoffRoot(
+      manager: manager,
+    );
+    return dto.toEntity();
+  }
 
   @override
   Future<void> selectRootManager({required RootManager manager}) =>

@@ -6,7 +6,8 @@ import 'package:Aisupass/core/utils/handoff_script.dart';
 import 'package:Aisupass/core/utils/payload_shell.dart';
 import 'package:Aisupass/core/utils/slide_offset_cache.dart';
 import 'package:Aisupass/core/utils/su_shell.dart';
-import 'package:Aisupass/features/escalation/domain/models/handoff_outcome.dart';
+import 'package:Aisupass/features/escalation/data/models/handoff_outcome_dto.dart';
+import 'package:Aisupass/features/escalation/domain/enums/handoff_kind.dart';
 import 'package:Aisupass/features/escalation/domain/models/payload.dart';
 import 'package:Aisupass/features/escalation/domain/models/root_manager.dart';
 import 'package:Aisupass/generated/adb_shell.g.dart' as pigeon;
@@ -64,9 +65,7 @@ class EscalationActionDatasource {
         kernelVersion,
       );
       if (arguments == null) {
-        return _echo(
-          '${payload.library} 的参数无法在设备上补齐：${payload.command}',
-        );
+        return _echo('${payload.library} 的参数无法在设备上补齐：${payload.command}');
       }
       return PayloadShell.buildStandaloneLaunchCommand(
         payloadPath: payloadPath,
@@ -102,21 +101,18 @@ class EscalationActionDatasource {
   static String _echo(String message) => 'echo ${PayloadShell.quote(message)}';
 
   /// 记住用户选定的 root 管理器包名。
-  Future<void> writeSelectedRootManagerPackage(String packageName) =>
-      _storage.write<String>(
-        StorageKeys.escalationSelectedRootManager,
-        packageName,
-      );
+  Future<void> writeSelectedRootManagerPackage(String packageName) => _storage
+      .write<String>(StorageKeys.escalationSelectedRootManager, packageName);
 
   /// 把临时 root 交给设备上的 KernelSU 系管理器。
   ///
   /// 一条命令：「定位 `libksud.so` + `late-load`」合成执行。这里不做 root
   /// 预检：载荷刚移交完时 `su` 未必就绪，预检会把已成功的接管误判成没有
   /// root。没 root 时这条命令自己会失败，退出码与输出就是真实原因。
-  Future<HandoffOutcome> handoffRoot({required RootManager manager}) async {
+  Future<HandoffOutcomeDto> handoffRoot({required RootManager manager}) async {
     final String managerPackage = manager.packageName;
     if (!HandoffScript.packagePattern.hasMatch(managerPackage)) {
-      return HandoffOutcome(
+      return _outcome(
         kind: HandoffKind.failed,
         manager: manager,
         output: '管理器包名非法：$managerPackage',
@@ -135,7 +131,7 @@ class EscalationActionDatasource {
 
     // 脚本自己退出并打标记，这是「管理器没装」的机器可读信号。
     if (HandoffScript.indicatesManagerMissing(output, handoff.exitCode)) {
-      return HandoffOutcome(
+      return _outcome(
         kind: HandoffKind.managerMissing,
         manager: manager,
         exitCode: handoff.exitCode,
@@ -147,7 +143,7 @@ class EscalationActionDatasource {
 
     // 候选路径全 miss 后退回裸 `su`，设备上也没有 —— 提权这一步还没完成。
     if (HandoffScript.indicatesNoSu(output, handoff.exitCode)) {
-      return HandoffOutcome(
+      return _outcome(
         kind: HandoffKind.noSu,
         manager: manager,
         exitCode: handoff.exitCode,
@@ -161,7 +157,7 @@ class EscalationActionDatasource {
     // 路径来自设备输出，含引号 / 反引号 / `$` 时原样回显可被复制去拼命令。
     if (ksudPath.isNotEmpty &&
         HandoffScript.unsafePathChars.hasMatch(ksudPath)) {
-      return HandoffOutcome(
+      return _outcome(
         kind: HandoffKind.failed,
         manager: manager,
         exitCode: handoff.exitCode,
@@ -175,7 +171,7 @@ class EscalationActionDatasource {
     final bool handedOff =
         handoff.exitCode == 0 && !HandoffScript.mentionsFailure(output);
 
-    return HandoffOutcome(
+    return _outcome(
       kind: handedOff ? HandoffKind.success : HandoffKind.failed,
       manager: manager,
       ksudPath: ksudPath,
@@ -185,4 +181,25 @@ class EscalationActionDatasource {
       timedOut: handoff.timedOut,
     );
   }
+
+  /// 按管理器与命令结果组装一份移交 DTO。
+  static HandoffOutcomeDto _outcome({
+    required HandoffKind kind,
+    required RootManager manager,
+    String ksudPath = '',
+    int exitCode = -1,
+    String output = '',
+    int durationMs = 0,
+    bool timedOut = false,
+  }) => HandoffOutcomeDto(
+    kind: kind,
+    managerPackage: manager.packageName,
+    managerDisplayName: manager.displayName,
+    managerIcon: manager.icon,
+    ksudPath: ksudPath,
+    exitCode: exitCode,
+    output: output,
+    durationMs: durationMs,
+    timedOut: timedOut,
+  );
 }

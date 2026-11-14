@@ -31,4 +31,3 @@ abstract class EscalationActionRepository {
   /// 记住用户选定的 root 管理器，供下次启动与本页移交复用。
   Future<void> selectRootManager({required RootManager manager});
 }
-

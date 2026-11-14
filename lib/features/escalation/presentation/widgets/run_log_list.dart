@@ -2,12 +2,12 @@ import 'package:Aisupass/common/widgets/loading.dart';
 import 'package:Aisupass/common/widgets/ref_error.dart';
 import 'package:Aisupass/common/widgets/toast.dart';
 import 'package:Aisupass/core/extensions/context_extensions.dart';
+import 'package:Aisupass/core/utils/run_log_save.dart';
 import 'package:Aisupass/features/escalation/domain/models/run_log_meta.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/run_log_action_provider.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/run_log_query_provider.dart';
 import 'package:Aisupass/features/escalation/presentation/widgets/run_log_clear_dialog.dart';
 import 'package:Aisupass/features/escalation/presentation/widgets/run_log_row.dart';
-import 'package:Aisupass/features/escalation/presentation/widgets/run_log_save.dart';
 import 'package:Aisupass/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -34,12 +34,14 @@ class RunLogList extends HookConsumerWidget {
       }
       if (!context.mounted) return;
       try {
-        await saveRunLogAs(
-          context,
-          l10n,
-          text,
-          l10n.ghostKeyRunLogExportAllFileName,
+        final bool saved = await saveRunLogToFile(
+          text: text,
+          fileName: l10n.ghostKeyRunLogExportAllFileName,
+          dialogTitle: l10n.ghostKeyRunLogSaveAs,
         );
+        if (saved && context.mounted) {
+          ToastMessage.success(l10n.ghostKeyRunLogSaved);
+        }
       } catch (error) {
         ToastMessage.error(error);
       }
@@ -70,9 +72,8 @@ class RunLogList extends HookConsumerWidget {
       ),
       body: async.when(
         loading: () => const Loading(),
-        error: (Object error, StackTrace stackTrace) => RefError(
-          onRetry: () => ref.invalidate(runLogsProvider),
-        ),
+        error: (Object error, StackTrace stackTrace) =>
+            RefError(onRetry: () => ref.invalidate(runLogsProvider)),
         data: (List<RunLogMeta> list) {
           if (list.isEmpty) {
             return Center(

@@ -1,14 +1,10 @@
 import 'package:Aisupass/features/escalation/data/datasources/ghost_lock_profile_action_datasource.dart';
-import 'package:Aisupass/features/escalation/data/models/ghost_lock_import_result_dto.dart';
-import 'package:Aisupass/features/escalation/data/models/ghost_lock_probe_dto.dart';
-import 'package:Aisupass/features/escalation/data/models/ghost_lock_probe_progress_dto.dart';
 import 'package:Aisupass/features/escalation/data/models/ghost_lock_user_profile_dto.dart';
 import 'package:Aisupass/features/escalation/domain/models/ghost_lock_import_result.dart';
 import 'package:Aisupass/features/escalation/domain/models/ghost_lock_probe.dart';
 import 'package:Aisupass/features/escalation/domain/models/ghost_lock_probe_progress.dart';
 import 'package:Aisupass/features/escalation/domain/models/ghost_lock_user_profile.dart';
 import 'package:Aisupass/features/escalation/domain/repositories/ghost_lock_profile_action_repository.dart';
-import 'package:Aisupass/generated/ghost_lock.g.dart' as pigeon;
 
 /// GhostLock profile 仓储实现：DTO -> Entity 的唯一转换点。
 class GhostLockProfileActionRepositoryImpl
@@ -30,55 +26,47 @@ class GhostLockProfileActionRepositoryImpl
     String route = '',
     bool allowMissing = false,
     bool noDisasm = false,
-  }) async => GhostLockProbeDto.fromNative(
-    await _datasource.probeProfile(
-      input: input,
-      insecure: insecure,
-      xblPath: xblPath,
-      uefiPath: uefiPath,
-      vendorBootPath: vendorBootPath,
-      phys: phys,
-      kallsymsPath: kallsymsPath,
-      iomemPath: iomemPath,
-      route: route,
-      allowMissing: allowMissing,
-      noDisasm: noDisasm,
-    ),
-  ).toEntity();
+  }) async => (await _datasource.probeProfile(
+    input: input,
+    insecure: insecure,
+    xblPath: xblPath,
+    uefiPath: uefiPath,
+    vendorBootPath: vendorBootPath,
+    phys: phys,
+    kallsymsPath: kallsymsPath,
+    iomemPath: iomemPath,
+    route: route,
+    allowMissing: allowMissing,
+    noDisasm: noDisasm,
+  )).toEntity();
 
   @override
   Future<GhostLockProbeProgress> profileProgress() async =>
-      GhostLockProbeProgressDto.fromNative(
-        await _datasource.profileProgress(),
-      ).toEntity();
+      (await _datasource.profileProgress()).toEntity();
 
   @override
   Future<GhostLockImportResult> saveProfile({
     required String release,
     required String conf,
     bool overwrite = false,
-  }) async => GhostLockImportResultDto.fromNative(
-    await _datasource.saveProfile(
-      release: release,
-      conf: conf,
-      overwrite: overwrite,
-    ),
-  ).toEntity();
+  }) async => (await _datasource.saveProfile(
+    release: release,
+    conf: conf,
+    overwrite: overwrite,
+  )).toEntity();
 
   @override
   Future<List<GhostLockUserProfile>> listImportedProfiles() async {
-    final List<pigeon.GhostLockUserProfile> rows =
-        await _datasource.listImportedProfiles();
+    final List<GhostLockUserProfileDto> rows = await _datasource
+        .listImportedProfiles();
     // 显式排序：不依赖原生返回顺序。
-    return rows
-        .map(GhostLockUserProfileDto.fromNative)
-        .map((dto) => dto.toEntity())
-        .toList()
+    return rows.map((dto) => dto.toEntity()).toList()
       ..sort((a, b) => b.importedAtMs.compareTo(a.importedAtMs));
   }
 
   @override
-  Future<List<String>> listBuiltinReleases() => _datasource.listBuiltinReleases();
+  Future<List<String>> listBuiltinReleases() =>
+      _datasource.listBuiltinReleases();
 
   @override
   Future<String> readImportedProfile({required String name}) =>
@@ -93,13 +81,11 @@ class GhostLockProfileActionRepositoryImpl
     required String text,
     required String fileName,
     bool overwrite = false,
-  }) async => GhostLockImportResultDto.fromNative(
-    await _datasource.importProfileText(
-      text: text,
-      fileName: fileName,
-      overwrite: overwrite,
-    ),
-  ).toEntity();
+  }) async => (await _datasource.importProfileText(
+    text: text,
+    fileName: fileName,
+    overwrite: overwrite,
+  )).toEntity();
 
   @override
   Future<String> renameImportedProfile({
@@ -114,7 +100,5 @@ class GhostLockProfileActionRepositoryImpl
   @override
   Future<GhostLockImportResult> convertImportedProfile({
     required String name,
-  }) async => GhostLockImportResultDto.fromNative(
-    await _datasource.convertImportedProfile(name: name),
-  ).toEntity();
+  }) async => (await _datasource.convertImportedProfile(name: name)).toEntity();
 }

@@ -1,6 +1,7 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import 'package:Aisupass/features/escalation/domain/models/ghost_lock_execution_field.dart';
 import 'package:Aisupass/generated/ghost_lock.g.dart' as pigeon;
-import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'ghost_lock_execution_field_dto.freezed.dart';
 part 'ghost_lock_execution_field_dto.g.dart';
@@ -19,7 +20,7 @@ abstract class GhostLockExecutionFieldDto with _$GhostLockExecutionFieldDto {
   factory GhostLockExecutionFieldDto.fromJson(Map<String, dynamic> json) =>
       _$GhostLockExecutionFieldDtoFromJson(json);
 
-  /// 原生快照 → DTO。
+  /// 原生 `GhostLockExecutionField` -> 本 DTO：纯字段搬运。
   factory GhostLockExecutionFieldDto.fromNative(
     pigeon.GhostLockExecutionField field,
   ) => GhostLockExecutionFieldDto(
@@ -29,9 +30,6 @@ abstract class GhostLockExecutionFieldDto with _$GhostLockExecutionFieldDto {
   );
 
   /// 转成领域实体。
-  GhostLockExecutionField toEntity() => GhostLockExecutionField(
-    path: path,
-    value: value,
-    overridden: overridden,
-  );
+  GhostLockExecutionField toEntity() =>
+      GhostLockExecutionField(path: path, value: value, overridden: overridden);
 }

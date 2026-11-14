@@ -1,58 +1,73 @@
+import 'package:Aisupass/features/escalation/data/models/ghost_lock_profile_config_dto.dart';
 import 'package:Aisupass/generated/ghost_lock.g.dart' as pigeon;
 
 /// GhostLock profile 编辑数据源。
 ///
-/// 只做原生转发，三层合并与校验都在 Kotlin 侧。
+/// 只做原生转发与 DTO 收敛，三层合并与校验都在 Kotlin 侧。
 class GhostLockProfileEditActionDatasource {
   GhostLockProfileEditActionDatasource({required this._native});
 
   final pigeon.GhostLockProfileEditNative _native;
 
   /// 解析 builtin + imported + override 三层。
-  Future<pigeon.GhostLockProfileConfig> loadProfile({
+  Future<GhostLockProfileConfigDto> loadProfile({
     required String release,
-  }) => _native.loadProfile(release);
+  }) async =>
+      GhostLockProfileConfigDto.fromNative(await _native.loadProfile(release));
 
   /// 写通用参数。
-  Future<pigeon.GhostLockProfileConfig> updateGeneralFields({
+  Future<GhostLockProfileConfigDto> updateGeneralFields({
     required String release,
     required Map<String, int> values,
-  }) => _native.updateGeneralFields(release, values);
+  }) async => GhostLockProfileConfigDto.fromNative(
+    await _native.updateGeneralFields(release, values),
+  );
 
   /// 写高级字段。
-  Future<pigeon.GhostLockProfileConfig> updateAdvancedFields({
+  Future<GhostLockProfileConfigDto> updateAdvancedFields({
     required String release,
     required Map<String, int> values,
-  }) => _native.updateAdvancedFields(release, values);
+  }) async => GhostLockProfileConfigDto.fromNative(
+    await _native.updateAdvancedFields(release, values),
+  );
 
   /// 设置 route；空串恢复为 profile 声明。
-  Future<pigeon.GhostLockProfileConfig> updateRoute({
+  Future<GhostLockProfileConfigDto> updateRoute({
     required String release,
     required String route,
-  }) => _native.updateRoute(release, route);
+  }) async => GhostLockProfileConfigDto.fromNative(
+    await _native.updateRoute(release, route),
+  );
 
   /// 设置 fallback。
-  Future<pigeon.GhostLockProfileConfig> updateFallback({
+  Future<GhostLockProfileConfigDto> updateFallback({
     required String release,
     required String fallbackTo,
-  }) => _native.updateFallback(release, fallbackTo);
+  }) async => GhostLockProfileConfigDto.fromNative(
+    await _native.updateFallback(release, fallbackTo),
+  );
 
   /// 清掉该 release 的全部 override。
-  Future<pigeon.GhostLockProfileConfig> resetProfile({
+  Future<GhostLockProfileConfigDto> resetProfile({
     required String release,
-  }) => _native.resetProfile(release);
+  }) async =>
+      GhostLockProfileConfigDto.fromNative(await _native.resetProfile(release));
 
   /// 指定生效的内置表；空串回到设备自身 release。
-  Future<pigeon.GhostLockProfileConfig> selectBuiltin({
+  Future<GhostLockProfileConfigDto> selectBuiltin({
     required String release,
     required String profileRelease,
-  }) => _native.selectBuiltin(release, profileRelease);
+  }) async => GhostLockProfileConfigDto.fromNative(
+    await _native.selectBuiltin(release, profileRelease),
+  );
 
   /// 指定生效的用户文档；空串不使用导入层。
-  Future<pigeon.GhostLockProfileConfig> selectUserProfile({
+  Future<GhostLockProfileConfigDto> selectUserProfile({
     required String release,
     required String name,
-  }) => _native.selectUserProfile(release, name);
+  }) async => GhostLockProfileConfigDto.fromNative(
+    await _native.selectUserProfile(release, name),
+  );
 
   /// 导出当前生效配置到本地文件。
   Future<bool> exportProfile({required String release, required String path}) =>
@@ -67,14 +82,18 @@ class GhostLockProfileEditActionDatasource {
       _native.saveModifiedProfile(release);
 
   /// 只重置通用参数的 override。
-  Future<pigeon.GhostLockProfileConfig> resetGeneralFields({
+  Future<GhostLockProfileConfigDto> resetGeneralFields({
     required String release,
-  }) => _native.resetGeneralFields(release);
+  }) async => GhostLockProfileConfigDto.fromNative(
+    await _native.resetGeneralFields(release),
+  );
 
   /// 只重置路由与高级字段的 override。
-  Future<pigeon.GhostLockProfileConfig> resetAdvancedFields({
+  Future<GhostLockProfileConfigDto> resetAdvancedFields({
     required String release,
-  }) => _native.resetAdvancedFields(release);
+  }) async => GhostLockProfileConfigDto.fromNative(
+    await _native.resetAdvancedFields(release),
+  );
 
   /// 把当前生效配置写回用户文档 [name]。
   Future<bool> overwriteProfile({
@@ -83,14 +102,16 @@ class GhostLockProfileEditActionDatasource {
   }) => _native.overwriteProfile(release, name);
 
   /// 打开编辑会话；[name] 为空串表示内置/设备态。
-  Future<pigeon.GhostLockProfileConfig> beginEditSession({
+  Future<GhostLockProfileConfigDto> beginEditSession({
     required String name,
     required String deviceRelease,
-  }) => _native.beginEditSession(name, deviceRelease);
+  }) async => GhostLockProfileConfigDto.fromNative(
+    await _native.beginEditSession(name, deviceRelease),
+  );
 
   /// 丢弃未保存改动并重新解析。
-  Future<pigeon.GhostLockProfileConfig> reloadEditSession() =>
-      _native.reloadEditSession();
+  Future<GhostLockProfileConfigDto> reloadEditSession() async =>
+      GhostLockProfileConfigDto.fromNative(await _native.reloadEditSession());
 
   /// 会话是否编辑当前生效配置。
   Future<bool> editSessionIsLive() => _native.editSessionIsLive();

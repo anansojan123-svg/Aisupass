@@ -55,8 +55,7 @@ class GhostKeySettingSection extends HookConsumerWidget {
           title: context.l10n.settingsGhostKeyRunKsuTitle,
           subtitle: context.l10n.settingsGhostKeyRunKsuDesc,
           value: shown.runKsu,
-          onChanged: (bool value) =>
-              save(shown.copyWith(runKsu: value)),
+          onChanged: (bool value) => save(shown.copyWith(runKsu: value)),
         ),
         const _RowDivider(),
         DirtyFragSettingRow(

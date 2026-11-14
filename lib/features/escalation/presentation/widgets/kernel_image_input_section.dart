@@ -1,6 +1,7 @@
 import 'package:Aisupass/common/widgets/toast.dart';
 import 'package:Aisupass/core/extensions/context_extensions.dart';
 import 'package:Aisupass/core/utils/kernel_image_picker.dart';
+import 'package:Aisupass/features/escalation/domain/enums/kernel_image_source.dart';
 import 'package:Aisupass/features/escalation/presentation/widgets/ota_catalog_sheet.dart';
 import 'package:Aisupass/l10n/app_localizations.dart';
 import 'package:file_picker/file_picker.dart';
@@ -47,9 +48,6 @@ class KernelImageInput {
     insecure: insecure ?? this.insecure,
   );
 }
-
-/// 输入来源：本地文件与直链二选一。
-enum KernelImageSource { local, url }
 
 /// 已选文件的路径条，可清除。
 class KernelProfileInputChip extends HookWidget {
@@ -139,12 +137,11 @@ class KernelImageInputSection extends HookWidget {
     );
 
     /* 已有本地文件时固定落在本地段；否则沿用用户上次选择。 */
-    final ValueNotifier<KernelImageSource> source =
-        useState<KernelImageSource>(
-          input.path != null || input.url.trim().isEmpty
-              ? KernelImageSource.local
-              : KernelImageSource.url,
-        );
+    final ValueNotifier<KernelImageSource> source = useState<KernelImageSource>(
+      input.path != null || input.url.trim().isEmpty
+          ? KernelImageSource.local
+          : KernelImageSource.url,
+    );
 
     /* 外部粘贴或从目录选链接后，输入框要跟着变。 */
     useEffect(() {
@@ -198,9 +195,7 @@ class KernelImageInputSection extends HookWidget {
         ToastMessage.error(l10n.kernelProfileImportEmptyFile);
         return;
       }
-      onChanged(
-        KernelImageInput(path: path, insecure: input.insecure),
-      );
+      onChanged(KernelImageInput(path: path, insecure: input.insecure));
     }
 
     /* 本地与直链两组控件互斥，避免一屏堆满无关输入。 */
@@ -333,10 +328,7 @@ class KernelImageInputSection extends HookWidget {
           ),
         ],
         SizedBox(height: 10.h),
-        Divider(
-          height: 1,
-          color: scheme.outlineVariant.withValues(alpha: 0.5),
-        ),
+        Divider(height: 1, color: scheme.outlineVariant.withValues(alpha: 0.5)),
         SizedBox(height: 4.h),
         /* 跳过解析、直接写入现成 profile 的独立路径。 */
         Align(

@@ -102,7 +102,8 @@ class KernelProfileProbeCard extends HookWidget {
               ),
             ],
             /* 从包内实际解出的分区。 */
-            if (_payloadLine(probe.warnings) case final String extracted) ...<Widget>[
+            if (_payloadLine(probe.warnings)
+                case final String extracted) ...<Widget>[
               SelectableText(
                 '${l10n.kernelProfileProbePayloadParts}: $extracted',
                 style: TextStyle(

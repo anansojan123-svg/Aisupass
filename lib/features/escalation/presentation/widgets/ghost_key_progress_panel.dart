@@ -52,10 +52,7 @@ class GhostKeyProgressPanel extends HookWidget {
                   style: _mono(11, theme.brightBlack),
                 ),
               ),
-              Text(
-                '$percent%',
-                style: _mono(11, theme.foreground),
-              ),
+              Text('$percent%', style: _mono(11, theme.foreground)),
             ],
           ),
           SizedBox(height: 5.h),

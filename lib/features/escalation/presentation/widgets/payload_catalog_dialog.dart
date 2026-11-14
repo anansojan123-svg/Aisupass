@@ -247,9 +247,8 @@ class _SearchField extends StatelessWidget {
                       controller.clear();
                       onChanged('');
                     },
-                    tooltip: MaterialLocalizations.of(
-                      context,
-                    ).deleteButtonTooltip,
+                    tooltip: MaterialLocalizations.of(context)
+                        .deleteButtonTooltip,
                     icon: Icon(
                       Icons.clear_rounded,
                       size: 16.sp,

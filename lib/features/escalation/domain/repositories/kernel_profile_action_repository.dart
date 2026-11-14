@@ -6,7 +6,9 @@ abstract class KernelProfileActionRepository {
   Stream<KernelProfileImportState> importBootImage({required String path});
 
   /// 从 OTA 链接取 boot 分区并落盘，按进度块吐出。
-  Stream<KernelProfileImportState> importBootImageFromUrl({required String url});
+  Stream<KernelProfileImportState> importBootImageFromUrl({
+    required String url,
+  });
 
   /// 删除一份用户 profile；文件不存在返回 false。
   Future<bool> removeImportedProfile({required String release});

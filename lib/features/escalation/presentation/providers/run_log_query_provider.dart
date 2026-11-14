@@ -1,16 +1,16 @@
+import 'package:Aisupass/core/providers/escalation_native_provider.dart';
 import 'package:Aisupass/features/escalation/data/datasources/run_log_query_datasource.dart';
 import 'package:Aisupass/features/escalation/data/repositories/run_log_query_repository_impl.dart';
 import 'package:Aisupass/features/escalation/domain/models/run_log_diagnosis.dart';
 import 'package:Aisupass/features/escalation/domain/models/run_log_meta.dart';
 import 'package:Aisupass/features/escalation/domain/repositories/run_log_query_repository.dart';
-import 'package:Aisupass/generated/cve98260.g.dart' as pigeon;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'run_log_query_provider.g.dart';
 
 @riverpod
 RunLogQueryDatasource runLogQueryDatasource(Ref ref) =>
-    RunLogQueryDatasource(native: pigeon.Cve98260RunLogNative());
+    RunLogQueryDatasource(native: ref.watch(cve98260RunLogNativeProvider));
 
 @riverpod
 RunLogQueryRepository runLogQueryRepository(Ref ref) =>
@@ -46,10 +46,9 @@ Future<RunLogDiagnosis> diagnoseRunLog(
   Ref ref, {
   required List<String> lines,
   required int exitCode,
-}) => ref.watch(runLogQueryRepositoryProvider).diagnose(
-  lines: lines,
-  exitCode: exitCode,
-);
+}) => ref
+    .watch(runLogQueryRepositoryProvider)
+    .diagnose(lines: lines, exitCode: exitCode);
 
 RunLogMeta? _findByFile(List<RunLogMeta> metas, String fileName) {
   for (final RunLogMeta meta in metas) {

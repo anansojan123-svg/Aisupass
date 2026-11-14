@@ -56,9 +56,8 @@ class EscalationMenuButton extends HookWidget {
 
     Future<void> openMenu() async {
       final RenderObject? anchor = anchorKey.currentContext?.findRenderObject();
-      final RenderObject? overlay = Overlay.maybeOf(
-        context,
-      )?.context.findRenderObject();
+      final RenderObject? overlay = Overlay.maybeOf(context)?.context
+          .findRenderObject();
       if (anchor is! RenderBox || overlay is! RenderBox) return;
 
       final Rect anchorRect = Rect.fromPoints(
@@ -81,13 +80,12 @@ class EscalationMenuButton extends HookWidget {
                   anchorTop: anchorRect.top,
                   entries: _menuEntries(l10n),
                 ),
-        transitionBuilder:
-            (
-              BuildContext context,
-              Animation<double> animation,
-              Animation<double> secondaryAnimation,
-              Widget child,
-            ) => FadeTransition(opacity: animation, child: child),
+        transitionBuilder: (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+          Widget child,
+        ) => FadeTransition(opacity: animation, child: child),
       );
       // 菜单要等用户选完才回来，期间页面可能已经被销毁。
       if (action == null || !context.mounted) return;

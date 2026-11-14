@@ -12,7 +12,6 @@ import 'package:Aisupass/features/escalation/domain/models/ghost_key_preflight.d
 import 'package:Aisupass/features/escalation/domain/models/ghost_key_run_defaults.dart';
 import 'package:Aisupass/features/escalation/domain/models/root_manager.dart';
 import 'package:Aisupass/features/escalation/domain/repositories/ghost_key_action_repository.dart';
-import 'package:Aisupass/generated/cve98260.g.dart' as pigeon;
 
 /// GhostKey 运行仓储实现。
 ///
@@ -36,8 +35,8 @@ class GhostKeyActionRepositoryImpl implements GhostKeyActionRepository {
 
   @override
   Future<GhostKeyPreflight> preflight() async {
-    final pigeon.Cve98260Preflight native = await _datasource.preflight();
-    return GhostKeyPreflightDto.fromNative(native).toEntity();
+    final GhostKeyPreflightDto dto = await _datasource.preflight();
+    return dto.toEntity();
   }
 
   @override
@@ -50,9 +49,7 @@ class GhostKeyActionRepositoryImpl implements GhostKeyActionRepository {
   }
 
   @override
-  Future<void> saveRunDefaults({
-    required GhostKeyRunDefaults defaults,
-  }) async {
+  Future<void> saveRunDefaults({required GhostKeyRunDefaults defaults}) async {
     await _datasource.writeRunKsu(value: defaults.runKsu);
     await _datasource.writeAcceptFallback(
       value: defaults.acceptFallbackPageOffset,
@@ -69,12 +66,10 @@ class GhostKeyActionRepositoryImpl implements GhostKeyActionRepository {
       return;
     }
 
-    final pigeon.Cve98260StartResult accepted = await _datasource.start(
-      request: pigeon.Cve98260Request(
-        managerPackage: managerPackage,
-        runKsu: runKsu,
-        acceptFallbackPageOffset: defaults.acceptFallbackPageOffset,
-      ),
+    final GhostKeyStartOutcome accepted = await _datasource.start(
+      managerPackage: managerPackage,
+      runKsu: runKsu,
+      acceptFallbackPageOffset: defaults.acceptFallbackPageOffset,
     );
     if (!accepted.accepted) {
       // 被拒也要走一次 DTO -> Entity：Entity 只能由 DTO 转出来，不在别处 new。
@@ -87,19 +82,19 @@ class GhostKeyActionRepositoryImpl implements GhostKeyActionRepository {
     final StringBuffer accumulated = StringBuffer();
     try {
       while (true) {
-        final pigeon.Cve98260Chunk chunk = await _datasource.poll(
+        final GhostKeyPollSnapshot polled = await _datasource.poll(
           sessionId: _sessionId,
         );
-        final int now = chunk.durationMs;
-        for (final pigeon.Cve98260StageEvent event in chunk.events) {
+        GhostKeyOutcomeDto dto = polled.outcome;
+        final int now = dto.durationMs;
+        for (final ({String stage, String status}) event in polled.events) {
           tracker.onEvent(event, now);
         }
-        accumulated.write(chunk.log);
-        GhostKeyOutcomeDto dto = GhostKeyOutcomeDto.fromNative(chunk);
-        if (chunk.finished) {
-          tracker.finish(chunk.exitCode, now);
+        accumulated.write(dto.output);
+        if (polled.finished) {
+          tracker.finish(dto.exitCode, now);
           dto = dto.copyWith(
-            kind: _classify(chunk, tracker),
+            kind: _classify(dto, tracker),
             log: accumulated.toString(),
           );
           yield dto
@@ -157,12 +152,9 @@ class GhostKeyActionRepositoryImpl implements GhostKeyActionRepository {
   /// 3. 退出码 0 时再看 `ksu`：该阶段可选，失败不影响退出码，只体现在
   ///    `events` 里；
   /// 4. 有任一段 `degraded` 记降级成功。
-  GhostKeyKind _classify(
-    pigeon.Cve98260Chunk chunk,
-    _StageTracker tracker,
-  ) {
-    if (chunk.timedOut) return GhostKeyKind.timedOut;
-    switch (chunk.exitCode) {
+  GhostKeyKind _classify(GhostKeyOutcomeDto dto, _StageTracker tracker) {
+    if (dto.timedOut) return GhostKeyKind.timedOut;
+    switch (dto.exitCode) {
       case 2:
         return GhostKeyKind.calibFailed;
       case 3:
@@ -172,8 +164,7 @@ class GhostKeyActionRepositoryImpl implements GhostKeyActionRepository {
       case 5:
         return GhostKeyKind.verifyFailed;
       case 0:
-        if (tracker.statusOf(GhostKeyStage.ksu) ==
-            GhostKeyStageStatus.failed) {
+        if (tracker.statusOf(GhostKeyStage.ksu) == GhostKeyStageStatus.failed) {
           return GhostKeyKind.ksuFailed;
         }
         if (tracker.anyDegraded) return GhostKeyKind.degraded;
@@ -222,7 +213,7 @@ class _StageTracker {
   GhostKeyStageStatus statusOf(GhostKeyStage stage) => _states[stage.index];
 
   /// 处理一条阶段事件。
-  void onEvent(pigeon.Cve98260StageEvent event, int now) {
+  void onEvent(({String stage, String status}) event, int now) {
     final GhostKeyStage? stage = GhostKeyStage.fromCode(event.stage);
     if (stage == null) return;
     final int i = stage.index;

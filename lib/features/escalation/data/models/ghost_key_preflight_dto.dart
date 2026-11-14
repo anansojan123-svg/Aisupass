@@ -1,6 +1,7 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import 'package:Aisupass/features/escalation/domain/models/ghost_key_preflight.dart';
 import 'package:Aisupass/generated/cve98260.g.dart' as pigeon;
-import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'ghost_key_preflight_dto.freezed.dart';
 part 'ghost_key_preflight_dto.g.dart';
@@ -22,6 +23,7 @@ abstract class GhostKeyPreflightDto with _$GhostKeyPreflightDto {
   factory GhostKeyPreflightDto.fromJson(Map<String, dynamic> json) =>
       _$GhostKeyPreflightDtoFromJson(json);
 
+  /// 原生 `Cve98260Preflight` -> 本 DTO：纯字段搬运。
   factory GhostKeyPreflightDto.fromNative(pigeon.Cve98260Preflight native) =>
       GhostKeyPreflightDto(
         adbConnected: native.adbConnected,

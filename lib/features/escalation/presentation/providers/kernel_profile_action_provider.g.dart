@@ -62,7 +62,7 @@ final class KernelProfileActionDatasourceProvider
 }
 
 String _$kernelProfileActionDatasourceHash() =>
-    r'09e689cbdb69a099e5473686fbde261384cda37b';
+    r'1271d73aab219a8d87ad6b224faee66c4ddf7f26';
 
 /// 用户 profile 动作仓储。
 

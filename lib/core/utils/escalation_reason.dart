@@ -43,8 +43,7 @@ String ghostLockProfileErrorText(AppLocalizations l10n, String error) {
 /// GhostLock 会话的本侧诊断码 → 可读文案；未识别的码原样带出来。
 String ghostLockFailureText(AppLocalizations l10n, String code) =>
     switch (code) {
-      'deviceDisconnected' =>
-        l10n.escalationGhostLockFailureDeviceDisconnected,
+      'deviceDisconnected' => l10n.escalationGhostLockFailureDeviceDisconnected,
       'launchFailed' => l10n.escalationGhostLockFailureLaunch,
       'profileWriteFailed' => l10n.escalationGhostLockFailureProfileWrite,
       'nativeNotStarted' => l10n.escalationGhostLockFailureNotStarted,
@@ -82,3 +81,14 @@ String dirtyFragNotStartedReason(AppLocalizations l10n, String code) =>
 /// 码留在文案后面，出问题时还能对照原生日志。
 String _withCode(AppLocalizations l10n, String code, String? label) =>
     label == null ? code : l10n.escalationReasonWithCode(label, code);
+
+/// GhostLock 字段提交失败 → 可读文案。
+///
+/// 原生判定「该值会让配置无法解析」时给专用提示，其余原样交给调用方展示。
+String ghostLockSubmitErrorText(AppLocalizations l10n, Object error) {
+  final String text = error.toString();
+  if (text.contains('profileOverrideRejected')) {
+    return l10n.escalationGhostLockProfileRejected;
+  }
+  return text;
+}

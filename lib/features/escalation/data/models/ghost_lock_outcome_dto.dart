@@ -1,7 +1,8 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import 'package:Aisupass/features/escalation/domain/enums/ghost_lock_kind.dart';
 import 'package:Aisupass/features/escalation/domain/models/ghost_lock_outcome.dart';
 import 'package:Aisupass/generated/ghost_lock.g.dart' as pigeon;
-import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'ghost_lock_outcome_dto.freezed.dart';
 part 'ghost_lock_outcome_dto.g.dart';
@@ -37,7 +38,7 @@ abstract class GhostLockOutcomeDto with _$GhostLockOutcomeDto {
   factory GhostLockOutcomeDto.fromJson(Map<String, dynamic> json) =>
       _$GhostLockOutcomeDtoFromJson(json);
 
-  /// 原生快照 → DTO。
+  /// 原生 `GhostLockChunk` -> 本 DTO。判定字段留给仓储。
   factory GhostLockOutcomeDto.fromNative(pigeon.GhostLockChunk chunk) =>
       GhostLockOutcomeDto(
         sessionId: chunk.sessionId,

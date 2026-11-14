@@ -1,6 +1,7 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import 'package:Aisupass/features/escalation/domain/models/ghost_lock_preflight.dart';
 import 'package:Aisupass/generated/ghost_lock.g.dart' as pigeon;
-import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'ghost_lock_preflight_dto.freezed.dart';
 part 'ghost_lock_preflight_dto.g.dart';
@@ -25,7 +26,7 @@ abstract class GhostLockPreflightDto with _$GhostLockPreflightDto {
   factory GhostLockPreflightDto.fromJson(Map<String, dynamic> json) =>
       _$GhostLockPreflightDtoFromJson(json);
 
-  /// 原生自检 → DTO。
+  /// 原生 `GhostLockPreflight` -> 本 DTO：纯字段搬运。
   factory GhostLockPreflightDto.fromNative(pigeon.GhostLockPreflight native) =>
       GhostLockPreflightDto(
         adbConnected: native.adbConnected,

@@ -5,10 +5,10 @@ import 'package:Aisupass/features/escalation/data/datasources/kernel_profile_que
 import 'package:Aisupass/features/escalation/data/models/kernel_profile_import_result_dto.dart';
 import 'package:Aisupass/features/escalation/domain/models/kernel_profile_import_state.dart';
 import 'package:Aisupass/features/escalation/domain/repositories/kernel_profile_action_repository.dart';
-import 'package:Aisupass/generated/cve98260.g.dart' as pigeon;
 
 /// 写仓储实现。导入用「流 + 轮询进度」。
-class KernelProfileActionRepositoryImpl implements KernelProfileActionRepository {
+class KernelProfileActionRepositoryImpl
+    implements KernelProfileActionRepository {
   const KernelProfileActionRepositoryImpl({
     required this._datasource,
     required this._query,
@@ -23,9 +23,8 @@ class KernelProfileActionRepositoryImpl implements KernelProfileActionRepository
   final KernelProfileQueryDatasource _query;
 
   @override
-  Stream<KernelProfileImportState> importBootImage({
-    required String path,
-  }) => _watch(_datasource.importBootImage(path: path));
+  Stream<KernelProfileImportState> importBootImage({required String path}) =>
+      _watch(_datasource.importBootImage(path: path));
 
   @override
   Stream<KernelProfileImportState> importBootImageFromUrl({
@@ -38,7 +37,7 @@ class KernelProfileActionRepositoryImpl implements KernelProfileActionRepository
 
   /// 订阅一侧的导入任务，同时轮询进度；任务结束补一帧带真结果的进度块。
   Stream<KernelProfileImportState> _watch(
-    Future<pigeon.KernelProfileImportResult> task,
+    Future<KernelProfileImportResultDto> task,
   ) async* {
     bool done = false;
     unawaited(
@@ -57,8 +56,7 @@ class KernelProfileActionRepositoryImpl implements KernelProfileActionRepository
       await Future<void>.delayed(_pollInterval);
     }
 
-    final KernelProfileImportResultDto dto =
-        KernelProfileImportResultDto.fromNative(await task);
+    final KernelProfileImportResultDto dto = await task;
     // 终局帧强制推进到完成相位：失败时原生进度可能停在定位相位（例如链接不是
     // OTA 包，一个字节都没下），不强制就会让页面的 `finished` 永远为假，
     // 结果条和错误文案都不显示。

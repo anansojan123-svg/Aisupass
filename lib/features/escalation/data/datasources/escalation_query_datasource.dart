@@ -4,9 +4,11 @@ import 'package:flutter/services.dart' show AssetBundle;
 
 import 'package:Aisupass/core/constants/storage_keys.dart';
 import 'package:Aisupass/core/storage/key_value_store.dart';
+import 'package:Aisupass/features/escalation/data/models/device_identity_dto.dart';
 import 'package:Aisupass/features/escalation/data/models/payload_dto.dart';
+import 'package:Aisupass/features/escalation/data/models/root_manager_dto.dart';
 import 'package:Aisupass/generated/device_identity.g.dart' as pigeon;
-import 'package:Aisupass/generated/root_manager.g.dart';
+import 'package:Aisupass/generated/root_manager.g.dart' as root_pigeon;
 
 /// 提权链路只读数据源：载荷清单、设备身份与已安装的管理器。
 ///
@@ -24,7 +26,7 @@ class EscalationQueryDatasource {
 
   final AssetBundle _bundle;
   final pigeon.DeviceIdentityNative _native;
-  final RootManagerNative _managers;
+  final root_pigeon.RootManagerNative _managers;
   final KeyValueStore _storage;
 
   /// 读取用户选定的 root 管理器包名。
@@ -33,8 +35,11 @@ class EscalationQueryDatasource {
   Future<String> readSelectedRootManagerPackage() =>
       _storage.read<String>(StorageKeys.escalationSelectedRootManager);
 
-  /// 扫描设备上带 `libksud.so` 的应用。
-  Future<List<RootManagerInfo>> scanRootManagers() => _managers.scan();
+  /// 扫描设备上带 `libksud.so` 的应用。原生对象在本层收敛为 DTO。
+  Future<List<RootManagerDto>> scanRootManagers() async =>
+      (await _managers.scan())
+          .map(RootManagerDto.fromNative)
+          .toList(growable: false);
 
   /// 读取并解析载荷清单。解析失败直接抛出，不吞异常。
   Future<List<PayloadDto>> loadPayloadCatalog() async {
@@ -48,6 +53,7 @@ class EscalationQueryDatasource {
         .toList();
   }
 
-  /// 采集设备身份。
-  Future<pigeon.DeviceIdentity> readDeviceIdentity() => _native.read();
+  /// 采集设备身份。原生对象在本层收敛为 DTO。
+  Future<DeviceIdentityDto> readDeviceIdentity() async =>
+      DeviceIdentityDto.fromNative(await _native.read());
 }

@@ -4,7 +4,9 @@ import 'dart:io';
 import 'package:Aisupass/core/storage/json_codec.dart';
 import 'package:Aisupass/core/storage/key_value_store.dart';
 import 'package:Aisupass/features/escalation/data/datasources/escalation_query_datasource.dart';
+import 'package:Aisupass/features/escalation/data/models/device_identity_dto.dart';
 import 'package:Aisupass/features/escalation/data/models/payload_dto.dart';
+import 'package:Aisupass/features/escalation/data/models/root_manager_dto.dart';
 import 'package:Aisupass/features/escalation/data/repositories/escalation_query_repository_impl.dart';
 import 'package:Aisupass/features/escalation/domain/enums/match_tier.dart';
 import 'package:Aisupass/features/escalation/domain/models/device_identity.dart';
@@ -71,26 +73,26 @@ class _FakeDatasource extends EscalationQueryDatasource {
       );
 
   final List<PayloadDto> _payloads;
-  final pigeon.DeviceIdentity _identity;
+  final DeviceIdentityDto _identity;
 
   @override
   Future<List<PayloadDto>> loadPayloadCatalog() async => _payloads;
 
   @override
-  Future<pigeon.DeviceIdentity> readDeviceIdentity() async => _identity;
+  Future<DeviceIdentityDto> readDeviceIdentity() async => _identity;
 
   @override
-  Future<List<RootManagerInfo>> scanRootManagers() async =>
-      <RootManagerInfo>[];
+  Future<List<RootManagerDto>> scanRootManagers() async =>
+      const <RootManagerDto>[];
 }
 
-pigeon.DeviceIdentity _identity({
+DeviceIdentityDto _identity({
   required String identityText,
   required String kernelVersion,
   String manufacturer = 'vivo',
   String model = '',
   String kernelCommit = '000000000000',
-}) => pigeon.DeviceIdentity(
+}) => DeviceIdentityDto(
   identityText: identityText,
   kernelRelease: '$kernelVersion-android14-11-g$kernelCommit',
   kernelVersion: kernelVersion,
@@ -102,7 +104,7 @@ pigeon.DeviceIdentity _identity({
 
 EscalationQueryRepositoryImpl _repository({
   required List<PayloadDto> payloads,
-  required pigeon.DeviceIdentity identity,
+  required DeviceIdentityDto identity,
 }) => EscalationQueryRepositoryImpl(
   datasource: _FakeDatasource(payloads: payloads, identity: identity),
 );
@@ -215,7 +217,7 @@ void main() {
     });
 
     test('同厂商兜底默认不执行，显式开启才产出候选', () async {
-      final pigeon.DeviceIdentity identity = _identity(
+      final DeviceIdentityDto identity = _identity(
         identityText: 'vivo mysteryphone',
         kernelVersion: '6.6.57',
       );
@@ -265,7 +267,7 @@ void main() {
     });
 
     test('完全未知机型 + 未知厂商返回 null，关掉兜底后同样 null', () async {
-      final pigeon.DeviceIdentity identity = _identity(
+      final DeviceIdentityDto identity = _identity(
         identityText: 'acme mysteryphone x1',
         kernelVersion: '6.6.57',
         manufacturer: 'acme',

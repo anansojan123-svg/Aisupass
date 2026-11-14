@@ -1,7 +1,8 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import 'package:Aisupass/features/escalation/domain/enums/dirty_frag_kind.dart';
 import 'package:Aisupass/features/escalation/domain/models/dirty_frag_outcome.dart';
 import 'package:Aisupass/generated/dirty_frag.g.dart' as pigeon;
-import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'dirty_frag_outcome_dto.freezed.dart';
 part 'dirty_frag_outcome_dto.g.dart';
@@ -38,7 +39,7 @@ abstract class DirtyFragOutcomeDto with _$DirtyFragOutcomeDto {
   factory DirtyFragOutcomeDto.fromJson(Map<String, dynamic> json) =>
       _$DirtyFragOutcomeDtoFromJson(json);
 
-  /// 原生快照 → DTO。
+  /// 原生 `DirtyFragChunk` -> 本 DTO。只搬原生确实产生的字段，判定字段留给仓储。
   factory DirtyFragOutcomeDto.fromNative(pigeon.DirtyFragChunk chunk) =>
       DirtyFragOutcomeDto(
         sessionId: chunk.sessionId,

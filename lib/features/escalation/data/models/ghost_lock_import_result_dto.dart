@@ -1,6 +1,7 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import 'package:Aisupass/features/escalation/domain/models/ghost_lock_import_result.dart';
 import 'package:Aisupass/generated/ghost_lock.g.dart' as pigeon;
-import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'ghost_lock_import_result_dto.freezed.dart';
 part 'ghost_lock_import_result_dto.g.dart';
@@ -23,7 +24,7 @@ abstract class GhostLockImportResultDto with _$GhostLockImportResultDto {
   factory GhostLockImportResultDto.fromJson(Map<String, dynamic> json) =>
       _$GhostLockImportResultDtoFromJson(json);
 
-  /// 原生快照 → DTO。
+  /// 原生 `GhostLockImportResult` -> 本 DTO：纯字段搬运。
   factory GhostLockImportResultDto.fromNative(
     pigeon.GhostLockImportResult result,
   ) => GhostLockImportResultDto(

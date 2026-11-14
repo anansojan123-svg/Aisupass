@@ -105,10 +105,7 @@ class _Field extends StatelessWidget {
             width: 56.w,
             child: Text(
               label,
-              style: TextStyle(
-                fontSize: 12.sp,
-                color: scheme.onSurfaceVariant,
-              ),
+              style: TextStyle(fontSize: 12.sp, color: scheme.onSurfaceVariant),
             ),
           ),
           Expanded(

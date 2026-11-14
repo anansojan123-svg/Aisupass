@@ -1,5 +1,4 @@
 import 'package:Aisupass/features/escalation/data/datasources/escalation_query_datasource.dart';
-import 'package:Aisupass/features/escalation/data/models/device_identity_dto.dart';
 import 'package:Aisupass/features/escalation/data/models/payload_dto.dart';
 import 'package:Aisupass/features/escalation/data/models/root_manager_dto.dart';
 import 'package:Aisupass/features/escalation/domain/enums/match_tier.dart';
@@ -8,8 +7,6 @@ import 'package:Aisupass/features/escalation/domain/models/payload.dart';
 import 'package:Aisupass/features/escalation/domain/models/payload_match.dart';
 import 'package:Aisupass/features/escalation/domain/models/root_manager.dart';
 import 'package:Aisupass/features/escalation/domain/repositories/escalation_query_repository.dart';
-import 'package:Aisupass/generated/device_identity.g.dart' as pigeon;
-import 'package:Aisupass/generated/root_manager.g.dart';
 
 /// 提权链路查询仓储实现：DTO -> Entity 的唯一转换点，
 /// 同时承载不依赖 IO 的匹配算法。
@@ -50,11 +47,9 @@ class EscalationQueryRepositoryImpl implements EscalationQueryRepository {
 
   @override
   Future<List<RootManager>> installedRootManagers() async {
-    final List<RootManagerInfo> infos = await _datasource.scanRootManagers();
-    return infos
-        .map(
-          (RootManagerInfo info) => RootManagerDto.fromNative(info).toEntity(),
-        )
+    final List<RootManagerDto> dtos = await _datasource.scanRootManagers();
+    return dtos
+        .map((RootManagerDto dto) => dto.toEntity())
         .toList(growable: false);
   }
 
@@ -73,10 +68,8 @@ class EscalationQueryRepositoryImpl implements EscalationQueryRepository {
   }
 
   @override
-  Future<DeviceIdentity> deviceIdentity() async {
-    final pigeon.DeviceIdentity native = await _datasource.readDeviceIdentity();
-    return DeviceIdentityDto.fromNative(native).toEntity();
-  }
+  Future<DeviceIdentity> deviceIdentity() async =>
+      (await _datasource.readDeviceIdentity()).toEntity();
 
   @override
   Future<PayloadMatch?> resolve({bool allowVendorFallback = false}) async {

@@ -12,7 +12,6 @@ import 'package:Aisupass/features/escalation/domain/models/root_manager.dart';
 import 'package:Aisupass/features/escalation/domain/models/vr_derive_progress.dart';
 import 'package:Aisupass/features/escalation/domain/models/vr_offset_result.dart';
 import 'package:Aisupass/features/escalation/domain/repositories/dirty_frag_action_repository.dart';
-import 'package:Aisupass/generated/dirty_frag.g.dart' as pigeon;
 
 /// DirtyFrag 运行仓储实现：DTO -> Entity 的唯一转换点，同时承载轮询循环与判定表。
 class DirtyFragActionRepositoryImpl implements DirtyFragActionRepository {
@@ -35,9 +34,7 @@ class DirtyFragActionRepositoryImpl implements DirtyFragActionRepository {
 
   @override
   Future<DirtyFragRunDefaults> runDefaults() async =>
-      DirtyFragRunDefaultsDto.fromNative(
-        await _datasource.getRunDefaults(),
-      ).toEntity();
+      (await _datasource.getRunDefaults()).toEntity();
 
   @override
   Future<void> saveRunDefaults({required DirtyFragRunDefaults defaults}) =>
@@ -47,7 +44,7 @@ class DirtyFragActionRepositoryImpl implements DirtyFragActionRepository {
           vrAuto: defaults.vrAuto,
           vrOffset: defaults.vrOffset,
           softReboot: defaults.softReboot,
-        ).toNative(),
+        ),
       );
 
   @override
@@ -59,14 +56,12 @@ class DirtyFragActionRepositoryImpl implements DirtyFragActionRepository {
     final DirtyFragRunDefaults defaults = await runDefaults();
     final int offset = vrOffsetOverride ?? defaults.vrOffset;
 
-    final pigeon.DirtyFragStartResult accepted = await _datasource.start(
-      request: pigeon.DirtyFragRequest(
-        managerPackage: manager.packageName,
-        vrDisarm: defaults.vrDisarm,
-        vrAuto: defaults.vrAuto,
-        vrOffset: offset,
-        softReboot: defaults.softReboot,
-      ),
+    final DirtyFragStartOutcome accepted = await _datasource.start(
+      managerPackage: manager.packageName,
+      vrDisarm: defaults.vrDisarm,
+      vrAuto: defaults.vrAuto,
+      vrOffset: offset,
+      softReboot: defaults.softReboot,
     );
 
     if (!accepted.accepted) {
@@ -84,17 +79,17 @@ class DirtyFragActionRepositoryImpl implements DirtyFragActionRepository {
 
     try {
       while (true) {
-        final pigeon.DirtyFragChunk chunk = await _datasource.poll(
+        final DirtyFragPollSnapshot polled = await _datasource.poll(
           sessionId: accepted.sessionId,
         );
-        final DirtyFragOutcomeDto dto = DirtyFragOutcomeDto.fromNative(chunk);
-        accumulated.write(chunk.output);
+        final DirtyFragOutcomeDto dto = polled.outcome;
+        accumulated.write(dto.output);
 
-        if (chunk.finished) {
+        if (polled.finished) {
           // 判定结果先落进 DTO，再走无参 toEntity()。
           yield dto
               .copyWith(
-                kind: _classify(accumulated.toString(), chunk),
+                kind: _classify(accumulated.toString(), dto),
                 log: accumulated.toString(),
               )
               .toEntity();
@@ -125,8 +120,7 @@ class DirtyFragActionRepositoryImpl implements DirtyFragActionRepository {
       _datasource.setExpertModeEnabled(enabled: enabled);
 
   @override
-  Future<bool> isBootAutostartEnabled() =>
-      _datasource.isBootAutostartEnabled();
+  Future<bool> isBootAutostartEnabled() => _datasource.isBootAutostartEnabled();
 
   @override
   Future<void> setBootAutostartEnabled({required bool enabled}) =>
@@ -136,8 +130,8 @@ class DirtyFragActionRepositoryImpl implements DirtyFragActionRepository {
   ///
   /// 判定顺序不可调换：先看不可逆的失败证据，再看成功标记，最后才兜底。
   /// 所有字符串都来自 `exp.c` 的 `printf` 与 `markers[]`，逐字对齐，不凭印象。
-  DirtyFragKind _classify(String log, pigeon.DirtyFragChunk chunk) {
-    if (chunk.timedOut) return DirtyFragKind.timedOut;
+  DirtyFragKind _classify(String log, DirtyFragOutcomeDto dto) {
+    if (dto.timedOut) return DirtyFragKind.timedOut;
 
     // 1) 不可逆失败：内核没有这个洞（exp.c:363）
     if (log.contains('patch: DEVICE NOT VULNERABLE')) {
@@ -162,8 +156,7 @@ class DirtyFragActionRepositoryImpl implements DirtyFragActionRepository {
     if (log.contains('timeout: ERROR')) return DirtyFragKind.timedOut;
 
     // 6) bootstrap 或 ksud 阶段失败：markers[] 的 rc=1 三条（exp.c:611 / :617 / :620）
-    if (log.contains('bootstrap: ERROR') ||
-        log.contains('ksud start: ERROR')) {
+    if (log.contains('bootstrap: ERROR') || log.contains('ksud start: ERROR')) {
       return DirtyFragKind.bootstrapFailed;
     }
 
@@ -176,12 +169,11 @@ class DirtyFragActionRepositoryImpl implements DirtyFragActionRepository {
     required String input,
     bool insecure = false,
   }) async {
-    final pigeon.VrDeriveResult raw = await _datasource.deriveVrOffset(
+    final VrDeriveOutcome raw = await _datasource.deriveVrOffset(
       input: input,
       insecure: insecure,
     );
-    final VrOffsetResultDto dto =
-        raw.error.isNotEmpty
+    final VrOffsetResultDto dto = raw.error.isNotEmpty
         ? VrOffsetResultDto(error: _squash(raw.error))
         : _parseVrOffset(raw.json);
     return dto.toEntity();
@@ -189,8 +181,8 @@ class DirtyFragActionRepositoryImpl implements DirtyFragActionRepository {
 
   @override
   Future<VrDeriveProgress> vrDeriveProgress() async {
-    final String raw = await _datasource.vrDeriveProgress();
-    return VrDeriveProgressDto.fromNative(raw).toEntity();
+    final VrDeriveProgressDto dto = await _datasource.vrDeriveProgress();
+    return dto.toEntity();
   }
 
   /// 把 Rust 的 JSON 落成 DTO。解析失败按「提取失败」处理，不抛给 UI。

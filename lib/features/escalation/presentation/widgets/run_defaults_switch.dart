@@ -70,9 +70,7 @@ class RunDefaultsSwitch extends HookConsumerWidget {
       title: title,
       subtitle: subtitle,
       value: shown != null && read(shown),
-      onChanged: unlocked
-          ? (bool value) => save(write(shown, value))
-          : null,
+      onChanged: unlocked ? (bool value) => save(write(shown, value)) : null,
     );
   }
 }

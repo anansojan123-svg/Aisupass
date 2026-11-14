@@ -1,12 +1,10 @@
 import 'package:Aisupass/features/escalation/data/datasources/ghost_lock_action_datasource.dart';
 import 'package:Aisupass/features/escalation/data/models/ghost_lock_outcome_dto.dart';
-import 'package:Aisupass/features/escalation/data/models/ghost_lock_preflight_dto.dart';
 import 'package:Aisupass/features/escalation/domain/enums/ghost_lock_kind.dart';
 import 'package:Aisupass/features/escalation/domain/models/ghost_lock_outcome.dart';
 import 'package:Aisupass/features/escalation/domain/models/ghost_lock_preflight.dart';
 import 'package:Aisupass/features/escalation/domain/models/root_manager.dart';
 import 'package:Aisupass/features/escalation/domain/repositories/ghost_lock_action_repository.dart';
-import 'package:Aisupass/generated/ghost_lock.g.dart' as pigeon;
 
 /// GhostLock 运行仓储实现：DTO -> Entity 的唯一转换点，同时承载轮询与判定表。
 class GhostLockActionRepositoryImpl implements GhostLockActionRepository {
@@ -24,18 +22,16 @@ class GhostLockActionRepositoryImpl implements GhostLockActionRepository {
 
   @override
   Future<GhostLockPreflight> preflight() async =>
-      GhostLockPreflightDto.fromNative(await _datasource.preflight()).toEntity();
+      (await _datasource.preflight()).toEntity();
 
   @override
   Stream<GhostLockOutcome> run({
     RootManager? manager,
     bool safeMode = false,
   }) async* {
-    final pigeon.GhostLockStartResult accepted = await _datasource.start(
-      request: pigeon.GhostLockRequest(
-        managerPackage: manager?.packageName ?? '',
-        safeMode: safeMode,
-      ),
+    final GhostLockStartOutcome accepted = await _datasource.start(
+      managerPackage: manager?.packageName ?? '',
+      safeMode: safeMode,
     );
 
     if (!accepted.accepted) {
@@ -53,16 +49,16 @@ class GhostLockActionRepositoryImpl implements GhostLockActionRepository {
 
     try {
       while (true) {
-        final pigeon.GhostLockChunk chunk = await _datasource.poll(
+        final GhostLockPollSnapshot polled = await _datasource.poll(
           sessionId: accepted.sessionId,
         );
-        final GhostLockOutcomeDto dto = GhostLockOutcomeDto.fromNative(chunk);
-        accumulated.write(chunk.output);
+        final GhostLockOutcomeDto dto = polled.outcome;
+        accumulated.write(dto.output);
 
-        if (chunk.finished) {
+        if (polled.finished) {
           yield dto
               .copyWith(
-                kind: _classify(accumulated.toString(), chunk),
+                kind: _classify(accumulated.toString(), dto),
                 log: accumulated.toString(),
               )
               .toEntity();
@@ -88,8 +84,8 @@ class GhostLockActionRepositoryImpl implements GhostLockActionRepository {
   ///
   /// 顺序不可调换：先看本侧超时与原生脏停，再看不可逆的 profile / 阶段失败，
   /// 再看 KSU 结论，最后兜底。所有串逐字取自上游 `src/core/`。
-  GhostLockKind _classify(String log, pigeon.GhostLockChunk chunk) {
-    if (chunk.timedOut) return GhostLockKind.timedOut;
+  GhostLockKind _classify(String log, GhostLockOutcomeDto dto) {
+    if (dto.timedOut) return GhostLockKind.timedOut;
 
     // 1) 竞争脏停：原生自己 exit_group(70)，之后不再有输出。
     if (log.contains('terminal dirty race:')) return GhostLockKind.dirtyRace;

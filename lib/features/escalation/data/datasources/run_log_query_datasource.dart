@@ -1,3 +1,5 @@
+import 'package:Aisupass/features/escalation/data/models/run_log_diagnosis_dto.dart';
+import 'package:Aisupass/features/escalation/data/models/run_log_meta_dto.dart';
 import 'package:Aisupass/generated/cve98260.g.dart' as pigeon;
 
 /// 只读侧：列表 / 正文 / 全量导出 / 失败归因。全部一行转发，不做任何加工。
@@ -8,17 +10,22 @@ class RunLogQueryDatasource {
 
   final pigeon.Cve98260RunLogNative _native;
 
-  Future<List<pigeon.RunLogMetaDto>> listRuns() => _native.listRuns();
+  Future<List<RunLogMetaDto>> listRuns() async => (await _native.listRuns())
+      .map(RunLogMetaDto.fromNative)
+      .toList(growable: false);
 
   Future<List<String>> readBody({required String fileName}) =>
       _native.readBody(fileName);
 
   Future<String> exportAllText() => _native.exportAllText();
 
-  Future<pigeon.RunLogDiagnosisDto> diagnose({
+  Future<RunLogDiagnosisDto> diagnose({
     required List<String> lines,
     required int exitCode,
-  }) => _native.diagnose(
-    pigeon.RunLogDiagnoseRequest(lines: lines, exitCode: exitCode),
+  }) async => RunLogDiagnosisDto.fromNative(
+    await _native.diagnose(
+      pigeon.RunLogDiagnoseRequest(lines: lines, exitCode: exitCode),
+    ),
+    exitCode: exitCode,
   );
 }

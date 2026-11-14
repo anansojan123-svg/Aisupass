@@ -8,24 +8,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// 编辑中的表单状态：字段随输入写进这里，保存时一次性提交。
 ///
-/// 只有用户真正改过的字段会留在里面，未触碰的字段不参与提交。
-class ProfileEditDraft {
-  final Map<String, int> _changed = <String, int>{};
-
-  /// 输入变化时调用；清空或非法输入视为撤销该字段的修改。
-  void update(String path, String text) {
-    final int? value = int.tryParse(text.trim());
-    if (value == null) {
-      _changed.remove(path);
-    } else {
-      _changed[path] = value;
-    }
-  }
-
-  Map<String, int> collect() => Map<String, int>.of(_changed);
-
-  void clear() => _changed.clear();
-}
+/// 键是字段完整路径，值是该字段的新数字；只有用户真正改过的字段会留在里面。
+typedef ProfileEditDraft = ValueNotifier<Map<String, int>>;
 
 /// 高级字段树：分组可折叠，叶子是纯输入框，改动由保存按钮统一提交。
 class GhostLockProfileFieldTree extends StatelessWidget {
@@ -51,11 +35,7 @@ class GhostLockProfileFieldTree extends StatelessWidget {
       children: <Widget>[
         for (final GhostLockProfileFieldNode node in nodes)
           node.isGroup
-              ? _GroupNode(
-                  node: node,
-                  invalidPaths: invalidPaths,
-                  draft: draft,
-                )
+              ? _GroupNode(node: node, invalidPaths: invalidPaths, draft: draft)
               : _LeafField(
                   node: node,
                   invalid: invalidPaths.contains(node.path),
@@ -116,7 +96,8 @@ class _GroupNode extends StatelessWidget {
     if (!node.isGroup) return node.overridden ? 1 : 0;
     return node.children.fold<int>(
       0,
-      (int sum, GhostLockProfileFieldNode child) => sum + _countOverridden(child),
+      (int sum, GhostLockProfileFieldNode child) =>
+          sum + _countOverridden(child),
     );
   }
 }
@@ -167,7 +148,16 @@ class _LeafField extends HookWidget {
           Expanded(
             child: TextField(
               controller: controller,
-              onChanged: (String text) => draft.update(node.path, text),
+              onChanged: (String text) {
+                final int? value = int.tryParse(text.trim());
+                final Map<String, int> next = Map<String, int>.of(draft.value);
+                if (value == null) {
+                  next.remove(node.path);
+                } else {
+                  next[node.path] = value;
+                }
+                draft.value = next;
+              },
               keyboardType: const TextInputType.numberWithOptions(signed: true),
               textInputAction: TextInputAction.next,
               style: TextStyle(fontSize: 13.sp),
@@ -183,8 +173,9 @@ class _LeafField extends HookWidget {
                   fontSize: 10.sp,
                   color: scheme.onSurfaceVariant,
                 ),
-                errorText:
-                    invalid ? l10n.escalationGhostLockProfileInvalidField : null,
+                errorText: invalid
+                    ? l10n.escalationGhostLockProfileInvalidField
+                    : null,
                 errorStyle: TextStyle(fontSize: 10.sp),
                 border: const OutlineInputBorder(),
                 contentPadding: EdgeInsets.symmetric(

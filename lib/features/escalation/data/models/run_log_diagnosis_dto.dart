@@ -1,6 +1,7 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import 'package:Aisupass/features/escalation/domain/models/run_log_diagnosis.dart';
 import 'package:Aisupass/generated/cve98260.g.dart' as pigeon;
-import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'run_log_diagnosis_dto.freezed.dart';
 part 'run_log_diagnosis_dto.g.dart';
@@ -20,7 +21,8 @@ abstract class RunLogDiagnosisDto with _$RunLogDiagnosisDto {
   factory RunLogDiagnosisDto.fromJson(Map<String, dynamic> json) =>
       _$RunLogDiagnosisDtoFromJson(json);
 
-  /// Pigeon 传输对象 -> DTO。原生 `stage` 为 null（不限阶段）时落 `''`。
+  /// 原生 `RunLogDiagnosisDto` -> 本 DTO。原生 `stage` 为 null（不限阶段）时落
+  /// `''`；`exitCode` 原生不回，由调用方补。
   factory RunLogDiagnosisDto.fromNative(
     pigeon.RunLogDiagnosisDto dto, {
     required int exitCode,

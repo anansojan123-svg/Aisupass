@@ -18,10 +18,8 @@ Future<bool?> showGhostLockConfirmDialog(
   required GhostLockPreflight preflight,
 }) => showDialog<bool>(
   context: context,
-  builder: (BuildContext dialogContext) => _GhostLockConfirmDialog(
-    manager: manager,
-    preflight: preflight,
-  ),
+  builder: (BuildContext dialogContext) =>
+      _GhostLockConfirmDialog(manager: manager, preflight: preflight),
 );
 
 /// 确认弹窗：把自检快照与安全模式摊开。

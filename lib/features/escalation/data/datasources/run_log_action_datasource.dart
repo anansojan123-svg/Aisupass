@@ -1,3 +1,4 @@
+import 'package:Aisupass/features/escalation/data/models/run_log_meta_dto.dart';
 import 'package:Aisupass/generated/cve98260.g.dart' as pigeon;
 
 /// 写侧：开轮 / 追加行 / 收尾 / 删除 / 清空。
@@ -8,15 +9,17 @@ class RunLogActionDatasource {
 
   final pigeon.Cve98260RunLogNative _native;
 
-  Future<pigeon.RunLogMetaDto> beginRun({
+  Future<RunLogMetaDto> beginRun({
     required String device,
     required String kernel,
     required String profile,
-  }) => _native.beginRun(
-    pigeon.RunLogBeginRequest(
-      device: device,
-      kernel: kernel,
-      profile: profile,
+  }) async => _toDto(
+    await _native.beginRun(
+      pigeon.RunLogBeginRequest(
+        device: device,
+        kernel: kernel,
+        profile: profile,
+      ),
     ),
   );
 
@@ -46,4 +49,19 @@ class RunLogActionDatasource {
       _native.deleteRun(fileName);
 
   Future<void> clearRuns() => _native.clearRuns();
+
+  /// Pigeon 传输对象 -> DTO。原生 `exitCode` 为 null（中断）时落 `-1`，
+  /// 与 `RunLogMeta.hasExitCode` 的哨兵约定一致。
+  static RunLogMetaDto _toDto(pigeon.RunLogMetaDto dto) => RunLogMetaDto(
+    fileName: dto.fileName,
+    runId: dto.runId,
+    startedAt: dto.startedAt,
+    result: dto.result,
+    exitCode: dto.exitCode ?? -1,
+    durationMs: dto.durationMs,
+    lineCount: dto.lineCount,
+    device: dto.device,
+    kernel: dto.kernel,
+    profile: dto.profile,
+  );
 }

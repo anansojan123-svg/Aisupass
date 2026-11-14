@@ -143,7 +143,10 @@ class _DirtyFragConfirmDialog extends HookConsumerWidget {
                         : l10n.escalationDirtyFragVrExtractPhaseUnpack,
                     ((progress.value?.fraction ?? 0) * 100).round(),
                   ),
-                  style: TextStyle(fontSize: 11.sp, color: scheme.onSurfaceVariant),
+                  style: TextStyle(
+                    fontSize: 11.sp,
+                    color: scheme.onSurfaceVariant,
+                  ),
                 ),
               ],
             ],
@@ -166,9 +169,9 @@ class _DirtyFragConfirmDialog extends HookConsumerWidget {
         ),
         FilledButton(
           onPressed: offsetValid && !deriving.value
-              ? () => Navigator.of(context).pop(
-                  defaults.needsManualOffset ? manualOffset : null,
-                )
+              ? () =>
+                    Navigator.of(context)
+                        .pop(defaults.needsManualOffset ? manualOffset : null)
               : null,
           child: Text(l10n.escalationDirtyFragConfirmAction),
         ),

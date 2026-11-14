@@ -1,19 +1,20 @@
+import 'package:Aisupass/core/providers/escalation_native_provider.dart';
 import 'package:Aisupass/features/escalation/data/datasources/run_log_action_datasource.dart';
 import 'package:Aisupass/features/escalation/data/repositories/run_log_action_repository_impl.dart';
 import 'package:Aisupass/features/escalation/domain/enums/run_log_result.dart';
 import 'package:Aisupass/features/escalation/domain/models/run_log_meta.dart';
 import 'package:Aisupass/features/escalation/domain/repositories/run_log_action_repository.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/run_log_query_provider.dart';
-import 'package:Aisupass/generated/cve98260.g.dart' as pigeon;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'run_log_action_provider.g.dart';
 
 @riverpod
 RunLogActionDatasource runLogActionDatasource(Ref ref) =>
-    RunLogActionDatasource(native: pigeon.Cve98260RunLogNative());
+    RunLogActionDatasource(native: ref.watch(cve98260RunLogNativeProvider));
 
-@riverpod
+/// 写侧仓储。持有本轮写盘游标，故不随页面回收。
+@Riverpod(keepAlive: true)
 RunLogActionRepository runLogActionRepository(Ref ref) =>
     RunLogActionRepositoryImpl(
       datasource: ref.watch(runLogActionDatasourceProvider),
@@ -46,15 +47,23 @@ class RunLogActions {
   }
 
   /// 追加日志行。
-  Future<void> append({
+  Future<void> appendLines({
     required String fileName,
     required List<String> lines,
   }) => _ref
       .read(runLogActionRepositoryProvider)
       .appendLines(fileName: fileName, lines: lines);
 
-  /// 收尾。写完刷新列表（结果 / 时长 / 退出码变化）。
-  Future<void> finish({
+  /// 追加本轮新增的日志尾部。
+  Future<void> appendChunk({
+    required String fileName,
+    required String fullText,
+  }) => _ref
+      .read(runLogActionRepositoryProvider)
+      .appendChunk(fileName: fileName, fullText: fullText);
+
+  /// 收尾并刷新列表。
+  Future<void> finishChunk({
     required String fileName,
     required RunLogResult result,
     required int exitCode,
@@ -62,7 +71,7 @@ class RunLogActions {
   }) async {
     await _ref
         .read(runLogActionRepositoryProvider)
-        .finishRun(
+        .finishChunk(
           fileName: fileName,
           result: result,
           exitCode: exitCode,

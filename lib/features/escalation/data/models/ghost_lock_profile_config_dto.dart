@@ -1,8 +1,9 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import 'package:Aisupass/features/escalation/data/models/ghost_lock_execution_field_dto.dart';
 import 'package:Aisupass/features/escalation/data/models/ghost_lock_profile_field_node_dto.dart';
 import 'package:Aisupass/features/escalation/domain/models/ghost_lock_profile_config.dart';
 import 'package:Aisupass/generated/ghost_lock.g.dart' as pigeon;
-import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'ghost_lock_profile_config_dto.freezed.dart';
 part 'ghost_lock_profile_config_dto.g.dart';
@@ -28,22 +29,23 @@ abstract class GhostLockProfileConfigDto with _$GhostLockProfileConfigDto {
   factory GhostLockProfileConfigDto.fromJson(Map<String, dynamic> json) =>
       _$GhostLockProfileConfigDtoFromJson(json);
 
-  /// 原生快照 → DTO。
-  factory GhostLockProfileConfigDto.fromNative(pigeon.GhostLockProfileConfig config) =>
-      GhostLockProfileConfigDto(
-        release: config.release,
-        hasProfile: config.hasProfile,
-        roots: config.roots
-            .map(GhostLockProfileFieldNodeDto.fromNative)
-            .toList(),
-        general: config.general
-            .map(GhostLockExecutionFieldDto.fromNative)
-            .toList(),
-        route: config.route,
-        fallbackTo: config.fallbackTo,
-        invalidPaths: config.invalidPaths,
-        builtinReleases: config.builtinReleases,
-      );
+  /// 原生 `GhostLockProfileConfig` -> 本 DTO：字段搬运 + 子节点逐个转换。
+  factory GhostLockProfileConfigDto.fromNative(
+    pigeon.GhostLockProfileConfig config,
+  ) => GhostLockProfileConfigDto(
+    release: config.release,
+    hasProfile: config.hasProfile,
+    roots: config.roots
+        .map(GhostLockProfileFieldNodeDto.fromNative)
+        .toList(growable: false),
+    general: config.general
+        .map(GhostLockExecutionFieldDto.fromNative)
+        .toList(growable: false),
+    route: config.route,
+    fallbackTo: config.fallbackTo,
+    invalidPaths: config.invalidPaths,
+    builtinReleases: config.builtinReleases,
+  );
 
   /// 转成领域实体；`roots` 由先序扁平序列还原成树。
   GhostLockProfileConfig toEntity() => GhostLockProfileConfig(

@@ -1,5 +1,6 @@
 import 'package:Aisupass/features/escalation/domain/enums/ghost_key_kind.dart';
 import 'package:Aisupass/features/escalation/domain/enums/ghost_key_stage_status.dart';
+import 'package:Aisupass/features/escalation/domain/enums/run_log_result.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'ghost_key_outcome.freezed.dart';
@@ -54,4 +55,11 @@ abstract class GhostKeyOutcome with _$GhostKeyOutcome {
 
   /// 终局块。
   bool get isFinal => kind != GhostKeyKind.running;
+
+  /// 本轮该记成什么日志结论。
+  RunLogResult get logResult => success
+      ? RunLogResult.success
+      : kind == GhostKeyKind.timedOut
+      ? RunLogResult.interrupted
+      : RunLogResult.failed;
 }

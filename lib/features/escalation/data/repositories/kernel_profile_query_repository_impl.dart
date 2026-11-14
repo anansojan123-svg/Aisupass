@@ -11,24 +11,19 @@ class KernelProfileQueryRepositoryImpl implements KernelProfileQueryRepository {
 
   @override
   Future<List<KernelProfile>> listImported() async {
-    final List<KernelProfileDto> dtos =
-        (await _datasource.listImportedProfiles())
-            .map(KernelProfileDto.fromNative)
-            .toList(growable: false);
-    return dtos.map((KernelProfileDto dto) => dto.toEntity()).toList(
-      growable: false,
-    );
+    final List<KernelProfileDto> dtos = await _datasource
+        .listImportedProfiles();
+    return dtos
+        .map((KernelProfileDto dto) => dto.toEntity())
+        .toList(growable: false);
   }
 
   @override
   Future<List<KernelProfile>> listBuiltin() async {
-    final List<KernelProfileDto> dtos =
-        (await _datasource.listBuiltinProfiles())
-            .map(KernelProfileDto.fromNative)
-            .toList(growable: false);
-    return dtos.map((KernelProfileDto dto) => dto.toEntity()).toList(
-      growable: false,
-    );
+    final List<KernelProfileDto> dtos = await _datasource.listBuiltinProfiles();
+    return dtos
+        .map((KernelProfileDto dto) => dto.toEntity())
+        .toList(growable: false);
   }
 
   @override

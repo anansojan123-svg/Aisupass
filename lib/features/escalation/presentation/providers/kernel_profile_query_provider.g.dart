@@ -60,7 +60,7 @@ final class KernelProfileQueryDatasourceProvider
 }
 
 String _$kernelProfileQueryDatasourceHash() =>
-    r'5b0cedca5e757d426f6b433d842488f776d7ad85';
+    r'ec19e8b8bcb0afe8983433b73290f986252aafb2';
 
 /// 用户 profile 查询仓储。
 

@@ -253,6 +253,64 @@ final class RunPayloadChoiceFamily extends $Family
   String toString() => r'runPayloadChoiceProvider';
 }
 
+/// 提权链路的写操作。
+///
+/// 无参 `keepAlive` 类持有 [Ref]，参数走方法入参。
+
+@ProviderFor(escalationActions)
+const escalationActionsProvider = EscalationActionsProvider._();
+
+/// 提权链路的写操作。
+///
+/// 无参 `keepAlive` 类持有 [Ref]，参数走方法入参。
+
+final class EscalationActionsProvider
+    extends
+        $FunctionalProvider<
+          EscalationActions,
+          EscalationActions,
+          EscalationActions
+        >
+    with $Provider<EscalationActions> {
+  /// 提权链路的写操作。
+  ///
+  /// 无参 `keepAlive` 类持有 [Ref]，参数走方法入参。
+  const EscalationActionsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'escalationActionsProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$escalationActionsHash();
+
+  @$internal
+  @override
+  $ProviderElement<EscalationActions> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  EscalationActions create(Ref ref) {
+    return escalationActions(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(EscalationActions value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<EscalationActions>(value),
+    );
+  }
+}
+
+String _$escalationActionsHash() => r'161c8871c554ad28674166549b1a8bf8a745bed7';
+
 /// 把临时 root 移交给用户选定的 [manager]。
 ///
 /// 管理器未安装时返回 [HandoffKind.managerMissing]，不抛异常。
@@ -460,7 +518,7 @@ final class DirtyFragActionDatasourceProvider
 }
 
 String _$dirtyFragActionDatasourceHash() =>
-    r'6ac04d1f0b45f5b96f300b8e3802bd20d8ab79ea';
+    r'57dd66c3706ea44c44d395809d19311c8b6690e8';
 
 /// DirtyFrag 运行仓储。
 
@@ -1023,7 +1081,7 @@ final class GhostKeyActionDatasourceProvider
 }
 
 String _$ghostKeyActionDatasourceHash() =>
-    r'a178747ce7856ec2332a96a50ed00ee4f52ff51b';
+    r'b25682224a0c1a2bc769fd9a0540a7c944abeca4';
 
 /// GhostKey 运行仓储。
 
@@ -1359,7 +1417,7 @@ final class GhostLockActionDatasourceProvider
 }
 
 String _$ghostLockActionDatasourceHash() =>
-    r'2cb4b33fd214babd05a22777b677532cff88e1e4';
+    r'89f1c841797af1508853105fb3ad211260028d1c';
 
 /// GhostLock 运行仓储。
 
@@ -1460,6 +1518,63 @@ final class GhostLockPreflightProvider
 
 String _$ghostLockPreflightHash() =>
     r'e0de500eb1a4b835610612e96d64f314865654d5';
+
+/// GhostLock 运行期的写操作。
+///
+/// 无参 `keepAlive` 类持有 [Ref]，参数走方法入参。
+
+@ProviderFor(ghostLockActions)
+const ghostLockActionsProvider = GhostLockActionsProvider._();
+
+/// GhostLock 运行期的写操作。
+///
+/// 无参 `keepAlive` 类持有 [Ref]，参数走方法入参。
+
+final class GhostLockActionsProvider
+    extends
+        $FunctionalProvider<
+          GhostLockActions,
+          GhostLockActions,
+          GhostLockActions
+        >
+    with $Provider<GhostLockActions> {
+  /// GhostLock 运行期的写操作。
+  ///
+  /// 无参 `keepAlive` 类持有 [Ref]，参数走方法入参。
+  const GhostLockActionsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'ghostLockActionsProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$ghostLockActionsHash();
+
+  @$internal
+  @override
+  $ProviderElement<GhostLockActions> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  GhostLockActions create(Ref ref) {
+    return ghostLockActions(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GhostLockActions value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GhostLockActions>(value),
+    );
+  }
+}
+
+String _$ghostLockActionsHash() => r'7868b64f53e0b67c5d5aca14beef712537a45ac3';
 
 /// 跑一次 GhostLock，按块吐出证据。
 
@@ -1610,7 +1725,7 @@ final class GhostLockProfileActionDatasourceProvider
 }
 
 String _$ghostLockProfileActionDatasourceHash() =>
-    r'0b8dcc61a494b6fdb84bda53cd3c490e00090ef2';
+    r'a46973bc5774b9ca12f644e955941b657a203ac0';
 
 /// GhostLock profile 导入仓储。
 
@@ -1948,7 +2063,7 @@ final class GhostLockProfileEditActionDatasourceProvider
 }
 
 String _$ghostLockProfileEditActionDatasourceHash() =>
-    r'43e18924d57c5e37a75d0e1bb0015684a64a5a0d';
+    r'58843b4337c980a74cc4c8a450b658b262686605';
 
 /// GhostLock profile 编辑仓储。
 

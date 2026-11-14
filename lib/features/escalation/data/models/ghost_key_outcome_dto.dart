@@ -1,8 +1,9 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import 'package:Aisupass/features/escalation/domain/enums/ghost_key_kind.dart';
 import 'package:Aisupass/features/escalation/domain/enums/ghost_key_stage_status.dart';
 import 'package:Aisupass/features/escalation/domain/models/ghost_key_outcome.dart';
 import 'package:Aisupass/generated/cve98260.g.dart' as pigeon;
-import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'ghost_key_outcome_dto.freezed.dart';
 part 'ghost_key_outcome_dto.g.dart';
@@ -37,7 +38,10 @@ abstract class GhostKeyOutcomeDto with _$GhostKeyOutcomeDto {
   factory GhostKeyOutcomeDto.fromJson(Map<String, dynamic> json) =>
       _$GhostKeyOutcomeDtoFromJson(json);
 
-  /// 只搬原生侧真实存在的 6 个字段。
+  /// 原生 `Cve98260Chunk` -> 本 DTO。
+  ///
+  /// 原生只给 6 个字段，且累积文本叫 `log`，本 DTO 的增量字段叫 `output`；
+  /// `events` 不入 DTO，由仓储实现喂给 `_StageTracker`。
   factory GhostKeyOutcomeDto.fromNative(pigeon.Cve98260Chunk chunk) =>
       GhostKeyOutcomeDto(
         sessionId: chunk.sessionId,

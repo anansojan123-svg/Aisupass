@@ -347,39 +347,32 @@ class _GhostLockImportedRow extends StatelessWidget {
                         action();
                       });
                     },
-                    itemBuilder:
-                        (BuildContext menuContext) =>
-                            <PopupMenuEntry<VoidCallback>>[
-                              PopupMenuItem<VoidCallback>(
-                                value: () => showGhostLockProfileDetailSheet(
-                                  context,
-                                  profile: profile,
-                                ),
-                                child: Text(l10n.kernelProfileDetailTitle),
-                              ),
-                              PopupMenuItem<VoidCallback>(
-                                value: onEdit,
-                                child: Text(l10n.kernelProfileEditParams),
-                              ),
-                              PopupMenuItem<VoidCallback>(
-                                value: onRename,
-                                child: Text(
-                                  l10n.escalationGhostLockImportedRename,
-                                ),
-                              ),
-                              PopupMenuItem<VoidCallback>(
-                                value: onExport,
-                                child: Text(
-                                  l10n.escalationGhostLockImportedExport,
-                                ),
-                              ),
-                              PopupMenuItem<VoidCallback>(
-                                value: onRemove,
-                                child: Text(
-                                  l10n.escalationGhostLockImportedRemove,
-                                ),
-                              ),
-                            ],
+                    itemBuilder: (BuildContext menuContext) =>
+                        <PopupMenuEntry<VoidCallback>>[
+                          PopupMenuItem<VoidCallback>(
+                            value: () => showGhostLockProfileDetailSheet(
+                              context,
+                              profile: profile,
+                            ),
+                            child: Text(l10n.kernelProfileDetailTitle),
+                          ),
+                          PopupMenuItem<VoidCallback>(
+                            value: onEdit,
+                            child: Text(l10n.kernelProfileEditParams),
+                          ),
+                          PopupMenuItem<VoidCallback>(
+                            value: onRename,
+                            child: Text(l10n.escalationGhostLockImportedRename),
+                          ),
+                          PopupMenuItem<VoidCallback>(
+                            value: onExport,
+                            child: Text(l10n.escalationGhostLockImportedExport),
+                          ),
+                          PopupMenuItem<VoidCallback>(
+                            value: onRemove,
+                            child: Text(l10n.escalationGhostLockImportedRemove),
+                          ),
+                        ],
                   ),
               ],
             ),

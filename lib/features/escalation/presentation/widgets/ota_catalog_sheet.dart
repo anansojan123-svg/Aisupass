@@ -99,13 +99,10 @@ class OtaCatalogSheet extends HookConsumerWidget {
               children: <Widget>[
                 for (final OtaCatalogBrand item in OtaCatalogBrand.values)
                   ChoiceChip(
-                    label: Text(
-                      switch (item) {
-                        OtaCatalogBrand.google => l10n.otaCatalogBrandGoogle,
-                        OtaCatalogBrand.realme => l10n.otaCatalogBrandRealme,
-                      },
-                      style: TextStyle(fontSize: 12.sp),
-                    ),
+                    label: Text(switch (item) {
+                      OtaCatalogBrand.google => l10n.otaCatalogBrandGoogle,
+                      OtaCatalogBrand.realme => l10n.otaCatalogBrandRealme,
+                    }, style: TextStyle(fontSize: 12.sp)),
                     selected: brand.value == item,
                     onSelected: (bool _) {
                       expanded.value = <String>{};
@@ -156,8 +153,9 @@ class OtaCatalogSheet extends HookConsumerWidget {
                 loading: () => const Loading(),
                 error: (Object error, StackTrace _) => RefError(
                   message: '$error',
-                  onRetry: () =>
-                      ref.invalidate(otaCatalogListProvider(brand: brand.value)),
+                  onRetry: () => ref.invalidate(
+                    otaCatalogListProvider(brand: brand.value),
+                  ),
                 ),
                 data: (_) => grouped.isEmpty
                     ? Center(

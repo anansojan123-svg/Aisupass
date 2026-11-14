@@ -3,7 +3,6 @@ import 'package:Aisupass/core/themes/app_fonts.dart';
 import 'package:Aisupass/features/escalation/presentation/widgets/kernel_image_input_section.dart';
 import 'package:Aisupass/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// 上游 `--route` 的可选值。
@@ -488,10 +487,7 @@ class _SectionShell extends StatelessWidget {
               ),
             ),
           ),
-          if (expanded) ...<Widget>[
-            SizedBox(height: 4.h),
-            ...children,
-          ],
+          if (expanded) ...<Widget>[SizedBox(height: 4.h), ...children],
         ],
       ),
     );

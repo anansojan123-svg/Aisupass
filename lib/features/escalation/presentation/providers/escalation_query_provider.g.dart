@@ -350,7 +350,7 @@ final class GhostLockProfileEditQueryDatasourceProvider
 }
 
 String _$ghostLockProfileEditQueryDatasourceHash() =>
-    r'59751017aa516675d60cec1a908a0e8b84b4e34f';
+    r'3f0cb3f56041ca95c81af6c579610d7c556b3840';
 
 /// GhostLock profile 编辑只读仓储。
 

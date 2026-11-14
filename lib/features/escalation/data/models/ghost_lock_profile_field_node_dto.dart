@@ -1,13 +1,15 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import 'package:Aisupass/features/escalation/domain/models/ghost_lock_profile_field_node.dart';
 import 'package:Aisupass/generated/ghost_lock.g.dart' as pigeon;
-import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'ghost_lock_profile_field_node_dto.freezed.dart';
 part 'ghost_lock_profile_field_node_dto.g.dart';
 
 /// 原生快照：profile 树的一个节点（先序扁平，层级由 `depth` 表达）。
 @freezed
-abstract class GhostLockProfileFieldNodeDto with _$GhostLockProfileFieldNodeDto {
+abstract class GhostLockProfileFieldNodeDto
+    with _$GhostLockProfileFieldNodeDto {
   const GhostLockProfileFieldNodeDto._();
 
   const factory GhostLockProfileFieldNodeDto({
@@ -22,16 +24,17 @@ abstract class GhostLockProfileFieldNodeDto with _$GhostLockProfileFieldNodeDto 
   factory GhostLockProfileFieldNodeDto.fromJson(Map<String, dynamic> json) =>
       _$GhostLockProfileFieldNodeDtoFromJson(json);
 
-  /// 原生快照 → DTO。
-  factory GhostLockProfileFieldNodeDto.fromNative(pigeon.GhostLockFieldNode node) =>
-      GhostLockProfileFieldNodeDto(
-        path: node.path,
-        name: node.name,
-        depth: node.depth,
-        value: node.value,
-        provided: node.provided,
-        overridden: node.overridden,
-      );
+  /// 原生 `GhostLockFieldNode` -> 本 DTO：纯字段搬运。
+  factory GhostLockProfileFieldNodeDto.fromNative(
+    pigeon.GhostLockFieldNode node,
+  ) => GhostLockProfileFieldNodeDto(
+    path: node.path,
+    name: node.name,
+    depth: node.depth,
+    value: node.value,
+    provided: node.provided,
+    overridden: node.overridden,
+  );
 
   /// 先序扁平序列 → 领域树。
   ///
@@ -44,7 +47,8 @@ abstract class GhostLockProfileFieldNodeDto with _$GhostLockProfileFieldNodeDto 
     int index = 0;
 
     List<GhostLockProfileFieldNode> build(int depth) {
-      final List<GhostLockProfileFieldNode> level = <GhostLockProfileFieldNode>[];
+      final List<GhostLockProfileFieldNode> level =
+          <GhostLockProfileFieldNode>[];
       while (index < flat.length) {
         final GhostLockProfileFieldNodeDto node = flat[index];
         if (node.depth != depth) break;

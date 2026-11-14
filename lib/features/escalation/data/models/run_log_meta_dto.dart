@@ -1,7 +1,8 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import 'package:Aisupass/features/escalation/domain/enums/run_log_result.dart';
 import 'package:Aisupass/features/escalation/domain/models/run_log_meta.dart';
 import 'package:Aisupass/generated/cve98260.g.dart' as pigeon;
-import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'run_log_meta_dto.freezed.dart';
 part 'run_log_meta_dto.g.dart';
@@ -28,7 +29,7 @@ abstract class RunLogMetaDto with _$RunLogMetaDto {
   factory RunLogMetaDto.fromJson(Map<String, dynamic> json) =>
       _$RunLogMetaDtoFromJson(json);
 
-  /// Pigeon 传输对象 -> DTO。原生 `exitCode` 为 null（中断）时落 `-1`，
+  /// 原生 `RunLogMetaDto` -> 本 DTO。原生 `exitCode` 为 null（中断）时落 `-1`，
   /// 与 `RunLogMeta.hasExitCode` 的哨兵约定一致。
   factory RunLogMetaDto.fromNative(pigeon.RunLogMetaDto dto) => RunLogMetaDto(
     fileName: dto.fileName,

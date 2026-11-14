@@ -1,5 +1,6 @@
 import 'package:Aisupass/core/providers/asset_bundle_provider.dart';
 import 'package:Aisupass/core/providers/device_identity_provider.dart';
+import 'package:Aisupass/core/providers/escalation_native_provider.dart';
 import 'package:Aisupass/core/providers/root_manager_provider.dart';
 import 'package:Aisupass/core/storage/storage_providers.dart';
 import 'package:Aisupass/features/escalation/data/datasources/escalation_query_datasource.dart';
@@ -12,7 +13,6 @@ import 'package:Aisupass/features/escalation/domain/models/payload.dart';
 import 'package:Aisupass/features/escalation/domain/models/root_manager.dart';
 import 'package:Aisupass/features/escalation/domain/repositories/escalation_query_repository.dart';
 import 'package:Aisupass/features/escalation/domain/repositories/ghost_lock_profile_edit_query_repository.dart';
-import 'package:Aisupass/generated/ghost_lock.g.dart' as ghost_lock;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'escalation_query_provider.g.dart';
@@ -59,7 +59,7 @@ Future<RootManager?> selectedRootManager(Ref ref) =>
 GhostLockProfileEditQueryDatasource ghostLockProfileEditQueryDatasource(
   Ref ref,
 ) => GhostLockProfileEditQueryDatasource(
-  native: ghost_lock.GhostLockProfileEditNative(),
+  native: ref.watch(ghostLockProfileEditNativeProvider),
 );
 
 /// GhostLock profile 编辑只读仓储。

@@ -1,4 +1,5 @@
 import 'package:Aisupass/core/providers/adb_shell_provider.dart';
+import 'package:Aisupass/core/providers/escalation_native_provider.dart';
 import 'package:Aisupass/core/storage/storage_providers.dart';
 import 'package:Aisupass/core/utils/payload_shell.dart';
 import 'package:Aisupass/features/escalation/data/datasources/dirty_frag_action_datasource.dart';
@@ -39,9 +40,6 @@ import 'package:Aisupass/features/escalation/domain/repositories/ghost_lock_acti
 import 'package:Aisupass/features/escalation/domain/repositories/ghost_lock_profile_action_repository.dart';
 import 'package:Aisupass/features/escalation/domain/repositories/ghost_lock_profile_edit_action_repository.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/escalation_query_provider.dart';
-import 'package:Aisupass/generated/cve98260.g.dart' as cve98260;
-import 'package:Aisupass/generated/dirty_frag.g.dart' as pigeon;
-import 'package:Aisupass/generated/ghost_lock.g.dart' as ghost_lock;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'escalation_action_provider.g.dart';
@@ -88,6 +86,23 @@ Future<String> runPayload(Ref ref) async {
 Future<String> runPayloadChoice(Ref ref, {required Payload payload}) =>
     ref.watch(escalationActionRepositoryProvider).runPayload(payload);
 
+/// 提权链路的写操作。
+///
+/// 无参 `keepAlive` 类持有 [Ref]，参数走方法入参。
+@Riverpod(keepAlive: true)
+EscalationActions escalationActions(Ref ref) => EscalationActions(ref);
+
+/// 见 [escalationActions]。
+class EscalationActions {
+  EscalationActions(this._ref);
+
+  final Ref _ref;
+
+  /// 终端上来一段输出就喂一次，供滑动缓存提取 KASLR 偏移。
+  Future<void> observePayloadOutput(String text) async =>
+      _ref.read(escalationActionRepositoryProvider).observeOutput(text);
+}
+
 /// 把临时 root 移交给用户选定的 [manager]。
 ///
 /// 管理器未安装时返回 [HandoffKind.managerMissing]，不抛异常。
@@ -120,7 +135,7 @@ class RootManagerActions {
 /// DirtyFrag 运行数据源。
 @riverpod
 DirtyFragActionDatasource dirtyFragActionDatasource(Ref ref) =>
-    DirtyFragActionDatasource(native: pigeon.DirtyFragNative());
+    DirtyFragActionDatasource(native: ref.watch(dirtyFragNativeProvider));
 
 /// DirtyFrag 运行仓储。
 @riverpod
@@ -211,9 +226,7 @@ Future<VrOffsetResult> deriveVrOffset(
 @riverpod
 Stream<VrDeriveProgress> vrDeriveProgress(Ref ref) async* {
   while (true) {
-    yield await ref
-        .watch(dirtyFragActionRepositoryProvider)
-        .vrDeriveProgress();
+    yield await ref.watch(dirtyFragActionRepositoryProvider).vrDeriveProgress();
     await Future<void>.delayed(const Duration(milliseconds: 200));
   }
 }
@@ -222,7 +235,7 @@ Stream<VrDeriveProgress> vrDeriveProgress(Ref ref) async* {
 @riverpod
 GhostKeyActionDatasource ghostKeyActionDatasource(Ref ref) =>
     GhostKeyActionDatasource(
-      native: cve98260.Cve98260Native(),
+      native: ref.watch(cve98260NativeProvider),
       storage: ref.watch(preferencesStoreProvider),
     );
 
@@ -266,14 +279,13 @@ class GhostKeyActions {
 
 /// 跑一次 GhostKey，按块吐出证据。
 @riverpod
-Stream<GhostKeyOutcome> runGhostKey(Ref ref, {RootManager? manager}) => ref
-    .watch(ghostKeyActionRepositoryProvider)
-    .run(manager: manager);
+Stream<GhostKeyOutcome> runGhostKey(Ref ref, {RootManager? manager}) =>
+    ref.watch(ghostKeyActionRepositoryProvider).run(manager: manager);
 
 /// GhostLock 运行数据源。
 @riverpod
 GhostLockActionDatasource ghostLockActionDatasource(Ref ref) =>
-    GhostLockActionDatasource(native: ghost_lock.GhostLockNative());
+    GhostLockActionDatasource(native: ref.watch(ghostLockNativeProvider));
 
 /// GhostLock 运行仓储。
 @riverpod
@@ -286,6 +298,23 @@ GhostLockActionRepository ghostLockActionRepository(Ref ref) =>
 @riverpod
 Future<GhostLockPreflight> ghostLockPreflight(Ref ref) =>
     ref.watch(ghostLockActionRepositoryProvider).preflight();
+
+/// GhostLock 运行期的写操作。
+///
+/// 无参 `keepAlive` 类持有 [Ref]，参数走方法入参。
+@Riverpod(keepAlive: true)
+GhostLockActions ghostLockActions(Ref ref) => GhostLockActions(ref);
+
+/// 见 [ghostLockActions]。
+class GhostLockActions {
+  GhostLockActions(this._ref);
+
+  final Ref _ref;
+
+  /// 停止本侧读取；设备侧进程继续跑。
+  Future<void> cancel() =>
+      _ref.read(ghostLockActionRepositoryProvider).cancel();
+}
 
 /// 跑一次 GhostLock，按块吐出证据。
 @riverpod
@@ -301,7 +330,7 @@ Stream<GhostLockOutcome> runGhostLock(
 @riverpod
 GhostLockProfileActionDatasource ghostLockProfileActionDatasource(Ref ref) =>
     GhostLockProfileActionDatasource(
-      native: ghost_lock.GhostLockProfileNative(),
+      native: ref.watch(ghostLockProfileNativeProvider),
     );
 
 /// GhostLock profile 导入仓储。
@@ -331,20 +360,22 @@ Future<List<String>> ghostLockBuiltinReleases(Ref ref) async {
 }
 
 /// 按 major/minor/fix/android 的绝对差排序，差值小的在前。
-List<String> _sortByKernelSimilarity(String deviceRelease, List<String> releases) {
+List<String> _sortByKernelSimilarity(
+  String deviceRelease,
+  List<String> releases,
+) {
   final List<int> device = _kernelVersionKey(deviceRelease);
-  return releases.toList()
-    ..sort((a, b) {
-      final List<int> left = _similarityKey(device, _kernelVersionKey(a));
-      final List<int> right = _similarityKey(device, _kernelVersionKey(b));
-      final int length = left.length > right.length ? left.length : right.length;
-      for (int i = 0; i < length; i++) {
-        final int l = i < left.length ? left[i] : 0;
-        final int r = i < right.length ? right[i] : 0;
-        if (l != r) return l.compareTo(r);
-      }
-      return 0;
-    });
+  return releases.toList()..sort((a, b) {
+    final List<int> left = _similarityKey(device, _kernelVersionKey(a));
+    final List<int> right = _similarityKey(device, _kernelVersionKey(b));
+    final int length = left.length > right.length ? left.length : right.length;
+    for (int i = 0; i < length; i++) {
+      final int l = i < left.length ? left[i] : 0;
+      final int r = i < right.length ? right[i] : 0;
+      if (l != r) return l.compareTo(r);
+    }
+    return 0;
+  });
 }
 
 List<int> _kernelVersionKey(String release) {
@@ -398,7 +429,7 @@ Stream<GhostLockProbeProgress> ghostLockProbeProgress(Ref ref) async* {
 GhostLockProfileEditActionDatasource ghostLockProfileEditActionDatasource(
   Ref ref,
 ) => GhostLockProfileEditActionDatasource(
-  native: ghost_lock.GhostLockProfileEditNative(),
+  native: ref.watch(ghostLockProfileEditNativeProvider),
 );
 
 /// GhostLock profile 编辑仓储。
@@ -535,7 +566,10 @@ class GhostLockProfileActions {
   Future<GhostLockProfileConfig> updateGeneral({
     required String release,
     required Map<String, int> values,
-  }) => _apply(release, (repo) => repo.updateGeneral(release: release, values: values));
+  }) => _apply(
+    release,
+    (repo) => repo.updateGeneral(release: release, values: values),
+  );
 
   /// 写高级字段。
   Future<GhostLockProfileConfig> updateAdvanced({
@@ -550,7 +584,10 @@ class GhostLockProfileActions {
   Future<GhostLockProfileConfig> updateRoute({
     required String release,
     required String route,
-  }) => _apply(release, (repo) => repo.updateRoute(release: release, route: route));
+  }) => _apply(
+    release,
+    (repo) => repo.updateRoute(release: release, route: route),
+  );
 
   /// 设置 fallback。
   Future<GhostLockProfileConfig> updateFallback({
@@ -567,7 +604,8 @@ class GhostLockProfileActions {
     required String profileRelease,
   }) => _apply(
     release,
-    (repo) => repo.selectBuiltin(release: release, profileRelease: profileRelease),
+    (repo) =>
+        repo.selectBuiltin(release: release, profileRelease: profileRelease),
   );
 
   /// 指定生效的用户文档；空串不使用导入层。
@@ -664,7 +702,9 @@ class GhostLockProfileActions {
   /// 写操作共用：落盘后失效生效来源与运行前自检。
   Future<GhostLockProfileConfig> _apply(
     String release,
-    Future<GhostLockProfileConfig> Function(GhostLockProfileEditActionRepository repo)
+    Future<GhostLockProfileConfig> Function(
+      GhostLockProfileEditActionRepository repo,
+    )
     action,
   ) async {
     final GhostLockProfileConfig config = await action(

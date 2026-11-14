@@ -2,6 +2,7 @@ import 'package:Aisupass/common/widgets/toast.dart';
 import 'package:Aisupass/core/extensions/context_extensions.dart';
 import 'package:Aisupass/core/utils/kernel_image_picker.dart';
 import 'package:Aisupass/core/utils/kernel_profile_text.dart';
+import 'package:Aisupass/features/escalation/domain/enums/kernel_profile_import_target.dart';
 import 'package:Aisupass/features/escalation/domain/models/ghost_lock_import_result.dart';
 import 'package:Aisupass/features/escalation/domain/models/ghost_lock_preflight.dart';
 import 'package:Aisupass/features/escalation/domain/models/ghost_lock_probe.dart';
@@ -19,9 +20,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-
-/// 解析后要导入到哪一套内核表。
-enum KernelProfileImportTarget { ghostKey, ghostLock }
 
 /// 打开导入弹层；写入成功后返回落点，供调用方切到对应页签。
 ///
@@ -72,7 +70,9 @@ Future<KernelProfileImportTarget?> showKernelProfileImportSheet(
               ],
             ),
           ),
-          Expanded(child: KernelProfileImportPanel(initialTarget: initialTarget)),
+          Expanded(
+            child: KernelProfileImportPanel(initialTarget: initialTarget),
+          ),
         ],
       ),
     );
@@ -120,7 +120,9 @@ class KernelProfileImportPanel extends HookConsumerWidget {
 
     // 解析：只出文本，不落盘。
     final ValueNotifier<bool> probing = useState<bool>(false);
-    final ValueNotifier<GhostLockProbe?> probe = useState<GhostLockProbe?>(null);
+    final ValueNotifier<GhostLockProbe?> probe = useState<GhostLockProbe?>(
+      null,
+    );
     final ValueNotifier<String?> probeError = useState<String?>(null);
     final ValueNotifier<String?> failedAnalysis = useState<String?>(null);
 
@@ -135,9 +137,7 @@ class KernelProfileImportPanel extends HookConsumerWidget {
         ghostKeyPath.value != null
         ? ref.watch(importKernelProfileProvider(path: ghostKeyPath.value!))
         : ghostKeyUrl.value != null
-        ? ref.watch(
-            importKernelProfileFromUrlProvider(url: ghostKeyUrl.value!),
-          )
+        ? ref.watch(importKernelProfileFromUrlProvider(url: ghostKeyUrl.value!))
         : null;
 
     // 只在解析期间轮询，结束即退订。
@@ -357,7 +357,9 @@ class KernelProfileImportPanel extends HookConsumerWidget {
           probe.value = result;
         } else {
           probeError.value = result.reason;
-          failedAnalysis.value = result.analysis.isEmpty ? null : result.analysis;
+          failedAnalysis.value = result.analysis.isEmpty
+              ? null
+              : result.analysis;
         }
       } catch (error) {
         probeError.value = error.toString();
@@ -403,9 +405,7 @@ class KernelProfileImportPanel extends HookConsumerWidget {
           }
           return false;
         }
-        ToastMessage.error(
-          l10n.escalationGhostLockImportFailed(saved.reason),
-        );
+        ToastMessage.error(l10n.escalationGhostLockImportFailed(saved.reason));
         return false;
       } catch (error) {
         ToastMessage.error(error);
@@ -456,7 +456,8 @@ class KernelProfileImportPanel extends HookConsumerWidget {
     final bool importingKey =
         ghostKeyImport != null && !(keyState?.finished ?? false);
     final bool anyBusy = probing.value || busy.value || importingKey;
-    final bool ghostLockTarget = target.value == KernelProfileImportTarget.ghostLock;
+    final bool ghostLockTarget =
+        target.value == KernelProfileImportTarget.ghostLock;
 
     final String targetName = ghostLockTarget
         ? l10n.kernelProfileGhostLockEntry
@@ -535,7 +536,8 @@ class KernelProfileImportPanel extends HookConsumerWidget {
                     expanded: advancedExpanded.value,
                     onToggle: anyBusy
                         ? null
-                        : () => advancedExpanded.value = !advancedExpanded.value,
+                        : () =>
+                              advancedExpanded.value = !advancedExpanded.value,
                     anyBusy: anyBusy,
                     kallsymsPath: kallsymsPath,
                     iomemPath: iomemPath,
@@ -582,7 +584,10 @@ class KernelProfileImportPanel extends HookConsumerWidget {
                 ],
                 if (busy.value) ...<Widget>[
                   SizedBox(height: 14.h),
-                  SizedBox(height: 36.h, child: const LinearProgressIndicator()),
+                  SizedBox(
+                    height: 36.h,
+                    child: const LinearProgressIndicator(),
+                  ),
                 ],
                 if (ghostKeyImport != null) ...<Widget>[
                   SizedBox(height: 14.h),

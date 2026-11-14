@@ -100,9 +100,7 @@ class GhostLockProfileDetailSheet extends HookConsumerWidget {
                     tooltip: l10n.escalationGhostLockProfileEdit,
                     onPressed: () {
                       Navigator.of(context).pop();
-                      context.push(
-                        AppRoute.ghostLockProfilePath(profile.name),
-                      );
+                      context.push(AppRoute.ghostLockProfilePath(profile.name));
                     },
                     icon: Icon(Icons.edit_outlined, size: 18.sp),
                     visualDensity: VisualDensity.compact,
@@ -185,8 +183,12 @@ class GhostLockProfileDetailSheet extends HookConsumerWidget {
                         children: <Widget>[
                           IconButton(
                             onPressed: () async {
-                              await Clipboard.setData(ClipboardData(text: text));
-                              ToastMessage.success(l10n.kernelProfileDetailCopied);
+                              await Clipboard.setData(
+                                ClipboardData(text: text),
+                              );
+                              ToastMessage.success(
+                                l10n.kernelProfileDetailCopied,
+                              );
                             },
                             tooltip: l10n.kernelProfileDetailCopy,
                             icon: Icon(Icons.copy_rounded, size: 15.sp),
@@ -411,10 +413,7 @@ class _OffsetGrid extends HookWidget {
             child: Row(
               children: <Widget>[
                 Expanded(
-                  child: _OffsetCell(
-                    label: rows[i].$1,
-                    value: rows[i].$2,
-                  ),
+                  child: _OffsetCell(label: rows[i].$1, value: rows[i].$2),
                 ),
                 SizedBox(width: 10.w),
                 Expanded(

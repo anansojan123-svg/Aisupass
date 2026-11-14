@@ -1,4 +1,5 @@
 import 'package:Aisupass/features/escalation/domain/enums/ghost_lock_kind.dart';
+import 'package:Aisupass/features/escalation/domain/enums/run_log_result.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'ghost_lock_outcome.freezed.dart';
@@ -45,4 +46,11 @@ abstract class GhostLockOutcome with _$GhostLockOutcome {
 
   /// 是否已到终局。
   bool get isFinal => kind != GhostLockKind.running;
+
+  /// 本轮该记成什么日志结论。
+  RunLogResult get logResult => success
+      ? RunLogResult.success
+      : kind == GhostLockKind.timedOut
+      ? RunLogResult.interrupted
+      : RunLogResult.failed;
 }

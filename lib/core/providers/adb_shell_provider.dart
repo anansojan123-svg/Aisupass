@@ -27,6 +27,26 @@ final FutureProvider<ShellConnection> shellConnectionProvider =
       }
     });
 
+/// 连接态里 UI 需要的两个值，隔离原生桥接类型。
+@immutable
+class ShellLink {
+  const ShellLink({required this.connected, required this.uid});
+
+  /// 是否已连上。
+  final bool connected;
+
+  /// 当前 shell 的 uid。
+  final int uid;
+}
+
+/// 当前连接态；未连上或无数据时为 `null`。
+final Provider<ShellLink?> shellLinkProvider = Provider<ShellLink?>((ref) {
+  final ShellConnection? link = ref.watch(shellConnectionProvider).value;
+  return link == null
+      ? null
+      : ShellLink(connected: link.connected, uid: link.uid);
+});
+
 /// 配对会话的当前快照，面板据此决定显示哪一行字、给哪个按钮。
 @immutable
 class ShellPairingState {
@@ -253,7 +273,8 @@ class ShellExecController extends Notifier<ShellTerminalState> {
   ///
   /// 注意 `,` 与 `:` 不能出现在这里：服务串是 `shell,v2,pty,TERM=...:<命令>`，
   /// 逗号分隔选项、第一个冒号之后才是命令。
-  static const String _shellCommand = "PS1='\${PWD} \$ '; export PS1; exec sh -i";
+  static const String _shellCommand =
+      "PS1='\${PWD} \$ '; export PS1; exec sh -i";
 
   /// 常驻会话 id；为空表示还没建（或已经断了，下次写入时重建）。
   String? _sessionId;
@@ -407,7 +428,10 @@ class ShellExecController extends Notifier<ShellTerminalState> {
     final String? sessionId = _sessionId;
     _sessionId = null;
     _stopTimer();
-    state = ShellTerminalState(droppedBytes: state.droppedBytes, failure: failure);
+    state = ShellTerminalState(
+      droppedBytes: state.droppedBytes,
+      failure: failure,
+    );
     if (sessionId != null) _cancelQuietly(sessionId);
   }
 

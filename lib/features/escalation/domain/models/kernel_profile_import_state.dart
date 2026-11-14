@@ -39,9 +39,7 @@ abstract class KernelProfileImportState with _$KernelProfileImportState {
 
   /// 各相位在整体进度中的区间，按「定位 5%、下载 75%、解析 15%、写入 5%」分配。
   double get fraction {
-    final double inner = total <= 0
-        ? 0
-        : (done / total).clamp(0, 1).toDouble();
+    final double inner = total <= 0 ? 0 : (done / total).clamp(0, 1).toDouble();
     return switch (phase.clamp(phaseLocate, phaseDone).toInt()) {
       phaseLocate => 0.05 * inner,
       phaseDownload => 0.05 + 0.75 * inner,
