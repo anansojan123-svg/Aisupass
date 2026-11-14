@@ -4,12 +4,14 @@ import 'package:Aisupass/core/extensions/context_extensions.dart';
 import 'package:Aisupass/core/utils/platform.dart';
 import 'package:Aisupass/features/ai/presentation/widgets/ai_brand_icon.dart';
 import 'package:Aisupass/features/chat/domain/enums/chat_notice.dart';
+import 'package:Aisupass/features/chat/domain/models/chat_tool_call.dart';
 import 'package:Aisupass/features/chat/domain/models/chat_turn.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/chat_widgets/chat_markdown.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/chat_widgets/chat_message_actions.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/chat_widgets/chat_notice.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/chat_widgets/chat_reasoning_card.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/chat_widgets/chat_tool_card.dart';
+import 'package:Aisupass/features/chat/presentation/widgets/chat/chat_widgets/chat_tool_panels.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -26,6 +28,7 @@ class ChatMessageView extends HookWidget {
     this.modelName = '',
     this.showModelName = true,
     this.animate = false,
+    this.isLastTurn = false,
   });
 
   final ChatTurn turn;
@@ -38,6 +41,9 @@ class ChatMessageView extends HookWidget {
   /// 是否为新插入的消息，插入时做一次淡入上移动画。
   final bool animate;
 
+  /// 是否为整个会话的最新一轮，供挂起组件决定是否持续轮询。
+  final bool isLastTurn;
+
   @override
   Widget build(BuildContext context) {
     final bool isDesktop = isDesktopPlatform;
@@ -47,6 +53,7 @@ class ChatMessageView extends HookWidget {
             turn: turn,
             brand: brand,
             modelName: showModelName ? modelName : '',
+            isLastTurn: isLastTurn,
           );
 
     return Padding(
@@ -104,11 +111,13 @@ class _AssistantMessage extends HookWidget {
     required this.turn,
     required this.brand,
     required this.modelName,
+    required this.isLastTurn,
   });
 
   final ChatTurn turn;
   final AiBrand? brand;
   final String modelName;
+  final bool isLastTurn;
 
   @override
   Widget build(BuildContext context) {
@@ -151,6 +160,14 @@ class _AssistantMessage extends HookWidget {
             active: thinking && turn.toolCalls.isEmpty,
           ),
         if (turn.toolCalls.isNotEmpty) ChatToolGroup(calls: turn.toolCalls),
+        // 需要用户在对话里直接操作的工具，按注册表在卡片下方挂出常驻组件。
+        for (final ChatToolCall call in turn.toolCalls)
+          ?chatToolPanels[call.name]?.call(
+            context,
+            turn.id,
+            isLastTurn,
+            call,
+          ),
         if (hasText) ChatMarkdown(data: shownText, streaming: turn.streaming),
         if (thinking && turn.toolCalls.isEmpty) const _TypingDots(),
         if (turn.hasError) ChatInlineNotice(text: turn.error, isError: true),
@@ -291,7 +308,7 @@ class _TypingDots extends HookWidget {
 String _noticeText(BuildContext context, ChatNotice notice) {
   return switch (notice) {
     ChatNotice.none => '',
-    ChatNotice.toolCallLimit => context.l10n.chatNoticeToolLimit,
+    ChatNotice.awaitingUser => context.l10n.chatNoticeAwaitingUser,
     ChatNotice.emptyReply => context.l10n.chatNoticeEmptyReply,
   };
 }

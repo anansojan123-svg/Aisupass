@@ -557,9 +557,9 @@
   "@chatCopied": {
     "description": "复制成功提示"
   },
-  "chatNoticeToolLimit": "工具调用次数已达上限，请换个问法继续",
-  "@chatNoticeToolLimit": {
-    "description": "工具调用轮次超限提示"
+  "chatNoticeAwaitingUser": "等你在上方完成操作后自动继续",
+  "@chatNoticeAwaitingUser": {
+    "description": "工具渲染了需要用户操作的组件，本轮挂起"
   },
   "chatNoticeEmptyReply": "模型没有返回内容",
   "@chatNoticeEmptyReply": {
@@ -707,6 +707,26 @@
   "chatToolCheckAdb": "检查 ADB 状态",
   "@chatToolCheckAdb": {
     "description": "工具动作名-get_adb_status"
+  },
+  "chatToolExecAdbShell": "执行 adb shell 命令",
+  "@chatToolExecAdbShell": {
+    "description": "工具动作名-adb_shell_exec"
+  },
+  "chatToolRequestAdbPairing": "请求无线调试配对",
+  "@chatToolRequestAdbPairing": {
+    "description": "工具动作名-adb_pairing_request"
+  },
+  "chatAdbPanelTitle": "无线调试连接",
+  "@chatAdbPanelTitle": {
+    "description": "对话内 ADB 连接组件标题"
+  },
+  "chatAdbPairingPending": "已打开系统无线调试，完成配对后返回即可",
+  "@chatAdbPairingPending": {
+    "description": "对话内 ADB 组件-已发起配对并挂起"
+  },
+  "chatAdbPairingFailed": "配对未完成",
+  "@chatAdbPairingFailed": {
+    "description": "对话内 ADB 组件-配对失败"
   },
   "chatThoughtFor": "思考了 {seconds}s",
   "@chatThoughtFor": {

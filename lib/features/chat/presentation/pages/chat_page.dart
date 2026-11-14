@@ -134,6 +134,7 @@ class ChatPage extends HookConsumerWidget {
                     modelName: config?.modelName ?? '',
                     showModelName: headAssistantIds.contains(turn.id),
                     animate: index == 0,
+                    isLastTurn: index == 0,
                   );
                   // 除首轮外，每段新提问前加一条分隔线，便于区分多段对话。
                   if (!turn.isUser || index == state.turns.length - 1) {

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:Aisupass/core/utils/su_shell.dart';
 import 'package:Aisupass/generated/adb_shell.g.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +9,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// 原生接口实例，与 Pigeon 通道一一对应。
 final Provider<AdbShellNative> adbShellNativeProvider =
     Provider<AdbShellNative>((ref) => AdbShellNative());
+
+/// uid=2000 的 adb shell 通道上一次性执行命令的出口。
+///
+/// 与提权链路共用同一个 [ShellExec] 签名；`stdin` 固定传 `null`，
+/// 命令立即拿到 EOF，不会因为等待输入挂到超时。
+final Provider<ShellExec> adbShellExecProvider = Provider<ShellExec>((ref) {
+  final AdbShellNative native = ref.watch(adbShellNativeProvider);
+  return (String command, int timeoutMs) => native.exec(command, timeoutMs, null);
+});
 
 /// 当前是否已经有一条 adb shell 连接，以及它是以谁的 uid 跑起来的。
 ///

@@ -237,8 +237,11 @@ Future<VrOffsetResult> deriveVrOffset(
 /// 提取进度。只在被监听期间轮询，弹窗关掉就停。
 @riverpod
 Stream<VrDeriveProgress> vrDeriveProgress(Ref ref) async* {
-  while (true) {
-    yield await ref.watch(dirtyFragActionRepositoryProvider).vrDeriveProgress();
+  final DirtyFragActionRepository repository = ref.watch(
+    dirtyFragActionRepositoryProvider,
+  );
+  while (ref.mounted) {
+    yield await repository.vrDeriveProgress();
     await Future<void>.delayed(const Duration(milliseconds: 200));
   }
 }
@@ -383,11 +386,14 @@ Future<List<GhostLockUserProfile>> ghostLockImportedProfiles(Ref ref) =>
 /// 设备 release 尚未就绪（自检未跑完）时退回原生顺序，不阻塞列表。
 @riverpod
 Future<List<String>> ghostLockBuiltinReleases(Ref ref) async {
-  final List<String> releases = await ref
-      .watch(ghostLockProfileActionRepositoryProvider)
-      .listBuiltinReleases();
+  // 依赖必须在第一个 await 之前读完：await 之后再用 ref 会命中已销毁的 Ref。
+  final GhostLockProfileActionRepository repository = ref.watch(
+    ghostLockProfileActionRepositoryProvider,
+  );
   final String device =
       ref.watch(ghostLockPreflightProvider).value?.release ?? '';
+
+  final List<String> releases = await repository.listBuiltinReleases();
   if (device.isEmpty) return releases;
   return _sortByKernelSimilarity(device, releases);
 }
@@ -469,10 +475,11 @@ Future<String> ghostLockImportedProfileContent(
 /// GhostLock 解析进度。只在被监听期间轮询，面板收起就停。
 @riverpod
 Stream<GhostLockProbeProgress> ghostLockProbeProgress(Ref ref) async* {
-  while (true) {
-    yield await ref
-        .watch(ghostLockProfileActionRepositoryProvider)
-        .profileProgress();
+  final GhostLockProfileActionRepository repository = ref.watch(
+    ghostLockProfileActionRepositoryProvider,
+  );
+  while (ref.mounted) {
+    yield await repository.profileProgress();
     await Future<void>.delayed(const Duration(milliseconds: 200));
   }
 }

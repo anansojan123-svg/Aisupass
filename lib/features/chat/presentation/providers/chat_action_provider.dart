@@ -24,6 +24,7 @@ import 'package:Aisupass/features/chat/domain/repositories/chat_action_repositor
 import 'package:Aisupass/features/chat/domain/repositories/chat_session_action_repository.dart';
 import 'package:Aisupass/features/chat/presentation/controllers/chat_stream_session.dart';
 import 'package:Aisupass/features/chat/presentation/providers/chat_query_provider.dart';
+import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/adb_tools.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/dirty_frag_tools.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/escalation_action_tools.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/escalation_query_tools.dart';
@@ -46,6 +47,7 @@ class ChatState {
     this.turns = const <ChatTurn>[],
     this.streaming = false,
     this.issue = ChatIssue.none,
+    this.awaitingTurnId = '',
   });
 
   /// 当前会话 id，空串表示尚未建立会话（首条消息时懒创建）。
@@ -54,6 +56,12 @@ class ChatState {
   final bool streaming;
   final ChatIssue issue;
 
+  /// 挂起所在轮次的 id；空串表示没有挂起。组件据此保证同一轮只续跑一次。
+  final String awaitingTurnId;
+
+  /// 是否有轮次正挂起等用户操作。
+  bool get awaitingUser => awaitingTurnId.isNotEmpty;
+
   bool get isEmpty => turns.isEmpty;
 
   ChatState copyWith({
@@ -61,12 +69,14 @@ class ChatState {
     List<ChatTurn>? turns,
     bool? streaming,
     ChatIssue? issue,
+    String? awaitingTurnId,
   }) {
     return ChatState(
       sessionId: sessionId ?? this.sessionId,
       turns: turns ?? this.turns,
       streaming: streaming ?? this.streaming,
       issue: issue ?? this.issue,
+      awaitingTurnId: awaitingTurnId ?? this.awaitingTurnId,
     );
   }
 }
@@ -187,8 +197,11 @@ List<ChatToolDefinition> chatTools(Ref ref) => <ChatToolDefinition>[
   ChatToolDefinition(
     name: 'get_adb_status',
     description:
-        'Check whether ADB over USB or ADB over Wi-Fi is currently '
-        'enabled on the device.',
+        'Check whether the ADB debugging switches are enabled (USB / Wi-Fi). '
+        'This only reports the system switches, not whether an adb shell '
+        'channel is actually connected: Wi-Fi debugging can be on while no '
+        'shell is live. To use or verify the shell, call adb_shell_exec; if it '
+        'returns connected=false, call adb_pairing_request.',
     parameters: noArgsSchema,
     execute: (Map<String, dynamic> arguments) async {
       final status = await ref.read(adbStatusProvider.future);
@@ -198,6 +211,7 @@ List<ChatToolDefinition> chatTools(Ref ref) => <ChatToolDefinition>[
       });
     },
   ),
+  ...adbTools(ref),
   ...escalationQueryTools(ref),
   ...escalationActionTools(ref),
   ...ghostKeyTools(ref),
@@ -294,6 +308,18 @@ class ChatController extends _$ChatController {
     await _runSession(job, config);
   }
 
+  /// 由对话内的组件在用户完成操作后调用，放行被挂起的那一轮。
+  ///
+  /// 只完成 run loop 里的等待，模型已在内存中的上下文里继续生成；
+  /// 不重发请求，因此不会出现「续跑后又被自己挂起」的循环。
+  bool resumeAfterUserAction() {
+    final ChatStreamSession? job = _jobs[state.sessionId];
+    if (job == null || !job.running) return false;
+    if (!job.resumeFromUser()) return false;
+    state = state.copyWith(awaitingTurnId: '');
+    return true;
+  }
+
   /// 中止当前会话的流；其他会话的后台任务不受影响，已收到的内容保留。
   void stop() {
     final String id = state.sessionId;
@@ -303,12 +329,19 @@ class ChatController extends _$ChatController {
     job.running = false;
     job.cancel();
     ref.read(chatJobsProvider.notifier).dropped(id);
-    // 把中断的那一轮标记为已结束，避免后台收尾时又把「生成中」写回 UI。
+    // 把中断的那一轮标记为已结束，并清掉挂起提示：run loop 已停，
+    // 留着「等用户操作」会变成一个点了也没有反应的组件。
     job.turns = <ChatTurn>[
       for (final ChatTurn turn in job.turns)
-        turn.streaming ? turn.copyWith(streaming: false) : turn,
+        turn.streaming || turn.notice == ChatNotice.awaitingUser
+            ? turn.copyWith(streaming: false, notice: ChatNotice.none)
+            : turn,
     ];
-    state = state.copyWith(turns: job.turns, streaming: false);
+    state = state.copyWith(
+      turns: job.turns,
+      streaming: false,
+      awaitingTurnId: '',
+    );
     // job 已从 _jobs 摘除，必须显式传快照才能落盘，
     // 避免停止后直接退出应用丢掉已收到的内容。
     unawaited(_flushSession(id, snapshot: job.turns));
@@ -426,6 +459,18 @@ class ChatController extends _$ChatController {
         config: config,
         tools: ref.read(chatToolsProvider),
       );
+    } catch (error) {
+      // 请求层异常必须落到界面：否则续跑失败时用户只看到「什么都没发生」。
+      if (job.turns.isNotEmpty) {
+        final String lastId = job.turns.last.id;
+        job.turns = <ChatTurn>[
+          for (final ChatTurn turn in job.turns)
+            turn.id == lastId
+                ? turn.copyWith(error: '$error', streaming: false)
+                : turn,
+        ];
+        _publish(job);
+      }
     } finally {
       job.running = false;
       job.cancel();
@@ -439,7 +484,11 @@ class ChatController extends _$ChatController {
         _jobs.remove(job.sessionId);
         if (visible) {
           state = _stopStreaming(
-            state.copyWith(turns: job.turns, streaming: false),
+            state.copyWith(
+              turns: job.turns,
+              streaming: false,
+              awaitingTurnId: job.awaitTurnId,
+            ),
           );
         }
         await ref
@@ -468,10 +517,16 @@ class ChatController extends _$ChatController {
 
     // 目标会话若还在后台跑，优先用它内存里的最新内容。
     final ChatStreamSession? job = _jobs[next.currentId];
+    final List<ChatTurn> turns =
+        job?.turns ?? next.current?.turns ?? const <ChatTurn>[];
+    // 内存里的任务以自己记下的轮次为准；磁盘恢复的历史没有 run loop 可放行，
+    // 不认挂起标记，免得留下一个点了也没反应的组件。
+    final String awaitingTurnId = job?.awaitTurnId ?? '';
     state = ChatState(
       sessionId: next.currentId,
-      turns: job?.turns ?? next.current?.turns ?? const <ChatTurn>[],
+      turns: turns,
       streaming: job?.running ?? false,
+      awaitingTurnId: awaitingTurnId,
     );
   }
 
@@ -480,7 +535,10 @@ class ChatController extends _$ChatController {
     // 任务被 stop / 删除接管后仍会走完收尾逻辑，此时不能再覆盖新内容。
     if (!identical(_jobs[job.sessionId], job)) return;
     if (job.sessionId != state.sessionId) return;
-    state = state.copyWith(turns: job.turns);
+    state = state.copyWith(
+      turns: job.turns,
+      awaitingTurnId: job.awaitTurnId,
+    );
   }
 
   /// 由首条用户消息生成会话标题：取首行，最多 24 个字符。

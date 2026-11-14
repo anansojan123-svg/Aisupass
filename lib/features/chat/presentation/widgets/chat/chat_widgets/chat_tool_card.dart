@@ -234,6 +234,8 @@ String _toolLabel(BuildContext context, String name) {
     'get_device_info' => context.l10n.chatToolReadDevice,
     'get_root_status' => context.l10n.chatToolCheckRoot,
     'get_adb_status' => context.l10n.chatToolCheckAdb,
+    'adb_shell_exec' => context.l10n.chatToolExecAdbShell,
+    'adb_pairing_request' => context.l10n.chatToolRequestAdbPairing,
     _ => name.isEmpty ? context.l10n.chatToolRunning : _humanize(name),
   };
 }

@@ -235,9 +235,9 @@
   "@chatCopied": {
     "description": "Copy success toast"
   },
-  "chatNoticeToolLimit": "Tool call limit reached, try rephrasing",
-  "@chatNoticeToolLimit": {
-    "description": "Tool call round limit notice"
+  "chatNoticeAwaitingUser": "Waiting for you to finish above, then continuing",
+  "@chatNoticeAwaitingUser": {
+    "description": "工具渲染了需要用户操作的组件，本轮挂起"
   },
   "chatNoticeEmptyReply": "The model returned no content",
   "@chatNoticeEmptyReply": {
@@ -341,6 +341,29 @@
   "chatToolReadDevice": "Read device info",
   "chatToolCheckRoot": "Check ROOT status",
   "chatToolCheckAdb": "Check ADB status",
+  "@chatToolCheckAdb": {
+    "description": "工具动作名-get_adb_status"
+  },
+  "chatToolExecAdbShell": "Run adb shell command",
+  "@chatToolExecAdbShell": {
+    "description": "工具动作名-adb_shell_exec"
+  },
+  "chatToolRequestAdbPairing": "Request wireless debugging pairing",
+  "@chatToolRequestAdbPairing": {
+    "description": "工具动作名-adb_pairing_request"
+  },
+  "chatAdbPanelTitle": "Wireless debugging",
+  "@chatAdbPanelTitle": {
+    "description": "对话内 ADB 连接组件标题"
+  },
+  "chatAdbPairingPending": "Wireless debugging is open; come back after pairing",
+  "@chatAdbPairingPending": {
+    "description": "对话内 ADB 组件-已发起配对并挂起"
+  },
+  "chatAdbPairingFailed": "Pairing did not finish",
+  "@chatAdbPairingFailed": {
+    "description": "对话内 ADB 组件-配对失败"
+  },
   "chatThoughtFor": "Thought for {seconds}s",
   "@chatThoughtFor": {
     "placeholders": {

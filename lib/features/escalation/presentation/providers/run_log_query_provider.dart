@@ -34,10 +34,14 @@ Future<String> exportAllRunLogs(Ref ref) =>
 /// 单条日志正文。参数是 `RunLogMeta.fileName`。
 @riverpod
 Future<List<String>> runLogBody(Ref ref, {required String fileName}) async {
+  // 仓储必须在第一个 await 之前取出：await 之后再用 ref 会命中已销毁的 Ref。
+  final RunLogQueryRepository repository = ref.watch(
+    runLogQueryRepositoryProvider,
+  );
   final List<RunLogMeta> metas = await ref.watch(runLogsProvider.future);
   final RunLogMeta? meta = _findByFile(metas, fileName);
   if (meta == null) return const <String>[];
-  return ref.watch(runLogQueryRepositoryProvider).readBody(meta: meta);
+  return repository.readBody(meta: meta);
 }
 
 /// 失败归因。一次性调用，不订阅。

@@ -415,7 +415,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatCopied => 'Copied to clipboard';
 
   @override
-  String get chatNoticeToolLimit => 'Tool call limit reached, try rephrasing';
+  String get chatNoticeAwaitingUser =>
+      'Waiting for you to finish above, then continuing';
 
   @override
   String get chatNoticeEmptyReply => 'The model returned no content';
@@ -515,6 +516,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatToolCheckAdb => 'Check ADB status';
+
+  @override
+  String get chatToolExecAdbShell => 'Run adb shell command';
+
+  @override
+  String get chatToolRequestAdbPairing => 'Request wireless debugging pairing';
+
+  @override
+  String get chatAdbPanelTitle => 'Wireless debugging';
+
+  @override
+  String get chatAdbPairingPending =>
+      'Wireless debugging is open; come back after pairing';
+
+  @override
+  String get chatAdbPairingFailed => 'Pairing did not finish';
 
   @override
   String chatThoughtFor(String seconds) {

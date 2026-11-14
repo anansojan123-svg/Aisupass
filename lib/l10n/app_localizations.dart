@@ -860,11 +860,11 @@ abstract class AppLocalizations {
   /// **'已复制到剪贴板'**
   String get chatCopied;
 
-  /// 工具调用轮次超限提示
+  /// 工具渲染了需要用户操作的组件，本轮挂起
   ///
   /// In zh, this message translates to:
-  /// **'工具调用次数已达上限，请换个问法继续'**
-  String get chatNoticeToolLimit;
+  /// **'等你在上方完成操作后自动继续'**
+  String get chatNoticeAwaitingUser;
 
   /// 模型返回空内容提示
   ///
@@ -1033,6 +1033,36 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'检查 ADB 状态'**
   String get chatToolCheckAdb;
+
+  /// 工具动作名-adb_shell_exec
+  ///
+  /// In zh, this message translates to:
+  /// **'执行 adb shell 命令'**
+  String get chatToolExecAdbShell;
+
+  /// 工具动作名-adb_pairing_request
+  ///
+  /// In zh, this message translates to:
+  /// **'请求无线调试配对'**
+  String get chatToolRequestAdbPairing;
+
+  /// 对话内 ADB 连接组件标题
+  ///
+  /// In zh, this message translates to:
+  /// **'无线调试连接'**
+  String get chatAdbPanelTitle;
+
+  /// 对话内 ADB 组件-已发起配对并挂起
+  ///
+  /// In zh, this message translates to:
+  /// **'已打开系统无线调试，完成配对后返回即可'**
+  String get chatAdbPairingPending;
+
+  /// 对话内 ADB 组件-配对失败
+  ///
+  /// In zh, this message translates to:
+  /// **'配对未完成'**
+  String get chatAdbPairingFailed;
 
   /// 思考过程耗时摘要
   ///

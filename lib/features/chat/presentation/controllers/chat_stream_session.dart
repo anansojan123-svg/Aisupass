@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:Aisupass/features/ai/domain/models/ai_config.dart';
 import 'package:Aisupass/features/chat/domain/enums/chat_notice.dart';
@@ -24,9 +25,6 @@ class ChatStreamSession {
     this.title,
   }) : turns = <ChatTurn>[...initialTurns];
 
-  /// 单次发送最多允许的模型调用轮次，避免工具调用死循环。
-  static const int _maxRounds = 6;
-
   final String sessionId;
 
   /// 首条消息生成的会话标题，仅在落盘时由会话自己决定是否采用。
@@ -40,6 +38,18 @@ class ChatStreamSession {
 
   /// 是否已被外部中止。
   bool cancelled = false;
+
+  /// 已挂起、等用户操作的轮次 id；空串表示没有挂起。
+  ///
+  /// 由挂起分支直接写入，不靠轮次上的 notice 反推，
+  /// 避免 UI 侧拿到一个被后续状态覆盖掉的值。
+  String awaitTurnId = '';
+
+  /// 挂起时 Run loop 停在这里；UI 完成后放行。
+  ///
+  /// 用 Completer 原地阻塞而不是「结束本轮再重发请求」：上下文与工具结果
+  /// 都还在内存里，放行后直接续跑下一轮，不需要重新组装历史。
+  Completer<void>? _userAction;
 
   /// 轮次变化回调，由持有者同步给 UI 状态。
   void Function(List<ChatTurn> turns)? onChanged;
@@ -55,6 +65,18 @@ class ChatStreamSession {
 
   int _sequence = 0;
 
+  /// UI 侧调用：用户已完成操作，放行挂起的那一轮。
+  ///
+  /// 返回是否真的放行了；重复调用与无挂起时都返回 false。
+  bool resumeFromUser() {
+    if (awaitTurnId.isEmpty) return false;
+    final Completer<void>? pending = _userAction;
+    _userAction = null;
+    if (pending == null || pending.isCompleted) return false;
+    pending.complete();
+    return true;
+  }
+
   /// 中止请求并释放订阅；已收到的内容保留在 [turns] 中。
   void cancel() {
     cancelled = true;
@@ -63,6 +85,9 @@ class ChatStreamSession {
     final Completer<void>? waiting = _pending;
     _pending = null;
     if (waiting != null && !waiting.isCompleted) waiting.complete();
+    final Completer<void>? user = _userAction;
+    _userAction = null;
+    if (user != null && !user.isCompleted) user.complete();
   }
 
   /// 跑完整轮请求；异常由调用方兜底。
@@ -71,7 +96,8 @@ class ChatStreamSession {
     required AiConfig config,
     required List<ChatToolDefinition> tools,
   }) async {
-    for (int round = 1; round <= _maxRounds; round += 1) {
+    // 不设轮次上限：模型自己决定何时收尾，由用户随时停止或取消。
+    while (true) {
       final String turnId = _nextId();
       final Stopwatch watch = Stopwatch()..start();
       _toolSlots.clear();
@@ -126,14 +152,46 @@ class ChatStreamSession {
       await _executeTools(turnId, tools);
       if (cancelled) return;
 
-      if (round >= _maxRounds) {
+      // 本轮渲染了需要用户操作的组件：原地挂起，等用户完成后再继续。
+      if (_awaitsUser(turnId)) {
+        awaitTurnId = turnId;
         _updateTurn(
           turnId,
-          (ChatTurn item) => item.copyWith(notice: ChatNotice.toolCallLimit),
+          (ChatTurn item) => item.copyWith(notice: ChatNotice.awaitingUser),
         );
-        return;
+        _userAction = Completer<void>();
+        await _userAction!.future;
+        _userAction = null;
+        awaitTurnId = '';
+        if (cancelled) return;
+        // 用户已完成：清掉提示，带着本轮工具结果继续下一轮，
+        // 不重发请求、不重建会话上下文。
+        _updateTurn(
+          turnId,
+          (ChatTurn item) => item.copyWith(notice: ChatNotice.none),
+        );
+        continue;
       }
     }
+  }
+
+  /// 本轮是否有工具声明了必须等用户操作。
+  ///
+  /// 约定在工具结果里带 `awaitsUser: true`，由工具自己声明，
+  /// 控制器只认这个键，不按工具名下判断。
+  bool _awaitsUser(String turnId) {
+    final ChatTurn? turn = _turnById(turnId);
+    if (turn == null) return false;
+    for (final ChatToolCall call in turn.toolCalls) {
+      if (call.status != ChatToolStatus.succeeded) continue;
+      try {
+        final Object? decoded = jsonDecode(call.result);
+        if (decoded is Map && decoded['awaitsUser'] == true) return true;
+      } on FormatException {
+        continue;
+      }
+    }
+    return false;
   }
 
   /// 订阅一轮流式响应，直到收到终止事件或失败。

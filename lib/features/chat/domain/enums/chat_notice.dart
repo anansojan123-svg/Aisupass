@@ -2,7 +2,8 @@
 enum ChatNotice {
   /// 无提示。
   none,
-  toolCallLimit,
+  /// 本轮已渲染需要用户操作的组件，等用户处理完再续跑。
+  awaitingUser,
   emptyReply;
 
   /// 名称解析；非法值回落到 [ChatNotice.none]。

@@ -5,6 +5,7 @@ import 'package:Aisupass/features/ai/domain/constants/builtin_ai_config.dart';
 import 'package:Aisupass/features/ai/domain/enums/ai_api_type.dart';
 import 'package:Aisupass/features/ai/domain/models/ai_config.dart';
 import 'package:Aisupass/features/ai/domain/repositories/ai_config_query_repository.dart';
+import 'package:Aisupass/features/ai/domain/repositories/ai_model_query_repository.dart';
 import 'package:Aisupass/features/ai/presentation/providers/ai_model_query_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -99,11 +100,15 @@ final FutureProvider<bool> aiStatusProvider = FutureProvider<bool>((
   Ref ref,
 ) async {
   try {
+    // 仓储必须在第一个 await 之前取出：await 之后再用 ref 会命中已销毁的 Ref。
+    final AiModelQueryRepository repository = ref.read(
+      aiModelQueryRepositoryProvider,
+    );
     final AiConfigState state = await ref.watch(aiConfigProvider.future);
     final AiConfig? config = state.current;
     if (config == null || config.apiUrl.trim().isEmpty) return false;
 
-    await ref.read(aiModelQueryRepositoryProvider).fetchModels(config);
+    await repository.fetchModels(config);
     return true;
   } catch (_) {
     // 地址、Key、网络任一环节失败都按未激活处理，交由用户去配置页修正。

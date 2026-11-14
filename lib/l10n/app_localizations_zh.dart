@@ -409,7 +409,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatCopied => '已复制到剪贴板';
 
   @override
-  String get chatNoticeToolLimit => '工具调用次数已达上限，请换个问法继续';
+  String get chatNoticeAwaitingUser => '等你在上方完成操作后自动继续';
 
   @override
   String get chatNoticeEmptyReply => '模型没有返回内容';
@@ -508,6 +508,21 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get chatToolCheckAdb => '检查 ADB 状态';
+
+  @override
+  String get chatToolExecAdbShell => '执行 adb shell 命令';
+
+  @override
+  String get chatToolRequestAdbPairing => '请求无线调试配对';
+
+  @override
+  String get chatAdbPanelTitle => '无线调试连接';
+
+  @override
+  String get chatAdbPairingPending => '已打开系统无线调试，完成配对后返回即可';
+
+  @override
+  String get chatAdbPairingFailed => '配对未完成';
 
   @override
   String chatThoughtFor(String seconds) {
