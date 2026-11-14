@@ -68,4 +68,15 @@ abstract class GhostLockProfileActionRepository {
 
   /// 把旧格式文档转换为当前布局并存为新文档。
   Future<GhostLockImportResult> convertImportedProfile({required String name});
+
+  /// 把本 App 缓存里的文件另存到手机「下载」目录。
+  ///
+  /// 成功返回落点显示名，失败返回空串。
+  Future<String> exportLocalFile({
+    required String sourcePath,
+    required String fileName,
+  });
+
+  /// 上一次提取在缓存里留下的镜像路径（boot / xbl_config / uefi）。
+  Future<List<String>> listExtractedImages();
 }

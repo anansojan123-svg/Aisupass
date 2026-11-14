@@ -1,8 +1,12 @@
 package org.supass.ai_su_pass.core.bridge.ghost_lock_native
 
+import android.content.ContentValues
 import android.content.Context
+import android.os.Environment
 import android.os.Handler
 import android.os.Looper
+import android.provider.MediaStore
+import java.io.File
 import java.util.concurrent.Executors
 import org.supass.ai_su_pass.cve43499.GhostLockAssets
 import org.supass.ai_su_pass.cve43499.GhostLockProfileController
@@ -276,6 +280,65 @@ class GhostLockProfileNativeImpl(context: Context) : GhostLockProfileNative {
             }
             mainHandler.post { callback(Result.success(result)) }
         }
+    }
+
+    override fun exportLocalFile(
+        sourcePath: String,
+        fileName: String,
+        callback: (Result<String>) -> Unit,
+    ) {
+        worker.execute {
+            val saved = runCatching { copyToDownloads(sourcePath, fileName) }
+                .getOrDefault("")
+            mainHandler.post { callback(Result.success(saved)) }
+        }
+    }
+
+    override fun listExtractedImages(callback: (Result<List<String>>) -> Unit) {
+        worker.execute {
+            val dir = File(appContext.cacheDir, "ghostlock-payload")
+            val images = dir.listFiles()
+                .orEmpty()
+                .filter { it.isFile && it.length() > 0 }
+                .filter { it.extension.lowercase() in setOf("img", "bin") }
+                .sortedBy { it.name }
+                .map { it.absolutePath }
+            mainHandler.post { callback(Result.success(images)) }
+        }
+    }
+
+    /**
+     * 把缓存里的镜像复制到「下载」目录（MediaStore）。
+     *
+     * 只允许本 App 缓存目录内的源文件，避免被当作任意文件搬运通道。
+     * 成功返回落点显示名，失败返回空串。
+     */
+    private fun copyToDownloads(sourcePath: String, fileName: String): String {
+        if (sourcePath.isBlank()) return ""
+        val source = File(sourcePath)
+        val cacheRoot = appContext.cacheDir.canonicalFile
+        val canonical = source.canonicalFile
+        if (!canonical.path.startsWith(cacheRoot.path + File.separator)) return ""
+        if (!canonical.isFile || canonical.length() == 0L) return ""
+        val display = fileName.ifBlank { canonical.name }
+        val resolver = appContext.contentResolver
+        val values = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, display)
+            put(MediaStore.MediaColumns.MIME_TYPE, "application/octet-stream")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+        }
+        val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+            ?: return ""
+        val copied = runCatching {
+            resolver.openOutputStream(uri)?.use { output ->
+                canonical.inputStream().use { input -> input.copyTo(output) }
+            } ?: error("openOutput failed")
+        }.isSuccess
+        if (!copied) {
+            runCatching { resolver.delete(uri, null, null) }
+            return ""
+        }
+        return display
     }
 
     /** 由 [org.supass.ai_su_pass.NativeProvider] 在重建或销毁时调用。 */

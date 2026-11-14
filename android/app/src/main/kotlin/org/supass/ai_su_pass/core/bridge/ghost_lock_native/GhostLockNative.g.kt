@@ -1124,6 +1124,18 @@ interface GhostLockProfileNative {
   fun exportImportedProfile(name: String, callback: (Result<String>) -> Unit)
   /** 把旧格式用户文档转换为当前布局并存为新文档。 */
   fun convertImportedProfile(name: String, callback: (Result<GhostLockImportResult>) -> Unit)
+  /**
+   * 把 [sourcePath] 另存到手机「下载」目录。
+   *
+   * 只接受本 App 私有目录（缓存）里的文件；成功返回落点显示名，失败返回空串。
+   */
+  fun exportLocalFile(sourcePath: String, fileName: String, callback: (Result<String>) -> Unit)
+  /**
+   * 上一次提取在缓存里留下的镜像路径（boot / xbl_config / uefi）。
+   *
+   * 供「导出镜像」列出可选文件；没有任何提取产物时返回空列表。
+   */
+  fun listExtractedImages(callback: (Result<List<String>>) -> Unit)
 
   companion object {
     /** The codec used by GhostLockProfileNative. */
@@ -1372,6 +1384,45 @@ interface GhostLockProfileNative {
             val args = message as List<Any?>
             val nameArg = args[0] as String
             api.convertImportedProfile(nameArg) { result: Result<GhostLockImportResult> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(GhostLockNativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(GhostLockNativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.GhostLockProfileNative.exportLocalFile$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val sourcePathArg = args[0] as String
+            val fileNameArg = args[1] as String
+            api.exportLocalFile(sourcePathArg, fileNameArg) { result: Result<String> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(GhostLockNativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(GhostLockNativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.GhostLockProfileNative.listExtractedImages$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            api.listExtractedImages{ result: Result<List<String>> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(GhostLockNativePigeonUtils.wrapError(error))

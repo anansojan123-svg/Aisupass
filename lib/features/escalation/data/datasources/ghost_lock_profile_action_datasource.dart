@@ -101,4 +101,13 @@ class GhostLockProfileActionDatasource {
   }) async => GhostLockImportResultDto.fromNative(
     await _native.convertImportedProfile(name),
   );
+
+  /// 把缓存里的文件另存到手机「下载」目录；成功返回落点显示名。
+  Future<String> exportLocalFile({
+    required String sourcePath,
+    required String fileName,
+  }) => _native.exportLocalFile(sourcePath, fileName);
+
+  /// 上一次提取留在缓存里的镜像路径。
+  Future<List<String>> listExtractedImages() => _native.listExtractedImages();
 }

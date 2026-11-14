@@ -1297,8 +1297,20 @@ interface Cve98260ProfileNative {
   fun renderProfileEditor(name: String, values: Map<String, String>, callback: (Result<String>) -> Unit)
   /** 当前生效的用户文档名；未选择返回空串。 */
   fun activeImportedProfile(callback: (Result<String>) -> Unit)
-  /** 指定生效的用户文档；空串表示回到自动匹配（最近修改的同 release 文档）。 */
+  /**
+   * 指定生效的用户文档；空串表示清除选择。
+   *
+   * 与 [selectBuiltinRelease] 互斥：选中用户文档会清掉内置表选择。
+   */
   fun selectImportedProfile(name: String, callback: (Result<Boolean>) -> Unit)
+  /** 当前生效的内置表 release；未选择返回空串。 */
+  fun activeBuiltinRelease(callback: (Result<String>) -> Unit)
+  /**
+   * 指定生效的内置表 release；空串表示清除选择。
+   *
+   * 与 [selectImportedProfile] 互斥：选中内置表会清掉用户文档选择。
+   */
+  fun selectBuiltinRelease(release: String, callback: (Result<Boolean>) -> Unit)
 
   companion object {
     /** The codec used by Cve98260ProfileNative. */
@@ -1553,6 +1565,44 @@ interface Cve98260ProfileNative {
             val args = message as List<Any?>
             val nameArg = args[0] as String
             api.selectImportedProfile(nameArg) { result: Result<Boolean> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(Cve98260NativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(Cve98260NativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.Cve98260ProfileNative.activeBuiltinRelease$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            api.activeBuiltinRelease{ result: Result<String> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(Cve98260NativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(Cve98260NativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.Cve98260ProfileNative.selectBuiltinRelease$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val releaseArg = args[0] as String
+            api.selectBuiltinRelease(releaseArg) { result: Result<Boolean> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(Cve98260NativePigeonUtils.wrapError(error))

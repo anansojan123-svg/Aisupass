@@ -3,10 +3,10 @@ package org.supass.ai_su_pass.cve98260.ota
 import android.content.Context
 
 /**
- * GhostKey 用户文档的生效选择。
+ * GhostKey 内核表的生效选择，与 GhostLock 一致分为两个互斥来源：
+ * 用户文档（存文档名，同一 release 可以有多份）与内置表（存 release）。
  *
- * 存储的是**文档名**而不是 release：同一 release 可以有多份文档，
- * 运行侧按这里选中的那份取用；未选择时由 [ImportedProfileStore] 的最近修改顺序决定。
+ * 两者都为空时由 [ImportedProfileStore] 的最近修改顺序 / 内置表精确匹配决定。
  */
 class ImportedProfileSelection(
     context: Context,
@@ -30,8 +30,19 @@ class ImportedProfileSelection(
         if (activeName() == name) setActiveName(null)
     }
 
+    fun activeBuiltin(): String? =
+        prefs.getString(KEY_ACTIVE_BUILTIN, null)?.takeIf { it.isNotEmpty() }
+
+    fun setActiveBuiltin(release: String?) {
+        prefs.edit().apply {
+            if (release.isNullOrBlank()) remove(KEY_ACTIVE_BUILTIN)
+            else putString(KEY_ACTIVE_BUILTIN, release)
+        }.apply()
+    }
+
     private companion object {
         const val PREF_FILE = "ghostkey_profile_selection"
         const val KEY_ACTIVE = "active_profile_name"
+        const val KEY_ACTIVE_BUILTIN = "active_builtin_release"
     }
 }

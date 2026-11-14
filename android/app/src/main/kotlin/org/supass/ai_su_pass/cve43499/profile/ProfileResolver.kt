@@ -10,6 +10,7 @@ import org.supass.ai_su_pass.cve43499.profile.route.RouteKind
 object ProfileResolver {
     private val KnownTopLevel = setOf(
         "release", "schema_version", "kernel_major", "recommend_shizuku",
+        "recommend_vr_guard", "vr_guard",
         "route", "fallback", "kernelsnitch", "task_struct", "cred", "offset",
         "kernel_phys_load", "kernel_phys_offset", "execution",
     )

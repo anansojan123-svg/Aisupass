@@ -33,6 +33,9 @@ abstract class KernelProfileActionRepository {
     required Map<String, String> values,
   });
 
-  /// 指定生效的用户文档；空串回到自动匹配。
+  /// 指定生效的用户文档；空串清除选择。
   Future<bool> selectImportedProfile({required String name});
+
+  /// 指定生效的内置表 release；空串清除选择。
+  Future<bool> selectBuiltinRelease({required String release});
 }

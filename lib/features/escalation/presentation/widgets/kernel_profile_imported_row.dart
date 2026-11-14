@@ -14,6 +14,7 @@ import 'package:Aisupass/l10n/app_localizations.dart';
 /// 单行 profile：release + 文档名/来源 + 可选删除按钮。
 ///
 /// [matched] 表示该行当前生效（与本机内核一致），[active] 表示用户显式选中了它。
+/// 传入 [onSelect] 时左侧换成单选圆点，点圆点切换生效（与 GhostLock 选表一致）。
 class KernelProfileImportedRow extends HookConsumerWidget {
   const KernelProfileImportedRow({
     super.key,
@@ -22,6 +23,9 @@ class KernelProfileImportedRow extends HookConsumerWidget {
     this.matched = false,
     this.active = false,
     this.editable = false,
+    this.selected = false,
+    this.mismatch = false,
+    this.onSelect,
   });
 
   final KernelProfile profile;
@@ -38,6 +42,15 @@ class KernelProfileImportedRow extends HookConsumerWidget {
   /// 用户导入文档可在详情弹窗内编辑。
   final bool editable;
 
+  /// 单选圆点是否选中；仅 [onSelect] 非空时有意义。
+  final bool selected;
+
+  /// 已选中但 release 与本机不一致：运行会被拒绝。
+  final bool mismatch;
+
+  /// 切换生效；为空时左侧只显示状态图标。
+  final VoidCallback? onSelect;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
@@ -46,7 +59,8 @@ class KernelProfileImportedRow extends HookConsumerWidget {
       if (profile.detail.isNotEmpty) profile.detail,
       if (profile.name.isNotEmpty) profile.name,
     ].join(' · ');
-    final bool hasSubtitle = matched || active || subtitle.isNotEmpty;
+    final bool hasSubtitle =
+        matched || active || mismatch || subtitle.isNotEmpty;
 
     Future<void> remove() async {
       final bool? confirmed = await showKernelProfileRemoveDialog(
@@ -64,7 +78,7 @@ class KernelProfileImportedRow extends HookConsumerWidget {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 1.h),
       child: Material(
-        color: matched
+        color: (selected || matched)
             ? scheme.primaryContainer.withValues(alpha: 0.45)
             : Colors.transparent,
         borderRadius: BorderRadius.circular(10.r),
@@ -79,12 +93,22 @@ class KernelProfileImportedRow extends HookConsumerWidget {
             padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 4.w),
             child: Row(
               children: <Widget>[
-                Icon(
-                  matched ? Icons.check_circle_rounded : Icons.circle_outlined,
-                  size: 15.sp,
-                  color: matched
-                      ? scheme.primary
-                      : scheme.onSurfaceVariant.withValues(alpha: 0.6),
+                InkResponse(
+                  onTap: onSelect,
+                  radius: 18.r,
+                  child: Icon(
+                    onSelect == null
+                        ? (matched
+                              ? Icons.check_circle_rounded
+                              : Icons.circle_outlined)
+                        : (selected
+                              ? Icons.radio_button_checked_rounded
+                              : Icons.radio_button_unchecked_rounded),
+                    size: 15.sp,
+                    color: (selected || matched)
+                        ? scheme.primary
+                        : scheme.onSurfaceVariant.withValues(alpha: 0.6),
+                  ),
                 ),
                 SizedBox(width: 8.w),
                 Expanded(
@@ -114,6 +138,12 @@ class KernelProfileImportedRow extends HookConsumerWidget {
                                 text: active
                                     ? l10n.kernelProfileActiveBadge
                                     : l10n.kernelProfileMatchesDevice,
+                              ),
+                              if (subtitle.isNotEmpty) SizedBox(width: 6.w),
+                            ] else if (mismatch) ...<Widget>[
+                              _MatchBadge(
+                                text: l10n.kernelProfileReviewMismatch,
+                                error: true,
                               ),
                               if (subtitle.isNotEmpty) SizedBox(width: 6.w),
                             ],
@@ -168,17 +198,21 @@ class KernelProfileImportedRow extends HookConsumerWidget {
 
 /// 生效标记：与 GhostLock 页签的选中态保持同一套主色语言。
 class _MatchBadge extends StatelessWidget {
-  const _MatchBadge({required this.text});
+  const _MatchBadge({required this.text, this.error = false});
 
   final String text;
+
+  /// 不一致等否定状态用错误色。
+  final bool error;
 
   @override
   Widget build(BuildContext context) {
     final ColorScheme scheme = context.colorScheme;
+    final Color tint = error ? scheme.error : scheme.primary;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.h),
       decoration: BoxDecoration(
-        color: scheme.primary.withValues(alpha: 0.12),
+        color: tint.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(4.r),
       ),
       child: Text(
@@ -186,7 +220,7 @@ class _MatchBadge extends StatelessWidget {
         style: TextStyle(
           fontSize: 9.5.sp,
           fontWeight: FontWeight.w600,
-          color: scheme.primary,
+          color: tint,
         ),
       ),
     );

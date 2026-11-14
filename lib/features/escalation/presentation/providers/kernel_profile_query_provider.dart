@@ -38,6 +38,11 @@ Future<List<KernelProfile>> kernelProfileBuiltinList(Ref ref) =>
 Future<String> kernelProfileActiveName(Ref ref) =>
     ref.watch(kernelProfileQueryRepositoryProvider).activeImportedProfile();
 
+/// 当前生效的内置表 release；未选择返回空串。
+@riverpod
+Future<String> kernelProfileActiveBuiltin(Ref ref) =>
+    ref.watch(kernelProfileQueryRepositoryProvider).activeBuiltinRelease();
+
 /// 单份 profile 的原始 HOCON 文本；`name` 为空时按 `release` 读内置表。
 @riverpod
 Future<String> kernelProfileContent(
@@ -53,6 +58,4 @@ Future<String> kernelProfileContent(
 Future<KernelProfileEditorState> kernelProfileEditor(
   Ref ref, {
   required String name,
-}) => ref
-    .watch(kernelProfileQueryRepositoryProvider)
-    .readEditor(name: name);
+}) => ref.watch(kernelProfileQueryRepositoryProvider).readEditor(name: name);

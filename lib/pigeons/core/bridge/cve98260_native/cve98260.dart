@@ -334,9 +334,21 @@ abstract class Cve98260ProfileNative {
   @async
   String activeImportedProfile();
 
-  /// 指定生效的用户文档；空串表示回到自动匹配（最近修改的同 release 文档）。
+  /// 指定生效的用户文档；空串表示清除选择。
+  ///
+  /// 与 [selectBuiltinRelease] 互斥：选中用户文档会清掉内置表选择。
   @async
   bool selectImportedProfile(String name);
+
+  /// 当前生效的内置表 release；未选择返回空串。
+  @async
+  String activeBuiltinRelease();
+
+  /// 指定生效的内置表 release；空串表示清除选择。
+  ///
+  /// 与 [selectImportedProfile] 互斥：选中内置表会清掉用户文档选择。
+  @async
+  bool selectBuiltinRelease(String release);
 }
 
 /// 开一轮新日志。`runId` 由原生侧自算并回传，不要在这里传。

@@ -1798,9 +1798,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get kernelProfileClearActive => '取消指定';
 
   @override
-  String get kernelProfileUseBuiltin => '使用内置表';
-
-  @override
   String get kernelProfileActivated => '已设为生效';
 
   @override
@@ -1940,6 +1937,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get kernelProfilePickHint => '选一份要生效的内核表；标「生效中」的是当前正在用的那份。';
 
   @override
+  String get kernelProfileKeySelectHint =>
+      '点左侧圆点切换生效的内核表；未指定时取最近导入的同 release 文档。';
+
+  @override
   String get kernelProfileReviewHint => '确认下面的来源。应用后编辑器改的就是这一份。';
 
   @override
@@ -1959,6 +1960,28 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get kernelProfileImportEntry => '导入内核表';
+
+  @override
+  String get kernelImageExport => '导出镜像';
+
+  @override
+  String kernelImageExportCount(int count) {
+    return '导出镜像（$count）';
+  }
+
+  @override
+  String get kernelImageExportHint => '把解析时解出的镜像保存到手机「下载」目录，便于重复使用或备份。';
+
+  @override
+  String get kernelImageExportEmpty => '没有可导出的镜像';
+
+  @override
+  String kernelImageExportSaved(String name) {
+    return '已保存 $name';
+  }
+
+  @override
+  String get kernelImageExportFailed => '导出失败';
 
   @override
   String get kernelProfileRemove => '删除';

@@ -2504,15 +2504,11 @@
   },
   "kernelProfileSetActive": "设为生效",
   "@kernelProfileSetActive": {
-    "description": "详情弹窗里指定该文档生效"
+    "description": "详情弹窗里指定该配置生效"
   },
   "kernelProfileClearActive": "取消指定",
   "@kernelProfileClearActive": {
-    "description": "详情弹窗里取消该文档的显式选择"
-  },
-  "kernelProfileUseBuiltin": "使用内置表",
-  "@kernelProfileUseBuiltin": {
-    "description": "内置表详情弹窗里清除用户文档选择"
+    "description": "详情弹窗里取消该配置的显式选择"
   },
   "kernelProfileActivated": "已设为生效",
   "@kernelProfileActivated": {
@@ -2714,6 +2710,10 @@
   "@kernelProfilePickHint": {
     "description": "第一步的说明"
   },
+  "kernelProfileKeySelectHint": "点左侧圆点切换生效的内核表；未指定时取最近导入的同 release 文档。",
+  "@kernelProfileKeySelectHint": {
+    "description": "GhostKey 我的配置页的选择说明"
+  },
   "kernelProfileReviewHint": "确认下面的来源。应用后编辑器改的就是这一份。",
   "@kernelProfileReviewHint": {
     "description": "第二步的说明"
@@ -2741,6 +2741,40 @@
   "kernelProfileImportEntry": "导入内核表",
   "@kernelProfileImportEntry": {
     "description": "打开导入弹层的按钮与标题"
+  },
+  "kernelImageExport": "导出镜像",
+  "@kernelImageExport": {
+    "description": "打开镜像导出弹层的按钮与标题"
+  },
+  "kernelImageExportCount": "导出镜像（{count}）",
+  "@kernelImageExportCount": {
+    "description": "导出入口上的数量；count 是镜像个数",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "kernelImageExportHint": "把解析时解出的镜像保存到手机「下载」目录，便于重复使用或备份。",
+  "@kernelImageExportHint": {
+    "description": "镜像导出弹层的说明"
+  },
+  "kernelImageExportEmpty": "没有可导出的镜像",
+  "@kernelImageExportEmpty": {
+    "description": "没有任何可导出镜像时的提示"
+  },
+  "kernelImageExportSaved": "已保存 {name}",
+  "@kernelImageExportSaved": {
+    "description": "镜像导出成功提示；name 是文件名",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "kernelImageExportFailed": "导出失败",
+  "@kernelImageExportFailed": {
+    "description": "镜像导出失败提示"
   },
   "kernelProfileRemove": "删除",
   "@kernelProfileRemove": {

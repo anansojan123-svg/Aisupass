@@ -1883,9 +1883,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get kernelProfileClearActive => 'Clear selection';
 
   @override
-  String get kernelProfileUseBuiltin => 'Use built-in table';
-
-  @override
   String get kernelProfileActivated => 'Set as active';
 
   @override
@@ -2031,6 +2028,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Pick the profile to use. The row marked Active is the one in use now.';
 
   @override
+  String get kernelProfileKeySelectHint =>
+      'Tap the dot to switch the active profile; without an explicit pick the most recently imported document for this release is used.';
+
+  @override
   String get kernelProfileReviewHint =>
       'Confirm the source below. The editor will edit this one after applying.';
 
@@ -2052,6 +2053,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get kernelProfileImportEntry => 'Import profile';
+
+  @override
+  String get kernelImageExport => 'Export images';
+
+  @override
+  String kernelImageExportCount(int count) {
+    return 'Export images ($count)';
+  }
+
+  @override
+  String get kernelImageExportHint =>
+      'Save the images extracted during parsing to the phone\'s Downloads folder for reuse or backup.';
+
+  @override
+  String get kernelImageExportEmpty => 'No image available to export';
+
+  @override
+  String kernelImageExportSaved(String name) {
+    return 'Saved $name';
+  }
+
+  @override
+  String get kernelImageExportFailed => 'Export failed';
 
   @override
   String get kernelProfileRemove => 'Remove';

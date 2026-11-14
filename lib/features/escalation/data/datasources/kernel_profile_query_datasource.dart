@@ -34,6 +34,9 @@ class KernelProfileQueryDatasource {
   /// 当前生效的用户文档名；未选择返回空串。
   Future<String> activeImportedProfile() => _native.activeImportedProfile();
 
+  /// 当前生效的内置表 release；未选择返回空串。
+  Future<String> activeBuiltinRelease() => _native.activeBuiltinRelease();
+
   /// Pigeon 传输对象 -> DTO。
   static KernelProfileDto _toDto(pigeon.KernelProfile native) =>
       KernelProfileDto(

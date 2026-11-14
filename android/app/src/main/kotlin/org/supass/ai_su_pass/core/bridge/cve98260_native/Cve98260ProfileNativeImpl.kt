@@ -135,14 +135,24 @@ class Cve98260ProfileNativeImpl(private val context: Context) : Cve98260ProfileN
 
     override fun selectImportedProfile(name: String, callback: (Result<Boolean>) -> Unit) {
         runAsync(callback) {
-            if (name.isEmpty()) {
-                selection.setActiveName(null)
-                true
-            } else {
-                selection.setActiveName(name)
-                Log.i(TAG, "selected profile $name")
-                true
-            }
+            /* 生效来源二选一，与 GhostLock 的 selectUserProfile 一致。 */
+            if (name.isNotEmpty()) selection.setActiveBuiltin(null)
+            selection.setActiveName(name)
+            Log.i(TAG, "selected profile ${name.ifEmpty { "<none>" }}")
+            true
+        }
+    }
+
+    override fun activeBuiltinRelease(callback: (Result<String>) -> Unit) {
+        runAsync(callback) { selection.activeBuiltin().orEmpty() }
+    }
+
+    override fun selectBuiltinRelease(release: String, callback: (Result<Boolean>) -> Unit) {
+        runAsync(callback) {
+            if (release.isNotEmpty()) selection.setActiveName(null)
+            selection.setActiveBuiltin(release)
+            Log.i(TAG, "selected builtin ${release.ifEmpty { "<none>" }}")
+            true
         }
     }
 

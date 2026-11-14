@@ -101,4 +101,17 @@ class GhostLockProfileActionRepositoryImpl
   Future<GhostLockImportResult> convertImportedProfile({
     required String name,
   }) async => (await _datasource.convertImportedProfile(name: name)).toEntity();
+
+  @override
+  Future<String> exportLocalFile({
+    required String sourcePath,
+    required String fileName,
+  }) => _datasource.exportLocalFile(
+    sourcePath: sourcePath,
+    fileName: fileName,
+  );
+
+  @override
+  Future<List<String>> listExtractedImages() =>
+      _datasource.listExtractedImages();
 }

@@ -37,4 +37,7 @@ class KernelProfileQueryRepositoryImpl implements KernelProfileQueryRepository {
 
   @override
   Future<String> activeImportedProfile() => _datasource.activeImportedProfile();
+
+  @override
+  Future<String> activeBuiltinRelease() => _datasource.activeBuiltinRelease();
 }

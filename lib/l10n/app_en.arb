@@ -951,7 +951,6 @@
   "kernelProfileActiveBadge": "Active",
   "kernelProfileSetActive": "Set active",
   "kernelProfileClearActive": "Clear selection",
-  "kernelProfileUseBuiltin": "Use built-in table",
   "kernelProfileActivated": "Set as active",
   "kernelProfileClearedActive": "Automatic matching restored",
   "kernelProfileEditSaved": "Saved",
@@ -1004,6 +1003,7 @@
   "kernelProfileEditAfterApply": "Tune parameters",
   "kernelProfileEditAfterApplyHint": "Parameters can only be edited once active: finish this step, then open the editor.",
   "kernelProfilePickHint": "Pick the profile to use. The row marked Active is the one in use now.",
+  "kernelProfileKeySelectHint": "Tap the dot to switch the active profile; without an explicit pick the most recently imported document for this release is used.",
   "kernelProfileReviewHint": "Confirm the source below. The editor will edit this one after applying.",
   "kernelProfileDeclaredKernel": "Declared kernel",
   "kernelProfileReviewMatch": "Matches this device, ready to run",
@@ -1011,6 +1011,26 @@
   "kernelProfileGhostKeyEntry": "GhostKey profiles",
   "kernelProfileGhostLockEntry": "GhostLock profiles",
   "kernelProfileImportEntry": "Import profile",
+  "kernelImageExport": "Export images",
+  "kernelImageExportCount": "Export images ({count})",
+  "@kernelImageExportCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "kernelImageExportHint": "Save the images extracted during parsing to the phone's Downloads folder for reuse or backup.",
+  "kernelImageExportEmpty": "No image available to export",
+  "kernelImageExportSaved": "Saved {name}",
+  "@kernelImageExportSaved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "kernelImageExportFailed": "Export failed",
   "kernelProfileRemove": "Remove",
   "kernelProfileRemoveConfirmTitle": "Remove this profile?",
   "kernelProfileRemoveConfirmBody": "{release} will be deleted. If no other profile matches this device, you will need to import again.",

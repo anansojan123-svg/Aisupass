@@ -566,6 +566,19 @@ class GhostLockProfileActions {
     return result;
   }
 
+  /// 把缓存里的镜像另存到手机「下载」目录；返回落点显示名，失败为空串。
+  Future<String> exportLocalFile({
+    required String sourcePath,
+    required String fileName,
+  }) => _ref
+      .read(ghostLockProfileActionRepositoryProvider)
+      .exportLocalFile(sourcePath: sourcePath, fileName: fileName);
+
+  /// 上一次提取留在缓存里的镜像路径。
+  Future<List<String>> listExtractedImages() => _ref
+      .read(ghostLockProfileActionRepositoryProvider)
+      .listExtractedImages();
+
   /// 写通用参数。
   Future<GhostLockProfileConfig> updateGeneral({
     required String release,

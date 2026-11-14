@@ -18,6 +18,8 @@ import org.supass.ai_su_pass.cve98260.ota.ImportedProfileStore
  *
  * 用户文档与 GhostLock 一致：文件名即文档名，同 release 可以有多份；
  * 选中的那份优先，未选中时取最近修改的一份。
+ *
+ * 生效来源二选一（用户文档 / 内置表），都未指定时才自动匹配。
  */
 class BuiltinProfileCatalog(
     private val loader: AssetConfigLoader,
@@ -39,12 +41,13 @@ class BuiltinProfileCatalog(
     fun activeUserName(): String = selection?.activeName().orEmpty()
 
     /**
-     * 精确匹配，来源优先级：选中的用户文档 → 最近修改的同 release 文档 → 内置表。
+     * 来源优先级：选中的用户文档 → 选中的内置表 → 最近修改的同 release 文档 → 内置表。
      *
-     * 选中文档与设备 release 不符时**不回退内置表**：用户显式选错了要如实报
-     * `noProfile`，否则运行侧会悄悄换成另一份偏移表。
+     * 选中的用户文档与设备 release 不符时如实返回 null（不回退内置表）；
+     * 选中的内置表按所选 release 取用，与 GhostLock 的 profileRelease 一致。
      */
     fun match(release: String): KernelProfile? {
+        reconcileActiveSource()
         val store = userStore
         if (store != null) {
             val active = selection?.activeName()
@@ -57,12 +60,29 @@ class BuiltinProfileCatalog(
                 Log.w(TAG, "选中的文档不可用，清除选择: $active")
                 selection?.setActiveName(null)
             }
+        }
+        val builtin = selection?.activeBuiltin()
+        if (!builtin.isNullOrEmpty()) {
+            return profiles.firstOrNull { it.release == builtin }
+        }
+        if (store != null) {
             store.list()
                 .firstOrNull { it.release == release && !it.parseError }
                 ?.let { store.loadByName(it.name) }
                 ?.let { return it }
         }
         return profiles.firstOrNull { it.release == release }
+    }
+
+    /**
+     * 收敛历史遗留的生效来源，与 GhostLock 的 `reconcileActiveSource` 一致：
+     * 双来源并存时保留用户文档，内置表选择只在用户层为空时才起作用。
+     */
+    private fun reconcileActiveSource() {
+        val active = selection ?: return
+        if (active.activeName() == null) return
+        if (active.activeBuiltin() == null) return
+        active.setActiveBuiltin(null)
     }
 
     private fun loadAll(): List<KernelProfile> {

@@ -248,6 +248,46 @@ final class KernelProfileActiveNameProvider
 String _$kernelProfileActiveNameHash() =>
     r'304f90f76c0be8e69e02501cf340cb7af7a2047d';
 
+/// 当前生效的内置表 release；未选择返回空串。
+
+@ProviderFor(kernelProfileActiveBuiltin)
+const kernelProfileActiveBuiltinProvider =
+    KernelProfileActiveBuiltinProvider._();
+
+/// 当前生效的内置表 release；未选择返回空串。
+
+final class KernelProfileActiveBuiltinProvider
+    extends $FunctionalProvider<AsyncValue<String>, String, FutureOr<String>>
+    with $FutureModifier<String>, $FutureProvider<String> {
+  /// 当前生效的内置表 release；未选择返回空串。
+  const KernelProfileActiveBuiltinProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'kernelProfileActiveBuiltinProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$kernelProfileActiveBuiltinHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<String> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<String> create(Ref ref) {
+    return kernelProfileActiveBuiltin(ref);
+  }
+}
+
+String _$kernelProfileActiveBuiltinHash() =>
+    r'327f199c3992eabf090a1b14f65a0d4ed76b5cad';
+
 /// 单份 profile 的原始 HOCON 文本；`name` 为空时按 `release` 读内置表。
 
 @ProviderFor(kernelProfileContent)

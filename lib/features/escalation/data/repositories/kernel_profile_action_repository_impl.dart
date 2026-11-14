@@ -64,6 +64,10 @@ class KernelProfileActionRepositoryImpl
   Future<bool> selectImportedProfile({required String name}) =>
       _datasource.selectImportedProfile(name: name);
 
+  @override
+  Future<bool> selectBuiltinRelease({required String release}) =>
+      _datasource.selectBuiltinRelease(release: release);
+
   /// 订阅一侧的导入任务，同时轮询进度；任务结束补一帧带真结果的进度块。
   Stream<KernelProfileImportState> _watch(
     Future<KernelProfileImportResultDto> task,

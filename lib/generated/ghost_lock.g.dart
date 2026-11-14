@@ -1269,6 +1269,50 @@ class GhostLockProfileNative {
     ;
     return pigeonVar_replyValue! as GhostLockImportResult;
   }
+
+  /// 把 [sourcePath] 另存到手机「下载」目录。
+  ///
+  /// 只接受本 App 私有目录（缓存）里的文件；成功返回落点显示名，失败返回空串。
+  Future<String> exportLocalFile(String sourcePath, String fileName) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.GhostLockProfileNative.exportLocalFile$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[sourcePath, fileName]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as String;
+  }
+
+  /// 上一次提取在缓存里留下的镜像路径（boot / xbl_config / uefi）。
+  ///
+  /// 供「导出镜像」列出可选文件；没有任何提取产物时返回空列表。
+  Future<List<String>> listExtractedImages() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.GhostLockProfileNative.listExtractedImages$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return (pigeonVar_replyValue! as List<Object?>).cast<String>();
+  }
 }
 
 /// profile 编辑：读取解析结果、写 sparse override、导出。

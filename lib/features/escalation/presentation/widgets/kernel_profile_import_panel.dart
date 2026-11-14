@@ -12,6 +12,7 @@ import 'package:Aisupass/features/escalation/presentation/providers/escalation_a
 import 'package:Aisupass/features/escalation/presentation/providers/kernel_profile_action_provider.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/kernel_profile_query_provider.dart';
 import 'package:Aisupass/features/escalation/presentation/widgets/kernel_image_input_section.dart';
+import 'package:Aisupass/features/escalation/presentation/widgets/kernel_image_export_sheet.dart';
 import 'package:Aisupass/features/escalation/presentation/widgets/kernel_profile_attach_section.dart';
 import 'package:Aisupass/features/escalation/presentation/widgets/kernel_profile_probe_result.dart';
 import 'package:Aisupass/l10n/app_localizations.dart';
@@ -133,6 +134,14 @@ class KernelProfileImportPanel extends HookConsumerWidget {
     final ValueNotifier<String?> ghostKeyPath = useState<String?>(null);
     final ValueNotifier<String?> ghostKeyUrl = useState<String?>(null);
     final ObjectRef<String> handledRelease = useRef<String>('');
+    /* 落盘后 probe 会被清空，导出镜像仍需记住本次解出的 boot。 */
+    final ObjectRef<String> lastBootPath = useRef<String>('');
+    /* 本次是否已解析成功；导出图标只在解析完成后出现。 */
+    final ValueNotifier<bool> parsed = useState<bool>(false);
+    /* 可导出的镜像路径；为空时不显示导出入口。 */
+    final ValueNotifier<List<String>> exportPaths = useState<List<String>>(
+      const <String>[],
+    );
 
     final AsyncValue<KernelProfileImportState>? ghostKeyImport =
         ghostKeyPath.value != null
@@ -171,6 +180,7 @@ class KernelProfileImportPanel extends HookConsumerWidget {
       probeError.value = null;
       failedAnalysis.value = null;
       doneText.value = null;
+      parsed.value = false;
     }
 
     /// 选择可选的 xbl_config / uefi / vendor_boot 镜像。
@@ -237,6 +247,49 @@ class KernelProfileImportPanel extends HookConsumerWidget {
       } catch (_) {
         // 生效来源切换失败不影响已落盘的结果。
       }
+    }
+
+    /// 收集可导出镜像：本次解出的 boot、用户附加的镜像、缓存里上一次提取的产物。
+    Future<List<String>> collectExportPaths() async {
+      final Set<String> paths = <String>{};
+      final GhostLockProbe? current = probe.value;
+      final String boot = current?.bootPath ?? lastBootPath.value;
+      if (boot.isNotEmpty) paths.add(boot);
+      for (final String? path in <String?>[
+        xblPath.value,
+        uefiPath.value,
+        vendorBootPath.value,
+      ]) {
+        if (path != null && path.isNotEmpty) paths.add(path);
+      }
+      try {
+        paths.addAll(
+          await ref.read(ghostLockProfileActionsProvider).listExtractedImages(),
+        );
+      } catch (_) {
+        // 列目录失败不影响已收集到的那部分。
+      }
+      return paths.toList();
+    }
+
+    /* 每次解析完成后才刷新可导出列表。 */
+    useEffect(() {
+      if (!parsed.value) {
+        exportPaths.value = const <String>[];
+        return null;
+      }
+      bool cancelled = false;
+      collectExportPaths().then((List<String> paths) {
+        if (!cancelled) exportPaths.value = paths;
+      });
+      return () => cancelled = true;
+    }, <Object?>[parsed.value, probe.value, lastBootPath.value]);
+
+    Future<void> exportImages() async {
+      final List<String> paths = await collectExportPaths();
+      if (!context.mounted) return;
+      exportPaths.value = paths;
+      await showKernelImageExportSheet(context, paths: paths);
     }
 
     /// 直接导入现成的 HOCON / JSON 内核表。
@@ -356,6 +409,9 @@ class KernelProfileImportPanel extends HookConsumerWidget {
             );
         if (result.ok) {
           probe.value = result;
+          lastBootPath.value = result.bootPath;
+          /* 只有解析成功才亮出导出图标。 */
+          parsed.value = true;
         } else {
           probeError.value = result.reason;
           failedAnalysis.value = result.analysis.isEmpty
@@ -636,31 +692,54 @@ class KernelProfileImportPanel extends HookConsumerWidget {
             child: SizedBox(
               width: double.infinity,
               height: 44.h,
-              child: probed == null
-                  ? FilledButton.icon(
-                      onPressed: anyBusy || imageInput.value.isEmpty
-                          ? null
-                          : parse,
-                      icon: probing.value
-                          ? SizedBox(
-                              width: 16.r,
-                              height: 16.r,
-                              child: const CircularProgressIndicator(
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : Icon(Icons.playlist_add_check_rounded, size: 18.r),
-                      label: Text(l10n.kernelProfileImportParseAction),
-                    )
-                  : FilledButton.icon(
-                      onPressed: anyBusy ? null : () => saveToTarget(probed),
-                      icon: Icon(Icons.save_alt_rounded, size: 18.r),
-                      label: Text(
-                        l10n.kernelProfileWriteToTarget(targetName),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: probed == null
+                        ? FilledButton.icon(
+                            onPressed: anyBusy || imageInput.value.isEmpty
+                                ? null
+                                : parse,
+                            icon: probing.value
+                                ? SizedBox(
+                                    width: 16.r,
+                                    height: 16.r,
+                                    child: const CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : Icon(
+                                    Icons.playlist_add_check_rounded,
+                                    size: 18.r,
+                                  ),
+                            label: Text(l10n.kernelProfileImportParseAction),
+                          )
+                        : FilledButton.icon(
+                            onPressed: anyBusy
+                                ? null
+                                : () => saveToTarget(probed),
+                            icon: Icon(Icons.save_alt_rounded, size: 18.r),
+                            label: Text(
+                              l10n.kernelProfileWriteToTarget(targetName),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                  ),
+                  /* 解析完成后才出现的导出图标。 */
+                  if (ghostLockTarget && parsed.value) ...<Widget>[
+                    SizedBox(width: 8.w),
+                    IconButton.filledTonal(
+                      onPressed: anyBusy ? null : exportImages,
+                      tooltip: l10n.kernelImageExport,
+                      icon: Icon(Icons.download_rounded, size: 20.r),
+                      style: IconButton.styleFrom(
+                        minimumSize: Size(44.r, 44.r),
                       ),
                     ),
+                  ],
+                ],
+              ),
             ),
           ),
         ),

@@ -338,6 +338,18 @@ abstract class GhostLockProfileNative {
   /// 把旧格式用户文档转换为当前布局并存为新文档。
   @async
   GhostLockImportResult convertImportedProfile(String name);
+
+  /// 把 [sourcePath] 另存到手机「下载」目录。
+  ///
+  /// 只接受本 App 私有目录（缓存）里的文件；成功返回落点显示名，失败返回空串。
+  @async
+  String exportLocalFile(String sourcePath, String fileName);
+
+  /// 上一次提取在缓存里留下的镜像路径（boot / xbl_config / uefi）。
+  ///
+  /// 供「导出镜像」列出可选文件；没有任何提取产物时返回空列表。
+  @async
+  List<String> listExtractedImages();
 }
 
 /// profile 树的一个节点，按先序扁平排列。

@@ -59,9 +59,14 @@ class KernelProfileDetailSheet extends HookConsumerWidget {
     final ValueNotifier<bool> showRaw = useState<bool>(false);
     final String activeName =
         ref.watch(kernelProfileActiveNameProvider).value ?? '';
+    final String activeBuiltin =
+        ref.watch(kernelProfileActiveBuiltinProvider).value ?? '';
     final ValueNotifier<bool> busy = useState<bool>(false);
     final bool isBusy = useValueListenable(busy);
-    final bool isActive = profile.name.isNotEmpty && profile.name == activeName;
+    /* 内置表以 release 标识，用户文档以文档名标识，两者互斥。 */
+    final bool isActive = profile.name.isNotEmpty
+        ? profile.name == activeName
+        : profile.release == activeBuiltin;
 
     return FractionallySizedBox(
       heightFactor: 0.9,
@@ -186,21 +191,32 @@ class KernelProfileDetailSheet extends HookConsumerWidget {
               },
             ),
           ),
-          if (profile.name.isNotEmpty || activeName.isNotEmpty)
+          if (profile.name.isNotEmpty ||
+              activeName.isNotEmpty ||
+              activeBuiltin.isNotEmpty)
             SafeArea(
               top: false,
               child: Padding(
                 padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 12.h),
                 child: Row(
                   children: <Widget>[
-                    /* 内置表行只在有显式选择时出现，用于回到自动匹配。 */
+                    /* 内置表：指定/取消这一份内置表，与用户文档来源互斥。 */
                     if (profile.name.isEmpty)
                       Expanded(
                         child: OutlinedButton(
                           onPressed: isBusy
                               ? null
-                              : () => _clearActive(context, ref, busy),
-                          child: Text(l10n.kernelProfileUseBuiltin),
+                              : () => _toggleBuiltin(
+                                  context,
+                                  ref,
+                                  busy,
+                                  isActive,
+                                ),
+                          child: Text(
+                            isActive
+                                ? l10n.kernelProfileClearActive
+                                : l10n.kernelProfileSetActive,
+                          ),
                         ),
                       ),
                     if (profile.name.isNotEmpty) ...<Widget>[
@@ -274,17 +290,25 @@ class KernelProfileDetailSheet extends HookConsumerWidget {
     }
   }
 
-  /// 清掉显式选择，恢复「最近修改的同 release 文档」自动匹配。
-  Future<void> _clearActive(
+  /// 指定/取消这份内置表；取消后由设备 release 精确匹配决定。
+  Future<void> _toggleBuiltin(
     BuildContext context,
     WidgetRef ref,
     ValueNotifier<bool> busy,
+    bool isActive,
   ) async {
+    final AppLocalizations l10n = context.l10n;
     busy.value = true;
     try {
-      await ref.read(kernelProfileActionsProvider).select('');
+      await ref
+          .read(kernelProfileActionsProvider)
+          .selectBuiltin(isActive ? '' : profile.release);
       if (!context.mounted) return;
-      ToastMessage.success(context.l10n.kernelProfileClearedActive);
+      ToastMessage.success(
+        isActive
+            ? l10n.kernelProfileClearedActive
+            : l10n.kernelProfileActivated,
+      );
     } catch (error) {
       if (context.mounted) ToastMessage.error(error);
     } finally {

@@ -20,8 +20,8 @@ use ghostlock_extract::boot::{BootImage, MTK_DEFAULT_PHYS_LOAD, MTK_VADDR_BASE};
 use ghostlock_extract::btf::Btf;
 use ghostlock_extract::derive::{
     derive_cred_5x, derive_nf_logger_registration, derive_pselect_layout,
-    ensure_rtmutex_43499_unpatched, multicast_waiter_off, relative_symbols,
-    PSELECT_ROUTE_NFDS,
+    derive_sys_exit_tp_funcs, ensure_rtmutex_43499_unpatched, multicast_waiter_off,
+    relative_symbols, MULTICAST_5X_WAITER_OFF, PSELECT_ROUTE_NFDS,
 };
 use ghostlock_extract::error::{ExtractError, Result};
 use ghostlock_extract::fdt::{recover_kernel_phys_load, recover_kernel_phys_load_from_uefi};
@@ -125,7 +125,7 @@ pub fn derive_profile(
         .uefi
         .filter(|path| !path.is_empty())
         .map(PathBuf::from);
-    let mut vendor_boot_path: Option<PathBuf> = options
+    let vendor_boot_path: Option<PathBuf> = options
         .vendor_boot
         .filter(|path| !path.is_empty())
         .map(PathBuf::from);
@@ -133,22 +133,20 @@ pub fn derive_profile(
 
     if payload::looks_like_payload(input) {
         let payload_work: PathBuf = work_dir.join("ghostlock-payload");
+        /* 每次解析前清空：导出列表只反映本次产物，不混入上次的镜像。 */
+        if payload_work.exists() {
+            std::fs::remove_dir_all(&payload_work)
+                .map_err(|err| ExtractError::new(format!("clear {}: {err}", payload_work.display())))?;
+        }
         let meta_view = payload::open_payload_meta_with_insecure(input, options.insecure)
             .map_err(|err| ExtractError::new(format!("{err:#}")))?;
-        let mut want = payload::analysis_partition_names(&meta_view)
+        let want = payload::analysis_partition_names(&meta_view)
             .map_err(|err| ExtractError::new(format!("{err:#}")))?;
         let available: Vec<String> = meta_view
             .partitions()
             .iter()
             .map(|p| p.partition_name.clone())
             .collect();
-        /* 没有 xbl_config 时才用 vendor_boot 补 kernel_phys_load，
-         * 避免多下一份大分区。 */
-        if !want.iter().any(|name| name == "xbl_config")
-            && available.iter().any(|name| name == "vendor_boot")
-        {
-            want.push("vendor_boot".to_string());
-        }
         let download_cb: Option<payload_extract::input::ProgressCallback> =
             progress.as_ref().map(|cb| {
                 let cb = Arc::clone(cb);
@@ -158,26 +156,9 @@ pub fn derive_profile(
         let payload_view = payload::open_payload_for(input, &payload_work, &want, download_cb)
             .map_err(|err| ExtractError::new(format!("{err:#}")))?;
         report(1, 0, 0);
-        let produced = payload::extract_partitions(&payload_view, &payload_work, &want)
-            .map_err(|err| ExtractError::new(format!("{err:#}")))?;
-        let pick = |name: &str| -> Option<PathBuf> {
-            produced
-                .iter()
-                .find(|path| {
-                    path.file_name()
-                        .map(|file| {
-                            let file = file.to_string_lossy();
-                            file == name || file == format!("{name}.img")
-                        })
-                        .unwrap_or(false)
-                })
-                .cloned()
-        };
-        let extracted_boot =
-            pick("boot").ok_or_else(|| ExtractError::new("boot partition output not found"))?;
-        let extracted_xbl = pick("xbl_config");
-        let extracted_uefi = pick("uefi");
-        let extracted_vendor_boot = pick("vendor_boot");
+        let (extracted_boot, extracted_xbl, extracted_uefi) =
+            payload::extract_analysis_inputs(&payload_view, &payload_work)
+                .map_err(|err| ExtractError::new(format!("{err:#}")))?;
         boot_path = extracted_boot;
         warnings.push(format!("extracted from payload: {}", want.join(", ")));
         /* payload 里没有该分区时保留调用方附加的文件。 */
@@ -198,10 +179,6 @@ pub fn derive_profile(
                  (uefi-like entries: {})",
                 list_entries(&available, &["uefi"])
             ));
-        }
-        if extracted_vendor_boot.is_some() {
-            vendor_boot_path = extracted_vendor_boot;
-            warnings.push("vendor_boot extracted from payload".to_string());
         }
     }
 
@@ -458,13 +435,47 @@ pub fn derive_profile(
         symbol_offsets.insert("off_slide_loggers_0_1".to_string(), Some(slot));
     }
 
-    /* 9.2 结构体偏移 */
-    let mut struct_offsets = resolve_structs(btf.as_ref());
-    /* vr_guard 段是 DirtyFrag 的，GhostLock 侧不读；摘掉后 render_conf 不会
-     * 往 GLK profile 里写 `recommend_vr_guard` / `vr_guard`。 */
-    struct_offsets.remove("vr_tracepoint_funcs");
+    /* 9.2 vr.ko guard 目标：__tracepoint_sys_exit->funcs。
+     * tracepoint 是数据符号，KALLSYMS_ALL=n 的镜像里没有，改从
+     * __traceiter_sys_exit 的 adrp+ldr+cbz 签名反推（并跨 sys_enter 校验）。 */
+    if symbol_offsets
+        .get("off_vr_sys_exit_tp")
+        .copied()
+        .flatten()
+        .is_none()
+    {
+        match derive_sys_exit_tp_funcs(&boot.kernel, &rel_symbols, &sorted_offsets, btf.as_ref()) {
+            Ok(field) => {
+                let funcs_off = u64::from(
+                    btf.as_ref()
+                        .and_then(|b| b.field("tracepoint", "funcs"))
+                        .unwrap_or(0x48),
+                );
+                if let Some(tp) = field.checked_sub(funcs_off) {
+                    /* 成功属于 info 级，不进告警列表（对齐上游 eprintln info）。 */
+                    symbol_offsets.insert("off_vr_sys_exit_tp".to_string(), Some(tp));
+                }
+            }
+            Err(err) => warnings.push(format!(
+                "vr_sys_exit_tp unavailable (kallsyms + disassembly both failed): {err}; \
+                 the vr guard stays off for this image"
+            )),
+        }
+    }
+    /* 旧单字段传输：写目标本身，同时进 offset 段。 */
+    if let Some(tp) = symbol_offsets.get("off_vr_sys_exit_tp").copied().flatten() {
+        let funcs_off = u64::from(
+            btf.as_ref()
+                .and_then(|b| b.field("tracepoint", "funcs"))
+                .unwrap_or(0x48),
+        );
+        symbol_offsets.insert("off_sys_exit_tp_funcs".to_string(), Some(tp + funcs_off));
+    }
 
-    /* 9.3 可选符号缺失时填 0（运行期回退 target.h 默认值） */
+    /* 9.3 结构体偏移 */
+    let struct_offsets = resolve_structs(btf.as_ref());
+
+    /* 9.4 可选符号缺失时填 0（运行期回退 target.h 默认值） */
     let missing: Vec<String> = symbol_offsets
         .iter()
         .filter(|(_, value)| value.is_none())
@@ -547,9 +558,19 @@ pub fn derive_profile(
         .is_some_and(analysis::route_depends_on_pselect_layout)
     {
         if let Some(message) = &pselect_infeasible {
-            return Err(ExtractError::new(format!(
-                "pselect route not feasible on this kernel: {message}"
-            )));
+            /* 与上游一致：不产出 conf，但把原因与审查报告带回去。 */
+            return Ok(Derived {
+                ok: false,
+                release: release_text.to_string(),
+                conf: String::new(),
+                warnings,
+                boot_path: boot_path.to_string_lossy().into_owned(),
+                kernel_phys_load,
+                kernel_phys_offset,
+                phys_source,
+                analysis: analysis_text,
+                error: format!("pselect route not feasible on this kernel: {message}"),
+            });
         }
     }
 
@@ -570,16 +591,20 @@ pub fn derive_profile(
             MCAST_BUFFER_SIZE,
             RT_MUTEX_WAITER_PI_TREE_ENTRY,
         ) {
-            /* conf_route_geometry 只给 BTF 能提供的那部分；帧常量由这里补齐，
-             * 推导失败就不写，避免把硬件实测常量塞进未验证候选。 */
+            /* conf_route_geometry 只给 BTF 能提供的那部分；帧常量由这里补齐。
+             * 镜像推导失败时与上游一致：保留已验证的 5.x 常量，但明确告警。 */
             Ok(geom) => {
                 geometry.insert(0, ("waiter_off", geom.waiter_off as i64));
                 geometry.insert(1, ("buffer_size", MCAST_BUFFER_SIZE as i64));
             }
-            Err(err) => warnings.push(format!(
-                "static multicast waiter_off derivation failed: {err}; \
-                 omitting the frame/copy-window geometry (the candidate stays incomplete)"
-            )),
+            Err(err) => {
+                warnings.push(format!(
+                    "static multicast waiter_off derivation failed: {err}; \
+                     keeping the proven 5.x constant"
+                ));
+                geometry.insert(0, ("waiter_off", MULTICAST_5X_WAITER_OFF));
+                geometry.insert(1, ("buffer_size", MCAST_BUFFER_SIZE as i64));
+            }
         }
     }
     match route.as_deref() {
@@ -632,9 +657,10 @@ pub fn derive_profile(
     let extra_offsets = report::ConfExtraOffsets {
         empty_zero_page: kallsyms::unique(&symbols, "empty_zero_page")
             .and_then(|value| value.checked_sub(base)),
-        /* vr.ko 的 guard 目标：GhostLock 原生侧从不读取，85 份内置表也都没有这个键。
-         * 上游 CLI 只有在内核暴露 __tracepoint_sys_exit 时才推导，这里直接留空。 */
-        sys_exit_tp_funcs: None,
+        sys_exit_tp_funcs: symbol_offsets
+            .get("off_sys_exit_tp_funcs")
+            .copied()
+            .flatten(),
     };
 
     let conf = report::render_conf(&report::ConfInputs {

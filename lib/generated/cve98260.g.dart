@@ -1434,7 +1434,9 @@ class Cve98260ProfileNative {
     return pigeonVar_replyValue! as String;
   }
 
-  /// 指定生效的用户文档；空串表示回到自动匹配（最近修改的同 release 文档）。
+  /// 指定生效的用户文档；空串表示清除选择。
+  ///
+  /// 与 [selectBuiltinRelease] 互斥：选中用户文档会清掉内置表选择。
   Future<bool> selectImportedProfile(String name) async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.Cve98260ProfileNative.selectImportedProfile$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
@@ -1443,6 +1445,48 @@ class Cve98260ProfileNative {
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[name]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as bool;
+  }
+
+  /// 当前生效的内置表 release；未选择返回空串。
+  Future<String> activeBuiltinRelease() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.Cve98260ProfileNative.activeBuiltinRelease$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as String;
+  }
+
+  /// 指定生效的内置表 release；空串表示清除选择。
+  ///
+  /// 与 [selectImportedProfile] 互斥：选中内置表会清掉用户文档选择。
+  Future<bool> selectBuiltinRelease(String release) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.Cve98260ProfileNative.selectBuiltinRelease$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[release]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(

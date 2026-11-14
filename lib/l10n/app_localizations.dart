@@ -3356,23 +3356,17 @@ abstract class AppLocalizations {
   /// **'生效中'**
   String get kernelProfileActiveBadge;
 
-  /// 详情弹窗里指定该文档生效
+  /// 详情弹窗里指定该配置生效
   ///
   /// In zh, this message translates to:
   /// **'设为生效'**
   String get kernelProfileSetActive;
 
-  /// 详情弹窗里取消该文档的显式选择
+  /// 详情弹窗里取消该配置的显式选择
   ///
   /// In zh, this message translates to:
   /// **'取消指定'**
   String get kernelProfileClearActive;
-
-  /// 内置表详情弹窗里清除用户文档选择
-  ///
-  /// In zh, this message translates to:
-  /// **'使用内置表'**
-  String get kernelProfileUseBuiltin;
 
   /// 设为生效成功的提示
   ///
@@ -3632,6 +3626,12 @@ abstract class AppLocalizations {
   /// **'选一份要生效的内核表；标「生效中」的是当前正在用的那份。'**
   String get kernelProfilePickHint;
 
+  /// GhostKey 我的配置页的选择说明
+  ///
+  /// In zh, this message translates to:
+  /// **'点左侧圆点切换生效的内核表；未指定时取最近导入的同 release 文档。'**
+  String get kernelProfileKeySelectHint;
+
   /// 第二步的说明
   ///
   /// In zh, this message translates to:
@@ -3673,6 +3673,42 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'导入内核表'**
   String get kernelProfileImportEntry;
+
+  /// 打开镜像导出弹层的按钮与标题
+  ///
+  /// In zh, this message translates to:
+  /// **'导出镜像'**
+  String get kernelImageExport;
+
+  /// 导出入口上的数量；count 是镜像个数
+  ///
+  /// In zh, this message translates to:
+  /// **'导出镜像（{count}）'**
+  String kernelImageExportCount(int count);
+
+  /// 镜像导出弹层的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'把解析时解出的镜像保存到手机「下载」目录，便于重复使用或备份。'**
+  String get kernelImageExportHint;
+
+  /// 没有任何可导出镜像时的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'没有可导出的镜像'**
+  String get kernelImageExportEmpty;
+
+  /// 镜像导出成功提示；name 是文件名
+  ///
+  /// In zh, this message translates to:
+  /// **'已保存 {name}'**
+  String kernelImageExportSaved(String name);
+
+  /// 镜像导出失败提示
+  ///
+  /// In zh, this message translates to:
+  /// **'导出失败'**
+  String get kernelImageExportFailed;
 
   /// 删除 profile 的按钮与提示
   ///

@@ -102,14 +102,28 @@ class KernelProfileActions {
       .read(kernelProfileActionRepositoryProvider)
       .renderEditor(name: name, values: values);
 
-  /// 指定生效的用户文档；空串回到自动匹配。
+  /// 指定生效的用户文档；空串清除选择。
   Future<bool> select(String name) async {
     final bool ok = await _ref
         .read(kernelProfileActionRepositoryProvider)
         .selectImportedProfile(name: name);
     if (ok) {
       _ref.invalidate(kernelProfileActiveNameProvider);
+      _ref.invalidate(kernelProfileActiveBuiltinProvider);
       _ref.invalidate(kernelProfileListProvider);
+    }
+    return ok;
+  }
+
+  /// 指定生效的内置表；空串清除选择。
+  Future<bool> selectBuiltin(String release) async {
+    final bool ok = await _ref
+        .read(kernelProfileActionRepositoryProvider)
+        .selectBuiltinRelease(release: release);
+    if (ok) {
+      _ref.invalidate(kernelProfileActiveNameProvider);
+      _ref.invalidate(kernelProfileActiveBuiltinProvider);
+      _ref.invalidate(kernelProfileBuiltinListProvider);
     }
     return ok;
   }
@@ -117,5 +131,6 @@ class KernelProfileActions {
   void _invalidateAll() {
     _ref.invalidate(kernelProfileListProvider);
     _ref.invalidate(kernelProfileActiveNameProvider);
+    _ref.invalidate(kernelProfileActiveBuiltinProvider);
   }
 }

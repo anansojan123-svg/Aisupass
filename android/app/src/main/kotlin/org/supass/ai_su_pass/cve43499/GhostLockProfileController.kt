@@ -936,6 +936,9 @@ internal class GhostLockProfileController(
             /* 内核主版本是 profile 元数据，改坏会让整份配置无法解析。 */
             "kernel_major",
             "recommend_shizuku",
+            /* vr_guard 由镜像 BTF 推导，改坏会让原生写错 tracepoint。 */
+            "recommend_vr_guard",
+            "vr_guard.tracepoint_funcs",
         )
 
         /** 编辑器暴露的 route 无关的 execution 调参。 */

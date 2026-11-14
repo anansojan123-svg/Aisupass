@@ -400,12 +400,11 @@ List<String> _physWarnings(List<String> warnings) => warnings
 /// 路由几何缺失的告警行。
 ///
 /// 提取器把 `waiter_off` / `buffer_size` 这类帧常量留给反汇编推导，推不出来
-/// 就只写一部分字段并留下对应告警。缺字段的路由在 W1 会直接被拒，必须提到
-/// 卡片正面而不是折在「提示」里。
+/// 会回落到已验证的 5.x 常量，那种情况不算缺字段；只有真正写不出的字段
+/// （整条分支为空、BTF 缺 task/lock）才会在 W1 被拒，必须提到卡片正面。
 List<String> _geometryWarnings(List<String> warnings) => warnings
     .where(
       (String line) =>
-          line.contains('multicast waiter_off derivation failed') ||
           line.contains('no image-derived geometry') ||
           line.contains('geometry is partial') ||
           line.contains('no route could be inferred'),
