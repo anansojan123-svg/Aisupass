@@ -1,13 +1,12 @@
-import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'package:Aisupass/common/widgets/toast.dart';
 import 'package:Aisupass/core/extensions/context_extensions.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/escalation_action_provider.dart';
 import 'package:Aisupass/l10n/app_localizations.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// 打开镜像导出弹层。
 ///
@@ -22,7 +21,7 @@ Future<void> showKernelImageExportSheet(
   builder: (BuildContext sheetContext) => KernelImageExportSheet(paths: paths),
 );
 
-/// 镜像导出列表：文件名 + 体积 + 单条导出。
+/// 镜像导出列表：文件名 + 单条导出。
 class KernelImageExportSheet extends HookConsumerWidget {
   const KernelImageExportSheet({super.key, required this.paths});
 
@@ -33,6 +32,8 @@ class KernelImageExportSheet extends HookConsumerWidget {
     final AppLocalizations l10n = context.l10n;
     final ColorScheme scheme = context.colorScheme;
     final ValueNotifier<bool> busy = useState<bool>(false);
+    /* 订阅后才刷新按钮禁用态，避免导出途中重复触发。 */
+    final bool isBusy = useValueListenable(busy);
 
     Future<void> export(String path) async {
       if (busy.value) return;
@@ -40,7 +41,7 @@ class KernelImageExportSheet extends HookConsumerWidget {
       try {
         final String saved = await ref
             .read(ghostLockProfileActionsProvider)
-            .exportLocalFile(sourcePath: path, fileName: path.split('/').last);
+            .exportLocalFile(sourcePath: path, fileName: _nameOf(path));
         if (!context.mounted) return;
         if (saved.isEmpty) {
           ToastMessage.error(l10n.kernelImageExportFailed);
@@ -113,28 +114,17 @@ class KernelImageExportSheet extends HookConsumerWidget {
                     ),
                     itemBuilder: (BuildContext context, int index) {
                       final String path = paths[index];
-                      final File file = File(path);
-                      final int bytes = file.existsSync()
-                          ? file.lengthSync()
-                          : 0;
                       return ListTile(
                         contentPadding: EdgeInsets.zero,
                         dense: true,
                         title: Text(
-                          path.split('/').last,
+                          _nameOf(path),
                           style: TextStyle(fontSize: 12.5.sp),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        subtitle: Text(
-                          _formatBytes(bytes),
-                          style: TextStyle(
-                            fontSize: 11.sp,
-                            color: scheme.onSurfaceVariant,
-                          ),
-                        ),
                         trailing: TextButton(
-                          onPressed: busy.value ? null : () => export(path),
+                          onPressed: isBusy ? null : () => export(path),
                           child: Text(
                             l10n.escalationGhostLockProfileExport,
                             style: TextStyle(fontSize: 11.5.sp),
@@ -148,17 +138,7 @@ class KernelImageExportSheet extends HookConsumerWidget {
       ),
     );
   }
-}
 
-
-String _formatBytes(int bytes) {
-  if (bytes <= 0) return '0 B';
-  const List<String> units = <String>['B', 'KB', 'MB', 'GB'];
-  double value = bytes.toDouble();
-  int unit = 0;
-  while (value >= 1024 && unit < units.length - 1) {
-    value /= 1024;
-    unit++;
-  }
-  return '${value.toStringAsFixed(unit == 0 ? 0 : 1)} ${units[unit]}';
+  /// 取路径末段作为文件名；原生侧只接受文件名而不是完整路径。
+  String _nameOf(String path) => path.split('/').last;
 }

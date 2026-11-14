@@ -3,17 +3,17 @@ import 'package:Aisupass/core/extensions/context_extensions.dart';
 import 'package:Aisupass/core/utils/kernel_image_picker.dart';
 import 'package:Aisupass/core/utils/kernel_profile_text.dart';
 import 'package:Aisupass/features/escalation/domain/enums/kernel_profile_import_target.dart';
-import 'package:Aisupass/features/escalation/domain/models/ghost_lock_import_result.dart';
-import 'package:Aisupass/features/escalation/domain/models/ghost_lock_preflight.dart';
 import 'package:Aisupass/features/escalation/domain/models/ghost_lock_probe.dart';
 import 'package:Aisupass/features/escalation/domain/models/ghost_lock_probe_progress.dart';
 import 'package:Aisupass/features/escalation/domain/models/kernel_profile_import_state.dart';
+import 'package:Aisupass/features/escalation/presentation/controllers/kernel_profile_import_controller.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/escalation_action_provider.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/kernel_profile_action_provider.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/kernel_profile_query_provider.dart';
 import 'package:Aisupass/features/escalation/presentation/widgets/kernel_image_input_section.dart';
 import 'package:Aisupass/features/escalation/presentation/widgets/kernel_image_export_sheet.dart';
 import 'package:Aisupass/features/escalation/presentation/widgets/kernel_profile_attach_section.dart';
+import 'package:Aisupass/features/escalation/presentation/widgets/kernel_profile_import_bottom_bar.dart';
 import 'package:Aisupass/features/escalation/presentation/widgets/kernel_profile_probe_result.dart';
 import 'package:Aisupass/l10n/app_localizations.dart';
 import 'package:file_picker/file_picker.dart';
@@ -138,9 +138,39 @@ class KernelProfileImportPanel extends HookConsumerWidget {
     final ObjectRef<String> lastBootPath = useRef<String>('');
     /* 本次是否已解析成功；导出图标只在解析完成后出现。 */
     final ValueNotifier<bool> parsed = useState<bool>(false);
-    /* 可导出的镜像路径；为空时不显示导出入口。 */
-    final ValueNotifier<List<String>> exportPaths = useState<List<String>>(
-      const <String>[],
+
+    final KernelProfileImportController controller = useMemoized(
+      () => KernelProfileImportController(
+        ref: ref,
+        l10n: l10n,
+        pickFiles:
+            ({
+              required List<String> extensions,
+              required bool allowMultiple,
+              required bool withData,
+            }) async {
+              final FilePickerResult? result = await FilePicker.pickFiles(
+                type: FileType.custom,
+                allowedExtensions: extensions,
+                allowMultiple: allowMultiple,
+                withData: withData,
+              );
+              return result?.files;
+            },
+        confirmOverwrite: () async =>
+            (await _confirmOverwrite(context)) ?? false,
+        notify: (String text, ImportNotice notice) {
+          switch (notice) {
+            case ImportNotice.success:
+              ToastMessage.success(text);
+            case ImportNotice.warning:
+              ToastMessage.warning(text);
+            case ImportNotice.error:
+              ToastMessage.error(text);
+          }
+        },
+      ),
+      <Object?>[l10n],
     );
 
     final AsyncValue<KernelProfileImportState>? ghostKeyImport =
@@ -185,191 +215,43 @@ class KernelProfileImportPanel extends HookConsumerWidget {
 
     /// 选择可选的 xbl_config / uefi / vendor_boot 镜像。
     Future<void> pickAttach(ValueNotifier<String?> slot) async {
-      final FilePickerResult? picked;
-      try {
-        picked = await FilePicker.pickFiles(
-          type: FileType.custom,
-          allowedExtensions: <String>['img', 'bin'],
-          withData: false,
-        );
-      } catch (error) {
-        ToastMessage.error(error);
-        return;
-      }
-      final String? path = picked?.files.firstOrNull?.path;
-      if (path == null) return;
-      if (!isReadableFile(path)) {
-        ToastMessage.error(l10n.kernelProfileImportEmptyFile);
-        return;
-      }
+      final String path = await controller.pickImage();
+      if (path.isEmpty) return;
       slot.value = path;
       invalidateProbe();
     }
 
     /// 选择外部 kallsyms / iomem 文本文件。
     Future<void> pickText(ValueNotifier<String?> slot) async {
-      final FilePickerResult? picked;
-      try {
-        picked = await FilePicker.pickFiles(
-          type: FileType.custom,
-          allowedExtensions: <String>['txt', 'log', 'conf'],
-          withData: false,
-        );
-      } catch (error) {
-        ToastMessage.error(error);
-        return;
-      }
-      final String? path = picked?.files.firstOrNull?.path;
-      if (path == null) return;
-      if (!isReadableFile(path)) {
-        ToastMessage.error(l10n.kernelProfileImportEmptyFile);
-        return;
-      }
+      final String path = await controller.pickText();
+      if (path.isEmpty) return;
       slot.value = path;
       invalidateProbe();
     }
 
-    /// 落盘成功后把该文档设为生效来源。
-    Future<void> autoLoadSaved(GhostLockImportResult saved) async {
-      if (saved.fileName.isEmpty) return;
-      try {
-        final GhostLockPreflight preflight = await ref.read(
-          ghostLockPreflightProvider.future,
-        );
-        if (preflight.release.isEmpty) return;
-        /* 选中新文档即撤销「指定生效内置表」，互斥由原生保证。 */
-        await ref
-            .read(ghostLockProfileActionsProvider)
-            .selectUserProfile(
-              release: preflight.release,
-              name: saved.fileName,
-            );
-      } catch (_) {
-        // 生效来源切换失败不影响已落盘的结果。
-      }
-    }
-
-    /// 收集可导出镜像：本次解出的 boot、用户附加的镜像、缓存里上一次提取的产物。
-    Future<List<String>> collectExportPaths() async {
-      final Set<String> paths = <String>{};
-      final GhostLockProbe? current = probe.value;
-      final String boot = current?.bootPath ?? lastBootPath.value;
-      if (boot.isNotEmpty) paths.add(boot);
-      for (final String? path in <String?>[
-        xblPath.value,
-        uefiPath.value,
-        vendorBootPath.value,
-      ]) {
-        if (path != null && path.isNotEmpty) paths.add(path);
-      }
-      try {
-        paths.addAll(
-          await ref.read(ghostLockProfileActionsProvider).listExtractedImages(),
-        );
-      } catch (_) {
-        // 列目录失败不影响已收集到的那部分。
-      }
-      return paths.toList();
-    }
-
-    /* 每次解析完成后才刷新可导出列表。 */
-    useEffect(() {
-      if (!parsed.value) {
-        exportPaths.value = const <String>[];
-        return null;
-      }
-      bool cancelled = false;
-      collectExportPaths().then((List<String> paths) {
-        if (!cancelled) exportPaths.value = paths;
-      });
-      return () => cancelled = true;
-    }, <Object?>[parsed.value, probe.value, lastBootPath.value]);
-
+    /// 打开镜像导出弹层。
     Future<void> exportImages() async {
-      final List<String> paths = await collectExportPaths();
+      final List<String> paths = await controller.collectExportPaths(
+        bootPath: probe.value?.bootPath ?? lastBootPath.value,
+        attachPaths: <String>[
+          xblPath.value ?? '',
+          uefiPath.value ?? '',
+          vendorBootPath.value ?? '',
+        ],
+      );
       if (!context.mounted) return;
-      exportPaths.value = paths;
       await showKernelImageExportSheet(context, paths: paths);
     }
 
     /// 直接导入现成的 HOCON / JSON 内核表。
-    ///
-    /// 支持多选：带 `include` 的当主文档，其余当依赖，先存依赖再存主文档。
     Future<void> importExisting() async {
-      final FilePickerResult? picked;
-      try {
-        picked = await FilePicker.pickFiles(
-          type: FileType.custom,
-          allowedExtensions: kernelProfileExtensions.toList(),
-          withData: true,
-          allowMultiple: true,
-        );
-      } catch (error) {
-        ToastMessage.error(error);
-        return;
-      }
-      final Map<PlatformFile, String> texts = <PlatformFile, String>{};
-      for (final PlatformFile file in picked?.files ?? const <PlatformFile>[]) {
-        final String? text = readKernelProfileText(file);
-        if (text != null) texts[file] = text;
-      }
-      if (texts.isEmpty) {
-        ToastMessage.error(l10n.escalationGhostLockImportUnsupported);
-        return;
-      }
-      final List<PlatformFile> usable = texts.keys.toList();
-      final List<PlatformFile> mains = usable
-          .where((PlatformFile file) => texts[file]!.contains('include '))
-          .toList();
-      final List<PlatformFile> ordered = mains.isEmpty
-          ? usable
-          : <PlatformFile>[
-              ...usable.where((PlatformFile file) => !mains.contains(file)),
-              ...mains,
-            ];
-
       busy.value = true;
       doneText.value = null;
       try {
-        final List<PlatformFile> needOverwrite = <PlatformFile>[];
-        GhostLockImportResult? last;
-        for (final PlatformFile file in ordered) {
-          final GhostLockImportResult result = await ref
-              .read(ghostLockProfileActionsProvider)
-              .importProfileText(text: texts[file]!, fileName: file.name);
-          if (result.ok) {
-            last = result;
-          } else if (result.requiresOverwrite) {
-            needOverwrite.add(file);
-          } else {
-            ToastMessage.error(
-              l10n.escalationGhostLockImportFailed(result.reason),
-            );
-          }
-        }
-        if (needOverwrite.isNotEmpty && context.mounted) {
-          final bool? confirmed = await _confirmOverwrite(context);
-          if (confirmed == true) {
-            for (final PlatformFile file in needOverwrite) {
-              final GhostLockImportResult result = await ref
-                  .read(ghostLockProfileActionsProvider)
-                  .importProfileText(
-                    text: texts[file]!,
-                    fileName: file.name,
-                    overwrite: true,
-                  );
-              if (result.ok) last = result;
-            }
-          }
-        }
-        /* 依赖文档的 release 为空，只有主文档才提示成功并自动生效。 */
-        final GhostLockImportResult? primary = last;
-        if (primary != null && primary.release.isNotEmpty) {
-          doneText.value = l10n.escalationGhostLockImportDone(primary.release);
-          await autoLoadSaved(primary);
-        }
-      } catch (error) {
-        ToastMessage.error(error);
+        final KernelImportOutcome outcome = await controller.importExisting();
+        if (!outcome.ok) return;
+        doneText.value = l10n.escalationGhostLockImportDone(outcome.release);
+        await controller.autoLoadSaved(outcome);
       } finally {
         busy.value = false;
       }
@@ -377,14 +259,6 @@ class KernelProfileImportPanel extends HookConsumerWidget {
 
     Future<void> parse() async {
       final KernelImageInput input = imageInput.value;
-      if (input.isEmpty) {
-        ToastMessage.warning(l10n.kernelProfileImportNeedInput);
-        return;
-      }
-      if (input.path != null && !isReadableFile(input.path!)) {
-        ToastMessage.error(l10n.kernelProfileImportEmptyFile);
-        return;
-      }
       FocusScope.of(context).unfocus();
       probing.value = true;
       probe.value = null;
@@ -392,118 +266,75 @@ class KernelProfileImportPanel extends HookConsumerWidget {
       failedAnalysis.value = null;
       doneText.value = null;
       try {
-        final GhostLockProbe result = await ref
-            .read(ghostLockProfileActionsProvider)
-            .probeProfile(
-              input: input.value,
-              insecure: input.insecure,
-              xblPath: xblPath.value ?? '',
-              uefiPath: uefiPath.value ?? '',
-              vendorBootPath: vendorBootPath.value ?? '',
-              phys: physController.text.trim(),
-              kallsymsPath: kallsymsPath.value ?? '',
-              iomemPath: iomemPath.value ?? '',
-              route: forcedRoute.value,
-              allowMissing: allowMissing.value,
-              noDisasm: noDisasm.value,
-            );
-        if (result.ok) {
-          probe.value = result;
-          lastBootPath.value = result.bootPath;
-          /* 只有解析成功才亮出导出图标。 */
-          parsed.value = true;
-        } else {
-          probeError.value = result.reason;
-          failedAnalysis.value = result.analysis.isEmpty
+        final KernelImportParseOutcome outcome = await controller.parse(
+          hasInput: !input.isEmpty,
+          readable: input.path == null || isReadableFile(input.path!),
+          probe: () => ref
+              .read(ghostLockProfileActionsProvider)
+              .probeProfile(
+                input: input.value,
+                insecure: input.insecure,
+                xblPath: xblPath.value ?? '',
+                uefiPath: uefiPath.value ?? '',
+                vendorBootPath: vendorBootPath.value ?? '',
+                phys: physController.text.trim(),
+                kallsymsPath: kallsymsPath.value ?? '',
+                iomemPath: iomemPath.value ?? '',
+                route: forcedRoute.value,
+                allowMissing: allowMissing.value,
+                noDisasm: noDisasm.value,
+              ),
+        );
+        final GhostLockProbe? result = outcome.probe;
+        if (result == null) {
+          probeError.value = outcome.error.isEmpty ? null : outcome.error;
+          failedAnalysis.value = outcome.analysis.isEmpty
               ? null
-              : result.analysis;
+              : outcome.analysis;
+          return;
         }
-      } catch (error) {
-        probeError.value = error.toString();
+        probe.value = result;
+        lastBootPath.value = result.bootPath;
+        /* 只有解析成功才亮出导出图标。 */
+        parsed.value = true;
       } finally {
         probing.value = false;
       }
     }
 
-    /// 写入 GhostLock 内核表；返回是否成功落盘。
-    Future<bool> saveToGhostLock(GhostLockProbe result) async {
-      busy.value = true;
-      try {
-        final GhostLockImportResult saved = await ref
-            .read(ghostLockProfileActionsProvider)
-            .saveProfile(release: result.release, conf: result.conf);
-        if (saved.ok) {
-          doneText.value = l10n.escalationGhostLockImportDone(saved.release);
-          probe.value = null;
-          await autoLoadSaved(saved);
-          return true;
-        }
-        if (saved.requiresOverwrite && context.mounted) {
-          final bool? confirmed = await _confirmOverwrite(context);
-          if (confirmed == true) {
-            final GhostLockImportResult retry = await ref
-                .read(ghostLockProfileActionsProvider)
-                .saveProfile(
-                  release: result.release,
-                  conf: result.conf,
-                  overwrite: true,
-                );
-            if (retry.ok) {
-              doneText.value = l10n.escalationGhostLockImportDone(
-                retry.release,
-              );
-              probe.value = null;
-              await autoLoadSaved(retry);
-              return true;
-            }
-            ToastMessage.error(
-              l10n.escalationGhostLockImportFailed(retry.reason),
-            );
-          }
-          return false;
-        }
-        ToastMessage.error(l10n.escalationGhostLockImportFailed(saved.reason));
-        return false;
-      } catch (error) {
-        ToastMessage.error(error);
-        return false;
-      } finally {
-        busy.value = false;
-      }
-    }
-
-    /// 把解析过的镜像交给 GhostKey。
-    ///
-    /// GhostKey 走自己的 Kotlin 解析链路（表结构不同），复用 probe 已解出的
-    /// boot 文件，避免再下载一次整个 OTA。
-    void importToGhostKey(GhostLockProbe result) {
-      final String local = result.bootPath.isNotEmpty
-          ? result.bootPath
-          : imageInput.value.path ?? '';
-      handledRelease.value = '';
-      doneText.value = null;
-      probe.value = null;
-      ghostKeyUrl.value = null;
-      ghostKeyPath.value = local.isEmpty ? null : local;
-      if (local.isEmpty) {
-        ghostKeyUrl.value = imageInput.value.url.trim();
-        ref.invalidate(
-          importKernelProfileFromUrlProvider(url: ghostKeyUrl.value!),
-        );
-        return;
-      }
-      ref.invalidate(importKernelProfileProvider(path: local));
-    }
-
+    /// 按当前目标写入：GhostLock 落盘，GhostKey 交给自己的解析链路。
     Future<void> saveToTarget(GhostLockProbe result) async {
       if (!context.mounted) return;
-      switch (target.value) {
-        case KernelProfileImportTarget.ghostLock:
-          if (await saveToGhostLock(result) && context.mounted) {
-            Navigator.of(context).pop(KernelProfileImportTarget.ghostLock);
-          }
-        case KernelProfileImportTarget.ghostKey:
-          importToGhostKey(result);
+      busy.value = true;
+      try {
+        switch (target.value) {
+          case KernelProfileImportTarget.ghostLock:
+            final KernelImportOutcome outcome = await controller
+                .saveToGhostLock(result);
+            if (!outcome.ok) return;
+            doneText.value = l10n.escalationGhostLockImportDone(
+              outcome.release,
+            );
+            probe.value = null;
+            await controller.autoLoadSaved(outcome);
+            if (context.mounted) {
+              Navigator.of(context).pop(KernelProfileImportTarget.ghostLock);
+            }
+          case KernelProfileImportTarget.ghostKey:
+            final ({String path, String url}) source = controller
+                .importToGhostKey(
+                  result: result,
+                  fallbackPath: imageInput.value.path ?? '',
+                  url: imageInput.value.url,
+                );
+            handledRelease.value = '';
+            doneText.value = null;
+            probe.value = null;
+            ghostKeyPath.value = source.path.isEmpty ? null : source.path;
+            ghostKeyUrl.value = source.url.isEmpty ? null : source.url;
+        }
+      } finally {
+        busy.value = false;
       }
     }
 
@@ -678,70 +509,19 @@ class KernelProfileImportPanel extends HookConsumerWidget {
           ),
         ),
         // ---- 固定底部操作栏 ----
-        Container(
-          padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 12.h),
-          decoration: BoxDecoration(
-            border: Border(
-              top: BorderSide(
-                color: scheme.outlineVariant.withValues(alpha: 0.5),
-              ),
-            ),
-          ),
-          child: SafeArea(
-            top: false,
-            child: SizedBox(
-              width: double.infinity,
-              height: 44.h,
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                    child: probed == null
-                        ? FilledButton.icon(
-                            onPressed: anyBusy || imageInput.value.isEmpty
-                                ? null
-                                : parse,
-                            icon: probing.value
-                                ? SizedBox(
-                                    width: 16.r,
-                                    height: 16.r,
-                                    child: const CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : Icon(
-                                    Icons.playlist_add_check_rounded,
-                                    size: 18.r,
-                                  ),
-                            label: Text(l10n.kernelProfileImportParseAction),
-                          )
-                        : FilledButton.icon(
-                            onPressed: anyBusy
-                                ? null
-                                : () => saveToTarget(probed),
-                            icon: Icon(Icons.save_alt_rounded, size: 18.r),
-                            label: Text(
-                              l10n.kernelProfileWriteToTarget(targetName),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                  ),
-                  /* 解析完成后才出现的导出图标。 */
-                  if (ghostLockTarget && parsed.value) ...<Widget>[
-                    SizedBox(width: 8.w),
-                    IconButton.filledTonal(
-                      onPressed: anyBusy ? null : exportImages,
-                      tooltip: l10n.kernelImageExport,
-                      icon: Icon(Icons.download_rounded, size: 20.r),
-                      style: IconButton.styleFrom(
-                        minimumSize: Size(44.r, 44.r),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ),
+        KernelProfileImportBottomBar(
+          probed: probed != null,
+          anyBusy: anyBusy,
+          probing: probing.value,
+          parsed: parsed.value,
+          ghostLockTarget: ghostLockTarget,
+          inputEmpty: imageInput.value.isEmpty,
+          targetName: targetName,
+          onParse: parse,
+          onSave: () {
+            if (probed != null) saveToTarget(probed);
+          },
+          onExport: exportImages,
         ),
       ],
     );
