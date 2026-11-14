@@ -18,6 +18,10 @@ _GhostLockProbeDto _$GhostLockProbeDtoFromJson(Map<String, dynamic> json) =>
           const <String>[],
       bootPath: json['bootPath'] as String? ?? '',
       reason: json['reason'] as String? ?? '',
+      kernelPhysLoad: json['kernelPhysLoad'] as String? ?? '',
+      kernelPhysOffset: json['kernelPhysOffset'] as String? ?? '',
+      physSource: json['physSource'] as String? ?? '',
+      analysis: json['analysis'] as String? ?? '',
     );
 
 Map<String, dynamic> _$GhostLockProbeDtoToJson(_GhostLockProbeDto instance) =>
@@ -28,4 +32,8 @@ Map<String, dynamic> _$GhostLockProbeDtoToJson(_GhostLockProbeDto instance) =>
       'warnings': instance.warnings,
       'bootPath': instance.bootPath,
       'reason': instance.reason,
+      'kernelPhysLoad': instance.kernelPhysLoad,
+      'kernelPhysOffset': instance.kernelPhysOffset,
+      'physSource': instance.physSource,
+      'analysis': instance.analysis,
     };

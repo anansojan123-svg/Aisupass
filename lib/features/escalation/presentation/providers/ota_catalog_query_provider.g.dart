@@ -8,12 +8,12 @@ part of 'ota_catalog_query_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// 内置历史 OTA 清单数据源。
+/// 内置 OTA 清单数据源。
 
 @ProviderFor(otaCatalogQueryDatasource)
 const otaCatalogQueryDatasourceProvider = OtaCatalogQueryDatasourceProvider._();
 
-/// 内置历史 OTA 清单数据源。
+/// 内置 OTA 清单数据源。
 
 final class OtaCatalogQueryDatasourceProvider
     extends
@@ -23,7 +23,7 @@ final class OtaCatalogQueryDatasourceProvider
           OtaCatalogQueryDatasource
         >
     with $Provider<OtaCatalogQueryDatasource> {
-  /// 内置历史 OTA 清单数据源。
+  /// 内置 OTA 清单数据源。
   const OtaCatalogQueryDatasourceProvider._()
     : super(
         from: null,
@@ -61,12 +61,12 @@ final class OtaCatalogQueryDatasourceProvider
 String _$otaCatalogQueryDatasourceHash() =>
     r'8694ec2f53bf2de474e94931370584cca988862c';
 
-/// 内置历史 OTA 清单仓储。
+/// 内置 OTA 清单仓储。
 
 @ProviderFor(otaCatalogQueryRepository)
 const otaCatalogQueryRepositoryProvider = OtaCatalogQueryRepositoryProvider._();
 
-/// 内置历史 OTA 清单仓储。
+/// 内置 OTA 清单仓储。
 
 final class OtaCatalogQueryRepositoryProvider
     extends
@@ -76,7 +76,7 @@ final class OtaCatalogQueryRepositoryProvider
           OtaCatalogQueryRepository
         >
     with $Provider<OtaCatalogQueryRepository> {
-  /// 内置历史 OTA 清单仓储。
+  /// 内置 OTA 清单仓储。
   const OtaCatalogQueryRepositoryProvider._()
     : super(
         from: null,
@@ -114,14 +114,14 @@ final class OtaCatalogQueryRepositoryProvider
 String _$otaCatalogQueryRepositoryHash() =>
     r'64ff416a5a6bd49a9567e3a9812bda223e64e4e3';
 
-/// 指定厂商的历史 OTA 列表。
+/// 指定厂商的内置 OTA 列表。
 ///
 /// Pixel 清单有 2000+ 条、JSON 600KB，解析一次就常驻，避免每次开弹窗重解析。
 
 @ProviderFor(otaCatalogList)
 const otaCatalogListProvider = OtaCatalogListFamily._();
 
-/// 指定厂商的历史 OTA 列表。
+/// 指定厂商的内置 OTA 列表。
 ///
 /// Pixel 清单有 2000+ 条、JSON 600KB，解析一次就常驻，避免每次开弹窗重解析。
 
@@ -133,7 +133,7 @@ final class OtaCatalogListProvider
           FutureOr<List<OtaPackage>>
         >
     with $FutureModifier<List<OtaPackage>>, $FutureProvider<List<OtaPackage>> {
-  /// 指定厂商的历史 OTA 列表。
+  /// 指定厂商的内置 OTA 列表。
   ///
   /// Pixel 清单有 2000+ 条、JSON 600KB，解析一次就常驻，避免每次开弹窗重解析。
   const OtaCatalogListProvider._({
@@ -182,7 +182,7 @@ final class OtaCatalogListProvider
 
 String _$otaCatalogListHash() => r'662cd81134b084c18e85b9faf90abc4024607069';
 
-/// 指定厂商的历史 OTA 列表。
+/// 指定厂商的内置 OTA 列表。
 ///
 /// Pixel 清单有 2000+ 条、JSON 600KB，解析一次就常驻，避免每次开弹窗重解析。
 
@@ -198,7 +198,7 @@ final class OtaCatalogListFamily extends $Family
         isAutoDispose: false,
       );
 
-  /// 指定厂商的历史 OTA 列表。
+  /// 指定厂商的内置 OTA 列表。
   ///
   /// Pixel 清单有 2000+ 条、JSON 600KB，解析一次就常驻，避免每次开弹窗重解析。
 

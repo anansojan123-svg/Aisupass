@@ -422,6 +422,12 @@ abstract class AppLocalizations {
   /// **'取消'**
   String get aiCancel;
 
+  /// 通用重置按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'重置'**
+  String get aiReset;
+
   /// AI 配置缺少 API Key 的提示
   ///
   /// In zh, this message translates to:
@@ -1982,6 +1988,18 @@ abstract class AppLocalizations {
   /// **'内核表解析失败：{reason}'**
   String escalationGhostLockProfileInvalid(String reason);
 
+  /// 选中的 profile 与设备内核 release 不一致
+  ///
+  /// In zh, this message translates to:
+  /// **'选中的内核表声明内核为 {profile}，当前设备是 {device}，两者不一致，不会套用'**
+  String escalationGhostLockProfileMismatch(String profile, String device);
+
+  /// 生效来源指向的文档不存在
+  ///
+  /// In zh, this message translates to:
+  /// **'选中的文档 {name} 不存在，可能已被删除或重命名'**
+  String escalationGhostLockProfileMissing(String name);
+
   /// 自检发现 seccomp 非 0 时的提示
   ///
   /// In zh, this message translates to:
@@ -2078,6 +2096,30 @@ abstract class AppLocalizations {
   /// **'原生诊断：{code}'**
   String escalationGhostLockFailureCode(String code);
 
+  /// 运行中 ADB 通道掉线或设备重启
+  ///
+  /// In zh, this message translates to:
+  /// **'与设备的连接中断（多半是设备重启了），已停止跟踪；设备恢复后重试'**
+  String get escalationGhostLockFailureDeviceDisconnected;
+
+  /// 启动命令本身失败
+  ///
+  /// In zh, this message translates to:
+  /// **'原生进程没能拉起，见上方 shell 输出'**
+  String get escalationGhostLockFailureLaunch;
+
+  /// profile.bin 写盘失败
+  ///
+  /// In zh, this message translates to:
+  /// **'内核表写入设备临时目录失败，请确认无线调试仍然可用'**
+  String get escalationGhostLockFailureProfileWrite;
+
+  /// 原生进程没有产生日志
+  ///
+  /// In zh, this message translates to:
+  /// **'原生进程启动后没有任何输出，已停止跟踪'**
+  String get escalationGhostLockFailureNotStarted;
+
   /// 运行中底栏的停止按钮；只停止本侧读取
   ///
   /// In zh, this message translates to:
@@ -2132,11 +2174,41 @@ abstract class AppLocalizations {
   /// **'已修改'**
   String get escalationGhostLockProfileOverridden;
 
-  /// 清掉该 release 的全部 override
+  /// 把本次编辑保存到对应目标
   ///
   /// In zh, this message translates to:
-  /// **'重置全部修改'**
-  String get escalationGhostLockProfileReset;
+  /// **'保存'**
+  String get escalationGhostLockProfileWriteBack;
+
+  /// 写回成功后的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'已写入当前文件'**
+  String get escalationGhostLockProfileWrittenBack;
+
+  /// 导出或写回失败时的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'写入失败'**
+  String get escalationGhostLockProfileWriteFailed;
+
+  /// 原生拒绝写入 override 时的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'这个值会让配置无法解析，已回滚'**
+  String get escalationGhostLockProfileRejected;
+
+  /// 编辑会话保存成功后的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'已保存'**
+  String get escalationGhostLockProfileSaved;
+
+  /// 内置/设备态保存后生成的文档名
+  ///
+  /// In zh, this message translates to:
+  /// **'已另存为 {name}'**
+  String escalationGhostLockProfileSavedAsNew(String name);
 
   /// 把当前生效配置导出为 conf
   ///
@@ -2162,6 +2234,12 @@ abstract class AppLocalizations {
   /// **'路由'**
   String get escalationGhostLockProfileRouteLabel;
 
+  /// 路由页顶部显示合并后的实际 route 与 fallback
+  ///
+  /// In zh, this message translates to:
+  /// **'当前生效'**
+  String get escalationGhostLockProfileRouteCurrent;
+
   /// 编辑器路由页 fallback 分组的标题
   ///
   /// In zh, this message translates to:
@@ -2174,47 +2252,119 @@ abstract class AppLocalizations {
   /// **'关闭回退'**
   String get escalationGhostLockProfileFallbackNone;
 
+  /// 移除 fallback override，回到 profile 自己声明的值
+  ///
+  /// In zh, this message translates to:
+  /// **'跟随配置声明'**
+  String get escalationGhostLockProfileFallbackDeclared;
+
   /// loadProfile 返回 hasProfile=false 时的提示
   ///
   /// In zh, this message translates to:
   /// **'这个内核没有可编辑的 profile'**
   String get escalationGhostLockProfileNoProfile;
 
-  /// 编辑器 AppBar 打开生效来源选择的按钮与弹窗标题
+  /// 保存到当前文件时找不到任何可写回的用户文档
   ///
   /// In zh, this message translates to:
-  /// **'指定生效表'**
-  String get escalationGhostLockProfileSelect;
+  /// **'没有可写回的目标文档，请先用「另存为我的配置」创建一份'**
+  String get escalationGhostLockProfileNoWritableDoc;
 
-  /// 生效来源里的默认项：用设备自身 release
+  /// 编辑器顶部状态条的标签：当前用的是哪份内核表
   ///
   /// In zh, this message translates to:
-  /// **'跟随设备'**
-  String get escalationGhostLockProfileSelectAuto;
+  /// **'生效来源'**
+  String get escalationGhostLockProfileSourceLabel;
 
-  /// 生效来源弹窗的内置表分组标题
+  /// 未指定内置表时，跟随设备自身 release
+  ///
+  /// In zh, this message translates to:
+  /// **'设备内置表'**
+  String get escalationGhostLockProfileSourceDevice;
+
+  /// 指定了内置表中的某一份
   ///
   /// In zh, this message translates to:
   /// **'内置表'**
-  String get escalationGhostLockProfileSelectBuiltin;
+  String get escalationGhostLockProfileSourceBuiltin;
 
-  /// 内置表列表的过滤框提示
+  /// 生效来源叠加了用户导入文档
+  ///
+  /// In zh, this message translates to:
+  /// **'我的配置'**
+  String get escalationGhostLockProfileSourceUser;
+
+  /// 顶部状态条显示本地 override 的条目数
+  ///
+  /// In zh, this message translates to:
+  /// **'已修改 {count} 项'**
+  String escalationGhostLockProfileOverriddenCount(int count);
+
+  /// 通用页签顶部的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'执行参数。改完离开输入框即生效，下次运行 GhostLock 用新值；不需要另外保存。'**
+  String get escalationGhostLockProfileTabGeneralHint;
+
+  /// 路由页签顶部的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'选择注入路径。点选立即生效；三条路由的几何常量不同，切换后高级页的字段会跟着变。'**
+  String get escalationGhostLockProfileTabRouteHint;
+
+  /// 路由页签里说明「切换路由后几何常量可能缺失」
+  ///
+  /// In zh, this message translates to:
+  /// **'每条路由的几何常量（如 waiter_shift、compact_waiter、waiter_off）只在从镜像生成该路由时才会写入。切到一份表里没生成过的路由，这些字段会是空值，运行时可能拿不到参数。要换路由，建议重新解析镜像并在解析时指定路由。'**
+  String get escalationGhostLockProfileRouteGeometryHint;
+
+  /// 高级页签顶部的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'结构与偏移字段。改动立即生效；未提供的字段显示为空，填值后才会写入。'**
+  String get escalationGhostLockProfileTabAdvancedHint;
+
+  /// 单个字段提交成功后的轻提示
+  ///
+  /// In zh, this message translates to:
+  /// **'已应用'**
+  String get escalationGhostLockProfileApplied;
+
+  /// 保存菜单里「保存」的副说明
+  ///
+  /// In zh, this message translates to:
+  /// **'生效配置写回本地；文档直接覆盖'**
+  String get escalationGhostLockProfileWriteBackHint;
+
+  /// 内置/设备态下「保存」置灰时的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'内置表不可改写，请用「另存为」'**
+  String get escalationGhostLockProfileWriteBackDisabled;
+
+  /// 保存菜单里「另存为我的配置」的副说明
+  ///
+  /// In zh, this message translates to:
+  /// **'存成一份新的用户文档，原文件不动'**
+  String get escalationGhostLockProfileSaveAsHint;
+
+  /// 保存菜单里「导出为文件」的副说明
+  ///
+  /// In zh, this message translates to:
+  /// **'导出 conf 到系统文件'**
+  String get escalationGhostLockProfileExportHint;
+
+  /// 内置内核表列表的过滤框提示
   ///
   /// In zh, this message translates to:
   /// **'按 release 过滤'**
   String get escalationGhostLockProfileSelectSearch;
 
-  /// 生效来源弹窗的导入文档分组标题
+  /// 内置列表里 -template 文件的分组标题
   ///
   /// In zh, this message translates to:
-  /// **'我的配置'**
-  String get escalationGhostLockProfileSelectUser;
-
-  /// 不使用任何导入文档作为覆盖层
-  ///
-  /// In zh, this message translates to:
-  /// **'不使用导入文档'**
-  String get escalationGhostLockProfileSelectNoUser;
+  /// **'参考模板'**
+  String get escalationGhostLockProfileSelectTemplates;
 
   /// 导入页标题
   ///
@@ -2263,6 +2413,54 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'文件无法解析'**
   String get escalationGhostLockImportedParseError;
+
+  /// 已导入条目的重命名操作
+  ///
+  /// In zh, this message translates to:
+  /// **'重命名'**
+  String get escalationGhostLockImportedRename;
+
+  /// 重命名输入框的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'新文件名'**
+  String get escalationGhostLockImportedRenameHint;
+
+  /// 已导入条目的导出操作
+  ///
+  /// In zh, this message translates to:
+  /// **'导出'**
+  String get escalationGhostLockImportedExport;
+
+  /// 进入该内核表的编辑器
+  ///
+  /// In zh, this message translates to:
+  /// **'编辑'**
+  String get escalationGhostLockImportedEdit;
+
+  /// 导出成功后的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'已导出'**
+  String get escalationGhostLockImportedExported;
+
+  /// 已导入条目右侧的更多操作菜单
+  ///
+  /// In zh, this message translates to:
+  /// **'更多操作'**
+  String get escalationGhostLockMoreActions;
+
+  /// 直接导入一份已有的 HOCON / JSON 内核表；支持连同 include 依赖一起多选
+  ///
+  /// In zh, this message translates to:
+  /// **'导入现成配置（conf / hocon / json / txt，可多选）'**
+  String get escalationGhostLockImportText;
+
+  /// 多选导入时全部文件都被类型或编码校验挡下
+  ///
+  /// In zh, this message translates to:
+  /// **'没有可导入的文件：仅支持 conf / hocon / json / txt，且需为 UTF-8 文本'**
+  String get escalationGhostLockImportUnsupported;
 
   /// 设置页 GhostKey 分组的小标题
   ///
@@ -2624,10 +2822,10 @@ abstract class AppLocalizations {
   /// **'GhostLock 内置'**
   String get kernelProfileTabGhostLockBuiltin;
 
-  /// 选择 boot.img 的按钮
+  /// 选择镜像或 OTA 包的按钮
   ///
   /// In zh, this message translates to:
-  /// **'选择 boot.img'**
+  /// **'选择镜像（img / bin / zip）'**
   String get kernelProfileImportAction;
 
   /// 已选镜像后，选择按钮改为更换
@@ -2635,6 +2833,84 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'更换镜像'**
   String get kernelProfileImportChangeFile;
+
+  /// 可选的 xbl_config 镜像选择按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'xbl_config.img（可选）'**
+  String get kernelProfileImportAttachXbl;
+
+  /// 可选的 uefi 镜像选择按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'uefi.img（可选）'**
+  String get kernelProfileImportAttachUefi;
+
+  /// 可选的 vendor_boot 镜像选择按钮，MTK 设备用
+  ///
+  /// In zh, this message translates to:
+  /// **'vendor_boot.img（可选）'**
+  String get kernelProfileImportAttachVendorBoot;
+
+  /// 手动指定 kernel_phys_load 的输入框标题
+  ///
+  /// In zh, this message translates to:
+  /// **'物理装载基址（可选）'**
+  String get kernelProfileImportPhysLabel;
+
+  /// 物理装载基址输入框的示例
+  ///
+  /// In zh, this message translates to:
+  /// **'0x80000000'**
+  String get kernelProfileImportPhysHint;
+
+  /// 导入面板里高级选项区的标题
+  ///
+  /// In zh, this message translates to:
+  /// **'高级解析选项'**
+  String get kernelProfileAdvancedTitle;
+
+  /// 高级选项区收起时的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'一般不用改；改后需重新解析'**
+  String get kernelProfileAdvancedHint;
+
+  /// 选择外部 kallsyms 文本文件的按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'kallsyms 文件'**
+  String get kernelProfileImportKallsyms;
+
+  /// 选择外部 /proc/iomem 文本文件的按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'iomem 文件'**
+  String get kernelProfileImportIomem;
+
+  /// 强制路由选择区的标题
+  ///
+  /// In zh, this message translates to:
+  /// **'路由'**
+  String get kernelProfileImportRoute;
+
+  /// 路由选择里的自动选项
+  ///
+  /// In zh, this message translates to:
+  /// **'自动推荐'**
+  String get kernelProfileImportRouteAuto;
+
+  /// 对应上游 --allow_missing 的开关
+  ///
+  /// In zh, this message translates to:
+  /// **'缺失符号按可选处理（输出 0）'**
+  String get kernelProfileImportAllowMissing;
+
+  /// 对应上游 --no_disasm 的开关
+  ///
+  /// In zh, this message translates to:
+  /// **'跳过反汇编推导（更快，精度下降）'**
+  String get kernelProfileImportNoDisasm;
 
   /// OTA 链接输入框的提示文字
   ///
@@ -2654,6 +2930,18 @@ abstract class AppLocalizations {
   /// **'先选一个镜像或填一个链接'**
   String get kernelProfileImportNeedInput;
 
+  /// 选择器挡不住非镜像文件时按扩展名拒绝
+  ///
+  /// In zh, this message translates to:
+  /// **'不支持的文件：仅接受 img / bin / zip 镜像或 OTA 包'**
+  String get kernelProfileImportUnsupportedImage;
+
+  /// 选中的本地文件长度为 0 或读取失败
+  ///
+  /// In zh, this message translates to:
+  /// **'文件为空或无法读取'**
+  String get kernelProfileImportEmptyFile;
+
   /// 解析直链时的 TLS 选项说明
   ///
   /// In zh, this message translates to:
@@ -2666,53 +2954,143 @@ abstract class AppLocalizations {
   /// **'解析完成'**
   String get kernelProfileProbeReady;
 
+  /// 解析结果里路由几何缺失时的告警标题
+  ///
+  /// In zh, this message translates to:
+  /// **'路由几何不完整，这条配置跑不到写入：'**
+  String get kernelProfileProbeRouteIncomplete;
+
+  /// 路由几何缺失时给的处理建议
+  ///
+  /// In zh, this message translates to:
+  /// **'提权第一阶段只会试一次，缺字段会被直接拒绝。补上缺失字段，或在「路由」页换一条本表声明齐全的路由。'**
+  String get kernelProfileProbeRouteIncompleteHint;
+
   /// 解析结果里的告警条数
   ///
   /// In zh, this message translates to:
   /// **'{count} 条提示'**
   String kernelProfileProbeWarnings(int count);
 
-  /// 解析结果卡片上的操作提示
+  /// 告警明细弹窗的标题
   ///
   /// In zh, this message translates to:
-  /// **'点击选择导入到哪一套内核表'**
-  String get kernelProfileProbeTapHint;
+  /// **'解析提示'**
+  String get kernelProfileProbeWarningsTitle;
+
+  /// 物理装载基址这一行的键名
+  ///
+  /// In zh, this message translates to:
+  /// **'kernel_phys_load'**
+  String get kernelProfileProbePhys;
+
+  /// 物理装载基址未取到时的值
+  ///
+  /// In zh, this message translates to:
+  /// **'未取到'**
+  String get kernelProfileProbePhysMissing;
+
+  /// 物理装载基址未取到时的处理说明
+  ///
+  /// In zh, this message translates to:
+  /// **'未取到时写 null，运行时按 SoC 型号回退到内置常量；若运行报地址错误，再补附 xbl_config.img 或手填物理基址。'**
+  String get kernelProfileProbePhysUnsetHint;
+
+  /// 导入面板里的附件区标题
+  ///
+  /// In zh, this message translates to:
+  /// **'可选附件'**
+  String get kernelProfileAttachTitle;
+
+  /// 附件区收起且未附加文件时的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'用于补 kernel_phys_load，一般不用管'**
+  String get kernelProfileAttachHint;
+
+  /// 附件区收起但已附加文件时的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'已附加镜像，重新解析后生效'**
+  String get kernelProfileAttachAttachedCount;
+
+  /// 直链/压缩包输入时，说明相关分区由包内自动解出，结果以解析卡片为准
+  ///
+  /// In zh, this message translates to:
+  /// **'包内的 xbl_config、uefi、vendor_boot 由提取器按需解出；实际解出了哪些见结果里的「包内分区」。'**
+  String get kernelProfileAttachAutoHint;
+
+  /// 说明 vendor_boot 为何要手动附加
+  ///
+  /// In zh, this message translates to:
+  /// **'仅 MediaTek 机型需要，用于补 DRAM 基址。'**
+  String get kernelProfileAttachVendorBootHint;
+
+  /// 附件行右侧的操作文字：尚未选择
+  ///
+  /// In zh, this message translates to:
+  /// **'选择'**
+  String get kernelProfileAttachPick;
+
+  /// 附件行右侧的操作文字：已选择
+  ///
+  /// In zh, this message translates to:
+  /// **'更换'**
+  String get kernelProfileAttachReplace;
+
+  /// 解析结果里「从包内解出了哪些分区」的标签
+  ///
+  /// In zh, this message translates to:
+  /// **'包内分区'**
+  String get kernelProfileProbePayloadParts;
+
+  /// 打开审查报告的按钮文字
+  ///
+  /// In zh, this message translates to:
+  /// **'内核审查报告'**
+  String get kernelProfileProbeAnalysis;
+
+  /// 审查报告弹窗的标题
+  ///
+  /// In zh, this message translates to:
+  /// **'内核审查报告'**
+  String get kernelProfileProbeAnalysisTitle;
+
+  /// 导入目标开关的短标签，避免撑满分段按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'GhostLock'**
+  String get kernelProfileImportTargetGhostLock;
+
+  /// 导入目标开关的短标签，避免撑满分段按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'GhostKey'**
+  String get kernelProfileImportTargetGhostKey;
+
+  /// 输入来源切换：本地镜像文件
+  ///
+  /// In zh, this message translates to:
+  /// **'本地镜像'**
+  String get kernelProfileInputSourceLocal;
+
+  /// 输入来源切换：OTA 直链
+  ///
+  /// In zh, this message translates to:
+  /// **'OTA 直链'**
+  String get kernelProfileInputSourceUrl;
+
+  /// 解析完成后底部主按钮；table 是目标内核表名
+  ///
+  /// In zh, this message translates to:
+  /// **'写入 {table}'**
+  String kernelProfileWriteToTarget(String table);
 
   /// 解析失败的提示；reason 是技术诊断串
   ///
   /// In zh, this message translates to:
   /// **'解析失败：{reason}'**
   String kernelProfileProbeFailed(String reason);
-
-  /// 选落点弹窗的标题
-  ///
-  /// In zh, this message translates to:
-  /// **'要把 {release} 导入到哪？'**
-  String kernelProfileChooseTargetTitle(String release);
-
-  /// 选落点弹窗的 GhostKey 选项标题
-  ///
-  /// In zh, this message translates to:
-  /// **'GhostKey 内核参数'**
-  String get kernelProfileChooseTargetGhostKey;
-
-  /// 选落点弹窗的 GhostKey 选项说明
-  ///
-  /// In zh, this message translates to:
-  /// **'只推导 CVE-2026-98260 需要的偏移'**
-  String get kernelProfileChooseTargetGhostKeyHint;
-
-  /// 选落点弹窗的 GhostLock 选项标题
-  ///
-  /// In zh, this message translates to:
-  /// **'GhostLock 内核表'**
-  String get kernelProfileChooseTargetGhostLock;
-
-  /// 选落点弹窗的 GhostLock 选项说明
-  ///
-  /// In zh, this message translates to:
-  /// **'写入 GhostLock 解析出的偏移表'**
-  String get kernelProfileChooseTargetGhostLockHint;
 
   /// OTA 链接输入框下方的提示：必须导入带 BTF 的内核镜像
   ///
@@ -2744,31 +3122,31 @@ abstract class AppLocalizations {
   /// **'知道了'**
   String get kernelProfileDialogClose;
 
-  /// 打开历史 OTA 清单弹窗的按钮
+  /// 打开内置 OTA 清单弹窗的按钮
   ///
   /// In zh, this message translates to:
-  /// **'历史版本'**
+  /// **'内置 ROM'**
   String get otaCatalogBrowseAction;
 
-  /// 历史 OTA 清单弹窗标题
+  /// 内置 OTA 清单弹窗标题
   ///
   /// In zh, this message translates to:
-  /// **'历史 OTA 包'**
+  /// **'内置 ROM 清单'**
   String get otaCatalogTitle;
 
-  /// 历史 OTA 清单的搜索框提示
+  /// 内置 OTA 清单的搜索框提示
   ///
   /// In zh, this message translates to:
   /// **'搜索机型或版本号'**
   String get otaCatalogSearchHint;
 
-  /// 历史 OTA 清单的使用说明
+  /// 内置 OTA 清单的使用说明
   ///
   /// In zh, this message translates to:
   /// **'点任意版本，把直链填进上面的输入框'**
   String get otaCatalogPickHint;
 
-  /// 历史 OTA 清单搜索无结果
+  /// 内置 OTA 清单搜索无结果
   ///
   /// In zh, this message translates to:
   /// **'没有匹配的机型或版本'**
@@ -2780,13 +3158,13 @@ abstract class AppLocalizations {
   /// **'{count} 个版本'**
   String otaCatalogVersionCount(int count);
 
-  /// 历史 OTA 清单的 Google 品牌标签
+  /// 内置 OTA 清单的 Google 品牌标签
   ///
   /// In zh, this message translates to:
   /// **'Google'**
   String get otaCatalogBrandGoogle;
 
-  /// 历史 OTA 清单的 realme 品牌标签
+  /// 内置 OTA 清单的 realme 品牌标签
   ///
   /// In zh, this message translates to:
   /// **'realme'**
@@ -2941,6 +3319,174 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'内置表为空'**
   String get kernelProfileBuiltinEmpty;
+
+  /// 向导里设备 uname -r 的标签
+  ///
+  /// In zh, this message translates to:
+  /// **'设备内核'**
+  String get kernelProfileDeviceKernel;
+
+  /// 进入内核表参数编辑器的按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'编辑参数'**
+  String get kernelProfileEditParams;
+
+  /// 内核表向导里的已导入文档分组标题
+  ///
+  /// In zh, this message translates to:
+  /// **'我的配置'**
+  String get kernelProfileMyProfilesTitle;
+
+  /// 随应用打包的内置内核表分区标题
+  ///
+  /// In zh, this message translates to:
+  /// **'内置表'**
+  String get kernelProfileBuiltinTitle;
+
+  /// 内置表分区说明
+  ///
+  /// In zh, this message translates to:
+  /// **'随应用打包，只读'**
+  String get kernelProfileBuiltinHint;
+
+  /// 参考模板分区的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'空白骨架，只用于查看字段结构，不能直接生效'**
+  String get kernelProfileTemplateHint;
+
+  /// 内置表里与设备内核同名的那一行副标题
+  ///
+  /// In zh, this message translates to:
+  /// **'与本机内核一致'**
+  String get kernelProfileMatchesDevice;
+
+  /// 内置表分批展开的按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'显示更多（还剩 {count} 项）'**
+  String kernelProfileShowMore(int count);
+
+  /// 向导第一步名称
+  ///
+  /// In zh, this message translates to:
+  /// **'选择内核表'**
+  String get kernelProfileStepPick;
+
+  /// 向导第二步名称
+  ///
+  /// In zh, this message translates to:
+  /// **'确认来源'**
+  String get kernelProfileStepReview;
+
+  /// 向导第三步名称
+  ///
+  /// In zh, this message translates to:
+  /// **'应用生效'**
+  String get kernelProfileStepApply;
+
+  /// 向导的下一步按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'下一步'**
+  String get kernelProfileStepNext;
+
+  /// 向导的上一步按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'上一步'**
+  String get kernelProfileStepBack;
+
+  /// 向导最后一步的确认按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'应用生效'**
+  String get kernelProfileApplyAction;
+
+  /// 应用成功后的标题与提示
+  ///
+  /// In zh, this message translates to:
+  /// **'已切换生效内核表'**
+  String get kernelProfileApplied;
+
+  /// 应用后原生解析为空时的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'所选内核表与设备内核不一致，本次不会生效'**
+  String get kernelProfileApplyNotEffective;
+
+  /// 编辑会话解析为空时的正文
+  ///
+  /// In zh, this message translates to:
+  /// **'这个内核没有可编辑的 profile'**
+  String get kernelProfileEditorNotEditable;
+
+  /// 应用完成后回到第一步
+  ///
+  /// In zh, this message translates to:
+  /// **'再选一份'**
+  String get kernelProfilePickAgain;
+
+  /// 应用完成后进入参数编辑器
+  ///
+  /// In zh, this message translates to:
+  /// **'去调参数'**
+  String get kernelProfileEditAfterApply;
+
+  /// 确认页里说明为什么不能马上编辑参数
+  ///
+  /// In zh, this message translates to:
+  /// **'参数只能在生效后编辑：先完成这一步，再进编辑器改值。'**
+  String get kernelProfileEditAfterApplyHint;
+
+  /// 第一步的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'选一份要生效的内核表；标「生效中」的是当前正在用的那份。'**
+  String get kernelProfilePickHint;
+
+  /// 第二步的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'确认下面的来源。应用后编辑器改的就是这一份。'**
+  String get kernelProfileReviewHint;
+
+  /// 确认页里被选配置自己声明的 release
+  ///
+  /// In zh, this message translates to:
+  /// **'配置声明的内核'**
+  String get kernelProfileDeclaredKernel;
+
+  /// 配置声明的内核与设备一致
+  ///
+  /// In zh, this message translates to:
+  /// **'与设备内核一致，可以运行'**
+  String get kernelProfileReviewMatch;
+
+  /// 配置声明的内核与设备不一致
+  ///
+  /// In zh, this message translates to:
+  /// **'与设备内核不一致，运行会被拒绝'**
+  String get kernelProfileReviewMismatch;
+
+  /// GhostKey 内核表的页签标题
+  ///
+  /// In zh, this message translates to:
+  /// **'GhostKey 内核表'**
+  String get kernelProfileGhostKeyEntry;
+
+  /// GhostLock 内核表的页签标题
+  ///
+  /// In zh, this message translates to:
+  /// **'GhostLock 内核表'**
+  String get kernelProfileGhostLockEntry;
+
+  /// 打开导入弹层的按钮与标题
+  ///
+  /// In zh, this message translates to:
+  /// **'导入内核表'**
+  String get kernelProfileImportEntry;
 
   /// 删除 profile 的按钮与提示
   ///

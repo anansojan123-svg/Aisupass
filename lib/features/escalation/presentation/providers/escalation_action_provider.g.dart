@@ -1715,12 +1715,16 @@ final class GhostLockImportedProfilesProvider
 String _$ghostLockImportedProfilesHash() =>
     r'770ed9d1239d2d25272b6925b94418cf9fdd5742';
 
-/// 内置 GhostLock 内核表的全部 release，升序。
+/// 内置 GhostLock 内核表的全部 release，按与设备内核的相近度排序。
+///
+/// 设备 release 尚未就绪（自检未跑完）时退回原生顺序，不阻塞列表。
 
 @ProviderFor(ghostLockBuiltinReleases)
 const ghostLockBuiltinReleasesProvider = GhostLockBuiltinReleasesProvider._();
 
-/// 内置 GhostLock 内核表的全部 release，升序。
+/// 内置 GhostLock 内核表的全部 release，按与设备内核的相近度排序。
+///
+/// 设备 release 尚未就绪（自检未跑完）时退回原生顺序，不阻塞列表。
 
 final class GhostLockBuiltinReleasesProvider
     extends
@@ -1730,7 +1734,9 @@ final class GhostLockBuiltinReleasesProvider
           FutureOr<List<String>>
         >
     with $FutureModifier<List<String>>, $FutureProvider<List<String>> {
-  /// 内置 GhostLock 内核表的全部 release，升序。
+  /// 内置 GhostLock 内核表的全部 release，按与设备内核的相近度排序。
+  ///
+  /// 设备 release 尚未就绪（自检未跑完）时退回原生顺序，不阻塞列表。
   const GhostLockBuiltinReleasesProvider._()
     : super(
         from: null,
@@ -1758,7 +1764,7 @@ final class GhostLockBuiltinReleasesProvider
 }
 
 String _$ghostLockBuiltinReleasesHash() =>
-    r'7a942eef2fc2f1a19af7e8e0dd1b70f963017574';
+    r'4beb4b951d9e6e0ccd7f5e665526f244da7f8fd4';
 
 /// 单份用户 profile 的原始 HOCON 文本；不存在返回空串。
 
@@ -1999,94 +2005,6 @@ final class GhostLockProfileEditActionRepositoryProvider
 
 String _$ghostLockProfileEditActionRepositoryHash() =>
     r'e52c967f2b27c072e4a13041ac256ab04459521a';
-
-/// 某个 release 的解析结果（编辑器视图）。
-
-@ProviderFor(ghostLockProfileConfig)
-const ghostLockProfileConfigProvider = GhostLockProfileConfigFamily._();
-
-/// 某个 release 的解析结果（编辑器视图）。
-
-final class GhostLockProfileConfigProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<GhostLockProfileConfig>,
-          GhostLockProfileConfig,
-          FutureOr<GhostLockProfileConfig>
-        >
-    with
-        $FutureModifier<GhostLockProfileConfig>,
-        $FutureProvider<GhostLockProfileConfig> {
-  /// 某个 release 的解析结果（编辑器视图）。
-  const GhostLockProfileConfigProvider._({
-    required GhostLockProfileConfigFamily super.from,
-    required String super.argument,
-  }) : super(
-         retry: null,
-         name: r'ghostLockProfileConfigProvider',
-         isAutoDispose: true,
-         dependencies: null,
-         $allTransitiveDependencies: null,
-       );
-
-  @override
-  String debugGetCreateSourceHash() => _$ghostLockProfileConfigHash();
-
-  @override
-  String toString() {
-    return r'ghostLockProfileConfigProvider'
-        ''
-        '($argument)';
-  }
-
-  @$internal
-  @override
-  $FutureProviderElement<GhostLockProfileConfig> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<GhostLockProfileConfig> create(Ref ref) {
-    final argument = this.argument as String;
-    return ghostLockProfileConfig(ref, release: argument);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is GhostLockProfileConfigProvider &&
-        other.argument == argument;
-  }
-
-  @override
-  int get hashCode {
-    return argument.hashCode;
-  }
-}
-
-String _$ghostLockProfileConfigHash() =>
-    r'6cf93438b0d2069a8b1b79d3a08a75ab6764b6d7';
-
-/// 某个 release 的解析结果（编辑器视图）。
-
-final class GhostLockProfileConfigFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<GhostLockProfileConfig>, String> {
-  const GhostLockProfileConfigFamily._()
-    : super(
-        retry: null,
-        name: r'ghostLockProfileConfigProvider',
-        dependencies: null,
-        $allTransitiveDependencies: null,
-        isAutoDispose: true,
-      );
-
-  /// 某个 release 的解析结果（编辑器视图）。
-
-  GhostLockProfileConfigProvider call({required String release}) =>
-      GhostLockProfileConfigProvider._(argument: release, from: this);
-
-  @override
-  String toString() => r'ghostLockProfileConfigProvider';
-}
 
 /// GhostLock profile 导入与编辑的写操作。
 ///

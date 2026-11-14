@@ -316,10 +316,62 @@ GhostLockProfileActionRepository ghostLockProfileActionRepository(Ref ref) =>
 Future<List<GhostLockUserProfile>> ghostLockImportedProfiles(Ref ref) =>
     ref.watch(ghostLockProfileActionRepositoryProvider).listImportedProfiles();
 
-/// 内置 GhostLock 内核表的全部 release，升序。
+/// 内置 GhostLock 内核表的全部 release，按与设备内核的相近度排序。
+///
+/// 设备 release 尚未就绪（自检未跑完）时退回原生顺序，不阻塞列表。
 @riverpod
-Future<List<String>> ghostLockBuiltinReleases(Ref ref) =>
-    ref.watch(ghostLockProfileActionRepositoryProvider).listBuiltinReleases();
+Future<List<String>> ghostLockBuiltinReleases(Ref ref) async {
+  final List<String> releases = await ref
+      .watch(ghostLockProfileActionRepositoryProvider)
+      .listBuiltinReleases();
+  final String device =
+      ref.watch(ghostLockPreflightProvider).value?.release ?? '';
+  if (device.isEmpty) return releases;
+  return _sortByKernelSimilarity(device, releases);
+}
+
+/// 按 major/minor/fix/android 的绝对差排序，差值小的在前。
+List<String> _sortByKernelSimilarity(String deviceRelease, List<String> releases) {
+  final List<int> device = _kernelVersionKey(deviceRelease);
+  return releases.toList()
+    ..sort((a, b) {
+      final List<int> left = _similarityKey(device, _kernelVersionKey(a));
+      final List<int> right = _similarityKey(device, _kernelVersionKey(b));
+      final int length = left.length > right.length ? left.length : right.length;
+      for (int i = 0; i < length; i++) {
+        final int l = i < left.length ? left[i] : 0;
+        final int r = i < right.length ? right[i] : 0;
+        if (l != r) return l.compareTo(r);
+      }
+      return 0;
+    });
+}
+
+List<int> _kernelVersionKey(String release) {
+  final List<int> version = release
+      .split('-')
+      .first
+      .split('.')
+      .map(int.tryParse)
+      .whereType<int>()
+      .toList();
+  final RegExpMatch? android = RegExp(r'-android(\d+)').firstMatch(release);
+  final int? androidVersion = android == null
+      ? null
+      : int.tryParse(android.group(1)!);
+  return androidVersion == null ? version : <int>[...version, androidVersion];
+}
+
+List<int> _similarityKey(List<int> device, List<int> candidate) {
+  final int length = device.length > candidate.length
+      ? device.length
+      : candidate.length;
+  return List<int>.generate(length, (int index) {
+    final int d = index < device.length ? device[index] : 0;
+    final int c = index < candidate.length ? candidate[index] : 0;
+    return (d - c).abs();
+  });
+}
 
 /// 单份用户 profile 的原始 HOCON 文本；不存在返回空串。
 @riverpod
@@ -357,15 +409,6 @@ GhostLockProfileEditActionRepository ghostLockProfileEditActionRepository(
   datasource: ref.watch(ghostLockProfileEditActionDatasourceProvider),
 );
 
-/// 某个 release 的解析结果（编辑器视图）。
-@riverpod
-Future<GhostLockProfileConfig> ghostLockProfileConfig(
-  Ref ref, {
-  required String release,
-}) => ref
-    .watch(ghostLockProfileEditActionRepositoryProvider)
-    .load(release: release);
-
 /// GhostLock profile 导入与编辑的写操作。
 ///
 /// 同 [ghostKeyActions]：无参类，参数走方法入参。
@@ -383,9 +426,30 @@ class GhostLockProfileActions {
   Future<GhostLockProbe> probeProfile({
     required String input,
     bool insecure = false,
+    String xblPath = '',
+    String uefiPath = '',
+    String vendorBootPath = '',
+    String phys = '',
+    String kallsymsPath = '',
+    String iomemPath = '',
+    String route = '',
+    bool allowMissing = false,
+    bool noDisasm = false,
   }) => _ref
       .read(ghostLockProfileActionRepositoryProvider)
-      .probeProfile(input: input, insecure: insecure);
+      .probeProfile(
+        input: input,
+        insecure: insecure,
+        xblPath: xblPath,
+        uefiPath: uefiPath,
+        vendorBootPath: vendorBootPath,
+        phys: phys,
+        kallsymsPath: kallsymsPath,
+        iomemPath: iomemPath,
+        route: route,
+        allowMissing: allowMissing,
+        noDisasm: noDisasm,
+      );
 
   /// 把 [probeProfile] 返回的文本落盘。
   Future<GhostLockImportResult> saveProfile({
@@ -407,8 +471,64 @@ class GhostLockProfileActions {
         .read(ghostLockProfileActionRepositoryProvider)
         .removeImportedProfile(name: name);
     _ref.invalidate(ghostLockImportedProfilesProvider);
+    _ref.invalidate(ghostLockActiveSourceProvider);
     _ref.invalidate(ghostLockPreflightProvider);
     return removed;
+  }
+
+  /// 导入现成的 profile 文本（HOCON 或 JSON）。
+  Future<GhostLockImportResult> importProfileText({
+    required String text,
+    required String fileName,
+    bool overwrite = false,
+  }) async {
+    final GhostLockImportResult result = await _ref
+        .read(ghostLockProfileActionRepositoryProvider)
+        .importProfileText(
+          text: text,
+          fileName: fileName,
+          overwrite: overwrite,
+        );
+    if (result.ok) {
+      _ref.invalidate(ghostLockImportedProfilesProvider);
+      _ref.invalidate(ghostLockPreflightProvider);
+    }
+    return result;
+  }
+
+  /// 重命名用户文档；返回新文件名，失败为空串。
+  Future<String> renameImportedProfile({
+    required String name,
+    required String newName,
+  }) async {
+    final String renamed = await _ref
+        .read(ghostLockProfileActionRepositoryProvider)
+        .renameImportedProfile(name: name, newName: newName);
+    if (renamed.isNotEmpty) {
+      _ref.invalidate(ghostLockImportedProfilesProvider);
+      _ref.invalidate(ghostLockActiveSourceProvider);
+      _ref.invalidate(ghostLockPreflightProvider);
+    }
+    return renamed;
+  }
+
+  /// 导出用户文档为 HOCON 文本。
+  Future<String> exportImportedProfile({required String name}) => _ref
+      .read(ghostLockProfileActionRepositoryProvider)
+      .exportImportedProfile(name: name);
+
+  /// 把旧格式文档转换为当前布局。
+  Future<GhostLockImportResult> convertImportedProfile({
+    required String name,
+  }) async {
+    final GhostLockImportResult result = await _ref
+        .read(ghostLockProfileActionRepositoryProvider)
+        .convertImportedProfile(name: name);
+    if (result.ok) {
+      _ref.invalidate(ghostLockImportedProfilesProvider);
+      _ref.invalidate(ghostLockPreflightProvider);
+    }
+    return result;
   }
 
   /// 写通用参数。
@@ -441,10 +561,6 @@ class GhostLockProfileActions {
     (repo) => repo.updateFallback(release: release, fallbackTo: fallbackTo),
   );
 
-  /// 清掉该 release 的全部 override。
-  Future<GhostLockProfileConfig> reset({required String release}) =>
-      _apply(release, (repo) => repo.reset(release: release));
-
   /// 指定生效的内置表；空串回到设备自身 release。
   Future<GhostLockProfileConfig> selectBuiltin({
     required String release,
@@ -469,16 +585,83 @@ class GhostLockProfileActions {
           .read(ghostLockProfileEditActionRepositoryProvider)
           .export(release: release, path: path);
 
-  /// 另存为一份用户文档。
-  Future<bool> saveModified({required String release}) async {
+  /// 把当前生效配置渲染为 HOCON 文本；无法解析时返回空串。
+  Future<String> renderProfile({required String release}) => _ref
+      .read(ghostLockProfileEditActionRepositoryProvider)
+      .render(release: release);
+
+  /// 打开编辑会话；[name] 为空串表示内置/设备态。
+  Future<GhostLockProfileConfig> beginEditSession({
+    required String name,
+    required String deviceRelease,
+  }) => _ref
+      .read(ghostLockProfileEditActionRepositoryProvider)
+      .beginEditSession(name: name, deviceRelease: deviceRelease);
+
+  /// 丢弃未保存改动，按当前会话目标重新解析。
+  Future<GhostLockProfileConfig> reloadEditSession() => _ref
+      .read(ghostLockProfileEditActionRepositoryProvider)
+      .reloadEditSession();
+
+  /// 会话是否编辑当前生效配置。
+  Future<bool> editSessionIsLive() => _ref
+      .read(ghostLockProfileEditActionRepositoryProvider)
+      .editSessionIsLive();
+
+  /// 会话目标的文档名；内置/设备态返回空串。
+  Future<String> editSessionTarget() => _ref
+      .read(ghostLockProfileEditActionRepositoryProvider)
+      .editSessionTarget();
+
+  /// 会话实际使用的 release。
+  Future<String> editSessionRelease() => _ref
+      .read(ghostLockProfileEditActionRepositoryProvider)
+      .editSessionRelease();
+
+  /// 把会话 override 写入 live override。
+  Future<bool> commitEditSession() async {
+    final bool committed = await _ref
+        .read(ghostLockProfileEditActionRepositoryProvider)
+        .commitEditSession();
+    if (committed) {
+      _ref.invalidate(ghostLockPreflightProvider);
+    }
+    return committed;
+  }
+
+  /// 用会话结果整篇覆盖目标文档。
+  Future<bool> saveEditSessionInPlace() async {
     final bool saved = await _ref
         .read(ghostLockProfileEditActionRepositoryProvider)
-        .saveModified(release: release);
-    _ref.invalidate(ghostLockImportedProfilesProvider);
+        .saveEditSessionInPlace();
+    if (saved) {
+      _ref.invalidate(ghostLockImportedProfilesProvider);
+      _ref.invalidate(ghostLockPreflightProvider);
+    }
     return saved;
   }
 
-  /// 写操作共用：落盘后失效该 release 的解析结果与运行前自检。
+  /// 会话结果另存为新文档；失败返回空串。
+  Future<String> saveEditSessionAsNew() async {
+    final String name = await _ref
+        .read(ghostLockProfileEditActionRepositoryProvider)
+        .saveEditSessionAsNew();
+    if (name.isNotEmpty) {
+      _ref.invalidate(ghostLockImportedProfilesProvider);
+    }
+    return name;
+  }
+
+  /// 会话结果导出到 [path]。
+  Future<bool> exportEditSession({required String path}) => _ref
+      .read(ghostLockProfileEditActionRepositoryProvider)
+      .exportEditSession(path: path);
+
+  /// 关闭会话。
+  Future<void> endEditSession() =>
+      _ref.read(ghostLockProfileEditActionRepositoryProvider).endEditSession();
+
+  /// 写操作共用：落盘后失效生效来源与运行前自检。
   Future<GhostLockProfileConfig> _apply(
     String release,
     Future<GhostLockProfileConfig> Function(GhostLockProfileEditActionRepository repo)
@@ -487,7 +670,7 @@ class GhostLockProfileActions {
     final GhostLockProfileConfig config = await action(
       _ref.read(ghostLockProfileEditActionRepositoryProvider),
     );
-    _ref.invalidate(ghostLockProfileConfigProvider(release: release));
+    _ref.invalidate(ghostLockActiveSourceProvider);
     _ref.invalidate(ghostLockPreflightProvider);
     return config;
   }

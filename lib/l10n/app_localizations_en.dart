@@ -178,6 +178,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiCancel => 'Cancel';
 
   @override
+  String get aiReset => 'Reset';
+
+  @override
   String get aiApiKeyMissing => 'API key not set';
 
   @override
@@ -1078,6 +1081,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String escalationGhostLockProfileMismatch(String profile, String device) {
+    return 'The selected kernel table declares $profile but this device reports $device; it will not be applied';
+  }
+
+  @override
+  String escalationGhostLockProfileMissing(String name) {
+    return 'The selected document $name no longer exists; it may have been removed or renamed';
+  }
+
+  @override
   String get escalationGhostLockSeccompFiltered =>
       'This shell is seccomp-filtered and the chain cannot clear it';
 
@@ -1146,6 +1159,22 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get escalationGhostLockFailureDeviceDisconnected =>
+      'Lost the device connection (it probably rebooted); tracking stopped, retry after it comes back';
+
+  @override
+  String get escalationGhostLockFailureLaunch =>
+      'The native process could not be started; see the shell output above';
+
+  @override
+  String get escalationGhostLockFailureProfileWrite =>
+      'Could not write the kernel table to the device temp directory; check that wireless debugging is still up';
+
+  @override
+  String get escalationGhostLockFailureNotStarted =>
+      'The native process produced no output; tracking stopped';
+
+  @override
   String get escalationGhostLockStop => 'Stop reading';
 
   @override
@@ -1176,7 +1205,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get escalationGhostLockProfileOverridden => 'modified';
 
   @override
-  String get escalationGhostLockProfileReset => 'Reset all edits';
+  String get escalationGhostLockProfileWriteBack => 'Save';
+
+  @override
+  String get escalationGhostLockProfileWrittenBack => 'Written to current file';
+
+  @override
+  String get escalationGhostLockProfileWriteFailed => 'Write failed';
+
+  @override
+  String get escalationGhostLockProfileRejected =>
+      'This value would make the profile unparsable; reverted';
+
+  @override
+  String get escalationGhostLockProfileSaved => 'Saved';
+
+  @override
+  String escalationGhostLockProfileSavedAsNew(String name) {
+    return 'Saved as $name';
+  }
 
   @override
   String get escalationGhostLockProfileExport => 'Export to file';
@@ -1192,33 +1239,83 @@ class AppLocalizationsEn extends AppLocalizations {
   String get escalationGhostLockProfileRouteLabel => 'Route';
 
   @override
+  String get escalationGhostLockProfileRouteCurrent => 'In effect';
+
+  @override
   String get escalationGhostLockProfileFallbackLabel => 'Fallback';
 
   @override
   String get escalationGhostLockProfileFallbackNone => 'No fallback';
 
   @override
+  String get escalationGhostLockProfileFallbackDeclared =>
+      'Follow the profile declaration';
+
+  @override
   String get escalationGhostLockProfileNoProfile =>
       'No editable profile for this kernel';
 
   @override
-  String get escalationGhostLockProfileSelect => 'Active source';
+  String get escalationGhostLockProfileNoWritableDoc =>
+      'Nothing to write back to. Use \"Save as my config\" to create one first';
 
   @override
-  String get escalationGhostLockProfileSelectAuto => 'Follow the device';
+  String get escalationGhostLockProfileSourceLabel => 'Active source';
 
   @override
-  String get escalationGhostLockProfileSelectBuiltin => 'Built-in tables';
+  String get escalationGhostLockProfileSourceDevice => 'Device built-in table';
+
+  @override
+  String get escalationGhostLockProfileSourceBuiltin => 'Built-in table';
+
+  @override
+  String get escalationGhostLockProfileSourceUser => 'My profile';
+
+  @override
+  String escalationGhostLockProfileOverriddenCount(int count) {
+    return '$count edited';
+  }
+
+  @override
+  String get escalationGhostLockProfileTabGeneralHint =>
+      'Execution tuning. Leaving the field applies it right away; no separate save needed.';
+
+  @override
+  String get escalationGhostLockProfileTabRouteHint =>
+      'Pick the injection path. Selecting applies instantly; the advanced fields change with the route.';
+
+  @override
+  String get escalationGhostLockProfileRouteGeometryHint =>
+      'A route\'s geometry values (waiter_shift, compact_waiter, waiter_off, ...) are only written when the profile was generated for that route. Switching to a route the profile never produced leaves those fields empty, so the runtime may lack its parameters. To change routes, re-parse the image and pick the route there.';
+
+  @override
+  String get escalationGhostLockProfileTabAdvancedHint =>
+      'Struct and offset fields. Edits apply immediately; empty fields are not yet provided.';
+
+  @override
+  String get escalationGhostLockProfileApplied => 'Applied';
+
+  @override
+  String get escalationGhostLockProfileWriteBackHint =>
+      'Live overrides to local; documents overwritten in place';
+
+  @override
+  String get escalationGhostLockProfileWriteBackDisabled =>
+      'Built-in profiles are read-only; use Save as';
+
+  @override
+  String get escalationGhostLockProfileSaveAsHint =>
+      'Create a new user profile, original untouched';
+
+  @override
+  String get escalationGhostLockProfileExportHint =>
+      'Export the conf to a system file';
 
   @override
   String get escalationGhostLockProfileSelectSearch => 'Filter by release';
 
   @override
-  String get escalationGhostLockProfileSelectUser => 'My profiles';
-
-  @override
-  String get escalationGhostLockProfileSelectNoUser =>
-      'Do not use an imported profile';
+  String get escalationGhostLockProfileSelectTemplates => 'Reference templates';
 
   @override
   String get escalationGhostLockImportTitle => 'Import kernel table';
@@ -1248,6 +1345,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get escalationGhostLockImportedParseError => 'File cannot be parsed';
+
+  @override
+  String get escalationGhostLockImportedRename => 'Rename';
+
+  @override
+  String get escalationGhostLockImportedRenameHint => 'New file name';
+
+  @override
+  String get escalationGhostLockImportedExport => 'Export';
+
+  @override
+  String get escalationGhostLockImportedEdit => 'Edit';
+
+  @override
+  String get escalationGhostLockImportedExported => 'Exported';
+
+  @override
+  String get escalationGhostLockMoreActions => 'More actions';
+
+  @override
+  String get escalationGhostLockImportText =>
+      'Import config (conf / hocon / json / txt, multi-select)';
+
+  @override
+  String get escalationGhostLockImportUnsupported =>
+      'Nothing to import: only conf / hocon / json / txt UTF-8 text is accepted';
 
   @override
   String get settingsGhostKeySection => 'GhostKey';
@@ -1454,10 +1577,53 @@ class AppLocalizationsEn extends AppLocalizations {
   String get kernelProfileTabGhostLockBuiltin => 'GhostLock built-in';
 
   @override
-  String get kernelProfileImportAction => 'Choose boot.img';
+  String get kernelProfileImportAction => 'Choose image (img / bin / zip)';
 
   @override
   String get kernelProfileImportChangeFile => 'Change image';
+
+  @override
+  String get kernelProfileImportAttachXbl => 'xbl_config.img (optional)';
+
+  @override
+  String get kernelProfileImportAttachUefi => 'uefi.img (optional)';
+
+  @override
+  String get kernelProfileImportAttachVendorBoot =>
+      'vendor_boot.img (optional)';
+
+  @override
+  String get kernelProfileImportPhysLabel => 'Physical load address (optional)';
+
+  @override
+  String get kernelProfileImportPhysHint => '0x80000000';
+
+  @override
+  String get kernelProfileAdvancedTitle => 'Advanced parsing options';
+
+  @override
+  String get kernelProfileAdvancedHint =>
+      'Usually leave untouched; re-parse after changing';
+
+  @override
+  String get kernelProfileImportKallsyms => 'kallsyms file';
+
+  @override
+  String get kernelProfileImportIomem => 'iomem file';
+
+  @override
+  String get kernelProfileImportRoute => 'Route';
+
+  @override
+  String get kernelProfileImportRouteAuto => 'Auto';
+
+  @override
+  String get kernelProfileImportAllowMissing =>
+      'Treat missing symbols as optional (emit 0)';
+
+  @override
+  String get kernelProfileImportNoDisasm =>
+      'Skip disassembly derivation (faster, less precise)';
 
   @override
   String get kernelProfileImportUrlHint => 'OTA link (HTTP/HTTPS)';
@@ -1470,6 +1636,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Pick an image or paste a link first';
 
   @override
+  String get kernelProfileImportUnsupportedImage =>
+      'Unsupported file: only img / bin / zip images or OTA packages are accepted';
+
+  @override
+  String get kernelProfileImportEmptyFile => 'File is empty or unreadable';
+
+  @override
   String get kernelProfileImportInsecureHint =>
       'Skip certificate check (for self-signed links)';
 
@@ -1477,37 +1650,86 @@ class AppLocalizationsEn extends AppLocalizations {
   String get kernelProfileProbeReady => 'Parsed';
 
   @override
+  String get kernelProfileProbeRouteIncomplete =>
+      'Route geometry incomplete; this profile cannot reach the write stage:';
+
+  @override
+  String get kernelProfileProbeRouteIncompleteHint =>
+      'Stage one is attempted only once and refuses a missing field. Fill in the gaps, or switch to a route this profile fully declares in the Route tab.';
+
+  @override
   String kernelProfileProbeWarnings(int count) {
     return '$count warnings';
   }
 
   @override
-  String get kernelProfileProbeTapHint =>
-      'Tap to choose which kernel table to import into';
+  String get kernelProfileProbeWarningsTitle => 'Parse warnings';
+
+  @override
+  String get kernelProfileProbePhys => 'kernel_phys_load';
+
+  @override
+  String get kernelProfileProbePhysMissing => 'not found';
+
+  @override
+  String get kernelProfileProbePhysUnsetHint =>
+      'Written as null when unknown; the runtime falls back to a built-in per-SoC constant. If a run reports a bad address, attach xbl_config.img or fill in the physical base.';
+
+  @override
+  String get kernelProfileAttachTitle => 'Optional attachments';
+
+  @override
+  String get kernelProfileAttachHint =>
+      'Used to fill in kernel_phys_load; usually not needed';
+
+  @override
+  String get kernelProfileAttachAttachedCount =>
+      'Images attached; re-run the parse to apply';
+
+  @override
+  String get kernelProfileAttachAutoHint =>
+      'xbl_config, uefi and vendor_boot are extracted from the package as needed; the result lists what was actually extracted.';
+
+  @override
+  String get kernelProfileAttachVendorBootHint =>
+      'Only needed on MediaTek devices, to supply the DRAM base.';
+
+  @override
+  String get kernelProfileAttachPick => 'Choose';
+
+  @override
+  String get kernelProfileAttachReplace => 'Replace';
+
+  @override
+  String get kernelProfileProbePayloadParts => 'Package partitions';
+
+  @override
+  String get kernelProfileProbeAnalysis => 'Kernel analysis';
+
+  @override
+  String get kernelProfileProbeAnalysisTitle => 'Kernel analysis';
+
+  @override
+  String get kernelProfileImportTargetGhostLock => 'GhostLock';
+
+  @override
+  String get kernelProfileImportTargetGhostKey => 'GhostKey';
+
+  @override
+  String get kernelProfileInputSourceLocal => 'Local image';
+
+  @override
+  String get kernelProfileInputSourceUrl => 'OTA link';
+
+  @override
+  String kernelProfileWriteToTarget(String table) {
+    return 'Write to $table';
+  }
 
   @override
   String kernelProfileProbeFailed(String reason) {
     return 'Parse failed: $reason';
   }
-
-  @override
-  String kernelProfileChooseTargetTitle(String release) {
-    return 'Import $release into which one?';
-  }
-
-  @override
-  String get kernelProfileChooseTargetGhostKey => 'GhostKey kernel parameters';
-
-  @override
-  String get kernelProfileChooseTargetGhostKeyHint =>
-      'Only derives the offsets CVE-2026-98260 needs';
-
-  @override
-  String get kernelProfileChooseTargetGhostLock => 'GhostLock kernel table';
-
-  @override
-  String get kernelProfileChooseTargetGhostLockHint =>
-      'Writes the offset table parsed for GhostLock';
 
   @override
   String get kernelProfileBtfHint =>
@@ -1527,10 +1749,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get kernelProfileDialogClose => 'Got it';
 
   @override
-  String get otaCatalogBrowseAction => 'History';
+  String get otaCatalogBrowseAction => 'Built-in ROMs';
 
   @override
-  String get otaCatalogTitle => 'Historical OTA packages';
+  String get otaCatalogTitle => 'Built-in ROM packages';
 
   @override
   String get otaCatalogSearchHint => 'Search device or build';
@@ -1634,6 +1856,99 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get kernelProfileBuiltinEmpty => 'No built-in profile';
+
+  @override
+  String get kernelProfileDeviceKernel => 'Device kernel';
+
+  @override
+  String get kernelProfileEditParams => 'Edit parameters';
+
+  @override
+  String get kernelProfileMyProfilesTitle => 'My profiles';
+
+  @override
+  String get kernelProfileBuiltinTitle => 'Built-in profiles';
+
+  @override
+  String get kernelProfileBuiltinHint => 'Bundled with the app, read-only';
+
+  @override
+  String get kernelProfileTemplateHint =>
+      'Blank skeleton for inspecting the field layout; cannot take effect';
+
+  @override
+  String get kernelProfileMatchesDevice => 'Matches this device';
+
+  @override
+  String kernelProfileShowMore(int count) {
+    return 'Show more ($count left)';
+  }
+
+  @override
+  String get kernelProfileStepPick => 'Pick profile';
+
+  @override
+  String get kernelProfileStepReview => 'Review source';
+
+  @override
+  String get kernelProfileStepApply => 'Apply';
+
+  @override
+  String get kernelProfileStepNext => 'Next';
+
+  @override
+  String get kernelProfileStepBack => 'Back';
+
+  @override
+  String get kernelProfileApplyAction => 'Apply';
+
+  @override
+  String get kernelProfileApplied => 'Active profile switched';
+
+  @override
+  String get kernelProfileApplyNotEffective =>
+      'Selected profile does not apply to this device kernel and will not be used';
+
+  @override
+  String get kernelProfileEditorNotEditable =>
+      'This kernel has no editable profile';
+
+  @override
+  String get kernelProfilePickAgain => 'Pick another';
+
+  @override
+  String get kernelProfileEditAfterApply => 'Tune parameters';
+
+  @override
+  String get kernelProfileEditAfterApplyHint =>
+      'Parameters can only be edited once active: finish this step, then open the editor.';
+
+  @override
+  String get kernelProfilePickHint =>
+      'Pick the profile to use. The row marked Active is the one in use now.';
+
+  @override
+  String get kernelProfileReviewHint =>
+      'Confirm the source below. The editor will edit this one after applying.';
+
+  @override
+  String get kernelProfileDeclaredKernel => 'Declared kernel';
+
+  @override
+  String get kernelProfileReviewMatch => 'Matches this device, ready to run';
+
+  @override
+  String get kernelProfileReviewMismatch =>
+      'Does not match this device; the run will be rejected';
+
+  @override
+  String get kernelProfileGhostKeyEntry => 'GhostKey profiles';
+
+  @override
+  String get kernelProfileGhostLockEntry => 'GhostLock profiles';
+
+  @override
+  String get kernelProfileImportEntry => 'Import profile';
 
   @override
   String get kernelProfileRemove => 'Remove';

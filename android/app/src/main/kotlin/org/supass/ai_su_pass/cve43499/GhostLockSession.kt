@@ -3,6 +3,7 @@ package org.supass.ai_su_pass.cve43499
 import android.os.SystemClock
 import org.supass.ai_su_pass.core.adb.AdbShellChannel
 import org.supass.ai_su_pass.core.bridge.ghost_lock_native.GhostLockChunk
+import org.supass.ai_su_pass.core.shell.ShellProtocol
 import org.supass.ai_su_pass.core.shell.ShellResult
 
 /**
@@ -94,7 +95,19 @@ internal class GhostLockSession(
                 return
             }
             val launch = exec(launchCommand(), LAUNCH_TIMEOUT_MS, null)
+            if (launch.exitCode == ShellProtocol.EXIT_NOT_STARTED) {
+                /* 命令没跑起来：通道掉了（设备重启/断连）而不是命令本身失败。 */
+                finishFailure("deviceDisconnected")
+                return
+            }
             if (launch.exitCode != 0 || !launch.stdout.contains(STARTED)) {
+                /* 把 shell 侧的原始输出与已落盘的 run.log 带回去，
+                 * launchFailed 不再是无信息量的黑箱。 */
+                synchronized(lock) {
+                    if (launch.stdout.isNotBlank()) output.append(launch.stdout)
+                    if (launch.stderr.isNotBlank()) output.append(launch.stderr)
+                }
+                drainLog()
                 finishFailure("launchFailed")
                 return
             }
@@ -106,6 +119,7 @@ internal class GhostLockSession(
 
     private fun pollUntilDone() {
         var bootDeadline = startedAt + BOOT_GRACE_MS
+        var lostStreak = 0
         while (!cancelled) {
             val now = SystemClock.elapsedRealtime()
             if (now - startedAt > MAX_SESSION_MS) {
@@ -116,6 +130,17 @@ internal class GhostLockSession(
                 return
             }
             val probe = exec(probeCommand(), PROBE_TIMEOUT_MS, null)
+            if (probe.exitCode == ShellProtocol.EXIT_NOT_STARTED) {
+                /* 设备重启或掉线时通道取不到退出帧；连续多次都这样立即收尾，
+                 * 不要让用户干等到会话超时。 */
+                if (++lostStreak >= LOST_STREAK_LIMIT) {
+                    finishFailure("deviceDisconnected")
+                    return
+                }
+                Thread.sleep(POLL_INTERVAL_MS)
+                continue
+            }
+            lostStreak = 0
             val bytes = parseBytes(probe.stdout)
             val code = parseExitCode(probe.stdout)
             if (bytes > 0) bootDeadline = now + BOOT_GRACE_MS
@@ -156,14 +181,21 @@ internal class GhostLockSession(
         synchronized(lock) { output.append(text) }
     }
 
+    /**
+     * 拉起原生。
+     *
+     * 环境变量必须用 `export`：`VAR=x ( 子shell )` 在 sh 里是语法错误，
+     * 整条命令会直接以非 0 退出、连 `started` 都打不出来。
+     */
     private fun launchCommand(): String = buildString {
         append("cd ").append(dir).append(" && ")
-        append("GHOSTLOCK_HOME=").append(WORK).append(' ')
-        append("TMPDIR=/data/local/tmp HOME=/data/local/tmp ")
+        append("export GHOSTLOCK_HOME=").append(WORK)
+        append(" TMPDIR=/data/local/tmp HOME=/data/local/tmp")
         if (ksudPath.isNotEmpty()) {
-            append("GHOSTLOCK_KSUD=").append(quote(ksudPath)).append(' ')
+            append(" GHOSTLOCK_KSUD=").append(quote(ksudPath))
         }
-        append("GHOSTLOCK_KSU_LOG=").append(dir).append("/ksu.log ")
+        append(" GHOSTLOCK_KSU_LOG=").append(dir).append("/ksu.log")
+        append(" ; ")
         append("( nohup setsid ").append(quote(binPath))
         append(" --load-prebuilt-profile profile.bin")
         append(" > run.log 2>&1 < /dev/null; echo $? > exit.code ) & echo ").append(STARTED)
@@ -213,6 +245,9 @@ internal class GhostLockSession(
         const val POLL_INTERVAL_MS = 500L
         const val MAX_SESSION_MS = 15 * 60 * 1000L
         const val BOOT_GRACE_MS = 10 * 1000L
+
+        /** 连续多少次探针取不到退出帧就认定设备已断连（重启/掉线）。 */
+        const val LOST_STREAK_LIMIT = 3
 
         const val SETUP_TIMEOUT_MS = 5_000L
         const val WRITE_TIMEOUT_MS = 30_000L

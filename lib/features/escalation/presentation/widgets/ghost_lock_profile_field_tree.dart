@@ -6,15 +6,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-/// 高级字段树：分组可折叠，叶子按「失焦或回车」提交。
+/// 编辑中的表单状态：字段随输入写进这里，保存时一次性提交。
 ///
-/// 纯展示组件，不读 Provider；写操作由上层传 [onSubmit] 进来。
+/// 只有用户真正改过的字段会留在里面，未触碰的字段不参与提交。
+class ProfileEditDraft {
+  final Map<String, int> _changed = <String, int>{};
+
+  /// 输入变化时调用；清空或非法输入视为撤销该字段的修改。
+  void update(String path, String text) {
+    final int? value = int.tryParse(text.trim());
+    if (value == null) {
+      _changed.remove(path);
+    } else {
+      _changed[path] = value;
+    }
+  }
+
+  Map<String, int> collect() => Map<String, int>.of(_changed);
+
+  void clear() => _changed.clear();
+}
+
+/// 高级字段树：分组可折叠，叶子是纯输入框，改动由保存按钮统一提交。
 class GhostLockProfileFieldTree extends StatelessWidget {
   const GhostLockProfileFieldTree({
     super.key,
     required this.nodes,
     required this.invalidPaths,
-    required this.onSubmit,
+    required this.draft,
   });
 
   final List<GhostLockProfileFieldNode> nodes;
@@ -22,8 +41,7 @@ class GhostLockProfileFieldTree extends StatelessWidget {
   /// 违规字段的完整路径集合。
   final List<String> invalidPaths;
 
-  /// 叶子提交：完整点分路径 + 新值。
-  final void Function(String path, int value) onSubmit;
+  final ProfileEditDraft draft;
 
   @override
   Widget build(BuildContext context) {
@@ -36,12 +54,12 @@ class GhostLockProfileFieldTree extends StatelessWidget {
               ? _GroupNode(
                   node: node,
                   invalidPaths: invalidPaths,
-                  onSubmit: onSubmit,
+                  draft: draft,
                 )
               : _LeafField(
                   node: node,
                   invalid: invalidPaths.contains(node.path),
-                  onSubmit: onSubmit,
+                  draft: draft,
                 ),
       ],
     );
@@ -53,12 +71,12 @@ class _GroupNode extends StatelessWidget {
   const _GroupNode({
     required this.node,
     required this.invalidPaths,
-    required this.onSubmit,
+    required this.draft,
   });
 
   final GhostLockProfileFieldNode node;
   final List<String> invalidPaths;
-  final void Function(String path, int value) onSubmit;
+  final ProfileEditDraft draft;
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +106,7 @@ class _GroupNode extends StatelessWidget {
         GhostLockProfileFieldTree(
           nodes: node.children,
           invalidPaths: invalidPaths,
-          onSubmit: onSubmit,
+          draft: draft,
         ),
       ],
     );
@@ -104,16 +122,18 @@ class _GroupNode extends StatelessWidget {
 }
 
 /// 叶子字段：数字输入框，允许负数；未提供时留空并显示提示。
+///
+/// 输入只写进 [ProfileEditDraft]，保存按钮统一提交。
 class _LeafField extends HookWidget {
   const _LeafField({
     required this.node,
     required this.invalid,
-    required this.onSubmit,
+    required this.draft,
   });
 
   final GhostLockProfileFieldNode node;
   final bool invalid;
-  final void Function(String path, int value) onSubmit;
+  final ProfileEditDraft draft;
 
   @override
   Widget build(BuildContext context) {
@@ -122,39 +142,16 @@ class _LeafField extends HookWidget {
     final TextEditingController controller = useTextEditingController(
       text: _textOf(node),
     );
-    final FocusNode focusNode = useFocusNode();
 
-    void submit() {
-      final String text = controller.text.trim();
-      if (text.isEmpty) return;
-      final int? value = int.tryParse(text);
-      if (value == null) return;
-      if (node.provided && value == node.value) return;
-      onSubmit(node.path, value);
-    }
-
-    // 失焦即提交：避免每敲一个字符打一次原生调用。
-    useEffect(() {
-      void onFocusChanged() {
-        if (!focusNode.hasFocus) submit();
-      }
-
-      focusNode.addListener(onFocusChanged);
-      return () => focusNode.removeListener(onFocusChanged);
-    }, <Object?>[
-      focusNode,
-      controller,
-      node.path,
-      node.value,
-      node.provided,
-    ]);
-
-    // 服务端值变化且未聚焦时回填，避免打断正在输入的内容。
+    /* 服务端值变化就强制回填：保存后字段可能因合并而变，旧文本要跟着更新。 */
+    final ObjectRef<String> synced = useRef<String>(_textOf(node));
     useEffect(() {
       final String next = _textOf(node);
-      if (!focusNode.hasFocus && controller.text != next) controller.text = next;
+      if (synced.value == next) return null;
+      synced.value = next;
+      if (controller.text != next) controller.text = next;
       return null;
-    }, <Object?>[node.value, node.provided, focusNode, controller]);
+    }, <Object?>[node.value, node.provided, controller]);
 
     return Padding(
       padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 4.h),
@@ -170,10 +167,9 @@ class _LeafField extends HookWidget {
           Expanded(
             child: TextField(
               controller: controller,
-              focusNode: focusNode,
+              onChanged: (String text) => draft.update(node.path, text),
               keyboardType: const TextInputType.numberWithOptions(signed: true),
-              textInputAction: TextInputAction.done,
-              onSubmitted: (_) => submit(),
+              textInputAction: TextInputAction.next,
               style: TextStyle(fontSize: 13.sp),
               decoration: InputDecoration(
                 isDense: true,

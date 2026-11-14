@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 
 import 'package:Aisupass/features/escalation/domain/enums/ota_catalog_brand.dart';
 
-/// 内置历史 OTA 清单数据源：清单随包发布，只从 assets 读取。
+/// 内置 OTA 清单数据源：清单随包发布，只从 assets 读取。
 class OtaCatalogQueryDatasource {
   const OtaCatalogQueryDatasource({required this._bundle});
 

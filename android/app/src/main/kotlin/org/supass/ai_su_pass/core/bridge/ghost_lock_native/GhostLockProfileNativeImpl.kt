@@ -10,6 +10,9 @@ import org.supass.ai_su_pass.cve43499.GhostLockProfileEditStore
 import org.supass.ai_su_pass.cve43499.GhostLockProfileExtractor
 import org.supass.ai_su_pass.cve43499.GhostLockProfileImporter
 import org.supass.ai_su_pass.cve43499.GhostLockProfileStore
+import org.supass.ai_su_pass.cve43499.LegacyProfileConverter
+import org.supass.ai_su_pass.cve43499.profile.asValueMap
+import org.supass.ai_su_pass.cve98260.HoconSupport
 
 /**
  * profile 导入的原生桥：线程分发与结果翻译，不含提取逻辑。
@@ -40,10 +43,31 @@ class GhostLockProfileNativeImpl(context: Context) : GhostLockProfileNative {
     override fun probeProfile(
         input: String,
         insecure: Boolean,
+        xblPath: String,
+        uefiPath: String,
+        vendorBootPath: String,
+        phys: String,
+        kallsymsPath: String,
+        iomemPath: String,
+        route: String,
+        allowMissing: Boolean,
+        noDisasm: Boolean,
         callback: (Result<GhostLockProbeResult>) -> Unit,
     ) {
         worker.execute {
-            val outcome = importer.probe(input, insecure)
+            val outcome = importer.probe(
+                input,
+                insecure,
+                xblPath,
+                uefiPath,
+                vendorBootPath,
+                phys,
+                kallsymsPath,
+                iomemPath,
+                route,
+                allowMissing,
+                noDisasm,
+            )
             val probe = outcome.probe
             val result = GhostLockProbeResult(
                 ok = probe != null,
@@ -52,6 +76,10 @@ class GhostLockProfileNativeImpl(context: Context) : GhostLockProfileNative {
                 warnings = probe?.warnings.orEmpty(),
                 bootPath = probe?.bootPath.orEmpty(),
                 reason = outcome.reason,
+                kernelPhysLoad = probe?.kernelPhysLoad.orEmpty(),
+                kernelPhysOffset = probe?.kernelPhysOffset.orEmpty(),
+                physSource = probe?.physSource.orEmpty(),
+                analysis = probe?.analysis ?: outcome.analysis,
             )
             mainHandler.post { callback(Result.success(result)) }
         }
@@ -148,6 +176,105 @@ class GhostLockProfileNativeImpl(context: Context) : GhostLockProfileNative {
             val removed = store.delete(name)
             if (removed) editStore.clearActiveUserProfileIf(name)
             mainHandler.post { callback(Result.success(removed)) }
+        }
+    }
+
+    override fun importProfileText(
+        text: String,
+        fileName: String,
+        overwrite: Boolean,
+        callback: (Result<GhostLockImportResult>) -> Unit,
+    ) {
+        worker.execute {
+            val outcome = importer.importText(text, fileName, overwrite)
+            val result = GhostLockImportResult(
+                ok = outcome.imported != null,
+                release = outcome.imported?.release.orEmpty(),
+                fileName = outcome.imported?.fileName.orEmpty(),
+                reason = outcome.reason,
+                requiresOverwrite = outcome.requiresOverwrite,
+            )
+            mainHandler.post { callback(Result.success(result)) }
+        }
+    }
+
+    override fun renameImportedProfile(
+        name: String,
+        newName: String,
+        callback: (Result<String>) -> Unit,
+    ) {
+        worker.execute {
+            val renamed = store.rename(name, newName).orEmpty()
+            // 「当前生效」若指向被改名的文档，跟着改名，否则选择会失效。
+            if (renamed.isNotEmpty() && editStore.activeUserProfile() == name) {
+                editStore.setActiveUserProfile(renamed)
+            }
+            mainHandler.post { callback(Result.success(renamed)) }
+        }
+    }
+
+    override fun exportImportedProfile(
+        name: String,
+        callback: (Result<String>) -> Unit,
+    ) {
+        worker.execute {
+            val text = store.rawText(name).orEmpty()
+            val rendered = if (text.isBlank()) {
+                ""
+            } else {
+                runCatching {
+                    when (val value = HoconSupport.parseValue(text)) {
+                        is Map<*, *> -> HoconSupport.render(
+                            value.asValueMap() ?: return@runCatching text,
+                        )
+                        else -> text
+                    }
+                }.getOrDefault(text)
+            }
+            mainHandler.post { callback(Result.success(rendered)) }
+        }
+    }
+
+    override fun convertImportedProfile(
+        name: String,
+        callback: (Result<GhostLockImportResult>) -> Unit,
+    ) {
+        worker.execute {
+            val text = store.rawText(name).orEmpty()
+            val result = if (text.isBlank()) {
+                GhostLockImportResult(
+                    ok = false,
+                    release = "",
+                    fileName = "",
+                    reason = "missing",
+                    requiresOverwrite = false,
+                )
+            } else {
+                runCatching {
+                    val entry = HoconSupport.parseValue(text).asValueMap()
+                        ?: error("not an object")
+                    LegacyProfileConverter.convertValue(entry)
+                    entry["schema_version"] = 1
+                    val fileName = "${name.substringBeforeLast('.')}-converted.conf"
+                    val stored = store.save(fileName, HoconSupport.render(entry))
+                    GhostLockImportResult(
+                        ok = stored,
+                        release = (entry["release"] as? String).orEmpty(),
+                        fileName = fileName.takeIf { stored }.orEmpty(),
+                        reason = if (stored) "" else "writeFailed",
+                        requiresOverwrite = false,
+                    )
+                }.getOrElse {
+                    GhostLockImportResult(
+                        ok = false,
+                        release = "",
+                        fileName = "",
+                        reason = it.message ?: "convertFailed",
+                        requiresOverwrite = false,
+                    )
+                }
+            }
+            mainHandler.post { callback(Result.success(result)) }
         }
     }
 

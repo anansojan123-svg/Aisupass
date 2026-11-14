@@ -28,9 +28,12 @@ Future<void> showGhostLockProfileDetailSheet(
 );
 
 /// 打开一份内置 GhostLock 内核表的详情弹窗（只读，无文件名/大小）。
+///
+/// [editable] 为 false 时不显示编辑入口；参考模板字段全空，编辑器打不开。
 Future<void> showGhostLockBuiltinDetailSheet(
   BuildContext context, {
   required String release,
+  bool editable = true,
 }) => showModalBottomSheet<void>(
   context: context,
   isScrollControlled: true,
@@ -44,6 +47,7 @@ Future<void> showGhostLockBuiltinDetailSheet(
       parseError: false,
     ),
     builtin: true,
+    editable: editable,
   ),
 );
 
@@ -52,6 +56,7 @@ class GhostLockProfileDetailSheet extends HookConsumerWidget {
   const GhostLockProfileDetailSheet({
     required this.profile,
     this.builtin = false,
+    this.editable = true,
     super.key,
   });
 
@@ -59,6 +64,9 @@ class GhostLockProfileDetailSheet extends HookConsumerWidget {
 
   /// 内置表没有文件名与大小，顶部卡片只显示 release。
   final bool builtin;
+
+  /// 是否显示编辑入口；参考模板等不可编辑的文档传 false。
+  final bool editable;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -87,13 +95,13 @@ class GhostLockProfileDetailSheet extends HookConsumerWidget {
                     ),
                   ),
                 ),
-                if (builtin)
+                if (!profile.parseError && editable)
                   IconButton(
                     tooltip: l10n.escalationGhostLockProfileEdit,
                     onPressed: () {
                       Navigator.of(context).pop();
                       context.push(
-                        AppRoute.ghostLockProfilePath(profile.release),
+                        AppRoute.ghostLockProfilePath(profile.name),
                       );
                     },
                     icon: Icon(Icons.edit_outlined, size: 18.sp),

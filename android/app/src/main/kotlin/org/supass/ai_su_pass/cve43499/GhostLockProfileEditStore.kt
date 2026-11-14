@@ -12,10 +12,13 @@ import org.supass.ai_su_pass.cve98260.HoconSupport
  * 用 HOCON 而不是 JSON：取值模型本来就是 [ValueMap]，渲染与解析都复用
  * [HoconSupport]，不引入第二种序列化。
  */
-internal class GhostLockProfileEditStore(context: Context) {
+internal class GhostLockProfileEditStore(
+    context: Context,
+    prefsName: String = PREF_FILE,
+) {
 
     private val prefs = context.applicationContext
-        .getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
+        .getSharedPreferences(prefsName, Context.MODE_PRIVATE)
 
     fun read(release: String): ValueMap = readAll()[release].asValueMap() ?: valueMapOf()
 

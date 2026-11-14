@@ -294,3 +294,170 @@ final class SelectedRootManagerProvider
 
 String _$selectedRootManagerHash() =>
     r'5a06e5659196e105403ef2c76958b7494581a919';
+
+/// GhostLock profile 编辑只读数据源。
+
+@ProviderFor(ghostLockProfileEditQueryDatasource)
+const ghostLockProfileEditQueryDatasourceProvider =
+    GhostLockProfileEditQueryDatasourceProvider._();
+
+/// GhostLock profile 编辑只读数据源。
+
+final class GhostLockProfileEditQueryDatasourceProvider
+    extends
+        $FunctionalProvider<
+          GhostLockProfileEditQueryDatasource,
+          GhostLockProfileEditQueryDatasource,
+          GhostLockProfileEditQueryDatasource
+        >
+    with $Provider<GhostLockProfileEditQueryDatasource> {
+  /// GhostLock profile 编辑只读数据源。
+  const GhostLockProfileEditQueryDatasourceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'ghostLockProfileEditQueryDatasourceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() =>
+      _$ghostLockProfileEditQueryDatasourceHash();
+
+  @$internal
+  @override
+  $ProviderElement<GhostLockProfileEditQueryDatasource> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  GhostLockProfileEditQueryDatasource create(Ref ref) {
+    return ghostLockProfileEditQueryDatasource(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GhostLockProfileEditQueryDatasource value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GhostLockProfileEditQueryDatasource>(
+        value,
+      ),
+    );
+  }
+}
+
+String _$ghostLockProfileEditQueryDatasourceHash() =>
+    r'59751017aa516675d60cec1a908a0e8b84b4e34f';
+
+/// GhostLock profile 编辑只读仓储。
+
+@ProviderFor(ghostLockProfileEditQueryRepository)
+const ghostLockProfileEditQueryRepositoryProvider =
+    GhostLockProfileEditQueryRepositoryProvider._();
+
+/// GhostLock profile 编辑只读仓储。
+
+final class GhostLockProfileEditQueryRepositoryProvider
+    extends
+        $FunctionalProvider<
+          GhostLockProfileEditQueryRepository,
+          GhostLockProfileEditQueryRepository,
+          GhostLockProfileEditQueryRepository
+        >
+    with $Provider<GhostLockProfileEditQueryRepository> {
+  /// GhostLock profile 编辑只读仓储。
+  const GhostLockProfileEditQueryRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'ghostLockProfileEditQueryRepositoryProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() =>
+      _$ghostLockProfileEditQueryRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<GhostLockProfileEditQueryRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  GhostLockProfileEditQueryRepository create(Ref ref) {
+    return ghostLockProfileEditQueryRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GhostLockProfileEditQueryRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GhostLockProfileEditQueryRepository>(
+        value,
+      ),
+    );
+  }
+}
+
+String _$ghostLockProfileEditQueryRepositoryHash() =>
+    r'15b3336df452d80ba164327134f767feda09fc38';
+
+/// 当前生效来源：内置层选中的 release 与「我的配置」文档名。
+///
+/// 切换后由写操作失效本 provider。
+
+@ProviderFor(ghostLockActiveSource)
+const ghostLockActiveSourceProvider = GhostLockActiveSourceProvider._();
+
+/// 当前生效来源：内置层选中的 release 与「我的配置」文档名。
+///
+/// 切换后由写操作失效本 provider。
+
+final class GhostLockActiveSourceProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<GhostLockActiveSource>,
+          GhostLockActiveSource,
+          FutureOr<GhostLockActiveSource>
+        >
+    with
+        $FutureModifier<GhostLockActiveSource>,
+        $FutureProvider<GhostLockActiveSource> {
+  /// 当前生效来源：内置层选中的 release 与「我的配置」文档名。
+  ///
+  /// 切换后由写操作失效本 provider。
+  const GhostLockActiveSourceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'ghostLockActiveSourceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$ghostLockActiveSourceHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<GhostLockActiveSource> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<GhostLockActiveSource> create(Ref ref) {
+    return ghostLockActiveSource(ref);
+  }
+}
+
+String _$ghostLockActiveSourceHash() =>
+    r'5c927dab34ee69803bfb8aa5cf344b10d8024f42';

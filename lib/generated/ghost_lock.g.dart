@@ -525,6 +525,10 @@ class GhostLockProbeResult {
     required this.warnings,
     required this.bootPath,
     required this.reason,
+    required this.kernelPhysLoad,
+    required this.kernelPhysOffset,
+    required this.physSource,
+    required this.analysis,
   });
 
   /// 是否解析成功。
@@ -548,6 +552,18 @@ class GhostLockProbeResult {
   /// 失败原因；成功为空串。
   String reason;
 
+  /// `kernel_phys_load` 的十六进制字面量；空串表示未取到。
+  String kernelPhysLoad;
+
+  /// `kernel_phys_offset` 的十六进制字面量；空串表示未取到。
+  String kernelPhysOffset;
+
+  /// `kernel_phys_load` 的来源（如 `xbl_config FDT`）；空串表示未取到。
+  String physSource;
+
+  /// 内核审查报告全文；解析早期失败时为空串。
+  String analysis;
+
   List<Object?> _toList() {
     return <Object?>[
       ok,
@@ -556,6 +572,10 @@ class GhostLockProbeResult {
       warnings,
       bootPath,
       reason,
+      kernelPhysLoad,
+      kernelPhysOffset,
+      physSource,
+      analysis,
     ];
   }
 
@@ -571,6 +591,10 @@ class GhostLockProbeResult {
       warnings: (result[3]! as List<Object?>).cast<String>(),
       bootPath: result[4]! as String,
       reason: result[5]! as String,
+      kernelPhysLoad: result[6]! as String,
+      kernelPhysOffset: result[7]! as String,
+      physSource: result[8]! as String,
+      analysis: result[9]! as String,
     );
   }
 
@@ -583,7 +607,7 @@ class GhostLockProbeResult {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(ok, other.ok) && _deepEquals(release, other.release) && _deepEquals(conf, other.conf) && _deepEquals(warnings, other.warnings) && _deepEquals(bootPath, other.bootPath) && _deepEquals(reason, other.reason);
+    return _deepEquals(ok, other.ok) && _deepEquals(release, other.release) && _deepEquals(conf, other.conf) && _deepEquals(warnings, other.warnings) && _deepEquals(bootPath, other.bootPath) && _deepEquals(reason, other.reason) && _deepEquals(kernelPhysLoad, other.kernelPhysLoad) && _deepEquals(kernelPhysOffset, other.kernelPhysOffset) && _deepEquals(physSource, other.physSource) && _deepEquals(analysis, other.analysis);
   }
 
   @override
@@ -991,14 +1015,26 @@ class GhostLockProfileNative {
   final String pigeonVar_messageChannelSuffix;
 
   /// 解析内核表但不落盘；阻塞到结束。
-  Future<GhostLockProbeResult> probeProfile(String input, bool insecure) async {
+  ///
+  /// [xblPath] / [uefiPath] / [vendorBootPath] 为可选的附加镜像，用于从 FDT
+  /// 或 platform memory map 补齐 `kernel_phys_load`；vendor_boot 另给
+  /// `kernel_phys_offset`。传空串表示没有。
+  /// [phys] 是用户手填的物理装载基址（`0x` 前缀或十进制），空串表示不指定。
+  /// [kallsymsPath] 是外部 kallsyms 文本文件，空串表示按 `/proc/kallsyms` →
+  /// 镜像内嵌表的顺序自动获取。
+  /// [iomemPath] 是外部 `/proc/iomem` 文本文件，空串表示读设备上的实时值。
+  /// [route] 强制路由（`tcp_zerocopy` / `select_stack` / `multicast_waiter`），
+  /// 空串表示按内核自动推荐。
+  /// [allowMissing] 为 true 时把全部缺失符号按可选处理（输出 0）。
+  /// [noDisasm] 为 true 时跳过反汇编推导（pselect 布局与 logger 槽回退查表）。
+  Future<GhostLockProbeResult> probeProfile(String input, bool insecure, String xblPath, String uefiPath, String vendorBootPath, String phys, String kallsymsPath, String iomemPath, String route, bool allowMissing, bool noDisasm) async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.GhostLockProfileNative.probeProfile$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[input, insecure]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[input, insecure, xblPath, uefiPath, vendorBootPath, phys, kallsymsPath, iomemPath, route, allowMissing, noDisasm]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
@@ -1150,6 +1186,88 @@ class GhostLockProfileNative {
     )
     ;
     return pigeonVar_replyValue! as bool;
+  }
+
+  /// 导入现成的 profile 文本（HOCON 或 JSON）为一份用户文档。
+  ///
+  /// [fileName] 只用于推导落盘文件名；文本本身原样保存，不做字段改写。
+  Future<GhostLockImportResult> importProfileText(String text, String fileName, bool overwrite) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.GhostLockProfileNative.importProfileText$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[text, fileName, overwrite]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as GhostLockImportResult;
+  }
+
+  /// 重命名用户文档；返回新的文件名，失败（重名或不存在）返回空串。
+  Future<String> renameImportedProfile(String name, String newName) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.GhostLockProfileNative.renameImportedProfile$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[name, newName]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as String;
+  }
+
+  /// 把用户文档渲染为 HOCON 文本；不存在返回空串。
+  Future<String> exportImportedProfile(String name) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.GhostLockProfileNative.exportImportedProfile$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[name]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as String;
+  }
+
+  /// 把旧格式用户文档转换为当前布局并存为新文档。
+  Future<GhostLockImportResult> convertImportedProfile(String name) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.GhostLockProfileNative.convertImportedProfile$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[name]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as GhostLockImportResult;
   }
 }
 
@@ -1349,6 +1467,28 @@ class GhostLockProfileEditNative {
     return pigeonVar_replyValue! as bool;
   }
 
+  /// 把当前生效配置渲染为 HOCON 文本；无法解析时返回空串。
+  ///
+  /// Android/iOS 的 `saveFile` 必须随内容一起提交，调用方先取文本再落盘。
+  Future<String> renderProfile(String release) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.renderProfile$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[release]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as String;
+  }
+
   /// 把当前生效配置另存为一份用户文档。
   Future<bool> saveModifiedProfile(String release) async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.saveModifiedProfile$pigeonVar_messageChannelSuffix';
@@ -1367,5 +1507,306 @@ class GhostLockProfileEditNative {
     )
     ;
     return pigeonVar_replyValue! as bool;
+  }
+
+  /// 只重置通用参数（execution tuning）的 override。
+  Future<GhostLockProfileConfig> resetGeneralFields(String release) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.resetGeneralFields$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[release]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as GhostLockProfileConfig;
+  }
+
+  /// 只重置路由与高级字段的 override，保留通用参数。
+  Future<GhostLockProfileConfig> resetAdvancedFields(String release) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.resetAdvancedFields$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[release]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as GhostLockProfileConfig;
+  }
+
+  /// 把当前生效配置写回用户文档 [name]，并清掉该 release 的 override。
+  Future<bool> overwriteProfile(String release, String name) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.overwriteProfile$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[release, name]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as bool;
+  }
+
+  /// 当前生效的用户文档名；未选用导入层时返回空串。
+  Future<String> activeUserProfile() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.activeUserProfile$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as String;
+  }
+
+  /// 当前生效的内置表 release；未指定时返回空串。
+  Future<String> activeBuiltinRelease() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.activeBuiltinRelease$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as String;
+  }
+
+  /// 打开编辑会话；[name] 为空串表示内置/设备态。
+  ///
+  /// 目标文档按其自身 release 解析，[deviceRelease] 只在内置/设备态下生效。
+  Future<GhostLockProfileConfig> beginEditSession(String name, String deviceRelease) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.beginEditSession$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[name, deviceRelease]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as GhostLockProfileConfig;
+  }
+
+  /// 丢弃未保存改动，按当前会话目标重新解析。
+  Future<GhostLockProfileConfig> reloadEditSession() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.reloadEditSession$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as GhostLockProfileConfig;
+  }
+
+  /// 会话是否编辑当前生效配置；true 时保存写入 live override。
+  Future<bool> editSessionIsLive() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.editSessionIsLive$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as bool;
+  }
+
+  /// 会话目标的文档名；内置/设备态返回空串。
+  Future<String> editSessionTarget() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.editSessionTarget$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as String;
+  }
+
+  /// 会话实际使用的 release。
+  Future<String> editSessionRelease() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.editSessionRelease$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as String;
+  }
+
+  /// 把会话 override 写入 live override，随后 live 重新解析。
+  Future<bool> commitEditSession() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.commitEditSession$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as bool;
+  }
+
+  /// 用会话结果整篇覆盖目标文档。
+  Future<bool> saveEditSessionInPlace() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.saveEditSessionInPlace$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as bool;
+  }
+
+  /// 会话结果另存为新文档；失败返回空串。
+  Future<String> saveEditSessionAsNew() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.saveEditSessionAsNew$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as String;
+  }
+
+  /// 会话结果导出到本地文件 [path]。
+  Future<bool> exportEditSession(String path) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.exportEditSession$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[path]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as bool;
+  }
+
+  /// 关闭会话。
+  Future<void> endEditSession() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.endEditSession$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
   }
 }

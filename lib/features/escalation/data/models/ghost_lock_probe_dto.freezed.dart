@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$GhostLockProbeDto {
 
- bool get ok; String get release; String get conf; List<String> get warnings; String get bootPath; String get reason;
+ bool get ok; String get release; String get conf; List<String> get warnings; String get bootPath; String get reason; String get kernelPhysLoad; String get kernelPhysOffset; String get physSource; String get analysis;
 /// Create a copy of GhostLockProbeDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $GhostLockProbeDtoCopyWith<GhostLockProbeDto> get copyWith => _$GhostLockProbeDt
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is GhostLockProbeDto&&(identical(other.ok, ok) || other.ok == ok)&&(identical(other.release, release) || other.release == release)&&(identical(other.conf, conf) || other.conf == conf)&&const DeepCollectionEquality().equals(other.warnings, warnings)&&(identical(other.bootPath, bootPath) || other.bootPath == bootPath)&&(identical(other.reason, reason) || other.reason == reason));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is GhostLockProbeDto&&(identical(other.ok, ok) || other.ok == ok)&&(identical(other.release, release) || other.release == release)&&(identical(other.conf, conf) || other.conf == conf)&&const DeepCollectionEquality().equals(other.warnings, warnings)&&(identical(other.bootPath, bootPath) || other.bootPath == bootPath)&&(identical(other.reason, reason) || other.reason == reason)&&(identical(other.kernelPhysLoad, kernelPhysLoad) || other.kernelPhysLoad == kernelPhysLoad)&&(identical(other.kernelPhysOffset, kernelPhysOffset) || other.kernelPhysOffset == kernelPhysOffset)&&(identical(other.physSource, physSource) || other.physSource == physSource)&&(identical(other.analysis, analysis) || other.analysis == analysis));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,ok,release,conf,const DeepCollectionEquality().hash(warnings),bootPath,reason);
+int get hashCode => Object.hash(runtimeType,ok,release,conf,const DeepCollectionEquality().hash(warnings),bootPath,reason,kernelPhysLoad,kernelPhysOffset,physSource,analysis);
 
 @override
 String toString() {
-  return 'GhostLockProbeDto(ok: $ok, release: $release, conf: $conf, warnings: $warnings, bootPath: $bootPath, reason: $reason)';
+  return 'GhostLockProbeDto(ok: $ok, release: $release, conf: $conf, warnings: $warnings, bootPath: $bootPath, reason: $reason, kernelPhysLoad: $kernelPhysLoad, kernelPhysOffset: $kernelPhysOffset, physSource: $physSource, analysis: $analysis)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $GhostLockProbeDtoCopyWith<$Res>  {
   factory $GhostLockProbeDtoCopyWith(GhostLockProbeDto value, $Res Function(GhostLockProbeDto) _then) = _$GhostLockProbeDtoCopyWithImpl;
 @useResult
 $Res call({
- bool ok, String release, String conf, List<String> warnings, String bootPath, String reason
+ bool ok, String release, String conf, List<String> warnings, String bootPath, String reason, String kernelPhysLoad, String kernelPhysOffset, String physSource, String analysis
 });
 
 
@@ -65,7 +65,7 @@ class _$GhostLockProbeDtoCopyWithImpl<$Res>
 
 /// Create a copy of GhostLockProbeDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? ok = null,Object? release = null,Object? conf = null,Object? warnings = null,Object? bootPath = null,Object? reason = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? ok = null,Object? release = null,Object? conf = null,Object? warnings = null,Object? bootPath = null,Object? reason = null,Object? kernelPhysLoad = null,Object? kernelPhysOffset = null,Object? physSource = null,Object? analysis = null,}) {
   return _then(_self.copyWith(
 ok: null == ok ? _self.ok : ok // ignore: cast_nullable_to_non_nullable
 as bool,release: null == release ? _self.release : release // ignore: cast_nullable_to_non_nullable
@@ -73,6 +73,10 @@ as String,conf: null == conf ? _self.conf : conf // ignore: cast_nullable_to_non
 as String,warnings: null == warnings ? _self.warnings : warnings // ignore: cast_nullable_to_non_nullable
 as List<String>,bootPath: null == bootPath ? _self.bootPath : bootPath // ignore: cast_nullable_to_non_nullable
 as String,reason: null == reason ? _self.reason : reason // ignore: cast_nullable_to_non_nullable
+as String,kernelPhysLoad: null == kernelPhysLoad ? _self.kernelPhysLoad : kernelPhysLoad // ignore: cast_nullable_to_non_nullable
+as String,kernelPhysOffset: null == kernelPhysOffset ? _self.kernelPhysOffset : kernelPhysOffset // ignore: cast_nullable_to_non_nullable
+as String,physSource: null == physSource ? _self.physSource : physSource // ignore: cast_nullable_to_non_nullable
+as String,analysis: null == analysis ? _self.analysis : analysis // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -158,10 +162,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool ok,  String release,  String conf,  List<String> warnings,  String bootPath,  String reason)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool ok,  String release,  String conf,  List<String> warnings,  String bootPath,  String reason,  String kernelPhysLoad,  String kernelPhysOffset,  String physSource,  String analysis)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _GhostLockProbeDto() when $default != null:
-return $default(_that.ok,_that.release,_that.conf,_that.warnings,_that.bootPath,_that.reason);case _:
+return $default(_that.ok,_that.release,_that.conf,_that.warnings,_that.bootPath,_that.reason,_that.kernelPhysLoad,_that.kernelPhysOffset,_that.physSource,_that.analysis);case _:
   return orElse();
 
 }
@@ -179,10 +183,10 @@ return $default(_that.ok,_that.release,_that.conf,_that.warnings,_that.bootPath,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool ok,  String release,  String conf,  List<String> warnings,  String bootPath,  String reason)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool ok,  String release,  String conf,  List<String> warnings,  String bootPath,  String reason,  String kernelPhysLoad,  String kernelPhysOffset,  String physSource,  String analysis)  $default,) {final _that = this;
 switch (_that) {
 case _GhostLockProbeDto():
-return $default(_that.ok,_that.release,_that.conf,_that.warnings,_that.bootPath,_that.reason);case _:
+return $default(_that.ok,_that.release,_that.conf,_that.warnings,_that.bootPath,_that.reason,_that.kernelPhysLoad,_that.kernelPhysOffset,_that.physSource,_that.analysis);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -199,10 +203,10 @@ return $default(_that.ok,_that.release,_that.conf,_that.warnings,_that.bootPath,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool ok,  String release,  String conf,  List<String> warnings,  String bootPath,  String reason)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool ok,  String release,  String conf,  List<String> warnings,  String bootPath,  String reason,  String kernelPhysLoad,  String kernelPhysOffset,  String physSource,  String analysis)?  $default,) {final _that = this;
 switch (_that) {
 case _GhostLockProbeDto() when $default != null:
-return $default(_that.ok,_that.release,_that.conf,_that.warnings,_that.bootPath,_that.reason);case _:
+return $default(_that.ok,_that.release,_that.conf,_that.warnings,_that.bootPath,_that.reason,_that.kernelPhysLoad,_that.kernelPhysOffset,_that.physSource,_that.analysis);case _:
   return null;
 
 }
@@ -214,7 +218,7 @@ return $default(_that.ok,_that.release,_that.conf,_that.warnings,_that.bootPath,
 @JsonSerializable()
 
 class _GhostLockProbeDto extends GhostLockProbeDto {
-  const _GhostLockProbeDto({this.ok = false, this.release = '', this.conf = '', this.warnings = const <String>[], this.bootPath = '', this.reason = ''}): super._();
+  const _GhostLockProbeDto({this.ok = false, this.release = '', this.conf = '', this.warnings = const <String>[], this.bootPath = '', this.reason = '', this.kernelPhysLoad = '', this.kernelPhysOffset = '', this.physSource = '', this.analysis = ''}): super._();
   factory _GhostLockProbeDto.fromJson(Map<String, dynamic> json) => _$GhostLockProbeDtoFromJson(json);
 
 @override@JsonKey() final  bool ok;
@@ -223,6 +227,10 @@ class _GhostLockProbeDto extends GhostLockProbeDto {
 @override@JsonKey() final  List<String> warnings;
 @override@JsonKey() final  String bootPath;
 @override@JsonKey() final  String reason;
+@override@JsonKey() final  String kernelPhysLoad;
+@override@JsonKey() final  String kernelPhysOffset;
+@override@JsonKey() final  String physSource;
+@override@JsonKey() final  String analysis;
 
 /// Create a copy of GhostLockProbeDto
 /// with the given fields replaced by the non-null parameter values.
@@ -237,16 +245,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GhostLockProbeDto&&(identical(other.ok, ok) || other.ok == ok)&&(identical(other.release, release) || other.release == release)&&(identical(other.conf, conf) || other.conf == conf)&&const DeepCollectionEquality().equals(other.warnings, warnings)&&(identical(other.bootPath, bootPath) || other.bootPath == bootPath)&&(identical(other.reason, reason) || other.reason == reason));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GhostLockProbeDto&&(identical(other.ok, ok) || other.ok == ok)&&(identical(other.release, release) || other.release == release)&&(identical(other.conf, conf) || other.conf == conf)&&const DeepCollectionEquality().equals(other.warnings, warnings)&&(identical(other.bootPath, bootPath) || other.bootPath == bootPath)&&(identical(other.reason, reason) || other.reason == reason)&&(identical(other.kernelPhysLoad, kernelPhysLoad) || other.kernelPhysLoad == kernelPhysLoad)&&(identical(other.kernelPhysOffset, kernelPhysOffset) || other.kernelPhysOffset == kernelPhysOffset)&&(identical(other.physSource, physSource) || other.physSource == physSource)&&(identical(other.analysis, analysis) || other.analysis == analysis));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,ok,release,conf,const DeepCollectionEquality().hash(warnings),bootPath,reason);
+int get hashCode => Object.hash(runtimeType,ok,release,conf,const DeepCollectionEquality().hash(warnings),bootPath,reason,kernelPhysLoad,kernelPhysOffset,physSource,analysis);
 
 @override
 String toString() {
-  return 'GhostLockProbeDto(ok: $ok, release: $release, conf: $conf, warnings: $warnings, bootPath: $bootPath, reason: $reason)';
+  return 'GhostLockProbeDto(ok: $ok, release: $release, conf: $conf, warnings: $warnings, bootPath: $bootPath, reason: $reason, kernelPhysLoad: $kernelPhysLoad, kernelPhysOffset: $kernelPhysOffset, physSource: $physSource, analysis: $analysis)';
 }
 
 
@@ -257,7 +265,7 @@ abstract mixin class _$GhostLockProbeDtoCopyWith<$Res> implements $GhostLockProb
   factory _$GhostLockProbeDtoCopyWith(_GhostLockProbeDto value, $Res Function(_GhostLockProbeDto) _then) = __$GhostLockProbeDtoCopyWithImpl;
 @override @useResult
 $Res call({
- bool ok, String release, String conf, List<String> warnings, String bootPath, String reason
+ bool ok, String release, String conf, List<String> warnings, String bootPath, String reason, String kernelPhysLoad, String kernelPhysOffset, String physSource, String analysis
 });
 
 
@@ -274,7 +282,7 @@ class __$GhostLockProbeDtoCopyWithImpl<$Res>
 
 /// Create a copy of GhostLockProbeDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? ok = null,Object? release = null,Object? conf = null,Object? warnings = null,Object? bootPath = null,Object? reason = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? ok = null,Object? release = null,Object? conf = null,Object? warnings = null,Object? bootPath = null,Object? reason = null,Object? kernelPhysLoad = null,Object? kernelPhysOffset = null,Object? physSource = null,Object? analysis = null,}) {
   return _then(_GhostLockProbeDto(
 ok: null == ok ? _self.ok : ok // ignore: cast_nullable_to_non_nullable
 as bool,release: null == release ? _self.release : release // ignore: cast_nullable_to_non_nullable
@@ -282,6 +290,10 @@ as String,conf: null == conf ? _self.conf : conf // ignore: cast_nullable_to_non
 as String,warnings: null == warnings ? _self.warnings : warnings // ignore: cast_nullable_to_non_nullable
 as List<String>,bootPath: null == bootPath ? _self.bootPath : bootPath // ignore: cast_nullable_to_non_nullable
 as String,reason: null == reason ? _self.reason : reason // ignore: cast_nullable_to_non_nullable
+as String,kernelPhysLoad: null == kernelPhysLoad ? _self.kernelPhysLoad : kernelPhysLoad // ignore: cast_nullable_to_non_nullable
+as String,kernelPhysOffset: null == kernelPhysOffset ? _self.kernelPhysOffset : kernelPhysOffset // ignore: cast_nullable_to_non_nullable
+as String,physSource: null == physSource ? _self.physSource : physSource // ignore: cast_nullable_to_non_nullable
+as String,analysis: null == analysis ? _self.analysis : analysis // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }

@@ -17,6 +17,10 @@ abstract class GhostLockProbeDto with _$GhostLockProbeDto {
     @Default(<String>[]) List<String> warnings,
     @Default('') String bootPath,
     @Default('') String reason,
+    @Default('') String kernelPhysLoad,
+    @Default('') String kernelPhysOffset,
+    @Default('') String physSource,
+    @Default('') String analysis,
   }) = _GhostLockProbeDto;
 
   factory GhostLockProbeDto.fromJson(Map<String, dynamic> json) =>
@@ -31,6 +35,10 @@ abstract class GhostLockProbeDto with _$GhostLockProbeDto {
         warnings: raw.warnings,
         bootPath: raw.bootPath,
         reason: raw.reason,
+        kernelPhysLoad: raw.kernelPhysLoad,
+        kernelPhysOffset: raw.kernelPhysOffset,
+        physSource: raw.physSource,
+        analysis: raw.analysis,
       );
 
   GhostLockProbe toEntity() => GhostLockProbe(
@@ -40,5 +48,9 @@ abstract class GhostLockProbeDto with _$GhostLockProbeDto {
     warnings: warnings,
     bootPath: bootPath,
     reason: reason,
+    kernelPhysLoad: kernelPhysLoad,
+    kernelPhysOffset: kernelPhysOffset,
+    physSource: physSource,
+    analysis: analysis,
   );
 }

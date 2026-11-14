@@ -20,15 +20,18 @@ internal class GhostLockCatalog(private val controller: GhostLockProfileControll
     fun releases(): List<String> = controller.builtinReleases()
 
     /**
-     * 精确匹配并编码。
+     * 解析并编码。
+     *
+     * 命中判定交给 [GhostLockProfileController.load]：选了哪份表就用哪份，
+     * 不在运行侧另做 release 拦截。解析不出来时才把具体原因透出去。
      *
      * [safeMode] 为 true 时把 `meta.safe_mode` 改写为 1：v2 没有固定槽位，
      * 编码后按节扫描重写。
      */
     fun match(release: String, safeMode: Boolean): Result<Match> = runCatching {
-        require(controller.hasDocument(release)) { "noProfile" }
         val view = controller.load(release)
-        require(view.hasProfile) { "profileUnreadable" }
+        /* 解析失败的具体原因（文档缺失、include 解析失败等）优先透出。 */
+        require(view.hasProfile) { controller.resolveError() ?: "noProfile" }
         require(view.route.isNotEmpty()) { "missingRoute" }
         val encoded = controller.nativeDocument(view) ?: error("encodeFailed")
         val blob = if (safeMode) {

@@ -209,6 +209,10 @@ class GhostLockProbeResult {
     required this.warnings,
     required this.bootPath,
     required this.reason,
+    required this.kernelPhysLoad,
+    required this.kernelPhysOffset,
+    required this.physSource,
+    required this.analysis,
   });
 
   /// 是否解析成功。
@@ -231,6 +235,18 @@ class GhostLockProbeResult {
 
   /// 失败原因；成功为空串。
   String reason;
+
+  /// `kernel_phys_load` 的十六进制字面量；空串表示未取到。
+  String kernelPhysLoad;
+
+  /// `kernel_phys_offset` 的十六进制字面量；空串表示未取到。
+  String kernelPhysOffset;
+
+  /// `kernel_phys_load` 的来源（如 `xbl_config FDT`）；空串表示未取到。
+  String physSource;
+
+  /// 内核审查报告全文；解析早期失败时为空串。
+  String analysis;
 }
 
 /// GhostLock profile 的解析、落盘与用户文档管理。
@@ -240,8 +256,32 @@ class GhostLockProbeResult {
 @HostApi()
 abstract class GhostLockProfileNative {
   /// 解析内核表但不落盘；阻塞到结束。
+  ///
+  /// [xblPath] / [uefiPath] / [vendorBootPath] 为可选的附加镜像，用于从 FDT
+  /// 或 platform memory map 补齐 `kernel_phys_load`；vendor_boot 另给
+  /// `kernel_phys_offset`。传空串表示没有。
+  /// [phys] 是用户手填的物理装载基址（`0x` 前缀或十进制），空串表示不指定。
+  /// [kallsymsPath] 是外部 kallsyms 文本文件，空串表示按 `/proc/kallsyms` →
+  /// 镜像内嵌表的顺序自动获取。
+  /// [iomemPath] 是外部 `/proc/iomem` 文本文件，空串表示读设备上的实时值。
+  /// [route] 强制路由（`tcp_zerocopy` / `select_stack` / `multicast_waiter`），
+  /// 空串表示按内核自动推荐。
+  /// [allowMissing] 为 true 时把全部缺失符号按可选处理（输出 0）。
+  /// [noDisasm] 为 true 时跳过反汇编推导（pselect 布局与 logger 槽回退查表）。
   @async
-  GhostLockProbeResult probeProfile(String input, bool insecure);
+  GhostLockProbeResult probeProfile(
+    String input,
+    bool insecure,
+    String xblPath,
+    String uefiPath,
+    String vendorBootPath,
+    String phys,
+    String kallsymsPath,
+    String iomemPath,
+    String route,
+    bool allowMissing,
+    bool noDisasm,
+  );
 
   /// 解析进度快照：`"<phase> <done> <total>"`。
   ///
@@ -276,6 +316,28 @@ abstract class GhostLockProfileNative {
   /// 删除一份用户 profile；不存在返回 false。
   @async
   bool removeImportedProfile(String name);
+
+  /// 导入现成的 profile 文本（HOCON 或 JSON）为一份用户文档。
+  ///
+  /// [fileName] 只用于推导落盘文件名；文本本身原样保存，不做字段改写。
+  @async
+  GhostLockImportResult importProfileText(
+    String text,
+    String fileName,
+    bool overwrite,
+  );
+
+  /// 重命名用户文档；返回新的文件名，失败（重名或不存在）返回空串。
+  @async
+  String renameImportedProfile(String name, String newName);
+
+  /// 把用户文档渲染为 HOCON 文本；不存在返回空串。
+  @async
+  String exportImportedProfile(String name);
+
+  /// 把旧格式用户文档转换为当前布局并存为新文档。
+  @async
+  GhostLockImportResult convertImportedProfile(String name);
 }
 
 /// profile 树的一个节点，按先序扁平排列。
@@ -403,7 +465,75 @@ abstract class GhostLockProfileEditNative {
   @async
   bool exportProfile(String release, String path);
 
+  /// 把当前生效配置渲染为 HOCON 文本；无法解析时返回空串。
+  ///
+  /// Android/iOS 的 `saveFile` 必须随内容一起提交，调用方先取文本再落盘。
+  @async
+  String renderProfile(String release);
+
   /// 把当前生效配置另存为一份用户文档。
   @async
   bool saveModifiedProfile(String release);
+
+  /// 只重置通用参数（execution tuning）的 override。
+  @async
+  GhostLockProfileConfig resetGeneralFields(String release);
+
+  /// 只重置路由与高级字段的 override，保留通用参数。
+  @async
+  GhostLockProfileConfig resetAdvancedFields(String release);
+
+  /// 把当前生效配置写回用户文档 [name]，并清掉该 release 的 override。
+  @async
+  bool overwriteProfile(String release, String name);
+
+  /// 当前生效的用户文档名；未选用导入层时返回空串。
+  @async
+  String activeUserProfile();
+
+  /// 当前生效的内置表 release；未指定时返回空串。
+  @async
+  String activeBuiltinRelease();
+
+  /// 打开编辑会话；[name] 为空串表示内置/设备态。
+  ///
+  /// 目标文档按其自身 release 解析，[deviceRelease] 只在内置/设备态下生效。
+  @async
+  GhostLockProfileConfig beginEditSession(String name, String deviceRelease);
+
+  /// 丢弃未保存改动，按当前会话目标重新解析。
+  @async
+  GhostLockProfileConfig reloadEditSession();
+
+  /// 会话是否编辑当前生效配置；true 时保存写入 live override。
+  @async
+  bool editSessionIsLive();
+
+  /// 会话目标的文档名；内置/设备态返回空串。
+  @async
+  String editSessionTarget();
+
+  /// 会话实际使用的 release。
+  @async
+  String editSessionRelease();
+
+  /// 把会话 override 写入 live override，随后 live 重新解析。
+  @async
+  bool commitEditSession();
+
+  /// 用会话结果整篇覆盖目标文档。
+  @async
+  bool saveEditSessionInPlace();
+
+  /// 会话结果另存为新文档；失败返回空串。
+  @async
+  String saveEditSessionAsNew();
+
+  /// 会话结果导出到本地文件 [path]。
+  @async
+  bool exportEditSession(String path);
+
+  /// 关闭会话。
+  @async
+  void endEditSession();
 }

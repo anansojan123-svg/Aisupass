@@ -28,7 +28,16 @@ pub fn looks_like_payload(path: &str) -> bool {
 /// Read only the payload header and manifest (no data download), enough to
 /// list partitions.  Works for local payload.bin / OTA ZIP files too.
 pub fn open_payload_meta(input: &str) -> anyhow::Result<payload_extract::payload::PayloadView> {
-    payload_extract::input::open(input, false, None)
+    open_payload_meta_with_insecure(input, false)
+}
+
+/// Same as [`open_payload_meta`], but `insecure` skips TLS verification for
+/// http(s) sources (upstream `--insecure`).
+pub fn open_payload_meta_with_insecure(
+    input: &str,
+    insecure: bool,
+) -> anyhow::Result<payload_extract::payload::PayloadView> {
+    payload_extract::input::open(input, insecure, None)
         .with_context(|| format!("failed to read payload metadata '{input}'"))
 }
 

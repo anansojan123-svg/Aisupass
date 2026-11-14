@@ -78,6 +78,70 @@ class GhostLockProfileEditActionRepositoryImpl
       _datasource.exportProfile(release: release, path: path);
 
   @override
+  Future<String> render({required String release}) =>
+      _datasource.renderProfile(release: release);
+
+  @override
   Future<bool> saveModified({required String release}) =>
       _datasource.saveModifiedProfile(release: release);
+
+  @override
+  Future<GhostLockProfileConfig> resetGeneral({required String release}) async =>
+      GhostLockProfileConfigDto.fromNative(
+        await _datasource.resetGeneralFields(release: release),
+      ).toEntity();
+
+  @override
+  Future<GhostLockProfileConfig> resetAdvanced({required String release}) async =>
+      GhostLockProfileConfigDto.fromNative(
+        await _datasource.resetAdvancedFields(release: release),
+      ).toEntity();
+
+  @override
+  Future<bool> overwriteProfile({
+    required String release,
+    required String name,
+  }) => _datasource.overwriteProfile(release: release, name: name);
+
+  @override
+  Future<GhostLockProfileConfig> beginEditSession({
+    required String name,
+    required String deviceRelease,
+  }) async => GhostLockProfileConfigDto.fromNative(
+    await _datasource.beginEditSession(
+      name: name,
+      deviceRelease: deviceRelease,
+    ),
+  ).toEntity();
+
+  @override
+  Future<GhostLockProfileConfig> reloadEditSession() async =>
+      GhostLockProfileConfigDto.fromNative(
+        await _datasource.reloadEditSession(),
+      ).toEntity();
+
+  @override
+  Future<bool> editSessionIsLive() => _datasource.editSessionIsLive();
+
+  @override
+  Future<String> editSessionTarget() => _datasource.editSessionTarget();
+
+  @override
+  Future<String> editSessionRelease() => _datasource.editSessionRelease();
+
+  @override
+  Future<bool> commitEditSession() => _datasource.commitEditSession();
+
+  @override
+  Future<bool> saveEditSessionInPlace() => _datasource.saveEditSessionInPlace();
+
+  @override
+  Future<String> saveEditSessionAsNew() => _datasource.saveEditSessionAsNew();
+
+  @override
+  Future<bool> exportEditSession({required String path}) =>
+      _datasource.exportEditSession(path: path);
+
+  @override
+  Future<void> endEditSession() => _datasource.endEditSession();
 }

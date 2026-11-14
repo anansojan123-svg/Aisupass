@@ -27,6 +27,9 @@ default-features = false
 
 [features]
 default = []
+# 编译 libvrext.so 必须带上：cargo build --release --features http
+# 缺了它 payload-extract 不编 HTTP 后端，URL 会被当成本地路径打开，
+# 报 "No such file or directory (os error 2)"。
 http = ["payload-extract/http-rustls"]
 
 [profile.release]

@@ -142,15 +142,18 @@ fn sum_chain_frames(
     symbols: &RelSymbols,
     sorted: &[u64],
     names: &[&str],
-) -> Result<u64> {
+) -> Result<(u64, String)> {
     let mut total = 0u64;
+    let mut parts: Vec<String> = Vec::new();
     for name in names {
         let dis = disassemble_symbol(kernel, symbols, sorted, name, OBJDUMP_CAP)?;
+        let frame = first_sp_frame(&dis, name)?;
         total = total
-            .checked_add(first_sp_frame(&dis, name)?)
+            .checked_add(frame)
             .ok_or_else(|| ExtractError::new("multicast frame depth overflow"))?;
+        parts.push(format!("{name}={frame:#x}"));
     }
-    Ok(total)
+    Ok((total, parts.join("+")))
 }
 
 /// The `add xN, sp, #off` feeding the `mov w2, #buffer_size` copy in
@@ -201,8 +204,9 @@ pub fn multicast_waiter_off(
     buffer_size: u64,
     pi_tree_entry: u64,
 ) -> Result<McastWaiterGeometry> {
-    let setsockopt_frames = sum_chain_frames(kernel, symbols, sorted, SETSOCKOPT_CHAIN)?;
-    let futex_frames = sum_chain_frames(kernel, symbols, sorted, FUTEX_CHAIN)?;
+    let (setsockopt_frames, setsockopt_parts) =
+        sum_chain_frames(kernel, symbols, sorted, SETSOCKOPT_CHAIN)?;
+    let (futex_frames, futex_parts) = sum_chain_frames(kernel, symbols, sorted, FUTEX_CHAIN)?;
     let ip = disassemble_symbol(kernel, symbols, sorted, "ip_setsockopt", OBJDUMP_CAP)?;
     let greqs = greqs_offset_from_dis(&ip, buffer_size)
         .ok_or_else(|| ExtractError::new("ip_setsockopt multicast copy window not found"))?;
@@ -223,7 +227,16 @@ pub fn multicast_waiter_off(
         .ok_or_else(|| ExtractError::new("waiter local exceeds futex frames"))?;
     let waiter_off = setsockopt_depth
         .checked_sub(waiter_depth)
-        .ok_or_else(|| ExtractError::new("no multicast overlap in stack geometry"))?;
+        .ok_or_else(|| {
+            /* 这里一定是「负重叠」：多播窗口没有落在 waiter 本地之下。
+             * 把两侧深度与帧构成一起带出去，否则现场只有一个结论没有依据，
+             * 无法判断是链上哪一环的内联/帧尺寸把深度算偏了。 */
+            ExtractError::new(format!(
+                "no multicast overlap in stack geometry: setsockopt_depth={setsockopt_depth:#x} \
+                 <= waiter_depth={waiter_depth:#x} (setsockopt {setsockopt_parts}, \
+                 greqs={greqs:#x}; futex {futex_parts}, waiter_local={waiter_local:#x})"
+            ))
+        })?;
     Ok(McastWaiterGeometry {
         waiter_off,
         setsockopt_depth,

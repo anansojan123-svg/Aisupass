@@ -7,7 +7,7 @@
 //! 与上游 CLI（`extract_rs/src/main.rs`）的差异：
 //! - 只实现 `--format conf` 一条路径，JSON/text 输出不搬；
 //! - 无 CLI 解析、无 stdout 打印：告警收进 [`Derived::warnings`] 由调用方展示；
-//! - 内核已修复 `remove_waiter()` 时直接返回错误（CLI 的 `--analysis` 旁路不搬）。
+//! - 内核审查报告始终生成（等价 `--analysis`），但不再单独 return。
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
@@ -34,10 +34,14 @@ use ghostlock_extract::report;
 use ghostlock_extract::symbols::{
     kernel_layout_verified, kernel_struct_macro, resolve_structs, resolve_symbols,
 };
+use ghostlock_extract::vendor_boot::recover_kernel_phys_from_vendor_boot;
 
 /// 提取结果。
 pub struct Derived {
-    /// 内核 release，与 `uname -r` 逐字可比。
+    /// 是否产出了可用的 profile；false 时 [`Derived::conf`] 为空，失败
+    /// 原因在 [`Derived::error`]，而 [`Derived::analysis`] 仍然可用。
+    pub ok: bool,
+    /// 内核 release，与 `uname -r` 逐字可比；解析早期失败时为空串。
     pub release: String,
     /// 自包含的 GLK profile（HOCON，无 `include`）。
     pub conf: String,
@@ -48,6 +52,44 @@ pub struct Derived {
     /// OTA / payload 输入时指向解包后落在 `work_dir` 下的文件，调用方可以用
     /// 它复用同一份镜像，避免为另一套表再下载一次。
     pub boot_path: String,
+    /// 内核物理装载基址；`None` 表示未取到。
+    pub kernel_phys_load: Option<u64>,
+    /// DRAM 基址；`None` 表示未取到。
+    pub kernel_phys_offset: Option<u64>,
+    /// `kernel_phys_load` 的来源；未取到为 `unset`。
+    pub phys_source: &'static str,
+    /// 内核审查报告（等价上游 `--analysis`）；解析早期失败时为空串。
+    pub analysis: String,
+    /// 失败原因；成功为空串。
+    pub error: String,
+}
+
+/// 与上游 `--route` 的取值一致。
+const ROUTE_NAMES: [&str; 3] = ["tcp_zerocopy", "select_stack", "multicast_waiter"];
+
+/// 提取选项，对应上游 CLI 的参数集。
+#[derive(Default)]
+pub struct ProfileOptions<'a> {
+    /// 跳过 TLS 校验（上游 `--insecure`）。
+    pub insecure: bool,
+    /// 附加 xbl_config.img（上游 `--xbl_config`）。
+    pub xbl_config: Option<&'a str>,
+    /// 附加 uefi.img（上游 `--uefi`）。
+    pub uefi: Option<&'a str>,
+    /// 附加 vendor_boot.img（上游 `--vendor_boot`，MediaTek）。
+    pub vendor_boot: Option<&'a str>,
+    /// 外部 kallsyms 文本（上游 `--kallsyms`）；空串表示自动。
+    pub kallsyms: Option<&'a str>,
+    /// 外部 /proc/iomem 文本（上游 `--iomem`）；空串表示自动。
+    pub iomem: Option<&'a str>,
+    /// 手填物理装载基址（上游 `--phys`）。
+    pub phys_override: Option<u64>,
+    /// 强制路由（上游 `--route`）；`None` 表示按内核自动推荐。
+    pub route: Option<&'a str>,
+    /// 缺失符号一律按可选输出 0（上游 `--allow_missing`）。
+    pub allow_missing: bool,
+    /// 是否启用反汇编推导（上游默认开启，`--no_disasm` 关闭）。
+    pub allow_disasm: bool,
 }
 
 /// 提取 profile。
@@ -61,7 +103,7 @@ pub struct Derived {
 pub fn derive_profile(
     input: &str,
     work_dir: &Path,
-    _insecure: bool,
+    options: &ProfileOptions<'_>,
     progress: Option<Arc<ProgressFn>>,
 ) -> Result<Derived> {
     let mut warnings: Vec<String> = Vec::new();
@@ -74,15 +116,39 @@ pub fn derive_profile(
 
     /* ---- 1. 输入归一：payload / OTA 先解出 boot ---- */
     let mut boot_path = PathBuf::from(input);
-    let mut xbl_path: Option<PathBuf> = None;
-    let mut uefi_path: Option<PathBuf> = None;
+    // 调用方显式附加的镜像；payload 分支会以解出的分区为准。
+    let mut xbl_path: Option<PathBuf> = options
+        .xbl_config
+        .filter(|path| !path.is_empty())
+        .map(PathBuf::from);
+    let mut uefi_path: Option<PathBuf> = options
+        .uefi
+        .filter(|path| !path.is_empty())
+        .map(PathBuf::from);
+    let mut vendor_boot_path: Option<PathBuf> = options
+        .vendor_boot
+        .filter(|path| !path.is_empty())
+        .map(PathBuf::from);
+    let phys_override = options.phys_override;
 
     if payload::looks_like_payload(input) {
         let payload_work: PathBuf = work_dir.join("ghostlock-payload");
-        let meta_view = payload::open_payload_meta(input)
+        let meta_view = payload::open_payload_meta_with_insecure(input, options.insecure)
             .map_err(|err| ExtractError::new(format!("{err:#}")))?;
-        let want = payload::analysis_partition_names(&meta_view)
+        let mut want = payload::analysis_partition_names(&meta_view)
             .map_err(|err| ExtractError::new(format!("{err:#}")))?;
+        let available: Vec<String> = meta_view
+            .partitions()
+            .iter()
+            .map(|p| p.partition_name.clone())
+            .collect();
+        /* 没有 xbl_config 时才用 vendor_boot 补 kernel_phys_load，
+         * 避免多下一份大分区。 */
+        if !want.iter().any(|name| name == "xbl_config")
+            && available.iter().any(|name| name == "vendor_boot")
+        {
+            want.push("vendor_boot".to_string());
+        }
         let download_cb: Option<payload_extract::input::ProgressCallback> =
             progress.as_ref().map(|cb| {
                 let cb = Arc::clone(cb);
@@ -92,12 +158,51 @@ pub fn derive_profile(
         let payload_view = payload::open_payload_for(input, &payload_work, &want, download_cb)
             .map_err(|err| ExtractError::new(format!("{err:#}")))?;
         report(1, 0, 0);
-        let (extracted_boot, extracted_xbl, extracted_uefi) =
-            payload::extract_analysis_inputs(&payload_view, &payload_work)
-                .map_err(|err| ExtractError::new(format!("{err:#}")))?;
+        let produced = payload::extract_partitions(&payload_view, &payload_work, &want)
+            .map_err(|err| ExtractError::new(format!("{err:#}")))?;
+        let pick = |name: &str| -> Option<PathBuf> {
+            produced
+                .iter()
+                .find(|path| {
+                    path.file_name()
+                        .map(|file| {
+                            let file = file.to_string_lossy();
+                            file == name || file == format!("{name}.img")
+                        })
+                        .unwrap_or(false)
+                })
+                .cloned()
+        };
+        let extracted_boot =
+            pick("boot").ok_or_else(|| ExtractError::new("boot partition output not found"))?;
+        let extracted_xbl = pick("xbl_config");
+        let extracted_uefi = pick("uefi");
+        let extracted_vendor_boot = pick("vendor_boot");
         boot_path = extracted_boot;
-        xbl_path = extracted_xbl;
-        uefi_path = extracted_uefi;
+        warnings.push(format!("extracted from payload: {}", want.join(", ")));
+        /* payload 里没有该分区时保留调用方附加的文件。 */
+        if extracted_xbl.is_some() {
+            xbl_path = extracted_xbl;
+        } else if xbl_path.is_none() {
+            warnings.push(format!(
+                "payload manifest has no xbl_config partition; the XBL FDT cannot supply \
+                 kernel_phys_load (xbl-like entries: {})",
+                list_entries(&available, &["xbl"])
+            ));
+        }
+        if extracted_uefi.is_some() {
+            uefi_path = extracted_uefi;
+        } else if uefi_path.is_none() {
+            warnings.push(format!(
+                "payload manifest has no uefi partition; the platform memory map is unavailable \
+                 (uefi-like entries: {})",
+                list_entries(&available, &["uefi"])
+            ));
+        }
+        if extracted_vendor_boot.is_some() {
+            vendor_boot_path = extracted_vendor_boot;
+            warnings.push("vendor_boot extracted from payload".to_string());
+        }
     }
 
     report(1, 0, 0);
@@ -105,11 +210,15 @@ pub fn derive_profile(
     /* ---- 2. boot 解包 ---- */
     let boot = BootImage::load(&boot_path)?;
 
-    /* ---- 3. kernel_phys_load：xbl_config FDT → uefi memory map → iomem ---- */
+    /* ---- 3. kernel_phys_load：xbl FDT → uefi memory map → 手参 → vendor_boot → iomem ---- */
     let mut kernel_phys_load: Option<u64> = None;
+    let mut phys_source = "unset";
     if let Some(xbl) = &xbl_path {
         match recover_kernel_phys_load(xbl) {
-            Ok(phys) => kernel_phys_load = Some(phys),
+            Ok(phys) => {
+                kernel_phys_load = Some(phys);
+                phys_source = "xbl_config FDT";
+            }
             Err(err) => warnings.push(format!(
                 "xbl_config FDT parse failed: {err}; trying the uefi memory map"
             )),
@@ -118,9 +227,35 @@ pub fn derive_profile(
     if kernel_phys_load.is_none() {
         if let Some(uefi) = &uefi_path {
             match recover_kernel_phys_load_from_uefi(uefi) {
-                Ok(phys) => kernel_phys_load = Some(phys),
+                Ok(phys) => {
+                    kernel_phys_load = Some(phys);
+                    phys_source = "uefi memory map";
+                }
                 Err(err) => warnings.push(format!(
                     "uefi memory-map parse failed: {err}; proceeding with boot-only analysis"
+                )),
+            }
+        }
+    }
+    if kernel_phys_load.is_none() {
+        if let Some(phys) = phys_override {
+            kernel_phys_load = Some(phys);
+            phys_source = "manual";
+        }
+    }
+    /* vendor_boot 头部的 kernel_addr 恒能给出 kernel_phys_load；DRAM 基址只在
+     * 对齐模式能证明时才一并给出（见上游 vendor_boot::classify）。 */
+    let mut vendor_boot_phys_offset: Option<u64> = None;
+    if kernel_phys_load.is_none() {
+        if let Some(path) = &vendor_boot_path {
+            match recover_kernel_phys_from_vendor_boot(path) {
+                Ok((load, offset)) => {
+                    kernel_phys_load = Some(load);
+                    phys_source = "vendor_boot header (MediaTek)";
+                    vendor_boot_phys_offset = offset;
+                }
+                Err(err) => warnings.push(format!(
+                    "vendor_boot header parse failed: {err}; trying other sources"
                 )),
             }
         }
@@ -128,7 +263,11 @@ pub fn derive_profile(
 
     /* ---- 4. kallsyms：/proc/kallsyms 优先，否则从镜像内嵌表恢复 ---- */
     let btf_at = boot.embedded_btf_at();
-    let ks = resolve_kallsyms(&boot, btf_at.as_ref().map(|(off, blob)| (*off, blob.len())))?;
+    let ks = resolve_kallsyms(
+        &boot,
+        btf_at.as_ref().map(|(off, blob)| (*off, blob.len())),
+        options.kallsyms,
+    )?;
     let symbols = ks.symbols;
     let text_base = kallsyms::unique(&symbols, "_text");
     let base = text_base.or_else(|| kallsyms::unique(&symbols, "_head"));
@@ -137,8 +276,12 @@ pub fn derive_profile(
     };
 
     /* ---- 5. /proc/iomem：DRAM 基址，必要时反推 kernel_phys_load ---- */
-    let mut kernel_phys_offset: Option<u64> = None;
-    let iomem_info = match iomem::load(None) {
+    let mut kernel_phys_offset: Option<u64> = vendor_boot_phys_offset;
+    let iomem_file: Option<PathBuf> = options
+        .iomem
+        .filter(|path| !path.is_empty())
+        .map(PathBuf::from);
+    let iomem_info = match iomem::load(iomem_file.as_deref()) {
         Ok(info) => info,
         Err(err) => {
             warnings.push(err.to_string());
@@ -146,7 +289,9 @@ pub fn derive_profile(
         }
     };
     if let Some(info) = iomem_info {
-        kernel_phys_offset = info.dram_base;
+        if info.dram_base.is_some() {
+            kernel_phys_offset = info.dram_base;
+        }
         if kernel_phys_load.is_none() {
             if let (Some(kc), Some(text), Some(stext)) = (
                 info.kernel_code_start,
@@ -155,14 +300,15 @@ pub fn derive_profile(
             ) {
                 let delta = stext.wrapping_sub(text) & 0xffff_ffff;
                 kernel_phys_load = Some(kc.wrapping_sub(delta) & 0xffff_ffff);
+                phys_source = "iomem";
             }
         }
     }
 
-    /* ---- 6. 漏洞是否存在：remove_waiter() 已修则整条链不成立 ---- */
+    /* ---- 6. 漏洞是否存在：结果保留给审查报告，缺失时不立即中断 ---- */
     let (rel_symbols, sorted_offsets) = relative_symbols(&symbols, base);
-    ensure_rtmutex_43499_unpatched(&boot.kernel, &rel_symbols, &sorted_offsets)
-        .map_err(|err| ExtractError::new(format!("primitive absent: {err}")))?;
+    let primitive = ensure_rtmutex_43499_unpatched(&boot.kernel, &rel_symbols, &sorted_offsets);
+    let primitive_failure = primitive.as_ref().err().map(|err| err.to_string());
 
     /* ---- 7. BTF ---- */
     let btf_raw = btf_at.as_ref().map(|(_, blob)| blob.clone());
@@ -194,6 +340,7 @@ pub fn derive_profile(
             match text_base.checked_sub(MTK_VADDR_BASE) {
                 Some(derived) if derived == MTK_DEFAULT_PHYS_LOAD => {
                     kernel_phys_load = Some(derived);
+                    phys_source = "MediaTek DRAM base";
                 }
                 _ => warnings.push(format!(
                     "_text=0x{text_base:x} does not match the mtk DRAM-base mapping; \
@@ -209,13 +356,47 @@ pub fn derive_profile(
         }
     }
 
+    /* ---- 8.1 内核审查报告：与上游 --analysis 等价，供 UI 分诊 ---- */
+    let analysis_text = analysis::render(&analysis::build(analysis::Input {
+        release: release.as_deref(),
+        kernel: &boot.kernel,
+        symbols: &symbols,
+        rel_symbols: &rel_symbols,
+        sorted_offsets: &sorted_offsets,
+        btf: btf.as_ref(),
+        phys: kernel_phys_load,
+        phys_source,
+        primitive: primitive.map_err(|err| ExtractError::new(err.to_string())),
+        allow_disasm: options.allow_disasm,
+    }));
+    if let Some(message) = primitive_failure {
+        return Ok(Derived {
+            ok: false,
+            release: release.unwrap_or_default(),
+            conf: String::new(),
+            warnings,
+            boot_path: boot_path.to_string_lossy().into_owned(),
+            kernel_phys_load,
+            kernel_phys_offset,
+            phys_source,
+            analysis: analysis_text,
+            error: format!("primitive absent: {message}"),
+        });
+    }
+
     /* ---- 9. 符号与结构体偏移 ---- */
     let mut symbol_offsets = resolve_symbols(&symbols, base);
 
     /* 9.1 pselect 布局与 nf_logger 槽 —— 只有反汇编可得 */
     let mut derived: BTreeMap<String, u64> = BTreeMap::new();
     let mut pselect_infeasible: Option<String> = None;
-    if let Some(btf) = &btf {
+    if !options.allow_disasm {
+        warnings.push(
+            "disassembly derivation disabled; pselect_waiter_shift and loggers_0_1 fall back to \
+             heuristics"
+                .to_string(),
+        );
+    } else if let Some(btf) = &btf {
         match derive_pselect_layout(
             &boot.kernel,
             &rel_symbols,
@@ -258,14 +439,30 @@ pub fn derive_profile(
             if pselect_infeasible.is_some() {
                 return None;
             }
-            report::pselect_waiter_shift_for(release.as_deref())
+            let shift = report::pselect_waiter_shift_for(release.as_deref());
+            match shift {
+                /* family 值是查表得来、不是本镜像实测，必须标出来 */
+                Some(value) => warnings.push(format!(
+                    "using verified-family pselect_waiter_shift={value}; image-specific \
+                     disassembly derivation was unavailable"
+                )),
+                None => warnings.push(
+                    "pselect_waiter_shift unavailable; no family fallback is defined for this \
+                     release"
+                        .to_string(),
+                ),
+            }
+            shift
         });
     if let Some(slot) = derived.get("off_slide_loggers_0_1").copied() {
         symbol_offsets.insert("off_slide_loggers_0_1".to_string(), Some(slot));
     }
 
     /* 9.2 结构体偏移 */
-    let struct_offsets = resolve_structs(btf.as_ref());
+    let mut struct_offsets = resolve_structs(btf.as_ref());
+    /* vr_guard 段是 DirtyFrag 的，GhostLock 侧不读；摘掉后 render_conf 不会
+     * 往 GLK profile 里写 `recommend_vr_guard` / `vr_guard`。 */
+    struct_offsets.remove("vr_tracepoint_funcs");
 
     /* 9.3 可选符号缺失时填 0（运行期回退 target.h 默认值） */
     let missing: Vec<String> = symbol_offsets
@@ -273,10 +470,14 @@ pub fn derive_profile(
         .filter(|(_, value)| value.is_none())
         .map(|(key, _)| key.clone())
         .collect();
-    let tolerated: BTreeSet<String> = report::optional_symbols()
+    let mut tolerated: BTreeSet<String> = report::optional_symbols()
         .into_iter()
         .map(str::to_string)
         .collect();
+    /* 上游 --allow_missing：把全部缺失符号都当作可选，按 0 输出。 */
+    if options.allow_missing {
+        tolerated.extend(missing.iter().cloned());
+    }
     let mut tolerated_missing: Vec<String> = missing
         .iter()
         .filter(|key| tolerated.contains(*key))
@@ -321,11 +522,25 @@ pub fn derive_profile(
         )));
     }
 
-    let route = {
-        let paths = analysis::probe_paths(&symbols, &boot.kernel, &rel_symbols, &sorted_offsets);
-        let pselect_derived = derived.contains_key("pselect_waiter_shift_value");
-        let (suggested, _, _) = analysis::suggest_route(pselect_derived, &paths, release.as_deref());
-        suggested.map(str::to_string)
+    /* ---- 11. route 选择：调用方强制优先，否则按内核推荐 ---- */
+    let route = match options.route.filter(|name| !name.is_empty()) {
+        Some(forced) => {
+            if !ROUTE_NAMES.contains(&forced) {
+                return Err(ExtractError::new(format!(
+                    "unknown route '{forced}'; expected one of {}",
+                    ROUTE_NAMES.join(", ")
+                )));
+            }
+            Some(forced.to_string())
+        }
+        None => {
+            let paths =
+                analysis::probe_paths(&symbols, &boot.kernel, &rel_symbols, &sorted_offsets);
+            let pselect_derived = derived.contains_key("pselect_waiter_shift_value");
+            let (suggested, _, _) =
+                analysis::suggest_route(pselect_derived, &paths, release.as_deref());
+            suggested.map(str::to_string)
+        }
     };
     if route
         .as_deref()
@@ -355,15 +570,15 @@ pub fn derive_profile(
             MCAST_BUFFER_SIZE,
             RT_MUTEX_WAITER_PI_TREE_ENTRY,
         ) {
+            /* conf_route_geometry 只给 BTF 能提供的那部分；帧常量由这里补齐，
+             * 推导失败就不写，避免把硬件实测常量塞进未验证候选。 */
             Ok(geom) => {
-                for entry in geometry.iter_mut() {
-                    if entry.0 == "waiter_off" {
-                        entry.1 = geom.waiter_off as i64;
-                    }
-                }
+                geometry.insert(0, ("waiter_off", geom.waiter_off as i64));
+                geometry.insert(1, ("buffer_size", MCAST_BUFFER_SIZE as i64));
             }
             Err(err) => warnings.push(format!(
-                "static multicast waiter_off derivation failed: {err}; keeping the proven 5.x constant"
+                "static multicast waiter_off derivation failed: {err}; \
+                 omitting the frame/copy-window geometry (the candidate stays incomplete)"
             )),
         }
     }
@@ -437,18 +652,49 @@ pub fn derive_profile(
 
     report(2, 1, 1);
     Ok(Derived {
+        ok: true,
         release: release_text.to_string(),
         conf,
         warnings,
         boot_path: boot_path.to_string_lossy().into_owned(),
+        kernel_phys_load,
+        kernel_phys_offset,
+        phys_source,
+        analysis: analysis_text,
+        error: String::new(),
     })
 }
 
-/// 取 kallsyms：先试 `/proc/kallsyms`，全部为 0（`kptr_restrict`）时视为不可用。
+/// 从 manifest 的分区名里挑出含任一关键词的条目；没有时返回 `none`。
+fn list_entries(available: &[String], keywords: &[&str]) -> String {
+    let hits: Vec<&str> = available
+        .iter()
+        .filter(|name| keywords.iter().any(|keyword| name.contains(keyword)))
+        .map(String::as_str)
+        .collect();
+    if hits.is_empty() {
+        "none".to_string()
+    } else {
+        hits.join(", ")
+    }
+}
+
+/// 取 kallsyms：显式文件 → `/proc/kallsyms` → 镜像内嵌表。
+///
+/// 显式文件解析失败直接报错（上游 `--kallsyms` 语义：给了就必须用）；
+/// `/proc` 里地址全为 0（`kptr_restrict`）视为不可用，继续回退。
 fn resolve_kallsyms(
     boot: &BootImage,
     btf_at: Option<(usize, usize)>,
+    provided: Option<&str>,
 ) -> Result<Kallsyms> {
+    if let Some(path) = provided.filter(|path| !path.is_empty()) {
+        let text = std::fs::read_to_string(path).map_err(|err| {
+            ExtractError::new(format!("cannot read kallsyms '{path}': {err}"))
+        })?;
+        return kallsyms::parse(&text)
+            .map_err(|err| ExtractError::new(format!("cannot parse kallsyms '{path}': {err}")));
+    }
     let proc_ksyms = Path::new("/proc/kallsyms");
     if proc_ksyms.is_file() && std::fs::File::open(proc_ksyms).is_ok() {
         if let Ok(text) = std::fs::read_to_string(proc_ksyms) {

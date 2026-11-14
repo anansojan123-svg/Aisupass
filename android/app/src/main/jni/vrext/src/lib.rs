@@ -136,6 +136,28 @@ use ghostlock_extract::derive::{derive_sys_exit_tp_funcs, relative_symbols};
 use ghostlock_extract::kallsyms;
 use ghostlock_extract::kallsyms_finder;
 
+/// 解析用户手填的物理装载基址：支持 `0x` 前缀与十进制；空串或非法值返回 None。
+pub fn parse_phys(text: &str) -> Option<u64> {
+    let trimmed = text.trim();
+    if trimmed.is_empty() {
+        return None;
+    }
+    let parsed = if let Some(hex) = trimmed
+        .strip_prefix("0x")
+        .or_else(|| trimmed.strip_prefix("0X"))
+    {
+        u64::from_str_radix(hex, 16)
+    } else {
+        trimmed.parse::<u64>()
+    };
+    parsed.ok()
+}
+
+/// 地址的十六进制字面量；None 输出空串，由 Kotlin 侧判断「未取到」。
+pub fn hex_or_empty(value: Option<u64>) -> String {
+    value.map(|v| format!("0x{v:x}")).unwrap_or_default()
+}
+
 // ---- JNI surface (Android only) -------------------------------------------
 #[cfg(target_os = "android")]
 mod jni {
@@ -147,7 +169,7 @@ mod jni {
     use jni::sys::jboolean;
     use jni::JNIEnv;
 
-    use super::derive_json;
+    use super::{derive_json, hex_or_empty, parse_phys};
 
     /// Latest progress triplet, mirrored into Java so the UI can show it.
     static PROG_PHASE: AtomicU64 = AtomicU64::new(0);
@@ -245,8 +267,8 @@ mod jni {
     /// 提取 GhostLock profile。符号名对应
     /// `org.supass.ai_su_pass.cve43499.GhostLockProfileExtractor`，与 DirtyFrag
     /// 的入口分离：两个 CVE 共用同一个 `.so`，但各自持有 JNI 类。
-    /// 返回 `{"ok":true,"release":"...","conf":"...","warnings":[...]}` 或
-    /// `{"ok":false,"error":"..."}`；不抛 Java 异常。
+    /// 返回 `{"ok":true,"release":...,"conf":...,"warnings":[...],...}` 或
+    /// `{"ok":false,"error":...,"analysis":...}`；不抛 Java 异常。
     #[no_mangle]
     pub extern "system" fn Java_org_supass_ai_1su_1pass_cve43499_GhostLockProfileExtractor_nativeDeriveProfile<'local>(
         mut env: JNIEnv<'local>,
@@ -254,12 +276,62 @@ mod jni {
         input: JString<'local>,
         work_dir: JString<'local>,
         insecure: jboolean,
+        xbl_path: JString<'local>,
+        uefi_path: JString<'local>,
+        vendor_boot_path: JString<'local>,
+        phys: JString<'local>,
+        kallsyms_path: JString<'local>,
+        iomem_path: JString<'local>,
+        route: JString<'local>,
+        allow_missing: jboolean,
+        no_disasm: jboolean,
     ) -> JString<'local> {
         let input: String = env.get_string(&input).map(|s| s.into()).unwrap_or_default();
         let work: String = env
             .get_string(&work_dir)
             .map(|s| s.into())
             .unwrap_or_else(|_| "/data/local/tmp".into());
+        let xbl: String = env
+            .get_string(&xbl_path)
+            .map(|s| s.into())
+            .unwrap_or_default();
+        let uefi: String = env
+            .get_string(&uefi_path)
+            .map(|s| s.into())
+            .unwrap_or_default();
+        let vendor_boot: String = env
+            .get_string(&vendor_boot_path)
+            .map(|s| s.into())
+            .unwrap_or_default();
+        let phys_text: String = env
+            .get_string(&phys)
+            .map(|s| s.into())
+            .unwrap_or_default();
+        let kallsyms_text: String = env
+            .get_string(&kallsyms_path)
+            .map(|s| s.into())
+            .unwrap_or_default();
+        let iomem_text: String = env
+            .get_string(&iomem_path)
+            .map(|s| s.into())
+            .unwrap_or_default();
+        let route_text: String = env
+            .get_string(&route)
+            .map(|s| s.into())
+            .unwrap_or_default();
+        let phys_override = parse_phys(&phys_text);
+        let options = crate::profile::ProfileOptions {
+            insecure: insecure == 1,
+            xbl_config: Some(xbl.as_str()),
+            uefi: Some(uefi.as_str()),
+            vendor_boot: Some(vendor_boot.as_str()),
+            kallsyms: Some(kallsyms_text.as_str()),
+            iomem: Some(iomem_text.as_str()),
+            phys_override,
+            route: Some(route_text.as_str()),
+            allow_missing: allow_missing == 1,
+            allow_disasm: no_disasm == 0,
+        };
         PROFILE_PHASE.store(0, Ordering::Relaxed);
         PROFILE_DONE.store(0, Ordering::Relaxed);
         PROFILE_TOTAL.store(0, Ordering::Relaxed);
@@ -271,18 +343,28 @@ mod jni {
         let json = match crate::profile::derive_profile(
             &input,
             std::path::Path::new(&work),
-            insecure == 1,
+            &options,
             progress,
         ) {
             Ok(derived) => serde_json::json!({
-                "ok": true,
+                "ok": derived.ok,
                 "release": derived.release,
                 "conf": derived.conf,
                 "warnings": derived.warnings,
                 "bootPath": derived.boot_path,
+                "kernelPhysLoad": hex_or_empty(derived.kernel_phys_load),
+                "kernelPhysOffset": hex_or_empty(derived.kernel_phys_offset),
+                "physSource": derived.phys_source,
+                "analysis": derived.analysis,
+                "error": derived.error,
             })
             .to_string(),
-            Err(err) => serde_json::json!({ "ok": false, "error": err.to_string() }).to_string(),
+            Err(err) => serde_json::json!({
+                "ok": false,
+                "error": err.to_string(),
+                "analysis": "",
+            })
+            .to_string(),
         };
         let j = env
             .new_string(json)
@@ -294,5 +376,33 @@ mod jni {
             Ok(v) => v,
             Err(e) => panic!("jni new_string failed twice: {e}"),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{hex_or_empty, parse_phys};
+
+    #[test]
+    fn parse_phys_accepts_hex_int_and_decimal() {
+        assert_eq!(parse_phys("0x80000000"), Some(0x8000_0000));
+        assert_eq!(parse_phys("0X80000000"), Some(0x8000_0000));
+        assert_eq!(parse_phys("2151677952"), Some(2151677952));
+        assert_eq!(parse_phys("  0x1000  "), Some(0x1000));
+    }
+
+    #[test]
+    fn parse_phys_rejects_empty_and_garbage() {
+        assert_eq!(parse_phys(""), None);
+        assert_eq!(parse_phys("   "), None);
+        assert_eq!(parse_phys("zzz"), None);
+        assert_eq!(parse_phys("0x"), None);
+    }
+
+    #[test]
+    fn hex_or_empty_formats_known_and_missing() {
+        assert_eq!(hex_or_empty(None), "");
+        assert_eq!(hex_or_empty(Some(0x8000_0000)), "0x80000000");
+        assert_eq!(hex_or_empty(Some(0)), "0x0");
     }
 }

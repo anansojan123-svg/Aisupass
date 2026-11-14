@@ -82,9 +82,7 @@ class _GhostLockConfirmDialog extends HookWidget {
                 ),
                 onPressed: preflight.release.isEmpty
                     ? null
-                    : () => context.push(
-                        AppRoute.ghostLockProfilePath(preflight.release),
-                      ),
+                    : () => context.push(AppRoute.ghostLockProfilePath()),
                 child: Text(
                   l10n.escalationGhostLockProfileEdit,
                   style: TextStyle(fontSize: 12.sp),

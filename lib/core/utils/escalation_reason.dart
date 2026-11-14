@@ -18,6 +18,39 @@ String escalationReasonLabel(String code, AppLocalizations l10n) =>
       _ => code,
     };
 
+/// GhostLock 预检的 `profileError` → 可读文案。
+///
+/// 原生会带前缀区分原因：`profileReleaseMismatch: <表内> != <设备>`（选中的表
+/// 与设备内核不是同一构建）、`profileMissing: <文件名>`（生效来源指向的文档没了）；
+/// 其余按技术诊断码原样包一层。
+String ghostLockProfileErrorText(AppLocalizations l10n, String error) {
+  const String mismatch = 'profileReleaseMismatch: ';
+  if (error.startsWith(mismatch)) {
+    final List<String> parts = error.substring(mismatch.length).split(' != ');
+    if (parts.length == 2) {
+      return l10n.escalationGhostLockProfileMismatch(parts[0], parts[1]);
+    }
+  }
+  const String missing = 'profileMissing: ';
+  if (error.startsWith(missing)) {
+    return l10n.escalationGhostLockProfileMissing(
+      error.substring(missing.length),
+    );
+  }
+  return l10n.escalationGhostLockProfileInvalid(error);
+}
+
+/// GhostLock 会话的本侧诊断码 → 可读文案；未识别的码原样带出来。
+String ghostLockFailureText(AppLocalizations l10n, String code) =>
+    switch (code) {
+      'deviceDisconnected' =>
+        l10n.escalationGhostLockFailureDeviceDisconnected,
+      'launchFailed' => l10n.escalationGhostLockFailureLaunch,
+      'profileWriteFailed' => l10n.escalationGhostLockFailureProfileWrite,
+      'nativeNotStarted' => l10n.escalationGhostLockFailureNotStarted,
+      _ => l10n.escalationGhostLockFailureCode(code),
+    };
+
 /// 退出码行。负数是「没取到」，不是真实退出码。
 String escalationExitTag(int code) => code < 0 ? 'exit --' : 'exit $code';
 

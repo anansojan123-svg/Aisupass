@@ -3,11 +3,16 @@ import 'package:Aisupass/core/providers/device_identity_provider.dart';
 import 'package:Aisupass/core/providers/root_manager_provider.dart';
 import 'package:Aisupass/core/storage/storage_providers.dart';
 import 'package:Aisupass/features/escalation/data/datasources/escalation_query_datasource.dart';
+import 'package:Aisupass/features/escalation/data/datasources/ghost_lock_profile_edit_query_datasource.dart';
 import 'package:Aisupass/features/escalation/data/repositories/escalation_query_repository_impl.dart';
+import 'package:Aisupass/features/escalation/data/repositories/ghost_lock_profile_edit_query_repository_impl.dart';
 import 'package:Aisupass/features/escalation/domain/models/device_identity.dart';
+import 'package:Aisupass/features/escalation/domain/models/ghost_lock_active_source.dart';
 import 'package:Aisupass/features/escalation/domain/models/payload.dart';
 import 'package:Aisupass/features/escalation/domain/models/root_manager.dart';
 import 'package:Aisupass/features/escalation/domain/repositories/escalation_query_repository.dart';
+import 'package:Aisupass/features/escalation/domain/repositories/ghost_lock_profile_edit_query_repository.dart';
+import 'package:Aisupass/generated/ghost_lock.g.dart' as ghost_lock;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'escalation_query_provider.g.dart';
@@ -48,3 +53,26 @@ Future<DeviceIdentity> currentDeviceIdentity(Ref ref) =>
 @riverpod
 Future<RootManager?> selectedRootManager(Ref ref) =>
     ref.watch(escalationQueryRepositoryProvider).selectedRootManager();
+
+/// GhostLock profile 编辑只读数据源。
+@riverpod
+GhostLockProfileEditQueryDatasource ghostLockProfileEditQueryDatasource(
+  Ref ref,
+) => GhostLockProfileEditQueryDatasource(
+  native: ghost_lock.GhostLockProfileEditNative(),
+);
+
+/// GhostLock profile 编辑只读仓储。
+@riverpod
+GhostLockProfileEditQueryRepository ghostLockProfileEditQueryRepository(
+  Ref ref,
+) => GhostLockProfileEditQueryRepositoryImpl(
+  datasource: ref.watch(ghostLockProfileEditQueryDatasourceProvider),
+);
+
+/// 当前生效来源：内置层选中的 release 与「我的配置」文档名。
+///
+/// 切换后由写操作失效本 provider。
+@riverpod
+Future<GhostLockActiveSource> ghostLockActiveSource(Ref ref) =>
+    ref.watch(ghostLockProfileEditQueryRepositoryProvider).activeSource();

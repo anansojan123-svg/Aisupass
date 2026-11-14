@@ -227,6 +227,10 @@
   "@aiCancel": {
     "description": "通用取消按钮"
   },
+  "aiReset": "重置",
+  "@aiReset": {
+    "description": "通用重置按钮"
+  },
   "aiApiKeyMissing": "未配置 API Key",
   "@aiApiKeyMissing": {
     "description": "AI 配置缺少 API Key 的提示"
@@ -1473,6 +1477,27 @@
       }
     }
   },
+  "escalationGhostLockProfileMismatch": "选中的内核表声明内核为 {profile}，当前设备是 {device}，两者不一致，不会套用",
+  "@escalationGhostLockProfileMismatch": {
+    "description": "选中的 profile 与设备内核 release 不一致",
+    "placeholders": {
+      "profile": {
+        "type": "String"
+      },
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "escalationGhostLockProfileMissing": "选中的文档 {name} 不存在，可能已被删除或重命名",
+  "@escalationGhostLockProfileMissing": {
+    "description": "生效来源指向的文档不存在",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "escalationGhostLockSeccompFiltered": "当前 shell 带有 seccomp 过滤，这条链路无法清掉它",
   "@escalationGhostLockSeccompFiltered": {
     "description": "自检发现 seccomp 非 0 时的提示"
@@ -1557,6 +1582,22 @@
       }
     }
   },
+  "escalationGhostLockFailureDeviceDisconnected": "与设备的连接中断（多半是设备重启了），已停止跟踪；设备恢复后重试",
+  "@escalationGhostLockFailureDeviceDisconnected": {
+    "description": "运行中 ADB 通道掉线或设备重启"
+  },
+  "escalationGhostLockFailureLaunch": "原生进程没能拉起，见上方 shell 输出",
+  "@escalationGhostLockFailureLaunch": {
+    "description": "启动命令本身失败"
+  },
+  "escalationGhostLockFailureProfileWrite": "内核表写入设备临时目录失败，请确认无线调试仍然可用",
+  "@escalationGhostLockFailureProfileWrite": {
+    "description": "profile.bin 写盘失败"
+  },
+  "escalationGhostLockFailureNotStarted": "原生进程启动后没有任何输出，已停止跟踪",
+  "@escalationGhostLockFailureNotStarted": {
+    "description": "原生进程没有产生日志"
+  },
   "escalationGhostLockStop": "停止读取",
   "@escalationGhostLockStop": {
     "description": "运行中底栏的停止按钮；只停止本侧读取"
@@ -1598,9 +1639,34 @@
   "@escalationGhostLockProfileOverridden": {
     "description": "字段被本地 override 的标记"
   },
-  "escalationGhostLockProfileReset": "重置全部修改",
-  "@escalationGhostLockProfileReset": {
-    "description": "清掉该 release 的全部 override"
+  "escalationGhostLockProfileWriteBack": "保存",
+  "@escalationGhostLockProfileWriteBack": {
+    "description": "把本次编辑保存到对应目标"
+  },
+  "escalationGhostLockProfileWrittenBack": "已写入当前文件",
+  "@escalationGhostLockProfileWrittenBack": {
+    "description": "写回成功后的提示"
+  },
+  "escalationGhostLockProfileWriteFailed": "写入失败",
+  "@escalationGhostLockProfileWriteFailed": {
+    "description": "导出或写回失败时的提示"
+  },
+  "escalationGhostLockProfileRejected": "这个值会让配置无法解析，已回滚",
+  "@escalationGhostLockProfileRejected": {
+    "description": "原生拒绝写入 override 时的提示"
+  },
+  "escalationGhostLockProfileSaved": "已保存",
+  "@escalationGhostLockProfileSaved": {
+    "description": "编辑会话保存成功后的提示"
+  },
+  "escalationGhostLockProfileSavedAsNew": "已另存为 {name}",
+  "@escalationGhostLockProfileSavedAsNew": {
+    "description": "内置/设备态保存后生成的文档名",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "escalationGhostLockProfileExport": "导出为文件",
   "@escalationGhostLockProfileExport": {
@@ -1618,6 +1684,10 @@
   "@escalationGhostLockProfileRouteLabel": {
     "description": "编辑器路由页的分组标题"
   },
+  "escalationGhostLockProfileRouteCurrent": "当前生效",
+  "@escalationGhostLockProfileRouteCurrent": {
+    "description": "路由页顶部显示合并后的实际 route 与 fallback"
+  },
   "escalationGhostLockProfileFallbackLabel": "回退",
   "@escalationGhostLockProfileFallbackLabel": {
     "description": "编辑器路由页 fallback 分组的标题"
@@ -1626,33 +1696,86 @@
   "@escalationGhostLockProfileFallbackNone": {
     "description": "fallback 选择里的 none"
   },
+  "escalationGhostLockProfileFallbackDeclared": "跟随配置声明",
+  "@escalationGhostLockProfileFallbackDeclared": {
+    "description": "移除 fallback override，回到 profile 自己声明的值"
+  },
   "escalationGhostLockProfileNoProfile": "这个内核没有可编辑的 profile",
   "@escalationGhostLockProfileNoProfile": {
     "description": "loadProfile 返回 hasProfile=false 时的提示"
   },
-  "escalationGhostLockProfileSelect": "指定生效表",
-  "@escalationGhostLockProfileSelect": {
-    "description": "编辑器 AppBar 打开生效来源选择的按钮与弹窗标题"
+  "escalationGhostLockProfileNoWritableDoc": "没有可写回的目标文档，请先用「另存为我的配置」创建一份",
+  "@escalationGhostLockProfileNoWritableDoc": {
+    "description": "保存到当前文件时找不到任何可写回的用户文档"
   },
-  "escalationGhostLockProfileSelectAuto": "跟随设备",
-  "@escalationGhostLockProfileSelectAuto": {
-    "description": "生效来源里的默认项：用设备自身 release"
+  "escalationGhostLockProfileSourceLabel": "生效来源",
+  "@escalationGhostLockProfileSourceLabel": {
+    "description": "编辑器顶部状态条的标签：当前用的是哪份内核表"
   },
-  "escalationGhostLockProfileSelectBuiltin": "内置表",
-  "@escalationGhostLockProfileSelectBuiltin": {
-    "description": "生效来源弹窗的内置表分组标题"
+  "escalationGhostLockProfileSourceDevice": "设备内置表",
+  "@escalationGhostLockProfileSourceDevice": {
+    "description": "未指定内置表时，跟随设备自身 release"
+  },
+  "escalationGhostLockProfileSourceBuiltin": "内置表",
+  "@escalationGhostLockProfileSourceBuiltin": {
+    "description": "指定了内置表中的某一份"
+  },
+  "escalationGhostLockProfileSourceUser": "我的配置",
+  "@escalationGhostLockProfileSourceUser": {
+    "description": "生效来源叠加了用户导入文档"
+  },
+  "escalationGhostLockProfileOverriddenCount": "已修改 {count} 项",
+  "@escalationGhostLockProfileOverriddenCount": {
+    "description": "顶部状态条显示本地 override 的条目数",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "escalationGhostLockProfileTabGeneralHint": "执行参数。改完离开输入框即生效，下次运行 GhostLock 用新值；不需要另外保存。",
+  "@escalationGhostLockProfileTabGeneralHint": {
+    "description": "通用页签顶部的说明"
+  },
+  "escalationGhostLockProfileTabRouteHint": "选择注入路径。点选立即生效；三条路由的几何常量不同，切换后高级页的字段会跟着变。",
+  "@escalationGhostLockProfileTabRouteHint": {
+    "description": "路由页签顶部的说明"
+  },
+  "escalationGhostLockProfileRouteGeometryHint": "每条路由的几何常量（如 waiter_shift、compact_waiter、waiter_off）只在从镜像生成该路由时才会写入。切到一份表里没生成过的路由，这些字段会是空值，运行时可能拿不到参数。要换路由，建议重新解析镜像并在解析时指定路由。",
+  "@escalationGhostLockProfileRouteGeometryHint": {
+    "description": "路由页签里说明「切换路由后几何常量可能缺失」"
+  },
+  "escalationGhostLockProfileTabAdvancedHint": "结构与偏移字段。改动立即生效；未提供的字段显示为空，填值后才会写入。",
+  "@escalationGhostLockProfileTabAdvancedHint": {
+    "description": "高级页签顶部的说明"
+  },
+  "escalationGhostLockProfileApplied": "已应用",
+  "@escalationGhostLockProfileApplied": {
+    "description": "单个字段提交成功后的轻提示"
+  },
+  "escalationGhostLockProfileWriteBackHint": "生效配置写回本地；文档直接覆盖",
+  "@escalationGhostLockProfileWriteBackHint": {
+    "description": "保存菜单里「保存」的副说明"
+  },
+  "escalationGhostLockProfileWriteBackDisabled": "内置表不可改写，请用「另存为」",
+  "@escalationGhostLockProfileWriteBackDisabled": {
+    "description": "内置/设备态下「保存」置灰时的说明"
+  },
+  "escalationGhostLockProfileSaveAsHint": "存成一份新的用户文档，原文件不动",
+  "@escalationGhostLockProfileSaveAsHint": {
+    "description": "保存菜单里「另存为我的配置」的副说明"
+  },
+  "escalationGhostLockProfileExportHint": "导出 conf 到系统文件",
+  "@escalationGhostLockProfileExportHint": {
+    "description": "保存菜单里「导出为文件」的副说明"
   },
   "escalationGhostLockProfileSelectSearch": "按 release 过滤",
   "@escalationGhostLockProfileSelectSearch": {
-    "description": "内置表列表的过滤框提示"
+    "description": "内置内核表列表的过滤框提示"
   },
-  "escalationGhostLockProfileSelectUser": "我的配置",
-  "@escalationGhostLockProfileSelectUser": {
-    "description": "生效来源弹窗的导入文档分组标题"
-  },
-  "escalationGhostLockProfileSelectNoUser": "不使用导入文档",
-  "@escalationGhostLockProfileSelectNoUser": {
-    "description": "不使用任何导入文档作为覆盖层"
+  "escalationGhostLockProfileSelectTemplates": "参考模板",
+  "@escalationGhostLockProfileSelectTemplates": {
+    "description": "内置列表里 -template 文件的分组标题"
   },
   "escalationGhostLockImportTitle": "导入内核表",
   "@escalationGhostLockImportTitle": {
@@ -1695,6 +1818,38 @@
   "escalationGhostLockImportedParseError": "文件无法解析",
   "@escalationGhostLockImportedParseError": {
     "description": "已导入条目的解析失败标记"
+  },
+  "escalationGhostLockImportedRename": "重命名",
+  "@escalationGhostLockImportedRename": {
+    "description": "已导入条目的重命名操作"
+  },
+  "escalationGhostLockImportedRenameHint": "新文件名",
+  "@escalationGhostLockImportedRenameHint": {
+    "description": "重命名输入框的提示"
+  },
+  "escalationGhostLockImportedExport": "导出",
+  "@escalationGhostLockImportedExport": {
+    "description": "已导入条目的导出操作"
+  },
+  "escalationGhostLockImportedEdit": "编辑",
+  "@escalationGhostLockImportedEdit": {
+    "description": "进入该内核表的编辑器"
+  },
+  "escalationGhostLockImportedExported": "已导出",
+  "@escalationGhostLockImportedExported": {
+    "description": "导出成功后的提示"
+  },
+  "escalationGhostLockMoreActions": "更多操作",
+  "@escalationGhostLockMoreActions": {
+    "description": "已导入条目右侧的更多操作菜单"
+  },
+  "escalationGhostLockImportText": "导入现成配置（conf / hocon / json / txt，可多选）",
+  "@escalationGhostLockImportText": {
+    "description": "直接导入一份已有的 HOCON / JSON 内核表；支持连同 include 依赖一起多选"
+  },
+  "escalationGhostLockImportUnsupported": "没有可导入的文件：仅支持 conf / hocon / json / txt，且需为 UTF-8 文本",
+  "@escalationGhostLockImportUnsupported": {
+    "description": "多选导入时全部文件都被类型或编码校验挡下"
   },
   "settingsGhostKeySection": "GhostKey",
   "@settingsGhostKeySection": {
@@ -1966,13 +2121,65 @@
   "@kernelProfileTabGhostLockBuiltin": {
     "description": "内核表页面的 GhostLock 内置页签标签"
   },
-  "kernelProfileImportAction": "选择 boot.img",
+  "kernelProfileImportAction": "选择镜像（img / bin / zip）",
   "@kernelProfileImportAction": {
-    "description": "选择 boot.img 的按钮"
+    "description": "选择镜像或 OTA 包的按钮"
   },
   "kernelProfileImportChangeFile": "更换镜像",
   "@kernelProfileImportChangeFile": {
     "description": "已选镜像后，选择按钮改为更换"
+  },
+  "kernelProfileImportAttachXbl": "xbl_config.img（可选）",
+  "@kernelProfileImportAttachXbl": {
+    "description": "可选的 xbl_config 镜像选择按钮"
+  },
+  "kernelProfileImportAttachUefi": "uefi.img（可选）",
+  "@kernelProfileImportAttachUefi": {
+    "description": "可选的 uefi 镜像选择按钮"
+  },
+  "kernelProfileImportAttachVendorBoot": "vendor_boot.img（可选）",
+  "@kernelProfileImportAttachVendorBoot": {
+    "description": "可选的 vendor_boot 镜像选择按钮，MTK 设备用"
+  },
+  "kernelProfileImportPhysLabel": "物理装载基址（可选）",
+  "@kernelProfileImportPhysLabel": {
+    "description": "手动指定 kernel_phys_load 的输入框标题"
+  },
+  "kernelProfileImportPhysHint": "0x80000000",
+  "@kernelProfileImportPhysHint": {
+    "description": "物理装载基址输入框的示例"
+  },
+  "kernelProfileAdvancedTitle": "高级解析选项",
+  "@kernelProfileAdvancedTitle": {
+    "description": "导入面板里高级选项区的标题"
+  },
+  "kernelProfileAdvancedHint": "一般不用改；改后需重新解析",
+  "@kernelProfileAdvancedHint": {
+    "description": "高级选项区收起时的说明"
+  },
+  "kernelProfileImportKallsyms": "kallsyms 文件",
+  "@kernelProfileImportKallsyms": {
+    "description": "选择外部 kallsyms 文本文件的按钮"
+  },
+  "kernelProfileImportIomem": "iomem 文件",
+  "@kernelProfileImportIomem": {
+    "description": "选择外部 /proc/iomem 文本文件的按钮"
+  },
+  "kernelProfileImportRoute": "路由",
+  "@kernelProfileImportRoute": {
+    "description": "强制路由选择区的标题"
+  },
+  "kernelProfileImportRouteAuto": "自动推荐",
+  "@kernelProfileImportRouteAuto": {
+    "description": "路由选择里的自动选项"
+  },
+  "kernelProfileImportAllowMissing": "缺失符号按可选处理（输出 0）",
+  "@kernelProfileImportAllowMissing": {
+    "description": "对应上游 --allow_missing 的开关"
+  },
+  "kernelProfileImportNoDisasm": "跳过反汇编推导（更快，精度下降）",
+  "@kernelProfileImportNoDisasm": {
+    "description": "对应上游 --no_disasm 的开关"
   },
   "kernelProfileImportUrlHint": "OTA 链接（HTTP/HTTPS）",
   "@kernelProfileImportUrlHint": {
@@ -1986,6 +2193,14 @@
   "@kernelProfileImportNeedInput": {
     "description": "解析前未提供输入源时的提示"
   },
+  "kernelProfileImportUnsupportedImage": "不支持的文件：仅接受 img / bin / zip 镜像或 OTA 包",
+  "@kernelProfileImportUnsupportedImage": {
+    "description": "选择器挡不住非镜像文件时按扩展名拒绝"
+  },
+  "kernelProfileImportEmptyFile": "文件为空或无法读取",
+  "@kernelProfileImportEmptyFile": {
+    "description": "选中的本地文件长度为 0 或读取失败"
+  },
   "kernelProfileImportInsecureHint": "跳过证书校验（直链自签时用）",
   "@kernelProfileImportInsecureHint": {
     "description": "解析直链时的 TLS 选项说明"
@@ -1993,6 +2208,14 @@
   "kernelProfileProbeReady": "解析完成",
   "@kernelProfileProbeReady": {
     "description": "解析成功卡片的状态标题"
+  },
+  "kernelProfileProbeRouteIncomplete": "路由几何不完整，这条配置跑不到写入：",
+  "@kernelProfileProbeRouteIncomplete": {
+    "description": "解析结果里路由几何缺失时的告警标题"
+  },
+  "kernelProfileProbeRouteIncompleteHint": "提权第一阶段只会试一次，缺字段会被直接拒绝。补上缺失字段，或在「路由」页换一条本表声明齐全的路由。",
+  "@kernelProfileProbeRouteIncompleteHint": {
+    "description": "路由几何缺失时给的处理建议"
   },
   "kernelProfileProbeWarnings": "{count} 条提示",
   "@kernelProfileProbeWarnings": {
@@ -2003,9 +2226,86 @@
       }
     }
   },
-  "kernelProfileProbeTapHint": "点击选择导入到哪一套内核表",
-  "@kernelProfileProbeTapHint": {
-    "description": "解析结果卡片上的操作提示"
+  "kernelProfileProbeWarningsTitle": "解析提示",
+  "@kernelProfileProbeWarningsTitle": {
+    "description": "告警明细弹窗的标题"
+  },
+  "kernelProfileProbePhys": "kernel_phys_load",
+  "@kernelProfileProbePhys": {
+    "description": "物理装载基址这一行的键名"
+  },
+  "kernelProfileProbePhysMissing": "未取到",
+  "@kernelProfileProbePhysMissing": {
+    "description": "物理装载基址未取到时的值"
+  },
+  "kernelProfileProbePhysUnsetHint": "未取到时写 null，运行时按 SoC 型号回退到内置常量；若运行报地址错误，再补附 xbl_config.img 或手填物理基址。",
+  "@kernelProfileProbePhysUnsetHint": {
+    "description": "物理装载基址未取到时的处理说明"
+  },
+  "kernelProfileAttachTitle": "可选附件",
+  "@kernelProfileAttachTitle": {
+    "description": "导入面板里的附件区标题"
+  },
+  "kernelProfileAttachHint": "用于补 kernel_phys_load，一般不用管",
+  "@kernelProfileAttachHint": {
+    "description": "附件区收起且未附加文件时的说明"
+  },
+  "kernelProfileAttachAttachedCount": "已附加镜像，重新解析后生效",
+  "@kernelProfileAttachAttachedCount": {
+    "description": "附件区收起但已附加文件时的说明"
+  },
+  "kernelProfileAttachAutoHint": "包内的 xbl_config、uefi、vendor_boot 由提取器按需解出；实际解出了哪些见结果里的「包内分区」。",
+  "@kernelProfileAttachAutoHint": {
+    "description": "直链/压缩包输入时，说明相关分区由包内自动解出，结果以解析卡片为准"
+  },
+  "kernelProfileAttachVendorBootHint": "仅 MediaTek 机型需要，用于补 DRAM 基址。",
+  "@kernelProfileAttachVendorBootHint": {
+    "description": "说明 vendor_boot 为何要手动附加"
+  },
+  "kernelProfileAttachPick": "选择",
+  "@kernelProfileAttachPick": {
+    "description": "附件行右侧的操作文字：尚未选择"
+  },
+  "kernelProfileAttachReplace": "更换",
+  "@kernelProfileAttachReplace": {
+    "description": "附件行右侧的操作文字：已选择"
+  },
+  "kernelProfileProbePayloadParts": "包内分区",
+  "@kernelProfileProbePayloadParts": {
+    "description": "解析结果里「从包内解出了哪些分区」的标签"
+  },
+  "kernelProfileProbeAnalysis": "内核审查报告",
+  "@kernelProfileProbeAnalysis": {
+    "description": "打开审查报告的按钮文字"
+  },
+  "kernelProfileProbeAnalysisTitle": "内核审查报告",
+  "@kernelProfileProbeAnalysisTitle": {
+    "description": "审查报告弹窗的标题"
+  },
+  "kernelProfileImportTargetGhostLock": "GhostLock",
+  "@kernelProfileImportTargetGhostLock": {
+    "description": "导入目标开关的短标签，避免撑满分段按钮"
+  },
+  "kernelProfileImportTargetGhostKey": "GhostKey",
+  "@kernelProfileImportTargetGhostKey": {
+    "description": "导入目标开关的短标签，避免撑满分段按钮"
+  },
+  "kernelProfileInputSourceLocal": "本地镜像",
+  "@kernelProfileInputSourceLocal": {
+    "description": "输入来源切换：本地镜像文件"
+  },
+  "kernelProfileInputSourceUrl": "OTA 直链",
+  "@kernelProfileInputSourceUrl": {
+    "description": "输入来源切换：OTA 直链"
+  },
+  "kernelProfileWriteToTarget": "写入 {table}",
+  "@kernelProfileWriteToTarget": {
+    "description": "解析完成后底部主按钮；table 是目标内核表名",
+    "placeholders": {
+      "table": {
+        "type": "String"
+      }
+    }
   },
   "kernelProfileProbeFailed": "解析失败：{reason}",
   "@kernelProfileProbeFailed": {
@@ -2015,31 +2315,6 @@
         "type": "String"
       }
     }
-  },
-  "kernelProfileChooseTargetTitle": "要把 {release} 导入到哪？",
-  "@kernelProfileChooseTargetTitle": {
-    "description": "选落点弹窗的标题",
-    "placeholders": {
-      "release": {
-        "type": "String"
-      }
-    }
-  },
-  "kernelProfileChooseTargetGhostKey": "GhostKey 内核参数",
-  "@kernelProfileChooseTargetGhostKey": {
-    "description": "选落点弹窗的 GhostKey 选项标题"
-  },
-  "kernelProfileChooseTargetGhostKeyHint": "只推导 CVE-2026-98260 需要的偏移",
-  "@kernelProfileChooseTargetGhostKeyHint": {
-    "description": "选落点弹窗的 GhostKey 选项说明"
-  },
-  "kernelProfileChooseTargetGhostLock": "GhostLock 内核表",
-  "@kernelProfileChooseTargetGhostLock": {
-    "description": "选落点弹窗的 GhostLock 选项标题"
-  },
-  "kernelProfileChooseTargetGhostLockHint": "写入 GhostLock 解析出的偏移表",
-  "@kernelProfileChooseTargetGhostLockHint": {
-    "description": "选落点弹窗的 GhostLock 选项说明"
   },
   "kernelProfileBtfHint": "需要带 BTF 调试信息的内核，第三方 ROM 或老机型可能取不到结构偏移",
   "@kernelProfileBtfHint": {
@@ -2061,25 +2336,25 @@
   "@kernelProfileDialogClose": {
     "description": "说明弹窗的关闭按钮"
   },
-  "otaCatalogBrowseAction": "历史版本",
+  "otaCatalogBrowseAction": "内置 ROM",
   "@otaCatalogBrowseAction": {
-    "description": "打开历史 OTA 清单弹窗的按钮"
+    "description": "打开内置 OTA 清单弹窗的按钮"
   },
-  "otaCatalogTitle": "历史 OTA 包",
+  "otaCatalogTitle": "内置 ROM 清单",
   "@otaCatalogTitle": {
-    "description": "历史 OTA 清单弹窗标题"
+    "description": "内置 OTA 清单弹窗标题"
   },
   "otaCatalogSearchHint": "搜索机型或版本号",
   "@otaCatalogSearchHint": {
-    "description": "历史 OTA 清单的搜索框提示"
+    "description": "内置 OTA 清单的搜索框提示"
   },
   "otaCatalogPickHint": "点任意版本，把直链填进上面的输入框",
   "@otaCatalogPickHint": {
-    "description": "历史 OTA 清单的使用说明"
+    "description": "内置 OTA 清单的使用说明"
   },
   "otaCatalogEmpty": "没有匹配的机型或版本",
   "@otaCatalogEmpty": {
-    "description": "历史 OTA 清单搜索无结果"
+    "description": "内置 OTA 清单搜索无结果"
   },
   "otaCatalogVersionCount": "{count} 个版本",
   "@otaCatalogVersionCount": {
@@ -2092,11 +2367,11 @@
   },
   "otaCatalogBrandGoogle": "Google",
   "@otaCatalogBrandGoogle": {
-    "description": "历史 OTA 清单的 Google 品牌标签"
+    "description": "内置 OTA 清单的 Google 品牌标签"
   },
   "otaCatalogBrandRealme": "realme",
   "@otaCatalogBrandRealme": {
-    "description": "历史 OTA 清单的 realme 品牌标签"
+    "description": "内置 OTA 清单的 realme 品牌标签"
   },
   "kernelProfileDetailTitle": "内核参数详情",
   "@kernelProfileDetailTitle": {
@@ -2215,6 +2490,123 @@
   "kernelProfileBuiltinEmpty": "内置表为空",
   "@kernelProfileBuiltinEmpty": {
     "description": "内置 profile 列表的空态"
+  },
+  "kernelProfileDeviceKernel": "设备内核",
+  "@kernelProfileDeviceKernel": {
+    "description": "向导里设备 uname -r 的标签"
+  },
+  "kernelProfileEditParams": "编辑参数",
+  "@kernelProfileEditParams": {
+    "description": "进入内核表参数编辑器的按钮"
+  },
+  "kernelProfileMyProfilesTitle": "我的配置",
+  "@kernelProfileMyProfilesTitle": {
+    "description": "内核表向导里的已导入文档分组标题"
+  },
+  "kernelProfileBuiltinTitle": "内置表",
+  "@kernelProfileBuiltinTitle": {
+    "description": "随应用打包的内置内核表分区标题"
+  },
+  "kernelProfileBuiltinHint": "随应用打包，只读",
+  "@kernelProfileBuiltinHint": {
+    "description": "内置表分区说明"
+  },
+  "kernelProfileTemplateHint": "空白骨架，只用于查看字段结构，不能直接生效",
+  "@kernelProfileTemplateHint": {
+    "description": "参考模板分区的说明"
+  },
+  "kernelProfileMatchesDevice": "与本机内核一致",
+  "@kernelProfileMatchesDevice": {
+    "description": "内置表里与设备内核同名的那一行副标题"
+  },
+  "kernelProfileShowMore": "显示更多（还剩 {count} 项）",
+  "@kernelProfileShowMore": {
+    "description": "内置表分批展开的按钮",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "kernelProfileStepPick": "选择内核表",
+  "@kernelProfileStepPick": {
+    "description": "向导第一步名称"
+  },
+  "kernelProfileStepReview": "确认来源",
+  "@kernelProfileStepReview": {
+    "description": "向导第二步名称"
+  },
+  "kernelProfileStepApply": "应用生效",
+  "@kernelProfileStepApply": {
+    "description": "向导第三步名称"
+  },
+  "kernelProfileStepNext": "下一步",
+  "@kernelProfileStepNext": {
+    "description": "向导的下一步按钮"
+  },
+  "kernelProfileStepBack": "上一步",
+  "@kernelProfileStepBack": {
+    "description": "向导的上一步按钮"
+  },
+  "kernelProfileApplyAction": "应用生效",
+  "@kernelProfileApplyAction": {
+    "description": "向导最后一步的确认按钮"
+  },
+  "kernelProfileApplied": "已切换生效内核表",
+  "@kernelProfileApplied": {
+    "description": "应用成功后的标题与提示"
+  },
+  "kernelProfileApplyNotEffective": "所选内核表与设备内核不一致，本次不会生效",
+  "@kernelProfileApplyNotEffective": {
+    "description": "应用后原生解析为空时的提示"
+  },
+  "kernelProfileEditorNotEditable": "这个内核没有可编辑的 profile",
+  "@kernelProfileEditorNotEditable": {
+    "description": "编辑会话解析为空时的正文"
+  },
+  "kernelProfilePickAgain": "再选一份",
+  "@kernelProfilePickAgain": {
+    "description": "应用完成后回到第一步"
+  },
+  "kernelProfileEditAfterApply": "去调参数",
+  "@kernelProfileEditAfterApply": {
+    "description": "应用完成后进入参数编辑器"
+  },
+  "kernelProfileEditAfterApplyHint": "参数只能在生效后编辑：先完成这一步，再进编辑器改值。",
+  "@kernelProfileEditAfterApplyHint": {
+    "description": "确认页里说明为什么不能马上编辑参数"
+  },
+  "kernelProfilePickHint": "选一份要生效的内核表；标「生效中」的是当前正在用的那份。",
+  "@kernelProfilePickHint": {
+    "description": "第一步的说明"
+  },
+  "kernelProfileReviewHint": "确认下面的来源。应用后编辑器改的就是这一份。",
+  "@kernelProfileReviewHint": {
+    "description": "第二步的说明"
+  },
+  "kernelProfileDeclaredKernel": "配置声明的内核",
+  "@kernelProfileDeclaredKernel": {
+    "description": "确认页里被选配置自己声明的 release"
+  },
+  "kernelProfileReviewMatch": "与设备内核一致，可以运行",
+  "@kernelProfileReviewMatch": {
+    "description": "配置声明的内核与设备一致"
+  },
+  "kernelProfileReviewMismatch": "与设备内核不一致，运行会被拒绝",
+  "@kernelProfileReviewMismatch": {
+    "description": "配置声明的内核与设备不一致"
+  },
+  "kernelProfileGhostKeyEntry": "GhostKey 内核表",
+  "@kernelProfileGhostKeyEntry": {
+    "description": "GhostKey 内核表的页签标题"
+  },
+  "kernelProfileGhostLockEntry": "GhostLock 内核表",
+  "@kernelProfileGhostLockEntry": {
+    "description": "GhostLock 内核表的页签标题"
+  },
+  "kernelProfileImportEntry": "导入内核表",
+  "@kernelProfileImportEntry": {
+    "description": "打开导入弹层的按钮与标题"
   },
   "kernelProfileRemove": "删除",
   "@kernelProfileRemove": {

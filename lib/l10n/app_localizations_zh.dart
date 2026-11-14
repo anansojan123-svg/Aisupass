@@ -176,6 +176,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiCancel => '取消';
 
   @override
+  String get aiReset => '重置';
+
+  @override
   String get aiApiKeyMissing => '未配置 API Key';
 
   @override
@@ -1041,6 +1044,16 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String escalationGhostLockProfileMismatch(String profile, String device) {
+    return '选中的内核表声明内核为 $profile，当前设备是 $device，两者不一致，不会套用';
+  }
+
+  @override
+  String escalationGhostLockProfileMissing(String name) {
+    return '选中的文档 $name 不存在，可能已被删除或重命名';
+  }
+
+  @override
   String get escalationGhostLockSeccompFiltered =>
       '当前 shell 带有 seccomp 过滤，这条链路无法清掉它';
 
@@ -1099,6 +1112,20 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get escalationGhostLockFailureDeviceDisconnected =>
+      '与设备的连接中断（多半是设备重启了），已停止跟踪；设备恢复后重试';
+
+  @override
+  String get escalationGhostLockFailureLaunch => '原生进程没能拉起，见上方 shell 输出';
+
+  @override
+  String get escalationGhostLockFailureProfileWrite =>
+      '内核表写入设备临时目录失败，请确认无线调试仍然可用';
+
+  @override
+  String get escalationGhostLockFailureNotStarted => '原生进程启动后没有任何输出，已停止跟踪';
+
+  @override
   String get escalationGhostLockStop => '停止读取';
 
   @override
@@ -1128,7 +1155,24 @@ class AppLocalizationsZh extends AppLocalizations {
   String get escalationGhostLockProfileOverridden => '已修改';
 
   @override
-  String get escalationGhostLockProfileReset => '重置全部修改';
+  String get escalationGhostLockProfileWriteBack => '保存';
+
+  @override
+  String get escalationGhostLockProfileWrittenBack => '已写入当前文件';
+
+  @override
+  String get escalationGhostLockProfileWriteFailed => '写入失败';
+
+  @override
+  String get escalationGhostLockProfileRejected => '这个值会让配置无法解析，已回滚';
+
+  @override
+  String get escalationGhostLockProfileSaved => '已保存';
+
+  @override
+  String escalationGhostLockProfileSavedAsNew(String name) {
+    return '已另存为 $name';
+  }
 
   @override
   String get escalationGhostLockProfileExport => '导出为文件';
@@ -1143,31 +1187,77 @@ class AppLocalizationsZh extends AppLocalizations {
   String get escalationGhostLockProfileRouteLabel => '路由';
 
   @override
+  String get escalationGhostLockProfileRouteCurrent => '当前生效';
+
+  @override
   String get escalationGhostLockProfileFallbackLabel => '回退';
 
   @override
   String get escalationGhostLockProfileFallbackNone => '关闭回退';
 
   @override
+  String get escalationGhostLockProfileFallbackDeclared => '跟随配置声明';
+
+  @override
   String get escalationGhostLockProfileNoProfile => '这个内核没有可编辑的 profile';
 
   @override
-  String get escalationGhostLockProfileSelect => '指定生效表';
+  String get escalationGhostLockProfileNoWritableDoc =>
+      '没有可写回的目标文档，请先用「另存为我的配置」创建一份';
 
   @override
-  String get escalationGhostLockProfileSelectAuto => '跟随设备';
+  String get escalationGhostLockProfileSourceLabel => '生效来源';
 
   @override
-  String get escalationGhostLockProfileSelectBuiltin => '内置表';
+  String get escalationGhostLockProfileSourceDevice => '设备内置表';
+
+  @override
+  String get escalationGhostLockProfileSourceBuiltin => '内置表';
+
+  @override
+  String get escalationGhostLockProfileSourceUser => '我的配置';
+
+  @override
+  String escalationGhostLockProfileOverriddenCount(int count) {
+    return '已修改 $count 项';
+  }
+
+  @override
+  String get escalationGhostLockProfileTabGeneralHint =>
+      '执行参数。改完离开输入框即生效，下次运行 GhostLock 用新值；不需要另外保存。';
+
+  @override
+  String get escalationGhostLockProfileTabRouteHint =>
+      '选择注入路径。点选立即生效；三条路由的几何常量不同，切换后高级页的字段会跟着变。';
+
+  @override
+  String get escalationGhostLockProfileRouteGeometryHint =>
+      '每条路由的几何常量（如 waiter_shift、compact_waiter、waiter_off）只在从镜像生成该路由时才会写入。切到一份表里没生成过的路由，这些字段会是空值，运行时可能拿不到参数。要换路由，建议重新解析镜像并在解析时指定路由。';
+
+  @override
+  String get escalationGhostLockProfileTabAdvancedHint =>
+      '结构与偏移字段。改动立即生效；未提供的字段显示为空，填值后才会写入。';
+
+  @override
+  String get escalationGhostLockProfileApplied => '已应用';
+
+  @override
+  String get escalationGhostLockProfileWriteBackHint => '生效配置写回本地；文档直接覆盖';
+
+  @override
+  String get escalationGhostLockProfileWriteBackDisabled => '内置表不可改写，请用「另存为」';
+
+  @override
+  String get escalationGhostLockProfileSaveAsHint => '存成一份新的用户文档，原文件不动';
+
+  @override
+  String get escalationGhostLockProfileExportHint => '导出 conf 到系统文件';
 
   @override
   String get escalationGhostLockProfileSelectSearch => '按 release 过滤';
 
   @override
-  String get escalationGhostLockProfileSelectUser => '我的配置';
-
-  @override
-  String get escalationGhostLockProfileSelectNoUser => '不使用导入文档';
+  String get escalationGhostLockProfileSelectTemplates => '参考模板';
 
   @override
   String get escalationGhostLockImportTitle => '导入内核表';
@@ -1196,6 +1286,32 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get escalationGhostLockImportedParseError => '文件无法解析';
+
+  @override
+  String get escalationGhostLockImportedRename => '重命名';
+
+  @override
+  String get escalationGhostLockImportedRenameHint => '新文件名';
+
+  @override
+  String get escalationGhostLockImportedExport => '导出';
+
+  @override
+  String get escalationGhostLockImportedEdit => '编辑';
+
+  @override
+  String get escalationGhostLockImportedExported => '已导出';
+
+  @override
+  String get escalationGhostLockMoreActions => '更多操作';
+
+  @override
+  String get escalationGhostLockImportText =>
+      '导入现成配置（conf / hocon / json / txt，可多选）';
+
+  @override
+  String get escalationGhostLockImportUnsupported =>
+      '没有可导入的文件：仅支持 conf / hocon / json / txt，且需为 UTF-8 文本';
 
   @override
   String get settingsGhostKeySection => 'GhostKey';
@@ -1392,10 +1508,49 @@ class AppLocalizationsZh extends AppLocalizations {
   String get kernelProfileTabGhostLockBuiltin => 'GhostLock 内置';
 
   @override
-  String get kernelProfileImportAction => '选择 boot.img';
+  String get kernelProfileImportAction => '选择镜像（img / bin / zip）';
 
   @override
   String get kernelProfileImportChangeFile => '更换镜像';
+
+  @override
+  String get kernelProfileImportAttachXbl => 'xbl_config.img（可选）';
+
+  @override
+  String get kernelProfileImportAttachUefi => 'uefi.img（可选）';
+
+  @override
+  String get kernelProfileImportAttachVendorBoot => 'vendor_boot.img（可选）';
+
+  @override
+  String get kernelProfileImportPhysLabel => '物理装载基址（可选）';
+
+  @override
+  String get kernelProfileImportPhysHint => '0x80000000';
+
+  @override
+  String get kernelProfileAdvancedTitle => '高级解析选项';
+
+  @override
+  String get kernelProfileAdvancedHint => '一般不用改；改后需重新解析';
+
+  @override
+  String get kernelProfileImportKallsyms => 'kallsyms 文件';
+
+  @override
+  String get kernelProfileImportIomem => 'iomem 文件';
+
+  @override
+  String get kernelProfileImportRoute => '路由';
+
+  @override
+  String get kernelProfileImportRouteAuto => '自动推荐';
+
+  @override
+  String get kernelProfileImportAllowMissing => '缺失符号按可选处理（输出 0）';
+
+  @override
+  String get kernelProfileImportNoDisasm => '跳过反汇编推导（更快，精度下降）';
 
   @override
   String get kernelProfileImportUrlHint => 'OTA 链接（HTTP/HTTPS）';
@@ -1407,10 +1562,24 @@ class AppLocalizationsZh extends AppLocalizations {
   String get kernelProfileImportNeedInput => '先选一个镜像或填一个链接';
 
   @override
+  String get kernelProfileImportUnsupportedImage =>
+      '不支持的文件：仅接受 img / bin / zip 镜像或 OTA 包';
+
+  @override
+  String get kernelProfileImportEmptyFile => '文件为空或无法读取';
+
+  @override
   String get kernelProfileImportInsecureHint => '跳过证书校验（直链自签时用）';
 
   @override
   String get kernelProfileProbeReady => '解析完成';
+
+  @override
+  String get kernelProfileProbeRouteIncomplete => '路由几何不完整，这条配置跑不到写入：';
+
+  @override
+  String get kernelProfileProbeRouteIncompleteHint =>
+      '提权第一阶段只会试一次，缺字段会被直接拒绝。补上缺失字段，或在「路由」页换一条本表声明齐全的路由。';
 
   @override
   String kernelProfileProbeWarnings(int count) {
@@ -1418,30 +1587,71 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get kernelProfileProbeTapHint => '点击选择导入到哪一套内核表';
+  String get kernelProfileProbeWarningsTitle => '解析提示';
+
+  @override
+  String get kernelProfileProbePhys => 'kernel_phys_load';
+
+  @override
+  String get kernelProfileProbePhysMissing => '未取到';
+
+  @override
+  String get kernelProfileProbePhysUnsetHint =>
+      '未取到时写 null，运行时按 SoC 型号回退到内置常量；若运行报地址错误，再补附 xbl_config.img 或手填物理基址。';
+
+  @override
+  String get kernelProfileAttachTitle => '可选附件';
+
+  @override
+  String get kernelProfileAttachHint => '用于补 kernel_phys_load，一般不用管';
+
+  @override
+  String get kernelProfileAttachAttachedCount => '已附加镜像，重新解析后生效';
+
+  @override
+  String get kernelProfileAttachAutoHint =>
+      '包内的 xbl_config、uefi、vendor_boot 由提取器按需解出；实际解出了哪些见结果里的「包内分区」。';
+
+  @override
+  String get kernelProfileAttachVendorBootHint =>
+      '仅 MediaTek 机型需要，用于补 DRAM 基址。';
+
+  @override
+  String get kernelProfileAttachPick => '选择';
+
+  @override
+  String get kernelProfileAttachReplace => '更换';
+
+  @override
+  String get kernelProfileProbePayloadParts => '包内分区';
+
+  @override
+  String get kernelProfileProbeAnalysis => '内核审查报告';
+
+  @override
+  String get kernelProfileProbeAnalysisTitle => '内核审查报告';
+
+  @override
+  String get kernelProfileImportTargetGhostLock => 'GhostLock';
+
+  @override
+  String get kernelProfileImportTargetGhostKey => 'GhostKey';
+
+  @override
+  String get kernelProfileInputSourceLocal => '本地镜像';
+
+  @override
+  String get kernelProfileInputSourceUrl => 'OTA 直链';
+
+  @override
+  String kernelProfileWriteToTarget(String table) {
+    return '写入 $table';
+  }
 
   @override
   String kernelProfileProbeFailed(String reason) {
     return '解析失败：$reason';
   }
-
-  @override
-  String kernelProfileChooseTargetTitle(String release) {
-    return '要把 $release 导入到哪？';
-  }
-
-  @override
-  String get kernelProfileChooseTargetGhostKey => 'GhostKey 内核参数';
-
-  @override
-  String get kernelProfileChooseTargetGhostKeyHint =>
-      '只推导 CVE-2026-98260 需要的偏移';
-
-  @override
-  String get kernelProfileChooseTargetGhostLock => 'GhostLock 内核表';
-
-  @override
-  String get kernelProfileChooseTargetGhostLockHint => '写入 GhostLock 解析出的偏移表';
 
   @override
   String get kernelProfileBtfHint => '需要带 BTF 调试信息的内核，第三方 ROM 或老机型可能取不到结构偏移';
@@ -1460,10 +1670,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get kernelProfileDialogClose => '知道了';
 
   @override
-  String get otaCatalogBrowseAction => '历史版本';
+  String get otaCatalogBrowseAction => '内置 ROM';
 
   @override
-  String get otaCatalogTitle => '历史 OTA 包';
+  String get otaCatalogTitle => '内置 ROM 清单';
 
   @override
   String get otaCatalogSearchHint => '搜索机型或版本号';
@@ -1565,6 +1775,92 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get kernelProfileBuiltinEmpty => '内置表为空';
+
+  @override
+  String get kernelProfileDeviceKernel => '设备内核';
+
+  @override
+  String get kernelProfileEditParams => '编辑参数';
+
+  @override
+  String get kernelProfileMyProfilesTitle => '我的配置';
+
+  @override
+  String get kernelProfileBuiltinTitle => '内置表';
+
+  @override
+  String get kernelProfileBuiltinHint => '随应用打包，只读';
+
+  @override
+  String get kernelProfileTemplateHint => '空白骨架，只用于查看字段结构，不能直接生效';
+
+  @override
+  String get kernelProfileMatchesDevice => '与本机内核一致';
+
+  @override
+  String kernelProfileShowMore(int count) {
+    return '显示更多（还剩 $count 项）';
+  }
+
+  @override
+  String get kernelProfileStepPick => '选择内核表';
+
+  @override
+  String get kernelProfileStepReview => '确认来源';
+
+  @override
+  String get kernelProfileStepApply => '应用生效';
+
+  @override
+  String get kernelProfileStepNext => '下一步';
+
+  @override
+  String get kernelProfileStepBack => '上一步';
+
+  @override
+  String get kernelProfileApplyAction => '应用生效';
+
+  @override
+  String get kernelProfileApplied => '已切换生效内核表';
+
+  @override
+  String get kernelProfileApplyNotEffective => '所选内核表与设备内核不一致，本次不会生效';
+
+  @override
+  String get kernelProfileEditorNotEditable => '这个内核没有可编辑的 profile';
+
+  @override
+  String get kernelProfilePickAgain => '再选一份';
+
+  @override
+  String get kernelProfileEditAfterApply => '去调参数';
+
+  @override
+  String get kernelProfileEditAfterApplyHint => '参数只能在生效后编辑：先完成这一步，再进编辑器改值。';
+
+  @override
+  String get kernelProfilePickHint => '选一份要生效的内核表；标「生效中」的是当前正在用的那份。';
+
+  @override
+  String get kernelProfileReviewHint => '确认下面的来源。应用后编辑器改的就是这一份。';
+
+  @override
+  String get kernelProfileDeclaredKernel => '配置声明的内核';
+
+  @override
+  String get kernelProfileReviewMatch => '与设备内核一致，可以运行';
+
+  @override
+  String get kernelProfileReviewMismatch => '与设备内核不一致，运行会被拒绝';
+
+  @override
+  String get kernelProfileGhostKeyEntry => 'GhostKey 内核表';
+
+  @override
+  String get kernelProfileGhostLockEntry => 'GhostLock 内核表';
+
+  @override
+  String get kernelProfileImportEntry => '导入内核表';
 
   @override
   String get kernelProfileRemove => '删除';

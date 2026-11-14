@@ -4,7 +4,7 @@ import 'package:Aisupass/features/escalation/domain/enums/ota_catalog_brand.dart
 import 'package:Aisupass/features/escalation/domain/models/ota_package.dart';
 import 'package:Aisupass/features/escalation/domain/repositories/ota_catalog_query_repository.dart';
 
-/// 历史 OTA 清单仓储实现：JSON → DTO → Entity 的唯一转换点。
+/// 内置 OTA 清单仓储实现：JSON → DTO → Entity 的唯一转换点。
 class OtaCatalogQueryRepositoryImpl implements OtaCatalogQueryRepository {
   const OtaCatalogQueryRepositoryImpl({required this._datasource});
 

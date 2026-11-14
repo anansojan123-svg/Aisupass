@@ -35,10 +35,40 @@ object ProfileMerger {
         )
         resolved["schema_version"] = 1
         resolved["release"] = deviceRelease
+        /* 各层 route 分支在 deepMerge 里会被拼到一起；必须收敛成单分支，
+         * 否则 routeNameOf 取到的是先出现的那条（旧层），覆盖看起来无效。 */
+        collapseRouteBranches(resolved, listOf(overrides, imported, builtin))
+        collapseFallbackRoute(resolved, listOf(overrides, imported, builtin))
+        /* CPU 对属于会话/设备态，必须最后强制写入，profile 里的值不生效。 */
         applySelectedCpus(resolved, pair)
         fillRouteExecutionDefaults(resolved, routePresets)
         validateResolved(resolved, deviceRelease)
         return resolved
+    }
+
+    /**
+     * 同一 route 对象里只留一个分支：按 override > imported > builtin 取第一条
+     * 显式声明，其余分支删除。字段本身保留 deepMerge 的结果。
+     */
+    private fun collapseRouteBranches(resolved: ValueMap, layers: List<ValueMap?>) {
+        val route = resolved["route"].asValueMap() ?: return
+        if (route.size <= 1) return
+        val winner = layers.firstNotNullOfOrNull { layer ->
+            layer?.get("route").asValueMap()
+                ?.keys?.firstOrNull { it in RouteNames }
+        } ?: return
+        route.keys.toList().filter { it != winner }.forEach(route::remove)
+    }
+
+    /** fallback.route 同 route：多分支时按 override > imported > builtin 收敛。 */
+    private fun collapseFallbackRoute(resolved: ValueMap, layers: List<ValueMap?>) {
+        val route = resolved["fallback"].asValueMap()?.get("route").asValueMap() ?: return
+        if (route.size <= 1) return
+        val winner = layers.firstNotNullOfOrNull { layer ->
+            layer?.get("fallback").asValueMap()?.get("route").asValueMap()
+                ?.keys?.firstOrNull { it in RouteNames }
+        } ?: return
+        route.keys.toList().filter { it != winner }.forEach(route::remove)
     }
 
     private fun applySelectedCpus(resolved: ValueMap, pair: CpuPairView) {

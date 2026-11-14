@@ -16,15 +16,29 @@ internal object GhostLockProfileExtractor {
     }
 
     /**
-     * 阻塞到提取结束，返回 `{"ok":true,"release":...,"conf":...,"warnings":[...]}`
-     * 或 `{"ok":false,"error":...}`。
+     * 阻塞到提取结束，返回 `{"ok":true,...,"analysis":"..."}` 或
+     * `{"ok":false,"error":...,"analysis":...}`。
      *
      * [workDir] 传缓存目录，Rust 会在其下建 `ghostlock-payload/` 放解包中间产物。
+     * [xblPath] / [uefiPath] / [vendorBootPath] 是可选的附加镜像路径，空串表示
+     * 没有；用于补齐 `kernel_phys_load`（vendor_boot 另给 `kernel_phys_offset`）。
+     * [phys] 是用户手填的物理装载基址（`0x` 前缀或十进制），空串表示不指定。
+     * [kallsymsPath] / [iomemPath] 是外部文本文件，空串表示自动获取。
+     * [route] 强制路由，空串表示自动推荐。
      */
     external fun nativeDeriveProfile(
         input: String,
         workDir: String,
         insecure: Boolean,
+        xblPath: String,
+        uefiPath: String,
+        vendorBootPath: String,
+        phys: String,
+        kallsymsPath: String,
+        iomemPath: String,
+        route: String,
+        allowMissing: Boolean,
+        noDisasm: Boolean,
     ): String
 
     /**

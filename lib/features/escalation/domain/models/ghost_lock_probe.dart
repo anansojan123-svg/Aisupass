@@ -28,5 +28,20 @@ abstract class GhostLockProbe with _$GhostLockProbe {
 
     /// 失败原因码；成功为空串。
     required String reason,
+
+    /// `kernel_phys_load` 的十六进制字面量；空串表示未取到。
+    required String kernelPhysLoad,
+
+    /// `kernel_phys_offset` 的十六进制字面量；空串表示未取到。
+    required String kernelPhysOffset,
+
+    /// `kernel_phys_load` 的来源（如 `xbl_config FDT`）；空串表示未取到。
+    required String physSource,
+
+    /// 内核审查报告全文；解析早期失败时为空串。
+    required String analysis,
   }) = _GhostLockProbe;
+
+  /// `kernel_phys_load` 是否取到；决定附加镜像是否真正生效。
+  bool get hasKernelPhysLoad => kernelPhysLoad.isNotEmpty;
 }

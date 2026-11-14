@@ -9,19 +9,19 @@ import 'package:Aisupass/features/escalation/domain/repositories/ota_catalog_que
 
 part 'ota_catalog_query_provider.g.dart';
 
-/// 内置历史 OTA 清单数据源。
+/// 内置 OTA 清单数据源。
 @riverpod
 OtaCatalogQueryDatasource otaCatalogQueryDatasource(Ref ref) =>
     OtaCatalogQueryDatasource(bundle: rootBundle);
 
-/// 内置历史 OTA 清单仓储。
+/// 内置 OTA 清单仓储。
 @riverpod
 OtaCatalogQueryRepository otaCatalogQueryRepository(Ref ref) =>
     OtaCatalogQueryRepositoryImpl(
       datasource: ref.watch(otaCatalogQueryDatasourceProvider),
     );
 
-/// 指定厂商的历史 OTA 列表。
+/// 指定厂商的内置 OTA 列表。
 ///
 /// Pixel 清单有 2000+ 条、JSON 600KB，解析一次就常驻，避免每次开弹窗重解析。
 @Riverpod(keepAlive: true)

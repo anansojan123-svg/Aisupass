@@ -83,7 +83,7 @@ object HoconSupport {
                 } else {
                     throw HoconParseException("字段 '$key' 缺少值或 '{' @$i")
                 }
-                assignPath(map, key, value)
+                assignPath(map, key, value, pair.third)
             }
             skipWsAndComments()
             return map
@@ -117,7 +117,7 @@ object HoconSupport {
                     mergeMap(map, includedNested)
                     continue
                 }
-                val (key, hasEq) = parseKey()
+                val (key, hasEq, quoted) = parseKey()
                 // 解析不出键（例如刚消费掉的 include 指令残留）→ 跳过，避免 assignPath 收到 null
                 if (key == null) continue
                 skipWsAndComments()
@@ -134,7 +134,7 @@ object HoconSupport {
                         throw HoconParseException("字段 '$key' 缺少值或 '{' @$i")
                     }
                 }
-                assignPath(map, key, value)
+                assignPath(map, key, value, quoted)
             }
             return map
         }
@@ -193,22 +193,25 @@ object HoconSupport {
             }
         }
 
-        /** 解析键：支持裸串 / 引号串。返回 (key, hasSeparator)。 */
-        private fun parseKey(): Pair<String?, Boolean> {
+        /** 解析键：支持裸串 / 引号串。返回 (key, hasSeparator, isQuoted)。 */
+        private fun parseKey(): Triple<String?, Boolean, Boolean> {
             skipWsAndComments()
-            if (i >= n) return null to false
+            if (i >= n) return Triple(null, false, false)
             // include 指令在对象解析循环层统一处理（见 tryParseInclude），此处不再处理。
             val key: String
             val hasSep: Boolean
+            val quoted: Boolean
             val c = src[i]
             when {
                 c == '"' -> {
                     val (s, ni) = parseQuotedStringAt(i)
                     key = s
                     i = ni
+                    quoted = true
                 }
                 else -> {
                     key = readUnquotedKey()
+                    quoted = false
                 }
             }
             // 分隔符：= 或 : （可选，后面跟值）；也可能直接接 {
@@ -221,7 +224,7 @@ object HoconSupport {
             } else {
                 false
             }
-            return key to hasSep
+            return Triple(key, hasSep, quoted)
         }
 
         private fun readUnquotedKey(): String {
@@ -313,8 +316,21 @@ object HoconSupport {
             throw HoconParseException("引号字符串未闭合 @$at")
         }
 
-        /** 将 key（可能含 '.'）按路径赋值到 map。 */
-        private fun assignPath(map: MutableMap<String, Any?>, key: String, value: Any?) {
+        /**
+         * 将 key 按路径赋值到 map。
+         *
+         * [quoted] 为真时 key 是字面量，不做点分路径展开（HOCON 规范）。
+         */
+        private fun assignPath(
+            map: MutableMap<String, Any?>,
+            key: String,
+            value: Any?,
+            quoted: Boolean = false,
+        ) {
+            if (quoted) {
+                map[key] = value
+                return
+            }
             val parts = key.split('.')
             var cur: MutableMap<String, Any?> = map
             for (k in 0 until parts.size - 1) {
@@ -373,7 +389,8 @@ object HoconSupport {
         for ((k, v) in map) {
             val key = k.toString()
             sb.append(pad)
-            if (key.contains(' ') || key.contains('"')) {
+            // 裸 key 里的 `.` 是路径分隔符，必须加引号才能作为字面量读回。
+            if (key.contains(' ') || key.contains('"') || key.contains('.')) {
                 sb.append('"').append(key).append('"')
             } else {
                 sb.append(key)

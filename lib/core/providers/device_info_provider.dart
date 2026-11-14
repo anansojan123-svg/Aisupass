@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:Aisupass/core/providers/device_identity_provider.dart';
+import 'package:Aisupass/generated/device_identity.g.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -66,7 +68,11 @@ final FutureProvider<DeviceSnapshot> deviceSnapshotProvider =
           DeviceInfoField.osVersion,
           () async => 'Android ${android.version.release}',
         );
-        await _add(items, DeviceInfoField.kernelVersion, _readKernelVersion);
+        await _add(
+          items,
+          DeviceInfoField.kernelVersion,
+          () => _readKernelRelease(ref),
+        );
         await _add(
           items,
           DeviceInfoField.securityPatch,
@@ -81,12 +87,12 @@ final FutureProvider<DeviceSnapshot> deviceSnapshotProvider =
         await _add(
           items,
           DeviceInfoField.buildNumber,
-          // ColorOS 的 `ro.build.display.id` 只有 `PHB110_x.x.x.xxx(CN01)`，
-          // 设置页展示的完整版本号在 `ro.build.version.ota` 里，优先读它。
+          // 设置页「版本号」来自 `ro.build.display.id`（如 `PHB110_16.0.5.701(CN01)`），
+          // 保留地区后缀；`ro.build.version.ota` 是 OTA 内部串，只作兜底。
           () async =>
-              await _readSystemProperty('ro.build.version.ota') ??
+              await _readSystemProperty('ro.build.display.id') ??
               _nullIfEmpty(android.display) ??
-              await _readSystemProperty('ro.build.display.id'),
+              await _readSystemProperty('ro.build.version.ota'),
         );
         await _add(items, DeviceInfoField.sotaVersion, _readSotaVersion);
         await _add(
@@ -134,6 +140,22 @@ Future<void> _add(
 
 String? _nullIfEmpty(String? value) =>
     (value == null || value.isEmpty) ? null : value;
+
+/// 读取内核版本串。
+///
+/// 优先走原生 `Os.uname().release`：应用层直接读 `/proc/version`
+/// 在部分厂商系统上会被拦截，读不到再退回文件读取。
+Future<String?> _readKernelRelease(Ref ref) async {
+  try {
+    final DeviceIdentity identity = await ref
+        .read(deviceIdentityNativeProvider)
+        .read();
+    if (identity.kernelRelease.isNotEmpty) return identity.kernelRelease;
+  } catch (_) {
+    // 原生通道不可用时继续走文件读取。
+  }
+  return _readKernelVersion();
+}
 
 /// 读取内核版本，部分定制系统限制访问时返回 null。
 Future<String?> _readKernelVersion() async {

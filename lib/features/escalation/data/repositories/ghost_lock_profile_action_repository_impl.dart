@@ -21,8 +21,29 @@ class GhostLockProfileActionRepositoryImpl
   Future<GhostLockProbe> probeProfile({
     required String input,
     bool insecure = false,
+    String xblPath = '',
+    String uefiPath = '',
+    String vendorBootPath = '',
+    String phys = '',
+    String kallsymsPath = '',
+    String iomemPath = '',
+    String route = '',
+    bool allowMissing = false,
+    bool noDisasm = false,
   }) async => GhostLockProbeDto.fromNative(
-    await _datasource.probeProfile(input: input, insecure: insecure),
+    await _datasource.probeProfile(
+      input: input,
+      insecure: insecure,
+      xblPath: xblPath,
+      uefiPath: uefiPath,
+      vendorBootPath: vendorBootPath,
+      phys: phys,
+      kallsymsPath: kallsymsPath,
+      iomemPath: iomemPath,
+      route: route,
+      allowMissing: allowMissing,
+      noDisasm: noDisasm,
+    ),
   ).toEntity();
 
   @override
@@ -66,4 +87,34 @@ class GhostLockProfileActionRepositoryImpl
   @override
   Future<bool> removeImportedProfile({required String name}) =>
       _datasource.removeImportedProfile(name: name);
+
+  @override
+  Future<GhostLockImportResult> importProfileText({
+    required String text,
+    required String fileName,
+    bool overwrite = false,
+  }) async => GhostLockImportResultDto.fromNative(
+    await _datasource.importProfileText(
+      text: text,
+      fileName: fileName,
+      overwrite: overwrite,
+    ),
+  ).toEntity();
+
+  @override
+  Future<String> renameImportedProfile({
+    required String name,
+    required String newName,
+  }) => _datasource.renameImportedProfile(name: name, newName: newName);
+
+  @override
+  Future<String> exportImportedProfile({required String name}) =>
+      _datasource.exportImportedProfile(name: name);
+
+  @override
+  Future<GhostLockImportResult> convertImportedProfile({
+    required String name,
+  }) async => GhostLockImportResultDto.fromNative(
+    await _datasource.convertImportedProfile(name: name),
+  ).toEntity();
 }

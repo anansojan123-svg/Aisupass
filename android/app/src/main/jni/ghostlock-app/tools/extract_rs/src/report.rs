@@ -141,10 +141,6 @@ const CONF_OFFSET_FIELDS: &[&str] = &[
     "slide_nfulnl_logger",
     "slide_loggers_0_1",
     "slide_boot_id",
-    /* conf_offsets computes it but the merge left this emission list without
-     * it, so every resolved vr_sys_exit_tp was silently dropped. */
-    "vr_sys_exit_tp",
-    "sys_exit_tp_funcs",
 ];
 
 /// Looks up a key in `(key, value)` entries, or `"null"` when absent.
@@ -274,9 +270,6 @@ fn conf_offsets(
         ("slide_nfulnl_logger", symbol("off_slide_nfulnl_logger")),
         ("slide_boot_id", symbol("off_slide_boot_id")),
         ("slide_loggers_0_1", symbol("off_slide_loggers_0_1")),
-        // Ancillary vr.ko guard: the tracepoint the vendor probe hangs off.
-        ("vr_sys_exit_tp", symbol("off_vr_sys_exit_tp")),
-        ("sys_exit_tp_funcs", extra.sys_exit_tp_funcs.map(|v| v.to_string())),
     ]
     .into_iter()
     .filter_map(|(key, value)| value.map(|value| (key.to_string(), value)))
@@ -538,6 +531,7 @@ mod tests {
             render_conf(&ConfInputs {
                 release: "6.1.145-android14-11-maybe-dirty",
                 phys: None,
+                phys_offset: None,
                 symbols: &symbols,
                 structs: &structs,
                 route: Some("select_stack"),
@@ -655,6 +649,7 @@ mod tests {
             cred: &conf_cred_5x(&cred, 176),
             extra_offsets: &ConfExtraOffsets {
                 empty_zero_page: Some(47_529_984),
+                sys_exit_tp_funcs: None,
             },
         });
         assert!(out.contains("multicast_waiter {\n    waiter_off = 96"));
@@ -783,6 +778,7 @@ mod tests {
             cred: &[],
             extra_offsets: &ConfExtraOffsets {
                 empty_zero_page: None,
+                sys_exit_tp_funcs: None,
             },
         });
         assert!(out.contains("route {"));
@@ -830,9 +826,10 @@ mod tests {
             extra_offsets: &no_extra_offsets(),
         });
         // Without this image's static derivation the unverified candidate must
-        // not borrow the hardware-probed frame/copy-window constants.
-        assert!(!out.contains("waiter_off"));
-        assert!(!out.contains("buffer_size"));
+        // not borrow the hardware-probed frame/copy-window constants; the route
+        // field universe is always emitted, so they surface as null.
+        assert!(out.contains("waiter_off = null"));
+        assert!(out.contains("buffer_size = null"));
         assert!(out.contains("task_offset = 48"));
         assert!(out.contains("lock_offset = 56"));
         assert!(out.contains("compact_waiter = 1"));
@@ -973,6 +970,7 @@ mod tests {
         let cred = conf_cred_5x(&cred5x, 176);
         let extra = ConfExtraOffsets {
             empty_zero_page: Some(47_529_984),
+            sys_exit_tp_funcs: None,
         };
         (release.to_string(), symbols, structs, cred, extra)
     }
@@ -996,11 +994,15 @@ mod tests {
             cred: &cred,
             extra_offsets: &extra,
         });
-        let bundled = std::fs::read_to_string(concat!(
+        // 本仓库把 GhostLock 内置表放在 kernel_profiles/ghostlock/ 下
+        // （上游是扁平的 kernel_profiles/）。crate 位于
+        // android/app/src/main/jni/ghostlock-app/tools/extract_rs，上退四级即 main/。
+        let bundled_path = concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/../../app/src/main/assets/kernel_profiles/5.15.189-android13-8-00016-g51bba4309aac-ab14546557.conf"
-        ))
-        .expect("bundled 5.15.189 profile");
+            "/../../../../assets/kernel_profiles/ghostlock/5.15.189-android13-8-00016-g51bba4309aac-ab14546557.conf"
+        );
+        let bundled = std::fs::read_to_string(bundled_path)
+            .expect("bundled 5.15.189 profile");
         let generated = flatten_conf(&generated);
         let bundled = flatten_conf(&bundled);
 

@@ -69,11 +69,14 @@ internal class GhostLockProfileController(
 
     private var cachedDocument: NativeProfileDocument? = null
 
+    /** 最近一次 [resolve] 的失败原因；成功时清空。 */
+    private var lastResolveError: String? = null
+
     private val builtinFiles: Map<String, String> by lazy { loadIndex() }
 
     val routes: List<String> = RouteKind.entries.map { it.token }
 
-    /** 内置表里的全部 release。 */
+    /** 内置表里的全部 release；模板表由编辑器单独分区展示，只读不可选。 */
     fun builtinReleases(): List<String> = builtinFiles.keys.sorted()
 
     /** 按 release 读内置表的原始 HOCON 文本；不存在返回空串。 */
@@ -82,14 +85,27 @@ internal class GhostLockProfileController(
         return assets.load("$BUILTIN_DIR/$file")
     }
 
-    /** 该 release 是否有可解析的文档（内置或用户导入）。 */
-    fun hasDocument(release: String): Boolean =
-        builtinFiles.containsKey(release) || importedEntry(release) != null
+    /** 文档声明的 release；文档不存在或不可解析时返回空列表。 */
+    fun releasesOf(name: String): List<String> = store.list()
+        .firstOrNull { it.name == name }
+        ?.release
+        ?.let { listOf(it) }
+        ?: emptyList()
+
+    /** 最近一次解析失败原因；空表示没有记录。运行路径用它把 noProfile 归因到具体环节。 */
+    fun resolveError(): String? = synchronized(lock) { lastResolveError }
 
     /** 同步加载；编辑桥与运行预检都在后台线程调用。 */
     fun load(release: String): GhostLockProfileView = synchronized(lock) {
-        val advanced = editStore.read(release)
-        val full = resolveCurrent(release, advanced, includeImported = true)
+        reconcileActiveSource()
+        var advanced = editStore.read(release)
+        var full = resolveCurrent(release, advanced, includeImported = true)
+        if (full == null && advanced.isNotEmpty()) {
+            /* 历史遗留的坏 override 会让整页失效；回滚到基线视图，用户仍能编辑。 */
+            editStore.write(release, valueMapOf())
+            advanced = valueMapOf()
+            full = resolveCurrent(release, null, includeImported = true)
+        }
         if (full == null) {
             cache(release, null)
             return@synchronized GhostLockProfileView(
@@ -135,16 +151,44 @@ internal class GhostLockProfileController(
 
     fun updateGeneral(release: String, values: Map<String, Long>): GhostLockProfileView {
         val override = editStore.read(release)
-        val execution = override.mutableChild("execution")
         for ((path, value) in values) {
+            /* CPU 对跟随设备，不接受 profile 固化（与上游一致）。 */
+            if (path.startsWith("execution.selected_cpus")) continue
             if (path.startsWith("execution.")) {
-                execution.setValueAt(path.removePrefix("execution."), value)
+                override.mutableChild("execution")
+                    .setValueAt(path.removePrefix("execution."), value)
             } else {
                 override.setValueAt(path, value)
             }
         }
-        editStore.write(release, override)
-        return load(release)
+        return commit(release, override)
+    }
+
+    /**
+     * 增量写入若干字段，供编辑器保存使用。
+     *
+     * 与 [updateAdvanced] 的整片重建不同：这里只把用户改动的条目并进现有
+     * override，其余条目不参与，避免未改动字段被重新解释。
+     */
+    fun applyEdits(release: String, values: Map<String, Long>): GhostLockProfileView {
+        val override = editStore.read(release)
+        var editedRoute: String? = null
+        for ((path, value) in values) {
+            if (path.isEmpty() || path == "release" ||
+                path.startsWith("execution.selected_cpus")
+            ) {
+                continue
+            }
+            override.setValueAt(path, value)
+            /* 改的是 route 分支里的字段，就把这条分支定为唯一分支：
+             * 其余分支若留着，合并时按出现顺序取第一条，改动会被顶掉。 */
+            if (path.startsWith("route.")) {
+                path.removePrefix("route.").substringBefore('.').takeIf { it in routes }
+                    ?.let { editedRoute = it }
+            }
+        }
+        editedRoute?.let { pruneOverrideBranches(override, "route", it) }
+        return commit(release, override)
     }
 
     fun updateAdvanced(release: String, values: Map<String, Long>): GhostLockProfileView {
@@ -161,13 +205,10 @@ internal class GhostLockProfileController(
                 }
                 if (value != baseline.getLongAt(path)) rebuilt.setValueAt(path, value)
             }
-            /* 高级编辑器不带 fallback 与 CPU 选择（也可能丢掉 baseline 已匹配的
-             * route 分支）；三者原样保留。 */
+            /* 高级编辑器不带 fallback（也可能丢掉 baseline 已匹配的 route 分支）；
+             * 二者原样保留。selected_cpus 属于设备态，不再回写。 */
             val current = editStore.read(release)
             current["route"].asValueMap()?.let { route -> rebuilt.putIfAbsent("route", route) }
-            current["execution"].asValueMap()?.get("selected_cpus")?.let { cpus ->
-                rebuilt.mutableChild("execution")["selected_cpus"] = cpus
-            }
             current["fallback"].asValueMap()?.let { fallback ->
                 val rebuiltFallback = rebuilt["fallback"].asValueMap()
                 if (rebuiltFallback == null) {
@@ -176,7 +217,7 @@ internal class GhostLockProfileController(
                     fallback["to"]?.let { rebuiltFallback["to"] = it }
                 }
             }
-            editStore.write(release, rebuilt)
+            return commit(release, rebuilt)
         }
         return load(release)
     }
@@ -191,8 +232,17 @@ internal class GhostLockProfileController(
             override["route"] = valueMapOf(route to existingBranch)
             pruneOverrideBranches(override, "route", route)
         }
-        editStore.write(release, override)
-        return load(release)
+        val view = commit(release, override)
+        /* 写入没体现在解析结果里时必须报错，否则用户看到「点了没反应」。 */
+        if (!route.isNullOrBlank() && view.route != route) {
+            val merged = resolveCurrent(release, editStore.read(release), true)
+            val mergedKeys = merged?.get("route").asValueMap()?.keys?.joinToString(",")
+            throw IllegalStateException(
+                "profileRouteNotApplied: requested=$route resolved=${view.route} " +
+                    "mergedRouteKeys=[$mergedKeys]",
+            )
+        }
+        return view
     }
 
     fun updateFallback(release: String, fallbackTo: String?): GhostLockProfileView {
@@ -212,12 +262,37 @@ internal class GhostLockProfileController(
             override["fallback"] = fallback
             pruneOverrideBranches(override, "fallback", fallbackTo.takeIf { it in routes })
         }
-        editStore.write(release, override)
-        return load(release)
+        return commit(release, override)
     }
 
     fun reset(release: String): GhostLockProfileView {
         editStore.write(release, valueMapOf())
+        return load(release)
+    }
+
+    /** 读该 release 的 sparse override 快照；供编辑会话复制到 live。 */
+    fun overridesSnapshot(release: String): ValueMap = synchronized(lock) {
+        editStore.read(release).copyValue().asValueMap() ?: valueMapOf()
+    }
+
+    /** 整体替换该 release 的 sparse override；供编辑会话提交到 live。 */
+    fun replaceOverrides(release: String, overrides: ValueMap) {
+        synchronized(lock) { editStore.write(release, overrides) }
+    }
+
+    /** 只清通用参数（`execution`）。 */
+    fun resetGeneral(release: String): GhostLockProfileView {
+        val override = editStore.read(release)
+        override.remove("execution")
+        editStore.write(release, override)
+        return load(release)
+    }
+
+    /** 清掉 `execution` 以外的全部 override，保留通用参数。 */
+    fun resetAdvanced(release: String): GhostLockProfileView {
+        val override = editStore.read(release)
+        override.keys.toList().filter { it != "execution" }.forEach(override::remove)
+        editStore.write(release, override)
         return load(release)
     }
 
@@ -234,13 +309,19 @@ internal class GhostLockProfileController(
     /** 把当前生效配置另存为一份用户文档。 */
     fun saveModified(release: String): Boolean = saveResolved(release, modifiedName(release))
 
-    /** 生效配置的 HOCON 文本（含 route 调参收尾）。 */
-    fun renderResolved(release: String): String? {
+    /**
+     * 生效配置的 HOCON 文本（含 route 调参收尾）。
+     *
+     * [release] 是解析用的键；[declaredRelease] 是写进文档的 `release`。内置表会话
+     * 的解析键是设备 release，但产物应当声明它自己的 release，否则另存出来会被
+     * 当成设备那一份。
+     */
+    fun renderResolved(release: String, declaredRelease: String = release): String? {
         val resolved = resolveCurrent(release, editStore.read(release), includeImported = true)
             ?: return null
         val view = resolved.copyValue().asValueMap() ?: return null
         view["schema_version"] = 1
-        view["release"] = release
+        view["release"] = declaredRelease
         /* CPU 选择跟随设备，不在这里冻结。 */
         view["execution"].asValueMap()?.remove("selected_cpus")
         fillRouteExecutionDefaults(view)
@@ -254,20 +335,40 @@ internal class GhostLockProfileController(
     }
 
     fun activeBuiltinRelease(): String? =
-        forcedBuiltinRelease ?: editStore.activeBuiltinRelease()
+        (forcedBuiltinRelease ?: editStore.activeBuiltinRelease())?.takeUnless(::isTemplate)
 
     fun activeUserProfile(): String? =
         forcedUserProfile ?: editStore.activeUserProfile()
 
     fun selectBuiltin(selected: String?, deviceRelease: String): GhostLockProfileView {
+        /* 生效来源二选一：内置表与用户文档同时存在时，运行侧按内置表选表、
+         * 编辑侧按文档开会话，两边会解出两份不同配置。 */
+        if (!selected.isNullOrEmpty()) editStore.setActiveUserProfile(null)
         editStore.setActiveBuiltinRelease(selected)
         return load(deviceRelease)
     }
 
     fun selectUserProfile(name: String?, deviceRelease: String): GhostLockProfileView {
+        if (!name.isNullOrEmpty()) editStore.setActiveBuiltinRelease(null)
         editStore.setActiveUserProfile(name)
         return load(deviceRelease)
     }
+
+    /**
+     * 收敛历史遗留的生效来源。
+     *
+     * 模板字段全为 null，选它只会拿到一条几何缺失的路由；双来源并存时
+     * 保留用户文档——它若与设备 release 不符会如实报 mismatch，而不是被
+     * 遗留的内置表悄悄顶掉。
+     */
+    private fun reconcileActiveSource() {
+        editStore.activeBuiltinRelease()?.let { if (isTemplate(it)) editStore.setActiveBuiltinRelease(null) }
+        if (activeUserProfile() == null) return
+        if (activeBuiltinRelease() == null) return
+        editStore.setActiveBuiltinRelease(null)
+    }
+
+    private fun isTemplate(release: String): Boolean = release.endsWith(TEMPLATE_SUFFIX)
 
     // ---- 解析 ----
 
@@ -285,31 +386,59 @@ internal class GhostLockProfileController(
         profileRelease: String,
         overrides: ValueMap?,
         includeImported: Boolean,
-    ): ValueMap? = runCatching {
-        val builtinFile = builtinFiles[profileRelease]
-        val imported = if (includeImported) importedEntry(deviceRelease) else null
-        LegacyProfileConverter.convertValue(overrides)
-        if (builtinFile == null && imported == null) return@runCatching null
-        val builtin = builtinFile?.let { file ->
-            val parsed = parseObject("$BUILTIN_DIR/$file") ?: error("profileUnreadable")
-            require((parsed["schema_version"] as? Number)?.toInt() == 1) {
-                "unsupportedProfileSchema"
+    ): ValueMap? {
+        lastResolveError = null
+        return try {
+            val builtinFile = builtinFiles[profileRelease]
+            val imported = if (includeImported) importedEntry(deviceRelease) else null
+            LegacyProfileConverter.convertValue(overrides)
+            /* 元数据只由文档声明，override 不得覆盖：历史遗留的坏值会让整份配置
+             * 永久解析失败（invalid kernel_major）。 */
+            stripMetadata(overrides)
+            if (builtinFile == null && imported == null) return null
+            val builtin = builtinFile?.let { file ->
+                val parsed = parseObject("$BUILTIN_DIR/$file") ?: error("profileUnreadable")
+                require((parsed["schema_version"] as? Number)?.toInt() == 1) {
+                    "unsupportedProfileSchema"
+                }
+                require(parsed["release"] == profileRelease) { "profileIndexReleaseMismatch" }
+                parsed
             }
-            require(parsed["release"] == profileRelease) { "profileIndexReleaseMismatch" }
-            parsed
+            val tuning = readExecutionTuning()
+            val presets = routePresets()
+            ProfileMerger.resolveMerged(
+                deviceRelease = deviceRelease,
+                builtin = builtin,
+                imported = imported,
+                overrides = overrides,
+                tuningExecution = tuning?.get("execution").asValueMap(),
+                pair = pairFor(tuning),
+                routePresets = presets,
+            )
+        } catch (error: Throwable) {
+            lastResolveError = error.message ?: error.javaClass.simpleName
+            null
         }
-        val tuning = readExecutionTuning()
-        val presets = routePresets()
-        ProfileMerger.resolveMerged(
-            deviceRelease = deviceRelease,
-            builtin = builtin,
-            imported = imported,
-            overrides = overrides,
-            tuningExecution = tuning?.get("execution").asValueMap(),
-            pair = pairFor(tuning),
-            routePresets = presets,
-        )
-    }.getOrNull()
+    }
+
+    /**
+     * 写入 override 前先验证可解析；不可解析则回滚并抛出原因。
+     *
+     * 否则编辑一个字段就会把整页变成「没有可编辑的 profile」，用户看不到哪里错。
+     */
+    private fun commit(release: String, override: ValueMap): GhostLockProfileView {
+        val previous = editStore.read(release)
+        /* 写入前先剥元数据，顺带把历史遗留的坏值从偏好里清掉。 */
+        stripMetadata(override)
+        editStore.write(release, override)
+        if (resolveCurrent(release, override, includeImported = true) == null) {
+            editStore.write(release, previous)
+            throw IllegalStateException(
+                "profileOverrideRejected: ${lastResolveError ?: "unresolved"}",
+            )
+        }
+        return load(release)
+    }
 
     /** 共享几何/凭据校验；profile 显式声明 route，其它 route 的字段可以缺席。 */
     private fun validateProfileFields(
@@ -618,6 +747,12 @@ internal class GhostLockProfileController(
         ) { path -> ProfileResolver.nativeValue(profile, route, fallbackTo, path) }
     }
 
+    /** 从 override 层剥掉 profile 元数据；元数据只能由文档声明。 */
+    private fun stripMetadata(override: ValueMap?) {
+        override ?: return
+        ExcludedPaths.forEach(override::remove)
+    }
+
     /** 新建一个 route 分支时用它种下字段，否则编辑器没有可填的格子。 */
     private fun routeBranchTemplate(route: String): ValueMap {
         val template = valueMapOf()
@@ -657,21 +792,68 @@ internal class GhostLockProfileController(
         } else {
             store.list().filter { it.release == release }.map { it.name }
         }
+        /* 每个候选文档都要解析 include，一次性读全部已存文档避免重复 IO。 */
+        val documents = store.documents()
+        var lastError: String? = null
         for (name in names) {
-            val text = store.rawText(name) ?: continue
-            val entry = runCatching { HoconSupport.parseValue(text).asValueMap() }
-                .getOrNull() ?: continue
+            val text = documents[name]
+            if (text == null) {
+                if (preferred != null) lastError = "profileMissing: $name"
+                continue
+            }
+            val parsed = runCatching {
+                HoconSupport.parseValue(text) { path ->
+                    resolveImportedInclude(path, documents)
+                }.asValueMap()
+            }
+            if (parsed.isFailure) {
+                /* 坏文档不能让用户面对「没有可用 profile」而不知道原因。 */
+                val error = parsed.exceptionOrNull()!!
+                lastError = "$name: ${error.message ?: error.javaClass.simpleName}"
+                continue
+            }
+            val entry = parsed.getOrNull() ?: continue
             val candidate = if (entry.containsKey("release")) {
                 entry
             } else {
                 (entry["profiles"] as? List<*>)
                     ?.mapNotNull { it.asValueMap() }
                     ?.firstOrNull { it["release"] == release }
-            } ?: continue
-            if (candidate["release"] != release) continue
-            return candidate.also { LegacyProfileConverter.convertValue(it) }
+            }
+            if (candidate == null) {
+                /* 选中的文档里没有这一段：把文档实际声明的 release 带出去，
+                 * 否则运行侧只能笼统报 noProfile。 */
+                if (preferred != null) {
+                    val declared = entry["release"] as? String
+                        ?: (entry["profiles"] as? List<*>)
+                            ?.firstNotNullOfOrNull { item ->
+                                (item.asValueMap()?.get("release") as? String)
+                                    ?.takeIf { it.isNotEmpty() }
+                            }
+                    lastError = "profileReleaseMismatch: ${declared ?: "?"} != $release"
+                }
+                continue
+            }
+            if (candidate["release"] != release) {
+                lastError = "profileReleaseMismatch: ${candidate["release"]} != $release"
+                continue
+            }
+            return LegacyProfileConverter.convertValue(candidate) ?: candidate
         }
+        if (lastError != null) lastResolveError = lastError
         return null
+    }
+
+    /**
+     * 解析用户文档里的 `include`：先查已存文档，再查内置表。
+     *
+     * 返回 null 时 [HoconSupport] 会抛出带路径的异常，最终由导入/加载链路报给用户。
+     */
+    private fun resolveImportedInclude(path: String, documents: Map<String, String>): String? {
+        val key = path.substringAfterLast('/')
+        documents[key]?.let { return it }
+        assets.load("$BUILTIN_DIR/$path").takeIf { it.isNotBlank() }?.let { return it }
+        return assets.load("$BUILTIN_DIR/$key").takeIf { it.isNotBlank() }
     }
 
     private fun materializeInvalidPaths(profile: ValueMap, invalidPaths: Set<String>) {
@@ -744,8 +926,17 @@ internal class GhostLockProfileController(
     private companion object {
         const val BUILTIN_DIR = "kernel_profiles/ghostlock"
 
-        /** 编辑器不接受这三个字段的修改。 */
-        val ExcludedPaths = setOf("schema_version", "release", "recommend_shizuku")
+        /** 模板表的 release 后缀。 */
+        const val TEMPLATE_SUFFIX = "-template"
+
+        /** 编辑器不接受这些字段的修改。 */
+        val ExcludedPaths = setOf(
+            "schema_version",
+            "release",
+            /* 内核主版本是 profile 元数据，改坏会让整份配置无法解析。 */
+            "kernel_major",
+            "recommend_shizuku",
+        )
 
         /** 编辑器暴露的 route 无关的 execution 调参。 */
         val GeneralPaths = listOf(

@@ -68,6 +68,10 @@
   "aiConfigEditTitle": "Edit Configuration",
   "aiDelete": "Delete",
   "aiCancel": "Cancel",
+  "aiReset": "Reset",
+  "@aiReset": {
+    "description": "Generic reset button"
+  },
   "aiApiKeyMissing": "API key not set",
   "aiModelUnset": "No model selected",
   "aiConnectionSection": "Connection",
@@ -518,6 +522,27 @@
   "escalationGhostLockMissingBinary": "libghostlock.so is missing from the installed build; reinstall the app",
   "escalationGhostLockNoProfile": "No kernel table entry for {release}, and no approximate match is attempted",
   "escalationGhostLockProfileInvalid": "Kernel table could not be decoded: {reason}",
+  "escalationGhostLockProfileMismatch": "The selected kernel table declares {profile} but this device reports {device}; it will not be applied",
+  "@escalationGhostLockProfileMismatch": {
+    "description": "Selected profile release differs from the device kernel release",
+    "placeholders": {
+      "profile": {
+        "type": "String"
+      },
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "escalationGhostLockProfileMissing": "The selected document {name} no longer exists; it may have been removed or renamed",
+  "@escalationGhostLockProfileMissing": {
+    "description": "The active source points to a document that is gone",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "escalationGhostLockSeccompFiltered": "This shell is seccomp-filtered and the chain cannot clear it",
   "escalationGhostLockRunning": "Running GhostLock{manager}…",
   "escalationGhostLockSucceeded": "Kernel module loaded; KernelSU took over{manager}",
@@ -534,6 +559,10 @@
   "escalationGhostLockNotStarted": "Rejected by the native side; reason code: {reason}",
   "escalationGhostLockFailed": "No recognisable final marker; see the output above",
   "escalationGhostLockFailureCode": "Native diagnostic: {code}",
+  "escalationGhostLockFailureDeviceDisconnected": "Lost the device connection (it probably rebooted); tracking stopped, retry after it comes back",
+  "escalationGhostLockFailureLaunch": "The native process could not be started; see the shell output above",
+  "escalationGhostLockFailureProfileWrite": "Could not write the kernel table to the device temp directory; check that wireless debugging is still up",
+  "escalationGhostLockFailureNotStarted": "The native process produced no output; tracking stopped",
   "escalationGhostLockStop": "Stop reading",
   "escalationGhostLockHandoffFollowUp": "Handing root off to {manager}",
   "escalationGhostLockProfileEdit": "Edit kernel table",
@@ -543,20 +572,75 @@
   "escalationGhostLockProfileNotProvided": "not provided",
   "escalationGhostLockProfileInvalidField": "This value violates the offset rules",
   "escalationGhostLockProfileOverridden": "modified",
-  "escalationGhostLockProfileReset": "Reset all edits",
+  "escalationGhostLockProfileWriteBack": "Save",
+  "@escalationGhostLockProfileWriteBack": {
+    "description": "Save this session to its target"
+  },
+  "escalationGhostLockProfileWrittenBack": "Written to current file",
+  "@escalationGhostLockProfileWrittenBack": {
+    "description": "Shown after a successful write-back"
+  },
+  "escalationGhostLockProfileWriteFailed": "Write failed",
+  "@escalationGhostLockProfileWriteFailed": {
+    "description": "Shown when an export or write-back fails"
+  },
+  "escalationGhostLockProfileRejected": "This value would make the profile unparsable; reverted",
+  "@escalationGhostLockProfileRejected": {
+    "description": "Shown when native rejects the override"
+  },
+  "escalationGhostLockProfileSaved": "Saved",
+  "@escalationGhostLockProfileSaved": {
+    "description": "Shown after the edit session is saved"
+  },
+  "escalationGhostLockProfileSavedAsNew": "Saved as {name}",
+  "@escalationGhostLockProfileSavedAsNew": {
+    "description": "Name of the document created when saving a builtin session",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "escalationGhostLockProfileExport": "Export to file",
   "escalationGhostLockProfileSaveAs": "Save as my profile",
   "escalationGhostLockProfileRouteAuto": "As declared by the profile",
   "escalationGhostLockProfileRouteLabel": "Route",
+  "escalationGhostLockProfileRouteCurrent": "In effect",
   "escalationGhostLockProfileFallbackLabel": "Fallback",
   "escalationGhostLockProfileFallbackNone": "No fallback",
+  "escalationGhostLockProfileFallbackDeclared": "Follow the profile declaration",
+  "@escalationGhostLockProfileFallbackDeclared": {
+    "description": "Remove the fallback override and use the profile's own value"
+  },
   "escalationGhostLockProfileNoProfile": "No editable profile for this kernel",
-  "escalationGhostLockProfileSelect": "Active source",
-  "escalationGhostLockProfileSelectAuto": "Follow the device",
-  "escalationGhostLockProfileSelectBuiltin": "Built-in tables",
+  "escalationGhostLockProfileNoWritableDoc": "Nothing to write back to. Use \"Save as my config\" to create one first",
+  "escalationGhostLockProfileSourceLabel": "Active source",
+  "escalationGhostLockProfileSourceDevice": "Device built-in table",
+  "escalationGhostLockProfileSourceBuiltin": "Built-in table",
+  "escalationGhostLockProfileSourceUser": "My profile",
+  "escalationGhostLockProfileOverriddenCount": "{count} edited",
+  "@escalationGhostLockProfileOverriddenCount": {
+    "description": "Number of local overrides shown in the status bar",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "escalationGhostLockProfileTabGeneralHint": "Execution tuning. Leaving the field applies it right away; no separate save needed.",
+  "escalationGhostLockProfileTabRouteHint": "Pick the injection path. Selecting applies instantly; the advanced fields change with the route.",
+  "escalationGhostLockProfileRouteGeometryHint": "A route's geometry values (waiter_shift, compact_waiter, waiter_off, ...) are only written when the profile was generated for that route. Switching to a route the profile never produced leaves those fields empty, so the runtime may lack its parameters. To change routes, re-parse the image and pick the route there.",
+  "escalationGhostLockProfileTabAdvancedHint": "Struct and offset fields. Edits apply immediately; empty fields are not yet provided.",
+  "escalationGhostLockProfileApplied": "Applied",
+  "escalationGhostLockProfileWriteBackHint": "Live overrides to local; documents overwritten in place",
+  "escalationGhostLockProfileWriteBackDisabled": "Built-in profiles are read-only; use Save as",
+  "escalationGhostLockProfileSaveAsHint": "Create a new user profile, original untouched",
+  "escalationGhostLockProfileExportHint": "Export the conf to a system file",
   "escalationGhostLockProfileSelectSearch": "Filter by release",
-  "escalationGhostLockProfileSelectUser": "My profiles",
-  "escalationGhostLockProfileSelectNoUser": "Do not use an imported profile",
+  "escalationGhostLockProfileSelectTemplates": "Reference templates",
+  "@escalationGhostLockProfileSelectTemplates": {
+    "description": "Section title for -template files in the built-in list"
+  },
   "escalationGhostLockImportTitle": "Import kernel table",
   "escalationGhostLockImportFailed": "Extract failed: {reason}",
   "escalationGhostLockImportOverwrite": "An entry for the same kernel exists. Overwrite?",
@@ -565,6 +649,38 @@
   "escalationGhostLockImportedEmpty": "No kernel table imported yet",
   "escalationGhostLockImportedRemove": "Delete",
   "escalationGhostLockImportedParseError": "File cannot be parsed",
+  "escalationGhostLockImportedRename": "Rename",
+  "@escalationGhostLockImportedRename": {
+    "description": "Rename an imported profile"
+  },
+  "escalationGhostLockImportedRenameHint": "New file name",
+  "@escalationGhostLockImportedRenameHint": {
+    "description": "Hint of the rename input"
+  },
+  "escalationGhostLockImportedExport": "Export",
+  "@escalationGhostLockImportedExport": {
+    "description": "Export an imported profile"
+  },
+  "escalationGhostLockImportedEdit": "Edit",
+  "@escalationGhostLockImportedEdit": {
+    "description": "Open the profile editor for this kernel table"
+  },
+  "escalationGhostLockImportedExported": "Exported",
+  "@escalationGhostLockImportedExported": {
+    "description": "Shown after a successful export"
+  },
+  "escalationGhostLockMoreActions": "More actions",
+  "@escalationGhostLockMoreActions": {
+    "description": "More actions menu on an imported profile row"
+  },
+  "escalationGhostLockImportText": "Import config (conf / hocon / json / txt, multi-select)",
+  "@escalationGhostLockImportText": {
+    "description": "Import an existing HOCON / JSON kernel table directly; include dependencies can be picked together"
+  },
+  "escalationGhostLockImportUnsupported": "Nothing to import: only conf / hocon / json / txt UTF-8 text is accepted",
+  "@escalationGhostLockImportUnsupported": {
+    "description": "Every picked file was rejected by the type or encoding check"
+  },
   "settingsGhostKeySection": "GhostKey",
   "settingsGhostKeyRunKsuTitle": "Take over KernelSU",
   "settingsGhostKeyRunKsuDesc": "Hand kernel capability to KernelSU after escalation",
@@ -631,13 +747,69 @@
   "kernelProfileTabGhostKeyBuiltin": "GhostKey built-in",
   "kernelProfileTabGhostLock": "GhostLock imported",
   "kernelProfileTabGhostLockBuiltin": "GhostLock built-in",
-  "kernelProfileImportAction": "Choose boot.img",
+  "kernelProfileImportAction": "Choose image (img / bin / zip)",
   "kernelProfileImportChangeFile": "Change image",
+  "kernelProfileImportAttachXbl": "xbl_config.img (optional)",
+  "kernelProfileImportAttachUefi": "uefi.img (optional)",
+  "kernelProfileImportAttachVendorBoot": "vendor_boot.img (optional)",
+  "@kernelProfileImportAttachVendorBoot": {
+    "description": "Optional vendor_boot image picker, for MediaTek devices"
+  },
+  "kernelProfileImportPhysLabel": "Physical load address (optional)",
+  "@kernelProfileImportPhysLabel": {
+    "description": "Label of the manual kernel_phys_load input"
+  },
+  "kernelProfileImportPhysHint": "0x80000000",
+  "@kernelProfileImportPhysHint": {
+    "description": "Example value of the physical load address"
+  },
+  "kernelProfileAdvancedTitle": "Advanced parsing options",
+  "@kernelProfileAdvancedTitle": {
+    "description": "Title of the advanced options section"
+  },
+  "kernelProfileAdvancedHint": "Usually leave untouched; re-parse after changing",
+  "@kernelProfileAdvancedHint": {
+    "description": "Shown while the advanced options section is collapsed"
+  },
+  "kernelProfileImportKallsyms": "kallsyms file",
+  "@kernelProfileImportKallsyms": {
+    "description": "Button that picks an external kallsyms text file"
+  },
+  "kernelProfileImportIomem": "iomem file",
+  "@kernelProfileImportIomem": {
+    "description": "Button that picks an external /proc/iomem text file"
+  },
+  "kernelProfileImportRoute": "Route",
+  "@kernelProfileImportRoute": {
+    "description": "Title of the forced-route selector"
+  },
+  "kernelProfileImportRouteAuto": "Auto",
+  "@kernelProfileImportRouteAuto": {
+    "description": "Automatic option in the route selector"
+  },
+  "kernelProfileImportAllowMissing": "Treat missing symbols as optional (emit 0)",
+  "@kernelProfileImportAllowMissing": {
+    "description": "Switch mirroring upstream --allow_missing"
+  },
+  "kernelProfileImportNoDisasm": "Skip disassembly derivation (faster, less precise)",
+  "@kernelProfileImportNoDisasm": {
+    "description": "Switch mirroring upstream --no_disasm"
+  },
   "kernelProfileImportUrlHint": "OTA link (HTTP/HTTPS)",
   "kernelProfileImportParseAction": "Parse kernel",
   "kernelProfileImportNeedInput": "Pick an image or paste a link first",
+  "kernelProfileImportUnsupportedImage": "Unsupported file: only img / bin / zip images or OTA packages are accepted",
+  "kernelProfileImportEmptyFile": "File is empty or unreadable",
   "kernelProfileImportInsecureHint": "Skip certificate check (for self-signed links)",
   "kernelProfileProbeReady": "Parsed",
+  "kernelProfileProbeRouteIncomplete": "Route geometry incomplete; this profile cannot reach the write stage:",
+  "@kernelProfileProbeRouteIncomplete": {
+    "description": "Heading shown when the parsed profile is missing route geometry"
+  },
+  "kernelProfileProbeRouteIncompleteHint": "Stage one is attempted only once and refuses a missing field. Fill in the gaps, or switch to a route this profile fully declares in the Route tab.",
+  "@kernelProfileProbeRouteIncompleteHint": {
+    "description": "Advice shown when route geometry is incomplete"
+  },
   "kernelProfileProbeWarnings": "{count} warnings",
   "@kernelProfileProbeWarnings": {
     "description": "Warning count in the parse result",
@@ -647,7 +819,75 @@
       }
     }
   },
-  "kernelProfileProbeTapHint": "Tap to choose which kernel table to import into",
+  "kernelProfileProbeWarningsTitle": "Parse warnings",
+  "@kernelProfileProbeWarningsTitle": {
+    "description": "Title of the warning detail dialog"
+  },
+  "kernelProfileProbePhys": "kernel_phys_load",
+  "@kernelProfileProbePhys": {
+    "description": "Key name of the physical load address row"
+  },
+  "kernelProfileProbePhysMissing": "not found",
+  "@kernelProfileProbePhysMissing": {
+    "description": "Value shown when the physical load address was not found"
+  },
+  "kernelProfileProbePhysUnsetHint": "Written as null when unknown; the runtime falls back to a built-in per-SoC constant. If a run reports a bad address, attach xbl_config.img or fill in the physical base.",
+  "@kernelProfileProbePhysUnsetHint": {
+    "description": "What to do when kernel_phys_load could not be recovered"
+  },
+  "kernelProfileAttachTitle": "Optional attachments",
+  "@kernelProfileAttachTitle": {
+    "description": "Title of the attachment section in the import panel"
+  },
+  "kernelProfileAttachHint": "Used to fill in kernel_phys_load; usually not needed",
+  "@kernelProfileAttachHint": {
+    "description": "Shown when the attachment section is collapsed and empty"
+  },
+  "kernelProfileAttachAttachedCount": "Images attached; re-run the parse to apply",
+  "@kernelProfileAttachAttachedCount": {
+    "description": "Shown when the attachment section is collapsed but files are attached"
+  },
+  "kernelProfileAttachAutoHint": "xbl_config, uefi and vendor_boot are extracted from the package as needed; the result lists what was actually extracted.",
+  "@kernelProfileAttachAutoHint": {
+    "description": "Explains that the memory-map partitions come from the package; the result card is authoritative"
+  },
+  "kernelProfileAttachVendorBootHint": "Only needed on MediaTek devices, to supply the DRAM base.",
+  "@kernelProfileAttachVendorBootHint": {
+    "description": "Explains why vendor_boot has to be attached by hand"
+  },
+  "kernelProfileAttachPick": "Choose",
+  "@kernelProfileAttachPick": {
+    "description": "Trailing action text on an attachment row: nothing picked yet"
+  },
+  "kernelProfileAttachReplace": "Replace",
+  "@kernelProfileAttachReplace": {
+    "description": "Trailing action text on an attachment row: already picked"
+  },
+  "kernelProfileProbePayloadParts": "Package partitions",
+  "@kernelProfileProbePayloadParts": {
+    "description": "Label for the partitions extracted from the package"
+  },
+  "kernelProfileProbeAnalysis": "Kernel analysis",
+  "@kernelProfileProbeAnalysis": {
+    "description": "Button that opens the kernel analysis report"
+  },
+  "kernelProfileProbeAnalysisTitle": "Kernel analysis",
+  "@kernelProfileProbeAnalysisTitle": {
+    "description": "Title of the kernel analysis dialog"
+  },
+  "kernelProfileImportTargetGhostLock": "GhostLock",
+  "kernelProfileImportTargetGhostKey": "GhostKey",
+  "kernelProfileInputSourceLocal": "Local image",
+  "kernelProfileInputSourceUrl": "OTA link",
+  "kernelProfileWriteToTarget": "Write to {table}",
+  "@kernelProfileWriteToTarget": {
+    "description": "Primary action after parsing; table is the target kernel table name",
+    "placeholders": {
+      "table": {
+        "type": "String"
+      }
+    }
+  },
   "kernelProfileProbeFailed": "Parse failed: {reason}",
   "@kernelProfileProbeFailed": {
     "description": "Parse failure hint; reason is a technical diagnostic string",
@@ -657,26 +897,13 @@
       }
     }
   },
-  "kernelProfileChooseTargetTitle": "Import {release} into which one?",
-  "@kernelProfileChooseTargetTitle": {
-    "description": "Title of the target picker sheet",
-    "placeholders": {
-      "release": {
-        "type": "String"
-      }
-    }
-  },
-  "kernelProfileChooseTargetGhostKey": "GhostKey kernel parameters",
-  "kernelProfileChooseTargetGhostKeyHint": "Only derives the offsets CVE-2026-98260 needs",
-  "kernelProfileChooseTargetGhostLock": "GhostLock kernel table",
-  "kernelProfileChooseTargetGhostLockHint": "Writes the offset table parsed for GhostLock",
   "kernelProfileBtfHint": "The kernel must carry BTF info; third-party ROMs and older devices may lack the struct offsets",
   "kernelProfilePasteExample": "Paste example",
   "kernelProfileWhyBtfTitle": "Why is BTF required?",
   "kernelProfileWhyBtfBody": "The generated profile forges credentials by writing to byte offsets inside struct cred, and those offsets change across kernel versions, so they cannot be hard-coded.\n\nIf the kernel image carries BTF (CONFIG_DEBUG_INFO_BTF), the real layout of task_struct and cred can be read straight from the image. Without BTF, task_cred, task_struct_size and cred_uid cannot be obtained and the profile cannot be generated.\n\nThe link must also support HTTP Range (partial download); otherwise the boot partition cannot be fetched on its own. Vendor OTA images and GKI devices such as Pixel usually satisfy both.",
   "kernelProfileDialogClose": "Got it",
-  "otaCatalogBrowseAction": "History",
-  "otaCatalogTitle": "Historical OTA packages",
+  "otaCatalogBrowseAction": "Built-in ROMs",
+  "otaCatalogTitle": "Built-in ROM packages",
   "otaCatalogSearchHint": "Search device or build",
   "otaCatalogPickHint": "Tap any version to fill its direct link above",
   "otaCatalogEmpty": "No matching device or build",
@@ -716,6 +943,43 @@
   "kernelProfileImportedSection": "Kernel profiles",
   "kernelProfileImportedEmpty": "No imported profile yet",
   "kernelProfileBuiltinEmpty": "No built-in profile",
+  "kernelProfileDeviceKernel": "Device kernel",
+  "kernelProfileEditParams": "Edit parameters",
+  "kernelProfileMyProfilesTitle": "My profiles",
+  "kernelProfileBuiltinTitle": "Built-in profiles",
+  "kernelProfileBuiltinHint": "Bundled with the app, read-only",
+  "kernelProfileTemplateHint": "Blank skeleton for inspecting the field layout; cannot take effect",
+  "@kernelProfileTemplateHint": {
+    "description": "Explanation for the reference templates section"
+  },
+  "kernelProfileMatchesDevice": "Matches this device",
+  "kernelProfileShowMore": "Show more ({count} left)",
+  "kernelProfileStepPick": "Pick profile",
+  "kernelProfileStepReview": "Review source",
+  "kernelProfileStepApply": "Apply",
+  "kernelProfileStepNext": "Next",
+  "kernelProfileStepBack": "Back",
+  "kernelProfileApplyAction": "Apply",
+  "kernelProfileApplied": "Active profile switched",
+  "kernelProfileApplyNotEffective": "Selected profile does not apply to this device kernel and will not be used",
+  "@kernelProfileApplyNotEffective": {
+    "description": "Shown when the applied profile resolves to nothing"
+  },
+  "kernelProfileEditorNotEditable": "This kernel has no editable profile",
+  "@kernelProfileEditorNotEditable": {
+    "description": "Editor body text when the session resolves to nothing"
+  },
+  "kernelProfilePickAgain": "Pick another",
+  "kernelProfileEditAfterApply": "Tune parameters",
+  "kernelProfileEditAfterApplyHint": "Parameters can only be edited once active: finish this step, then open the editor.",
+  "kernelProfilePickHint": "Pick the profile to use. The row marked Active is the one in use now.",
+  "kernelProfileReviewHint": "Confirm the source below. The editor will edit this one after applying.",
+  "kernelProfileDeclaredKernel": "Declared kernel",
+  "kernelProfileReviewMatch": "Matches this device, ready to run",
+  "kernelProfileReviewMismatch": "Does not match this device; the run will be rejected",
+  "kernelProfileGhostKeyEntry": "GhostKey profiles",
+  "kernelProfileGhostLockEntry": "GhostLock profiles",
+  "kernelProfileImportEntry": "Import profile",
   "kernelProfileRemove": "Remove",
   "kernelProfileRemoveConfirmTitle": "Remove this profile?",
   "kernelProfileRemoveConfirmBody": "{release} will be deleted. If no other profile matches this device, you will need to import again.",

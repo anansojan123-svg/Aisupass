@@ -11,7 +11,7 @@ import 'package:Aisupass/features/escalation/domain/models/ota_package.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/ota_catalog_query_provider.dart';
 import 'package:Aisupass/l10n/app_localizations.dart';
 
-/// 打开历史 OTA 清单弹窗；选中一条后通过 [onPick] 回填链接。
+/// 打开内置 OTA 清单弹窗；选中一条后通过 [onPick] 回填链接。
 Future<void> showOtaCatalogSheet(
   BuildContext context, {
   required ValueChanged<String> onPick,
@@ -22,7 +22,7 @@ Future<void> showOtaCatalogSheet(
   builder: (BuildContext _) => OtaCatalogSheet(onPick: onPick),
 );
 
-/// 历史 OTA 版本浏览：按品牌切换，按机型分组，点版本回填 URL。
+/// 内置 OTA 版本浏览：按品牌切换，按机型分组，点版本回填 URL。
 class OtaCatalogSheet extends HookConsumerWidget {
   const OtaCatalogSheet({required this.onPick, super.key});
 

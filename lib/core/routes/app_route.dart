@@ -35,16 +35,17 @@ class AppRoute {
   // 内核表（boot.img 导入，GhostKey / GhostLock 两个 Tab）
   static const kernelProfile = '/kernelProfile';
 
-  /// 内核表页路径；[tab] 为 `ghostlock` 时直接落在 GhostLock 页签。
+  /// 内核表页路径；[tab] 为 `ghostkey` 时直接落在 GhostKey 页签。
   static String kernelProfilePath({String tab = ''}) =>
       tab.isEmpty ? kernelProfile : '$kernelProfile?tab=$tab';
 
   // GhostLock 内核表编辑器
   static const ghostLockProfile = '/ghostLock/profile';
 
-  /// 编辑器路径；release 编码后作为 query 参数。
-  static String ghostLockProfilePath(String release) =>
-      '$ghostLockProfile?release=${Uri.encodeComponent(release)}';
+  /// 编辑器路径；[name] 为用户文档名，空串表示内置/设备态。
+  static String ghostLockProfilePath([String name = '']) => name.isEmpty
+      ? ghostLockProfile
+      : '$ghostLockProfile?name=${Uri.encodeComponent(name)}';
 
   // 运行记录
   static const String runLog = '/runLog';
@@ -91,13 +92,13 @@ final List<GoRoute> appRoutes = [
   GoRoute(
     path: AppRoute.kernelProfile,
     builder: (context, state) => KernelProfilePage(
-      initialTab: state.uri.queryParameters['tab'] == 'ghostlock' ? 2 : 0,
+      initialTab: state.uri.queryParameters['tab'] == 'ghostkey' ? 1 : 0,
     ),
   ),
   GoRoute(
     path: AppRoute.ghostLockProfile,
     builder: (context, state) => GhostLockProfilePage(
-      release: state.uri.queryParameters['release'] ?? '',
+      name: state.uri.queryParameters['name'] ?? '',
     ),
   ),
   GoRoute(

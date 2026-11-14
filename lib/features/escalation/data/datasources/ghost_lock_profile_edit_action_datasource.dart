@@ -58,7 +58,62 @@ class GhostLockProfileEditActionDatasource {
   Future<bool> exportProfile({required String release, required String path}) =>
       _native.exportProfile(release, path);
 
+  /// 把当前生效配置渲染为 HOCON 文本；无法解析时返回空串。
+  Future<String> renderProfile({required String release}) =>
+      _native.renderProfile(release);
+
   /// 另存为一份用户文档。
   Future<bool> saveModifiedProfile({required String release}) =>
       _native.saveModifiedProfile(release);
+
+  /// 只重置通用参数的 override。
+  Future<pigeon.GhostLockProfileConfig> resetGeneralFields({
+    required String release,
+  }) => _native.resetGeneralFields(release);
+
+  /// 只重置路由与高级字段的 override。
+  Future<pigeon.GhostLockProfileConfig> resetAdvancedFields({
+    required String release,
+  }) => _native.resetAdvancedFields(release);
+
+  /// 把当前生效配置写回用户文档 [name]。
+  Future<bool> overwriteProfile({
+    required String release,
+    required String name,
+  }) => _native.overwriteProfile(release, name);
+
+  /// 打开编辑会话；[name] 为空串表示内置/设备态。
+  Future<pigeon.GhostLockProfileConfig> beginEditSession({
+    required String name,
+    required String deviceRelease,
+  }) => _native.beginEditSession(name, deviceRelease);
+
+  /// 丢弃未保存改动并重新解析。
+  Future<pigeon.GhostLockProfileConfig> reloadEditSession() =>
+      _native.reloadEditSession();
+
+  /// 会话是否编辑当前生效配置。
+  Future<bool> editSessionIsLive() => _native.editSessionIsLive();
+
+  /// 会话目标的文档名；内置/设备态返回空串。
+  Future<String> editSessionTarget() => _native.editSessionTarget();
+
+  /// 会话实际使用的 release。
+  Future<String> editSessionRelease() => _native.editSessionRelease();
+
+  /// 把会话 override 写入 live override。
+  Future<bool> commitEditSession() => _native.commitEditSession();
+
+  /// 用会话结果整篇覆盖目标文档。
+  Future<bool> saveEditSessionInPlace() => _native.saveEditSessionInPlace();
+
+  /// 会话结果另存为新文档；失败返回空串。
+  Future<String> saveEditSessionAsNew() => _native.saveEditSessionAsNew();
+
+  /// 会话结果导出到 [path]。
+  Future<bool> exportEditSession({required String path}) =>
+      _native.exportEditSession(path);
+
+  /// 关闭会话。
+  Future<void> endEditSession() => _native.endEditSession();
 }

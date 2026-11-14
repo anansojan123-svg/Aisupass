@@ -9,10 +9,35 @@ class GhostLockProfileActionDatasource {
   final pigeon.GhostLockProfileNative _native;
 
   /// 解析内核表，不落盘。
+  ///
+  /// [xblPath] / [uefiPath] / [vendorBootPath] 是可选的附加镜像，空串表示没有；
+  /// [phys] 是用户手填的物理装载基址。[kallsymsPath] / [iomemPath] 是外部文本
+  /// 文件，[route] 强制路由，空串均表示自动。
   Future<pigeon.GhostLockProbeResult> probeProfile({
     required String input,
     bool insecure = false,
-  }) => _native.probeProfile(input, insecure);
+    String xblPath = '',
+    String uefiPath = '',
+    String vendorBootPath = '',
+    String phys = '',
+    String kallsymsPath = '',
+    String iomemPath = '',
+    String route = '',
+    bool allowMissing = false,
+    bool noDisasm = false,
+  }) => _native.probeProfile(
+    input,
+    insecure,
+    xblPath,
+    uefiPath,
+    vendorBootPath,
+    phys,
+    kallsymsPath,
+    iomemPath,
+    route,
+    allowMissing,
+    noDisasm,
+  );
 
   /// 解析进度快照：`"<phase> <done> <total>"`。
   Future<String> profileProgress() => _native.profileProgress();
@@ -38,4 +63,26 @@ class GhostLockProfileActionDatasource {
   /// 删除一份 profile。
   Future<bool> removeImportedProfile({required String name}) =>
       _native.removeImportedProfile(name);
+
+  /// 导入现成的 profile 文本（HOCON 或 JSON）。
+  Future<pigeon.GhostLockImportResult> importProfileText({
+    required String text,
+    required String fileName,
+    bool overwrite = false,
+  }) => _native.importProfileText(text, fileName, overwrite);
+
+  /// 重命名用户文档；返回新文件名，失败为空串。
+  Future<String> renameImportedProfile({
+    required String name,
+    required String newName,
+  }) => _native.renameImportedProfile(name, newName);
+
+  /// 把用户文档渲染为 HOCON 文本。
+  Future<String> exportImportedProfile({required String name}) =>
+      _native.exportImportedProfile(name);
+
+  /// 把旧格式文档转换为当前布局。
+  Future<pigeon.GhostLockImportResult> convertImportedProfile({
+    required String name,
+  }) => _native.convertImportedProfile(name);
 }

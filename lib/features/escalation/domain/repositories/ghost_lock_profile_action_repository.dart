@@ -6,9 +6,23 @@ import 'package:Aisupass/features/escalation/domain/models/ghost_lock_user_profi
 /// GhostLock profile 导入与用户文档管理仓储接口。
 abstract class GhostLockProfileActionRepository {
   /// 解析内核表但不落盘。
+  ///
+  /// [xblPath] / [uefiPath] / [vendorBootPath] 是可选的附加镜像，用于补齐
+  /// `kernel_phys_load`；传空串表示没有。[phys] 是手填的物理装载基址。
+  /// [kallsymsPath] / [iomemPath] 是外部文本文件，[route] 强制路由，
+  /// 空串均表示自动。
   Future<GhostLockProbe> probeProfile({
     required String input,
     bool insecure = false,
+    String xblPath = '',
+    String uefiPath = '',
+    String vendorBootPath = '',
+    String phys = '',
+    String kallsymsPath = '',
+    String iomemPath = '',
+    String route = '',
+    bool allowMissing = false,
+    bool noDisasm = false,
   });
 
   /// 解析进度快照；未被解析占用时全为 0。
@@ -35,4 +49,23 @@ abstract class GhostLockProfileActionRepository {
 
   /// 删除一份 profile；不存在返回 false。
   Future<bool> removeImportedProfile({required String name});
+
+  /// 导入现成的 profile 文本（HOCON 或 JSON）为一份用户文档。
+  Future<GhostLockImportResult> importProfileText({
+    required String text,
+    required String fileName,
+    bool overwrite = false,
+  });
+
+  /// 重命名用户文档；返回新文件名，失败为空串。
+  Future<String> renameImportedProfile({
+    required String name,
+    required String newName,
+  });
+
+  /// 把用户文档渲染为 HOCON 文本；不存在返回空串。
+  Future<String> exportImportedProfile({required String name});
+
+  /// 把旧格式文档转换为当前布局并存为新文档。
+  Future<GhostLockImportResult> convertImportedProfile({required String name});
 }

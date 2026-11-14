@@ -16,7 +16,7 @@ class KernelProfileSettingRow extends HookConsumerWidget {
     final AppLocalizations l10n = context.l10n;
     return InkWell(
       onTap: () => context.push(
-        AppRoute.kernelProfilePath(tab: 'ghostlock'),
+        AppRoute.kernelProfilePath(),
       ),
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),

@@ -64,6 +64,11 @@ secrets.json
 
 # Rust build cache
 /android/app/src/main/jni/vrext/target/
+/android/app/src/main/jni/vrext/build/
+/android/app/src/main/jni/ghostlock-app/tools/extract_rs/target/
+# extract_rs/.cargo/config.toml 把 target-dir 指向 ../../build/extract，
+# 本项目 crate 嵌在 jni/ghostlock-app/tools/ 下，落点是 jni/ghostlock-app/build/。
+/android/app/src/main/jni/ghostlock-app/build/
 
 # Symbolication related
 app.*.symbols

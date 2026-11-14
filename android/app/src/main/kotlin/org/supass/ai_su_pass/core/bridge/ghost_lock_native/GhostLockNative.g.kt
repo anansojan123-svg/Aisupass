@@ -602,7 +602,15 @@ data class GhostLockProbeResult (
    */
   val bootPath: String,
   /** 失败原因；成功为空串。 */
-  val reason: String
+  val reason: String,
+  /** `kernel_phys_load` 的十六进制字面量；空串表示未取到。 */
+  val kernelPhysLoad: String,
+  /** `kernel_phys_offset` 的十六进制字面量；空串表示未取到。 */
+  val kernelPhysOffset: String,
+  /** `kernel_phys_load` 的来源（如 `xbl_config FDT`）；空串表示未取到。 */
+  val physSource: String,
+  /** 内核审查报告全文；解析早期失败时为空串。 */
+  val analysis: String
 )
  {
   companion object {
@@ -613,7 +621,11 @@ data class GhostLockProbeResult (
       val warnings = pigeonVar_list[3] as List<String>
       val bootPath = pigeonVar_list[4] as String
       val reason = pigeonVar_list[5] as String
-      return GhostLockProbeResult(ok, release, conf, warnings, bootPath, reason)
+      val kernelPhysLoad = pigeonVar_list[6] as String
+      val kernelPhysOffset = pigeonVar_list[7] as String
+      val physSource = pigeonVar_list[8] as String
+      val analysis = pigeonVar_list[9] as String
+      return GhostLockProbeResult(ok, release, conf, warnings, bootPath, reason, kernelPhysLoad, kernelPhysOffset, physSource, analysis)
     }
   }
   fun toList(): List<Any?> {
@@ -624,6 +636,10 @@ data class GhostLockProbeResult (
       warnings,
       bootPath,
       reason,
+      kernelPhysLoad,
+      kernelPhysOffset,
+      physSource,
+      analysis,
     )
   }
   override fun equals(other: Any?): Boolean {
@@ -634,7 +650,7 @@ data class GhostLockProbeResult (
       return true
     }
     val other = other as GhostLockProbeResult
-    return GhostLockNativePigeonUtils.deepEquals(this.ok, other.ok) && GhostLockNativePigeonUtils.deepEquals(this.release, other.release) && GhostLockNativePigeonUtils.deepEquals(this.conf, other.conf) && GhostLockNativePigeonUtils.deepEquals(this.warnings, other.warnings) && GhostLockNativePigeonUtils.deepEquals(this.bootPath, other.bootPath) && GhostLockNativePigeonUtils.deepEquals(this.reason, other.reason)
+    return GhostLockNativePigeonUtils.deepEquals(this.ok, other.ok) && GhostLockNativePigeonUtils.deepEquals(this.release, other.release) && GhostLockNativePigeonUtils.deepEquals(this.conf, other.conf) && GhostLockNativePigeonUtils.deepEquals(this.warnings, other.warnings) && GhostLockNativePigeonUtils.deepEquals(this.bootPath, other.bootPath) && GhostLockNativePigeonUtils.deepEquals(this.reason, other.reason) && GhostLockNativePigeonUtils.deepEquals(this.kernelPhysLoad, other.kernelPhysLoad) && GhostLockNativePigeonUtils.deepEquals(this.kernelPhysOffset, other.kernelPhysOffset) && GhostLockNativePigeonUtils.deepEquals(this.physSource, other.physSource) && GhostLockNativePigeonUtils.deepEquals(this.analysis, other.analysis)
   }
 
   override fun hashCode(): Int {
@@ -645,6 +661,10 @@ data class GhostLockProbeResult (
     result = 31 * result + GhostLockNativePigeonUtils.deepHash(this.warnings)
     result = 31 * result + GhostLockNativePigeonUtils.deepHash(this.bootPath)
     result = 31 * result + GhostLockNativePigeonUtils.deepHash(this.reason)
+    result = 31 * result + GhostLockNativePigeonUtils.deepHash(this.kernelPhysLoad)
+    result = 31 * result + GhostLockNativePigeonUtils.deepHash(this.kernelPhysOffset)
+    result = 31 * result + GhostLockNativePigeonUtils.deepHash(this.physSource)
+    result = 31 * result + GhostLockNativePigeonUtils.deepHash(this.analysis)
     return result
   }
 }
@@ -1058,8 +1078,22 @@ interface GhostLockNative {
  * Generated interface from Pigeon that represents a handler of messages from Flutter.
  */
 interface GhostLockProfileNative {
-  /** 解析内核表但不落盘；阻塞到结束。 */
-  fun probeProfile(input: String, insecure: Boolean, callback: (Result<GhostLockProbeResult>) -> Unit)
+  /**
+   * 解析内核表但不落盘；阻塞到结束。
+   *
+   * [xblPath] / [uefiPath] / [vendorBootPath] 为可选的附加镜像，用于从 FDT
+   * 或 platform memory map 补齐 `kernel_phys_load`；vendor_boot 另给
+   * `kernel_phys_offset`。传空串表示没有。
+   * [phys] 是用户手填的物理装载基址（`0x` 前缀或十进制），空串表示不指定。
+   * [kallsymsPath] 是外部 kallsyms 文本文件，空串表示按 `/proc/kallsyms` →
+   * 镜像内嵌表的顺序自动获取。
+   * [iomemPath] 是外部 `/proc/iomem` 文本文件，空串表示读设备上的实时值。
+   * [route] 强制路由（`tcp_zerocopy` / `select_stack` / `multicast_waiter`），
+   * 空串表示按内核自动推荐。
+   * [allowMissing] 为 true 时把全部缺失符号按可选处理（输出 0）。
+   * [noDisasm] 为 true 时跳过反汇编推导（pselect 布局与 logger 槽回退查表）。
+   */
+  fun probeProfile(input: String, insecure: Boolean, xblPath: String, uefiPath: String, vendorBootPath: String, phys: String, kallsymsPath: String, iomemPath: String, route: String, allowMissing: Boolean, noDisasm: Boolean, callback: (Result<GhostLockProbeResult>) -> Unit)
   /**
    * 解析进度快照：`"<phase> <done> <total>"`。
    *
@@ -1078,6 +1112,18 @@ interface GhostLockProfileNative {
   fun readImportedProfile(name: String, callback: (Result<String>) -> Unit)
   /** 删除一份用户 profile；不存在返回 false。 */
   fun removeImportedProfile(name: String, callback: (Result<Boolean>) -> Unit)
+  /**
+   * 导入现成的 profile 文本（HOCON 或 JSON）为一份用户文档。
+   *
+   * [fileName] 只用于推导落盘文件名；文本本身原样保存，不做字段改写。
+   */
+  fun importProfileText(text: String, fileName: String, overwrite: Boolean, callback: (Result<GhostLockImportResult>) -> Unit)
+  /** 重命名用户文档；返回新的文件名，失败（重名或不存在）返回空串。 */
+  fun renameImportedProfile(name: String, newName: String, callback: (Result<String>) -> Unit)
+  /** 把用户文档渲染为 HOCON 文本；不存在返回空串。 */
+  fun exportImportedProfile(name: String, callback: (Result<String>) -> Unit)
+  /** 把旧格式用户文档转换为当前布局并存为新文档。 */
+  fun convertImportedProfile(name: String, callback: (Result<GhostLockImportResult>) -> Unit)
 
   companion object {
     /** The codec used by GhostLockProfileNative. */
@@ -1095,7 +1141,16 @@ interface GhostLockProfileNative {
             val args = message as List<Any?>
             val inputArg = args[0] as String
             val insecureArg = args[1] as Boolean
-            api.probeProfile(inputArg, insecureArg) { result: Result<GhostLockProbeResult> ->
+            val xblPathArg = args[2] as String
+            val uefiPathArg = args[3] as String
+            val vendorBootPathArg = args[4] as String
+            val physArg = args[5] as String
+            val kallsymsPathArg = args[6] as String
+            val iomemPathArg = args[7] as String
+            val routeArg = args[8] as String
+            val allowMissingArg = args[9] as Boolean
+            val noDisasmArg = args[10] as Boolean
+            api.probeProfile(inputArg, insecureArg, xblPathArg, uefiPathArg, vendorBootPathArg, physArg, kallsymsPathArg, iomemPathArg, routeArg, allowMissingArg, noDisasmArg) { result: Result<GhostLockProbeResult> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(GhostLockNativePigeonUtils.wrapError(error))
@@ -1247,6 +1302,89 @@ interface GhostLockProfileNative {
           channel.setMessageHandler(null)
         }
       }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.GhostLockProfileNative.importProfileText$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val textArg = args[0] as String
+            val fileNameArg = args[1] as String
+            val overwriteArg = args[2] as Boolean
+            api.importProfileText(textArg, fileNameArg, overwriteArg) { result: Result<GhostLockImportResult> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(GhostLockNativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(GhostLockNativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.GhostLockProfileNative.renameImportedProfile$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val nameArg = args[0] as String
+            val newNameArg = args[1] as String
+            api.renameImportedProfile(nameArg, newNameArg) { result: Result<String> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(GhostLockNativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(GhostLockNativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.GhostLockProfileNative.exportImportedProfile$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val nameArg = args[0] as String
+            api.exportImportedProfile(nameArg) { result: Result<String> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(GhostLockNativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(GhostLockNativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.GhostLockProfileNative.convertImportedProfile$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val nameArg = args[0] as String
+            api.convertImportedProfile(nameArg) { result: Result<GhostLockImportResult> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(GhostLockNativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(GhostLockNativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
     }
   }
 }
@@ -1276,8 +1414,48 @@ interface GhostLockProfileEditNative {
   fun selectUserProfile(release: String, name: String, callback: (Result<GhostLockProfileConfig>) -> Unit)
   /** 把当前生效配置导出到 [path]（本地文件路径）。 */
   fun exportProfile(release: String, path: String, callback: (Result<Boolean>) -> Unit)
+  /**
+   * 把当前生效配置渲染为 HOCON 文本；无法解析时返回空串。
+   *
+   * Android/iOS 的 `saveFile` 必须随内容一起提交，调用方先取文本再落盘。
+   */
+  fun renderProfile(release: String, callback: (Result<String>) -> Unit)
   /** 把当前生效配置另存为一份用户文档。 */
   fun saveModifiedProfile(release: String, callback: (Result<Boolean>) -> Unit)
+  /** 只重置通用参数（execution tuning）的 override。 */
+  fun resetGeneralFields(release: String, callback: (Result<GhostLockProfileConfig>) -> Unit)
+  /** 只重置路由与高级字段的 override，保留通用参数。 */
+  fun resetAdvancedFields(release: String, callback: (Result<GhostLockProfileConfig>) -> Unit)
+  /** 把当前生效配置写回用户文档 [name]，并清掉该 release 的 override。 */
+  fun overwriteProfile(release: String, name: String, callback: (Result<Boolean>) -> Unit)
+  /** 当前生效的用户文档名；未选用导入层时返回空串。 */
+  fun activeUserProfile(callback: (Result<String>) -> Unit)
+  /** 当前生效的内置表 release；未指定时返回空串。 */
+  fun activeBuiltinRelease(callback: (Result<String>) -> Unit)
+  /**
+   * 打开编辑会话；[name] 为空串表示内置/设备态。
+   *
+   * 目标文档按其自身 release 解析，[deviceRelease] 只在内置/设备态下生效。
+   */
+  fun beginEditSession(name: String, deviceRelease: String, callback: (Result<GhostLockProfileConfig>) -> Unit)
+  /** 丢弃未保存改动，按当前会话目标重新解析。 */
+  fun reloadEditSession(callback: (Result<GhostLockProfileConfig>) -> Unit)
+  /** 会话是否编辑当前生效配置；true 时保存写入 live override。 */
+  fun editSessionIsLive(callback: (Result<Boolean>) -> Unit)
+  /** 会话目标的文档名；内置/设备态返回空串。 */
+  fun editSessionTarget(callback: (Result<String>) -> Unit)
+  /** 会话实际使用的 release。 */
+  fun editSessionRelease(callback: (Result<String>) -> Unit)
+  /** 把会话 override 写入 live override，随后 live 重新解析。 */
+  fun commitEditSession(callback: (Result<Boolean>) -> Unit)
+  /** 用会话结果整篇覆盖目标文档。 */
+  fun saveEditSessionInPlace(callback: (Result<Boolean>) -> Unit)
+  /** 会话结果另存为新文档；失败返回空串。 */
+  fun saveEditSessionAsNew(callback: (Result<String>) -> Unit)
+  /** 会话结果导出到本地文件 [path]。 */
+  fun exportEditSession(path: String, callback: (Result<Boolean>) -> Unit)
+  /** 关闭会话。 */
+  fun endEditSession(callback: (Result<Unit>) -> Unit)
 
   companion object {
     /** The codec used by GhostLockProfileEditNative. */
@@ -1476,6 +1654,26 @@ interface GhostLockProfileEditNative {
         }
       }
       run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.renderProfile$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val releaseArg = args[0] as String
+            api.renderProfile(releaseArg) { result: Result<String> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(GhostLockNativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(GhostLockNativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.saveModifiedProfile$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
@@ -1488,6 +1686,287 @@ interface GhostLockProfileEditNative {
               } else {
                 val data = result.getOrNull()
                 reply.reply(GhostLockNativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.resetGeneralFields$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val releaseArg = args[0] as String
+            api.resetGeneralFields(releaseArg) { result: Result<GhostLockProfileConfig> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(GhostLockNativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(GhostLockNativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.resetAdvancedFields$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val releaseArg = args[0] as String
+            api.resetAdvancedFields(releaseArg) { result: Result<GhostLockProfileConfig> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(GhostLockNativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(GhostLockNativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.overwriteProfile$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val releaseArg = args[0] as String
+            val nameArg = args[1] as String
+            api.overwriteProfile(releaseArg, nameArg) { result: Result<Boolean> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(GhostLockNativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(GhostLockNativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.activeUserProfile$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            api.activeUserProfile{ result: Result<String> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(GhostLockNativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(GhostLockNativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.activeBuiltinRelease$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            api.activeBuiltinRelease{ result: Result<String> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(GhostLockNativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(GhostLockNativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.beginEditSession$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val nameArg = args[0] as String
+            val deviceReleaseArg = args[1] as String
+            api.beginEditSession(nameArg, deviceReleaseArg) { result: Result<GhostLockProfileConfig> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(GhostLockNativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(GhostLockNativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.reloadEditSession$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            api.reloadEditSession{ result: Result<GhostLockProfileConfig> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(GhostLockNativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(GhostLockNativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.editSessionIsLive$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            api.editSessionIsLive{ result: Result<Boolean> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(GhostLockNativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(GhostLockNativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.editSessionTarget$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            api.editSessionTarget{ result: Result<String> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(GhostLockNativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(GhostLockNativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.editSessionRelease$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            api.editSessionRelease{ result: Result<String> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(GhostLockNativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(GhostLockNativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.commitEditSession$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            api.commitEditSession{ result: Result<Boolean> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(GhostLockNativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(GhostLockNativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.saveEditSessionInPlace$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            api.saveEditSessionInPlace{ result: Result<Boolean> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(GhostLockNativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(GhostLockNativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.saveEditSessionAsNew$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            api.saveEditSessionAsNew{ result: Result<String> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(GhostLockNativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(GhostLockNativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.exportEditSession$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val pathArg = args[0] as String
+            api.exportEditSession(pathArg) { result: Result<Boolean> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(GhostLockNativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(GhostLockNativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.GhostLockProfileEditNative.endEditSession$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            api.endEditSession{ result: Result<Unit> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(GhostLockNativePigeonUtils.wrapError(error))
+              } else {
+                reply.reply(GhostLockNativePigeonUtils.wrapResult(null))
               }
             }
           }

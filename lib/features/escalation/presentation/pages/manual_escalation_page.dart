@@ -497,7 +497,10 @@ class ManualEscalationPage extends HookConsumerWidget {
       if (!outcome.isFinal) return;
 
       // ② 终态且失败 -> 诊断。诊断行必须「先上屏、再落盘」。
-      if (!outcome.success) {
+      //
+      // 本侧已经给出明确诊断码（launchFailed / deviceDisconnected 等）时不再走
+      // 日志模式匹配：那段「未命中已知失败模式」的建议只会盖住真正的原因。
+      if (!outcome.success && outcome.failure.isEmpty) {
         try {
           final RunLogDiagnosis diagnosis = await ref.read(
             diagnoseRunLogProvider(
@@ -745,7 +748,7 @@ class ManualEscalationPage extends HookConsumerWidget {
       }
       if (preflight.profileError.isNotEmpty) {
         writer.writeLine(
-          l10n.escalationGhostLockProfileInvalid(preflight.profileError),
+          ghostLockProfileErrorText(l10n, preflight.profileError),
           color: TerminalTextWriter.red,
         );
         return;
@@ -1101,7 +1104,7 @@ class ManualEscalationPage extends HookConsumerWidget {
           );
           if (outcome.failure.isNotEmpty) {
             writer.writeLine(
-              l10n.escalationGhostLockFailureCode(outcome.failure),
+              ghostLockFailureText(l10n, outcome.failure),
               color: TerminalTextWriter.red,
             );
           }
