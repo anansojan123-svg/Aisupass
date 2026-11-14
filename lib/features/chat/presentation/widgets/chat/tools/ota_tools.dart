@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:Aisupass/features/chat/domain/models/chat_tool.dart';
-import 'package:Aisupass/features/chat/presentation/providers/tools/tool_schema.dart';
+import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/tool_schema.dart';
 import 'package:Aisupass/features/escalation/domain/enums/ota_catalog_brand.dart';
 import 'package:Aisupass/features/escalation/domain/models/ota_package.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/ota_catalog_query_provider.dart';

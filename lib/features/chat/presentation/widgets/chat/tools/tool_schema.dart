@@ -50,6 +50,13 @@ Map<String, dynamic> intMapProperty({String description = ''}) =>
       if (description.isNotEmpty) 'description': description,
     };
 
+Map<String, dynamic> stringMapProperty({String description = ''}) =>
+    <String, dynamic>{
+      'type': 'object',
+      'additionalProperties': <String, dynamic>{'type': 'string'},
+      if (description.isNotEmpty) 'description': description,
+    };
+
 /// 必填字符串；缺失或非字符串直接抛错，让工具卡片显示失败原因。
 String requireString(Map<String, dynamic> arguments, String key) {
   final Object? value = arguments[key];
@@ -103,6 +110,33 @@ Map<String, int> intMapArg(Map<String, dynamic> arguments, String key) {
       if (entry.value is num)
         '${entry.key}': (entry.value as num).toInt(),
   };
+}
+
+/// 字符串映射（点分路径 -> 值）。
+Map<String, String> stringMapArg(Map<String, dynamic> arguments, String key) {
+  final Object? value = arguments[key];
+  if (value is! Map) {
+    throw ArgumentError('Missing required string map argument: $key');
+  }
+  return <String, String>{
+    for (final MapEntry<dynamic, dynamic> entry in value.entries)
+      if (entry.value is String) '${entry.key}': entry.value as String,
+  };
+}
+
+/// 受限字符串取值；不在允许集合内抛错。
+String oneOfArg(
+  Map<String, dynamic> arguments,
+  String key,
+  List<String> allow,
+) {
+  final String value = requireString(arguments, key);
+  if (!allow.contains(value)) {
+    throw ArgumentError(
+      'Invalid value for $key: $value, expected one of ${allow.join(', ')}',
+    );
+  }
+  return value;
 }
 
 /// 枚举名解析；未知值抛错，避免静默回落到错误分支。

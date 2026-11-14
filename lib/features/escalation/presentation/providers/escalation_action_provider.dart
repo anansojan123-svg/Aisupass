@@ -615,6 +615,38 @@ class GhostLockProfileActions {
     (repo) => repo.updateFallback(release: release, fallbackTo: fallbackTo),
   );
 
+  /// 只重置通用参数的 override。
+  Future<GhostLockProfileConfig> resetGeneral({required String release}) =>
+      _apply(release, (repo) => repo.resetGeneral(release: release));
+
+  /// 只重置路由与高级字段的 override。
+  Future<GhostLockProfileConfig> resetAdvanced({required String release}) =>
+      _apply(release, (repo) => repo.resetAdvanced(release: release));
+
+  /// 清掉该 release 的全部 override。
+  Future<GhostLockProfileConfig> resetProfile({required String release}) =>
+      _apply(release, (repo) => repo.reset(release: release));
+
+  /// 把当前生效配置另存为一份用户文档。
+  Future<bool> saveModified({required String release}) => _ref
+      .read(ghostLockProfileEditActionRepositoryProvider)
+      .saveModified(release: release);
+
+  /// 把当前生效配置写回用户文档 [name]。
+  Future<bool> overwriteProfile({
+    required String release,
+    required String name,
+  }) async {
+    final bool saved = await _ref
+        .read(ghostLockProfileEditActionRepositoryProvider)
+        .overwriteProfile(release: release, name: name);
+    if (saved) {
+      _ref.invalidate(ghostLockImportedProfilesProvider);
+      _ref.invalidate(ghostLockPreflightProvider);
+    }
+    return saved;
+  }
+
   /// 指定生效的内置表；空串回到设备自身 release。
   Future<GhostLockProfileConfig> selectBuiltin({
     required String release,

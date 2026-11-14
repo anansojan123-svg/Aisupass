@@ -1,4 +1,4 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,7 +8,7 @@ import 'package:Aisupass/features/escalation/domain/models/payload.dart';
 import 'package:Aisupass/features/escalation/domain/models/payload_match.dart';
 import 'package:Aisupass/features/escalation/domain/models/root_manager.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/escalation_query_provider.dart';
-import 'package:Aisupass/features/chat/presentation/providers/tools/tool_schema.dart';
+import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/tool_schema.dart';
 
 /// 设备身份、载荷清单与 root 管理器相关工具。
 List<ChatToolDefinition> escalationQueryTools(Ref ref) => <ChatToolDefinition>[
@@ -67,7 +67,7 @@ List<ChatToolDefinition> escalationQueryTools(Ref ref) => <ChatToolDefinition>[
         'total': filtered.length,
         'items': <Map<String, Object?>>[
           for (final Payload payload in filtered.take(limit))
-            _payloadJson(payload),
+            payloadJson(payload),
         ],
       });
     },
@@ -100,7 +100,7 @@ List<ChatToolDefinition> escalationQueryTools(Ref ref) => <ChatToolDefinition>[
             : <String, Object?>{
                 'tier': match.tier.name,
                 'isDegraded': match.isDegraded,
-                'payload': _payloadJson(match.payload),
+                'payload': payloadJson(match.payload),
               },
       });
     },
@@ -117,7 +117,7 @@ List<ChatToolDefinition> escalationQueryTools(Ref ref) => <ChatToolDefinition>[
       );
       return jsonEncode(<String, Object?>{
         'items': <Map<String, Object?>>[
-          for (final RootManager manager in managers) _managerJson(manager),
+          for (final RootManager manager in managers) managerJson(manager),
         ],
       });
     },
@@ -133,13 +133,13 @@ List<ChatToolDefinition> escalationQueryTools(Ref ref) => <ChatToolDefinition>[
         selectedRootManagerProvider.future,
       );
       return jsonEncode(<String, Object?>{
-        'manager': manager == null ? null : _managerJson(manager),
+        'manager': manager == null ? null : managerJson(manager),
       });
     },
   ),
 ];
 
-Map<String, Object?> _payloadJson(Payload payload) => <String, Object?>{
+Map<String, Object?> payloadJson(Payload payload) => <String, Object?>{
   'id': payload.id,
   'library': payload.library,
   'vendor': payload.vendor,
@@ -158,7 +158,7 @@ Map<String, Object?> _payloadJson(Payload payload) => <String, Object?>{
   'source': payload.source,
 };
 
-Map<String, Object?> _managerJson(RootManager manager) => <String, Object?>{
+Map<String, Object?> managerJson(RootManager manager) => <String, Object?>{
   'packageName': manager.packageName,
   'displayName': manager.displayName,
   'homeUrl': manager.homeUrl,

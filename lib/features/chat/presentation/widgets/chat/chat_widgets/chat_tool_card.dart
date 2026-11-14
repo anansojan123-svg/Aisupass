@@ -227,15 +227,18 @@ class ChatToolGroup extends HookWidget {
   }
 }
 
-/// 工具动作短语：已知工具走本地化文案，未知工具回退到原始工具名。
+/// 工具动作短语：已知工具走本地化文案，未知工具把下划线命名还原为可读短语。
 String _toolLabel(BuildContext context, String name) {
   return switch (name) {
     'get_device_info' => context.l10n.chatToolReadDevice,
     'get_root_status' => context.l10n.chatToolCheckRoot,
     'get_adb_status' => context.l10n.chatToolCheckAdb,
-    _ => name.isEmpty ? context.l10n.chatToolRunning : name,
+    _ => name.isEmpty ? context.l10n.chatToolRunning : _humanize(name),
   };
 }
+
+/// `ghost_lock_list_imported_profiles` -> `ghost lock list imported profiles`。
+String _humanize(String name) => name.replaceAll('_', ' ');
 
 /// 耗时展示：不足 1s 用毫秒，其余用秒。
 String formatToolDuration(Duration duration) {

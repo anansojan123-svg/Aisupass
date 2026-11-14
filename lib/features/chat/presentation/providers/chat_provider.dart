@@ -12,6 +12,16 @@ import 'package:Aisupass/features/chat/domain/models/chat_tool.dart';
 import 'package:Aisupass/features/chat/domain/models/chat_turn.dart';
 import 'package:Aisupass/features/chat/domain/repositories/chat_repository.dart';
 import 'package:Aisupass/features/chat/presentation/providers/chat_sessions_provider.dart';
+import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/dirty_frag_tools.dart';
+import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/escalation_action_tools.dart';
+import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/escalation_query_tools.dart';
+import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/ghost_key_tools.dart';
+import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/ghost_lock_profile_tools.dart';
+import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/ghost_lock_tools.dart';
+import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/kernel_profile_tools.dart';
+import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/ota_tools.dart';
+import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/run_log_tools.dart';
+import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/tool_schema.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -121,16 +131,9 @@ final Provider<ChatRepository> chatRepositoryProvider = Provider<ChatRepository>
   (Ref ref) => ChatRepositoryImpl(datasource: ref.watch(chatDatasourceProvider)),
 );
 
-/// 无参数工具的 JSON Schema。
-const Map<String, dynamic> _noArgumentsSchema = <String, dynamic>{
-  'type': 'object',
-  'properties': <String, dynamic>{},
-  'additionalProperties': false,
-};
-
 /// 提供给模型的本地工具清单。
 ///
-/// 工具只读取设备环境，不做任何写操作，保证对话阶段零副作用。
+/// 当前批次全部为只读能力，保证对话阶段零副作用；执行类工具后续按批次接入。
 final Provider<List<ChatToolDefinition>> chatToolsProvider =
     Provider<List<ChatToolDefinition>>((Ref ref) {
       return <ChatToolDefinition>[
@@ -142,7 +145,7 @@ final Provider<List<ChatToolDefinition>> chatToolsProvider =
               'build number, SOTA version, API level, CPU ABI, SELinux status '
               'and app version. Call this before answering questions about '
               'the device.',
-          parameters: _noArgumentsSchema,
+          parameters: noArgsSchema,
           execute: (Map<String, dynamic> arguments) async {
             final DeviceSnapshot snapshot = await ref.read(
               deviceSnapshotProvider.future,
@@ -157,7 +160,7 @@ final Provider<List<ChatToolDefinition>> chatToolsProvider =
           name: 'get_root_status',
           description:
               'Check whether the current process already has ROOT privileges.',
-          parameters: _noArgumentsSchema,
+          parameters: noArgsSchema,
           execute: (Map<String, dynamic> arguments) async {
             final bool rooted = await ref.read(rootStatusProvider.future);
             return jsonEncode(<String, bool>{'rooted': rooted});
@@ -168,7 +171,7 @@ final Provider<List<ChatToolDefinition>> chatToolsProvider =
           description:
               'Check whether ADB over USB or ADB over Wi-Fi is currently '
               'enabled on the device.',
-          parameters: _noArgumentsSchema,
+          parameters: noArgsSchema,
           execute: (Map<String, dynamic> arguments) async {
             final status = await ref.read(adbStatusProvider.future);
             return jsonEncode(<String, bool>{
@@ -177,6 +180,15 @@ final Provider<List<ChatToolDefinition>> chatToolsProvider =
             });
           },
         ),
+        ...escalationQueryTools(ref),
+        ...escalationActionTools(ref),
+        ...ghostKeyTools(ref),
+        ...dirtyFragTools(ref),
+        ...ghostLockTools(ref),
+        ...ghostLockProfileTools(ref),
+        ...kernelProfileTools(ref),
+        ...otaTools(ref),
+        ...runLogTools(ref),
       ];
     });
 

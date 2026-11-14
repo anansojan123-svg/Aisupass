@@ -3,9 +3,10 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:Aisupass/features/chat/domain/models/chat_tool.dart';
-import 'package:Aisupass/features/chat/presentation/providers/tools/tool_schema.dart';
+import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/tool_schema.dart';
 import 'package:Aisupass/features/escalation/domain/models/run_log_diagnosis.dart';
 import 'package:Aisupass/features/escalation/domain/models/run_log_meta.dart';
+import 'package:Aisupass/features/escalation/presentation/providers/run_log_action_provider.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/run_log_query_provider.dart';
 
 /// 运行日志只读工具。
@@ -120,7 +121,46 @@ List<ChatToolDefinition> runLogTools(Ref ref) => <ChatToolDefinition>[
       });
     },
   ),
+  ChatToolDefinition(
+    name: 'run_log_delete',
+    description: 'Delete one run log by its fileName.',
+    parameters: objectSchema(
+      properties: <String, dynamic>{
+        'fileName': stringProperty(
+          description: 'Run log fileName from run_log_list_runs.',
+        ),
+      },
+      required: <String>['fileName'],
+    ),
+    execute: (Map<String, dynamic> arguments) async {
+      final String fileName = requireString(arguments, 'fileName');
+      final RunLogMeta? meta = await _findMeta(ref, fileName);
+      if (meta == null) {
+        throw ArgumentError('Run log not found: $fileName');
+      }
+      await ref.read(runLogActionsProvider).delete(meta);
+      return jsonEncode(<String, Object?>{'deleted': fileName});
+    },
+  ),
+  ChatToolDefinition(
+    name: 'run_log_clear_all',
+    description:
+        'Delete every run log except the one currently being written.',
+    parameters: noArgsSchema,
+    execute: (Map<String, dynamic> arguments) async {
+      await ref.read(runLogActionsProvider).clear();
+      return jsonEncode(<String, Object?>{'cleared': true});
+    },
+  ),
 ];
+
+Future<RunLogMeta?> _findMeta(Ref ref, String fileName) async {
+  final List<RunLogMeta> metas = await ref.read(runLogsProvider.future);
+  for (final RunLogMeta meta in metas) {
+    if (meta.fileName == fileName) return meta;
+  }
+  return null;
+}
 
 Map<String, Object?> _metaJson(RunLogMeta meta) => <String, Object?>{
   'fileName': meta.fileName,
