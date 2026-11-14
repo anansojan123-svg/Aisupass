@@ -548,13 +548,6 @@ class ManualEscalationPage extends HookConsumerWidget {
           // 内核能力只进了管理器，本进程（uid 2000）仍没有 root。
           // 既有移交脚本带 --allow-shell，是 shell 侧拿到 root 的唯一路径。
           if (outcome.success && ghostLockManager != null) {
-            writer.writeLine('');
-            writer.writeLine(
-              l10n.escalationGhostLockHandoffFollowUp(
-                ghostLockManager.displayName,
-              ),
-              color: TerminalTextWriter.dim,
-            );
             if (handoffTarget.value == ghostLockManager) {
               ref.invalidate(handoffRootProvider(manager: ghostLockManager));
             } else {

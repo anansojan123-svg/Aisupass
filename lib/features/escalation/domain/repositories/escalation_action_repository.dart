@@ -9,8 +9,8 @@ import 'package:Aisupass/features/escalation/domain/models/root_manager.dart';
 abstract class EscalationActionRepository {
   /// 拼出执行指定载荷的那一行命令。
   ///
-  /// 跑不起来的原因（so 没打进包、参数补不齐）也编在命令里，由终端打印，
-  /// 不抛异常。
+  /// 起不来的原因（so 没打进包、参数补不齐）抛 [PayloadLaunchException]，
+  /// 由展示层翻译成文案写屏，命令行里不夹 `echo`。
   Future<String> runPayload(Payload payload);
 
   /// 终端上来一段载荷输出就喂一次，供实现从中提取并缓存 KASLR 偏移。

@@ -37,12 +37,12 @@ class EscalationActionDatasource {
 
   /// 拼出「在常驻 pty 里跑这份载荷」的那一行。
   ///
-  /// 返回的永远是可以原样敲进终端的一行：跑不起来的原因（目录不可用、参数
-  /// 补不齐）也编成一句 `echo`，屏幕上看得见。
+  /// 只返回可以原样敲进终端的一行；起不来的原因抛
+  /// [PayloadLaunchException]，由展示层写屏，命令行里不夹 `echo`。
   Future<String> runPayload(Payload payload) async {
     final String directory = await _native.nativeLibraryDir();
     if (directory.isEmpty) {
-      return _echo('原生库目录不可用：so 没有解压到 nativeLibraryDir');
+      throw const PayloadLaunchException('libraryDirUnavailable');
     }
 
     final String payloadPath = '$directory/${payload.library}';
@@ -51,7 +51,7 @@ class EscalationActionDatasource {
       // 独立载荷没有注入 slide 的位置，这份缓存对它没意义。
       _bootToken = null;
       // catalog 里 `command` 的尾部是该载荷的参数，含占位符的要按设备实际内核
-      // 补齐；补不齐就只说一句，猜参数只会跑一次什么都没做的尝试。
+      // 补齐；补不齐就直说，猜参数只会跑一次什么都没做的尝试。
       String kernelVersion = payload.kernelVersion;
       if (payload.command.contains(PayloadShell.kernelTailPlaceholder)) {
         final pigeon.ShellExecResult kernel = await _exec(
@@ -65,12 +65,23 @@ class EscalationActionDatasource {
         kernelVersion,
       );
       if (arguments == null) {
-        return _echo('${payload.library} 的参数无法在设备上补齐：${payload.command}');
+        throw const PayloadLaunchException('argumentsUnresolved');
+      }
+      if (!await _test('-x', payloadPath)) {
+        throw const PayloadLaunchException('payloadMissing');
       }
       return PayloadShell.buildStandaloneLaunchCommand(
         payloadPath: payloadPath,
         arguments: arguments,
       );
+    }
+
+    final String helperPath = '$directory/${PayloadShell.helperLibrary}';
+    if (!await _test('-x', helperPath)) {
+      throw const PayloadLaunchException('helperMissing');
+    }
+    if (!await _test('-e', payloadPath)) {
+      throw const PayloadLaunchException('payloadMissing');
     }
 
     // 同一次开机内 slide 固定，读得到就塞进环境变量，省掉最贵的 P0 阶段。
@@ -81,10 +92,19 @@ class EscalationActionDatasource {
     _bootToken = bootToken;
 
     return PayloadShell.buildLaunchCommand(
-      helperPath: '$directory/${PayloadShell.helperLibrary}',
+      helperPath: helperPath,
       payloadPath: payloadPath,
       slideOffset: cachedSlide,
     );
+  }
+
+  /// 设备侧文件检查。走一次性通道，不上终端屏幕，也不产生回显。
+  Future<bool> _test(String flag, String path) async {
+    final pigeon.ShellExecResult result = await _exec(
+      'test $flag ${PayloadShell.quote(path)}',
+      PayloadShell.shortTimeoutMs,
+    );
+    return result.exitCode == 0;
   }
 
   /// 终端上来一段输出就喂一次，把 KASLR slide 从字节流里捞出来存盘。
@@ -96,9 +116,6 @@ class EscalationActionDatasource {
     if (token == null || text.isEmpty) return;
     unawaited(_slideCache.observe(text, token));
   }
-
-  /// 把一句说明编成终端里的一行。单引号包住，中文与空格都不会被 shell 拆开。
-  static String _echo(String message) => 'echo ${PayloadShell.quote(message)}';
 
   /// 记住用户选定的 root 管理器包名。
   Future<void> writeSelectedRootManagerPackage(String packageName) => _storage

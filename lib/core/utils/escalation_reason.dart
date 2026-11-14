@@ -50,6 +50,17 @@ String ghostLockFailureText(AppLocalizations l10n, String code) =>
       _ => l10n.escalationGhostLockFailureCode(code),
     };
 
+/// 载荷启动失败码 → 可读文案；未识别的码原样带出来。
+String payloadLaunchFailureText(AppLocalizations l10n, String code) =>
+    switch (code) {
+      'noCandidate' => l10n.escalationPayloadNoCandidate,
+      'libraryDirUnavailable' => l10n.escalationPayloadLibraryDirUnavailable,
+      'helperMissing' => l10n.escalationPayloadHelperMissing,
+      'payloadMissing' => l10n.escalationPayloadFileMissing,
+      'argumentsUnresolved' => l10n.escalationPayloadArgumentsUnresolved,
+      _ => code,
+    };
+
 /// 退出码行。负数是「没取到」，不是真实退出码。
 String escalationExitTag(int code) => code < 0 ? 'exit --' : 'exit $code';
 

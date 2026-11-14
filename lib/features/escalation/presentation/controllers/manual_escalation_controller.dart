@@ -340,6 +340,7 @@ class ManualEscalationController {
       ),
       EscalationTone.notice,
     );
+
     _ref.invalidate(shellConnectionProvider);
     // 先建好运行日志再起跑：被拒时首块立刻就到，晚一步就没有文件可写。
     await openGhostLockRun(preflight);
@@ -405,7 +406,7 @@ class ManualEscalationController {
         .writeBytes(utf8.encode('$command\r'));
   }
 
-  /// 拼命令并敲进终端。跑不起来的原因由命令自己 echo；抛异常时补一句。
+  /// 拼命令并敲进终端。起不来的原因在 Dart 侧写屏，不编进命令。
   Future<void> _runCommand(Future<String> Function() build) async {
     if (_isBusy()) return;
     _setBusy(true);
@@ -413,7 +414,9 @@ class ManualEscalationController {
       await _writeCommand(await build());
     } catch (error) {
       _writeLine(
-        '${_l10n.escalationInvokeFailed}：$error',
+        error is PayloadLaunchException
+            ? payloadLaunchFailureText(_l10n, error.code)
+            : '${_l10n.escalationInvokeFailed}：$error',
         EscalationTone.error,
       );
     } finally {

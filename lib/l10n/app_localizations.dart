@@ -1130,16 +1130,16 @@ abstract class AppLocalizations {
   /// **'（超时）'**
   String get escalationTimedOutTag;
 
-  /// 手动提权页-菜单里的提权项
+  /// 手动提权页-菜单里的提权项：按机型与内核自动匹配一条预制载荷
   ///
   /// In zh, this message translates to:
-  /// **'开始提权'**
+  /// **'自动匹配载荷提权'**
   String get escalationExploitButton;
 
   /// 手动提权页-终端：提权已发起
   ///
   /// In zh, this message translates to:
-  /// **'开始提权…'**
+  /// **'自动匹配载荷提权…'**
   String get escalationExploitStarted;
 
   /// 手动提权页-菜单里的移交分组标题
@@ -1297,6 +1297,36 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'开始提权'**
   String get escalationPayloadConfirmAction;
+
+  /// 手动提权页-终端：自动匹配没有命中任何载荷
+  ///
+  /// In zh, this message translates to:
+  /// **'当前设备在载荷清单里没有候选'**
+  String get escalationPayloadNoCandidate;
+
+  /// 手动提权页-终端：取不到原生库目录
+  ///
+  /// In zh, this message translates to:
+  /// **'原生库目录不可用：so 没有解压到 nativeLibraryDir'**
+  String get escalationPayloadLibraryDirUnavailable;
+
+  /// 手动提权页-终端：助手 so 不存在
+  ///
+  /// In zh, this message translates to:
+  /// **'执行助手缺失或不可执行'**
+  String get escalationPayloadHelperMissing;
+
+  /// 手动提权页-终端：载荷 so 不存在
+  ///
+  /// In zh, this message translates to:
+  /// **'载荷文件缺失'**
+  String get escalationPayloadFileMissing;
+
+  /// 手动提权页-终端：独立载荷的命令占位符补不齐
+  ///
+  /// In zh, this message translates to:
+  /// **'载荷参数无法在设备上补齐'**
+  String get escalationPayloadArgumentsUnresolved;
 
   /// 手动提权页-菜单里的清屏项
   ///
@@ -1495,12 +1525,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'VR 偏移已解析：{offset}'**
   String escalationDirtyFragVrOffsetResolved(String offset);
-
-  /// D8 自动补跑移交前写的那一行
-  ///
-  /// In zh, this message translates to:
-  /// **'接管成功，接着把 root 移交给 {manager}'**
-  String escalationDirtyFragHandoffFollowUp(String manager);
 
   /// 确认弹窗里手动偏移下方的提取按钮
   ///
@@ -2125,12 +2149,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'停止读取'**
   String get escalationGhostLockStop;
-
-  /// 成功后自动补跑移交前写的那一行
-  ///
-  /// In zh, this message translates to:
-  /// **'往下把 root 移交给 {manager}'**
-  String escalationGhostLockHandoffFollowUp(String manager);
 
   /// 确认弹窗与编辑器页标题里打开编辑器的按钮
   ///

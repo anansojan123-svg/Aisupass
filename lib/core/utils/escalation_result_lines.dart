@@ -144,13 +144,6 @@ EscalationLines dirtyFragResultLines(
     ),
     tone: EscalationTone.dim,
   ));
-  if (outcome.success && manager != null) {
-    tail.add((text: '', tone: EscalationTone.normal));
-    tail.add((
-      text: l10n.escalationDirtyFragHandoffFollowUp(manager.displayName),
-      tone: EscalationTone.dim,
-    ));
-  }
   return (head: const <EscalationLine>[], tail: tail);
 }
 
@@ -241,13 +234,6 @@ EscalationLines ghostLockResultLines(
     tail.add((
       text: ghostLockFailureText(l10n, outcome.failure),
       tone: EscalationTone.error,
-    ));
-  }
-  if (outcome.success && manager != null) {
-    tail.add((text: '', tone: EscalationTone.normal));
-    tail.add((
-      text: l10n.escalationGhostLockHandoffFollowUp(manager.displayName),
-      tone: EscalationTone.dim,
     ));
   }
   return (head: const <EscalationLine>[], tail: tail);

@@ -32,12 +32,6 @@ class PayloadShell {
   /// 单引号包裹。`nativeLibraryDir` 含 `~` `=`，不加引号会被 shell 吃掉。
   static String quote(String value) => "'$value'";
 
-  /// 助手链的一行命令。
-  ///
-  /// 两道闸门用 `||` 打印、再拿 `&&` 串起真正的执行：缺文件时屏幕上多一行说明，
-  /// 载荷不会跑，`$?` 非 0。**不用 `exit`**——那会把整个终端会话关掉，用户还得
-  /// 重新连一条。
-  ///
   /// 环境变量用 `NAME=VALUE` 前缀直接贴给助手，**不能借 `env`**：
   /// `nativeLibraryDir` 形如 `/data/app/~~abc==/pkg-xyz==/lib/arm64`，路径里带
   /// `=`；`env` 只要看到参数含 `=` 就当成变量赋值吞掉，助手路径被吃掉后它
@@ -56,12 +50,7 @@ class PayloadShell {
     final String slideEnv = slideOffset != null
         ? '$slideP0OffsetEnv=$slideOffset '
         : '';
-    return '[ -x $helper ] || '
-        'echo "helper not executable: $helper"; '
-        '[ -e $payload ] || '
-        'echo "payload missing: $payload"; '
-        '{ [ -x $helper ] && [ -e $payload ]; } && '
-        'EXPLOIT_ATTEMPTS=$exploitAttempts '
+    return 'EXPLOIT_ATTEMPTS=$exploitAttempts '
         'P0_ATTEMPT_TIMEOUT_SEC=$p0AttemptTimeoutSec '
         'EXPLOIT_ATTEMPT_TIMEOUT_SEC=$exploitAttemptTimeoutSec '
         '$slideEnv'
@@ -78,9 +67,7 @@ class PayloadShell {
   }) {
     final String payload = quote(payloadPath);
     final String args = arguments.isEmpty ? '' : ' $arguments';
-    return '[ -x $payload ] || '
-        'echo "payload not executable: $payload"; '
-        '[ -x $payload ] && $payload$args </dev/null';
+    return '$payload$args </dev/null';
   }
 
   /// 读设备内核版本，供需要内核版本参数的独立载荷填空。

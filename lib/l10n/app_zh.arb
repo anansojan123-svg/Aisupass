@@ -796,11 +796,11 @@
   "@escalationTimedOutTag": {
     "description": "手动提权页-结果行的超时后缀"
   },
-  "escalationExploitButton": "开始提权",
+  "escalationExploitButton": "自动匹配载荷提权",
   "@escalationExploitButton": {
-    "description": "手动提权页-菜单里的提权项"
+    "description": "手动提权页-菜单里的提权项：按机型与内核自动匹配一条预制载荷"
   },
-  "escalationExploitStarted": "开始提权…",
+  "escalationExploitStarted": "自动匹配载荷提权…",
   "@escalationExploitStarted": {
     "description": "手动提权页-终端：提权已发起"
   },
@@ -935,6 +935,26 @@
   "escalationPayloadConfirmAction": "开始提权",
   "@escalationPayloadConfirmAction": {
     "description": "手动提权页-二次确认的确认按钮"
+  },
+  "escalationPayloadNoCandidate": "当前设备在载荷清单里没有候选",
+  "@escalationPayloadNoCandidate": {
+    "description": "手动提权页-终端：自动匹配没有命中任何载荷"
+  },
+  "escalationPayloadLibraryDirUnavailable": "原生库目录不可用：so 没有解压到 nativeLibraryDir",
+  "@escalationPayloadLibraryDirUnavailable": {
+    "description": "手动提权页-终端：取不到原生库目录"
+  },
+  "escalationPayloadHelperMissing": "执行助手缺失或不可执行",
+  "@escalationPayloadHelperMissing": {
+    "description": "手动提权页-终端：助手 so 不存在"
+  },
+  "escalationPayloadFileMissing": "载荷文件缺失",
+  "@escalationPayloadFileMissing": {
+    "description": "手动提权页-终端：载荷 so 不存在"
+  },
+  "escalationPayloadArgumentsUnresolved": "载荷参数无法在设备上补齐",
+  "@escalationPayloadArgumentsUnresolved": {
+    "description": "手动提权页-终端：独立载荷的命令占位符补不齐"
   },
   "escalationMenuClear": "清屏",
   "@escalationMenuClear": {
@@ -1089,15 +1109,6 @@
     "description": "自动解析出偏移时的提示",
     "placeholders": {
       "offset": {
-        "type": "String"
-      }
-    }
-  },
-  "escalationDirtyFragHandoffFollowUp": "接管成功，接着把 root 移交给 {manager}",
-  "@escalationDirtyFragHandoffFollowUp": {
-    "description": "D8 自动补跑移交前写的那一行",
-    "placeholders": {
-      "manager": {
         "type": "String"
       }
     }
@@ -1601,15 +1612,6 @@
   "escalationGhostLockStop": "停止读取",
   "@escalationGhostLockStop": {
     "description": "运行中底栏的停止按钮；只停止本侧读取"
-  },
-  "escalationGhostLockHandoffFollowUp": "往下把 root 移交给 {manager}",
-  "@escalationGhostLockHandoffFollowUp": {
-    "description": "成功后自动补跑移交前写的那一行",
-    "placeholders": {
-      "manager": {
-        "type": "String"
-      }
-    }
   },
   "escalationGhostLockProfileEdit": "编辑内核表",
   "@escalationGhostLockProfileEdit": {

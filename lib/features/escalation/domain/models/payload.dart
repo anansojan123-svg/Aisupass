@@ -64,3 +64,16 @@ abstract class Payload with _$Payload {
     return parts.length >= 2 ? '${parts[0]}.${parts[1]}' : '';
   }
 }
+
+/// 载荷起不来。`code` 是稳定原因码，文案由展示层翻译。
+///
+/// 取值：`noCandidate`（清单里没有候选）、`libraryDirUnavailable`、
+/// `helperMissing`、`payloadMissing`、`argumentsUnresolved`。
+class PayloadLaunchException implements Exception {
+  const PayloadLaunchException(this.code);
+
+  final String code;
+
+  @override
+  String toString() => 'PayloadLaunchException($code)';
+}

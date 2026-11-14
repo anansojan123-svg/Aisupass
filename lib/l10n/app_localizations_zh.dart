@@ -566,10 +566,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get escalationTimedOutTag => '（超时）';
 
   @override
-  String get escalationExploitButton => '开始提权';
+  String get escalationExploitButton => '自动匹配载荷提权';
 
   @override
-  String get escalationExploitStarted => '开始提权…';
+  String get escalationExploitStarted => '自动匹配载荷提权…';
 
   @override
   String get escalationHandoffSection => '移交 root';
@@ -660,6 +660,22 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get escalationPayloadConfirmAction => '开始提权';
+
+  @override
+  String get escalationPayloadNoCandidate => '当前设备在载荷清单里没有候选';
+
+  @override
+  String get escalationPayloadLibraryDirUnavailable =>
+      '原生库目录不可用：so 没有解压到 nativeLibraryDir';
+
+  @override
+  String get escalationPayloadHelperMissing => '执行助手缺失或不可执行';
+
+  @override
+  String get escalationPayloadFileMissing => '载荷文件缺失';
+
+  @override
+  String get escalationPayloadArgumentsUnresolved => '载荷参数无法在设备上补齐';
 
   @override
   String get escalationMenuClear => '清屏';
@@ -771,11 +787,6 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String escalationDirtyFragVrOffsetResolved(String offset) {
     return 'VR 偏移已解析：$offset';
-  }
-
-  @override
-  String escalationDirtyFragHandoffFollowUp(String manager) {
-    return '接管成功，接着把 root 移交给 $manager';
   }
 
   @override
@@ -1127,11 +1138,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get escalationGhostLockStop => '停止读取';
-
-  @override
-  String escalationGhostLockHandoffFollowUp(String manager) {
-    return '往下把 root 移交给 $manager';
-  }
 
   @override
   String get escalationGhostLockProfileEdit => '编辑内核表';

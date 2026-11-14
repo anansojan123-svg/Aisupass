@@ -678,6 +678,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get escalationPayloadConfirmAction => 'Start';
 
   @override
+  String get escalationPayloadNoCandidate =>
+      'No payload in the catalog matches this device';
+
+  @override
+  String get escalationPayloadLibraryDirUnavailable =>
+      'Native library directory unavailable: the .so was not extracted to nativeLibraryDir';
+
+  @override
+  String get escalationPayloadHelperMissing =>
+      'Helper binary missing or not executable';
+
+  @override
+  String get escalationPayloadFileMissing => 'Payload file missing';
+
+  @override
+  String get escalationPayloadArgumentsUnresolved =>
+      'Payload arguments cannot be resolved on this device';
+
+  @override
   String get escalationMenuClear => 'Clear screen';
 
   @override
@@ -796,11 +815,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String escalationDirtyFragVrOffsetResolved(String offset) {
     return 'VR offset resolved: $offset';
-  }
-
-  @override
-  String escalationDirtyFragHandoffFollowUp(String manager) {
-    return 'Injected; handing root off to $manager';
   }
 
   @override
@@ -1176,11 +1190,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get escalationGhostLockStop => 'Stop reading';
-
-  @override
-  String escalationGhostLockHandoffFollowUp(String manager) {
-    return 'Handing root off to $manager';
-  }
 
   @override
   String get escalationGhostLockProfileEdit => 'Edit kernel table';

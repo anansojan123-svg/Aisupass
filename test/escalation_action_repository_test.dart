@@ -70,6 +70,7 @@ bool _isStandaloneLaunch(String command) =>
 bool _isKernelRelease(String command) => command.contains('uname -r');
 bool _isBootId(String command) =>
     command.contains('/proc/sys/kernel/random/boot_id');
+bool _isFileTest(String command) => command.startsWith('test ');
 
 /// 内存版键值存储。兜底值与生产实现保持一致，才能复现
 /// 「`read<int>` 对缺失键返回 -1 而不是 null」这个坑。
@@ -164,20 +165,18 @@ EscalationActionRepositoryImpl _repository(
 
 void main() {
   group('拼命令阶段', () {
-    test('命令里带 helper 与载荷两道存在性闸门，输出落点是 /dev/stdout', () async {
+    test('命令里只拼执行体，文件存在性由设备侧 test 前置检查', () async {
       final _FakeNative fake = _FakeNative(
-        (String command) => fail('拼命令阶段不该真的下发命令: $command'),
+        (String command) => _isFileTest(command)
+            ? _ok('')
+            : fail('拼命令阶段不该真的执行载荷: $command'),
       );
 
       final String launch = await _repository(fake).runPayload(_payload());
 
       expect(_isLaunch(launch), isTrue);
-      // 缺文件时只打印一句，不退出整个会话；用 `||` 打、`&&` 串。
-      expect(launch, contains('echo "helper not executable: '));
-      expect(launch, contains('echo "payload missing: '));
-      expect(launch, contains('{ [ -x '));
-      expect(launch, contains('] && [ -e '));
-      expect(launch, contains('; } && '));
+      // 提示改由 Dart 侧写屏，命令行里不再夹 echo 兜底。
+      expect(launch, isNot(contains('echo ')));
       // 绝不用 `exit`：那会关掉整条终端会话，用户还得重连。
       expect(launch, isNot(contains('exit ')));
       // 环境变量直接做命令前缀，不能借 `env`：目录里的 `==` 会被 `env` 当成
@@ -197,27 +196,36 @@ void main() {
       );
       // 载荷不该等键盘；这不妨碍 Ctrl+C（SIGINT 按前台进程组投递）。
       expect(launch, contains('</dev/null'));
-      // 站桩确认：拼命令没有真的下发任何命令。
-      expect(fake.commands, isEmpty);
+      // 助手与载荷各查一次，且都是不上屏的一次性通道。
+      final List<String> tests = fake.commands.where(_isFileTest).toList();
+      expect(tests, hasLength(2));
+      expect(tests.first, startsWith('test -x '));
+      expect(tests.last, startsWith('test -e '));
     });
 
-    test('原生库目录为空时返回一句 echo，不拼助手命令', () async {
+    test('原生库目录为空时抛异常，不拼助手命令', () async {
       final _FakeNative fake = _FakeNative(
         (String command) => fail('不该发命令: $command'),
         directory: '',
       );
 
-      final String command = await _repository(fake).runPayload(_payload());
-
-      expect(command, contains('echo'));
-      expect(command, contains('原生库目录不可用'));
-      expect(command, isNot(contains('--run-payload')));
+      expect(
+        () => _repository(fake).runPayload(_payload()),
+        throwsA(
+          isA<PayloadLaunchException>().having(
+            (PayloadLaunchException e) => e.code,
+            'code',
+            'libraryDirUnavailable',
+          ),
+        ),
+      );
       expect(fake.commands, isEmpty);
     });
 
     test('standalone 载荷直接跑本体，参数按设备内核补齐', () async {
       final _FakeNative fake = _FakeNative((String command) {
         if (_isKernelRelease(command)) return _ok('6.6.89-android15-8-gabcd\n');
+        if (_isFileTest(command)) return _ok('');
         fail('不该走到这里: $command');
       });
 
@@ -237,31 +245,36 @@ void main() {
       // 不过助手：没有 --run-payload，也没有助手的环境变量。
       expect(launch, isNot(contains('--run-payload')));
       expect(launch, isNot(contains('EXPLOIT_ATTEMPTS')));
-      // 本体也必须过存在性闸门，并接 /dev/null，避免等键盘。
-      expect(launch, contains('[ -x '));
+      expect(launch, isNot(contains('echo ')));
+      // 本体也必须可执行，检查走设备侧 test，不上屏。
+      expect(fake.commands.where(_isFileTest), hasLength(1));
       expect(launch, contains('</dev/null'));
       // 补参数要靠设备真实内核版本，所以确实读了 `uname -r`。
       expect(fake.commands.where(_isKernelRelease), hasLength(1));
     });
 
-    test('standalone 占位符补不齐时返回 echo，不拼启动命令', () async {
+    test('standalone 占位符补不齐时抛异常，不拼启动命令', () async {
       final _FakeNative fake = _FakeNative((String command) {
         if (_isKernelRelease(command)) return _fail(1);
         fail('不该走到这里: $command');
       });
 
-      final String command = await _repository(fake).runPayload(
-        _payload(
-          standalone: true,
-          command: '/data/local/tmp/mi_mt6895_43499 --target <内核版本的后三位>',
+      expect(
+        () => _repository(fake).runPayload(
+          _payload(
+            standalone: true,
+            command: '/data/local/tmp/mi_mt6895_43499 --target <内核版本的后三位>',
+          ),
+        ),
+        throwsA(
+          isA<PayloadLaunchException>().having(
+            (PayloadLaunchException e) => e.code,
+            'code',
+            'argumentsUnresolved',
+          ),
         ),
       );
-
-      expect(command, contains('参数无法在设备上补齐'));
-      expect(_isStandaloneLaunch(command), isFalse);
-      // 只有一句说明：没有闸门也不执行本体。
-      expect(command, startsWith('echo '));
-      expect(command, isNot(contains('</dev/null')));
+      expect(fake.commands.where(_isFileTest), isEmpty);
     });
   });
 
@@ -270,7 +283,9 @@ void main() {
     const String slideLine = 'slide-kaslr-ok slide=00000000001a0000\n';
 
     _FakeNative planner({String bootToken = 'boot-session-1'}) => _FakeNative(
-      (String command) => fail('拼命令阶段不该真的下发命令: $command'),
+      (String command) => _isFileTest(command)
+          ? _ok('')
+          : fail('拼命令阶段不该真的执行载荷: $command'),
       bootToken: bootToken,
     );
 

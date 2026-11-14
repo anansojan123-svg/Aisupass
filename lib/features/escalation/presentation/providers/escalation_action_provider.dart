@@ -1,7 +1,6 @@
 import 'package:Aisupass/core/providers/adb_shell_provider.dart';
 import 'package:Aisupass/core/providers/escalation_native_provider.dart';
 import 'package:Aisupass/core/storage/storage_providers.dart';
-import 'package:Aisupass/core/utils/payload_shell.dart';
 import 'package:Aisupass/features/escalation/data/datasources/dirty_frag_action_datasource.dart';
 import 'package:Aisupass/features/escalation/data/datasources/escalation_action_datasource.dart';
 import 'package:Aisupass/features/escalation/data/datasources/ghost_key_action_datasource.dart';
@@ -62,6 +61,7 @@ EscalationActionRepository escalationActionRepository(Ref ref) =>
 /// 自动匹配并拼出执行载荷的那一行命令。
 ///
 /// 「选哪份」归查询仓储，「拼命令」归执行仓储，两者的装配只在这里发生。
+/// 没有候选时抛 [PayloadLaunchException]，文案由展示层写屏。
 @riverpod
 Future<String> runPayload(Ref ref) async {
   final EscalationQueryRepository query = ref.watch(
@@ -73,7 +73,7 @@ Future<String> runPayload(Ref ref) async {
 
   final PayloadMatch? match = await query.resolve();
   if (match == null) {
-    return 'echo ${PayloadShell.quote('当前设备在载荷清单里没有候选')}';
+    throw const PayloadLaunchException('noCandidate');
   }
   return action.runPayload(match.payload);
 }
