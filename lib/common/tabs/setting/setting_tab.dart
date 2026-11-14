@@ -1,3 +1,4 @@
+import 'package:Aisupass/common/tabs/setting/about_setting_section.dart';
 import 'package:Aisupass/common/widgets/app_language_switch.dart';
 import 'package:Aisupass/common/widgets/app_settings_section.dart';
 import 'package:Aisupass/common/widgets/app_theme_color_picker.dart';
@@ -57,6 +58,11 @@ class SettingTab extends HookWidget {
             Divider(height: 1, indent: 62.w, endIndent: 16.w),
             const AppThemeColorPicker(),
           ],
+        ),
+        SizedBox(height: 20.h),
+        AppSettingsSection(
+          title: context.l10n.settingsAboutSection,
+          children: const <Widget>[AboutSettingSection()],
         ),
       ],
     );

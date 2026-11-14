@@ -128,6 +128,48 @@ abstract class AppLocalizations {
   /// **'外观'**
   String get settingsAppearanceSection;
 
+  /// 设置页分组标题-关于
+  ///
+  /// In zh, this message translates to:
+  /// **'关于'**
+  String get settingsAboutSection;
+
+  /// 设置页关于分组-当前版本号
+  ///
+  /// In zh, this message translates to:
+  /// **'版本'**
+  String get settingsAboutVersionTitle;
+
+  /// 设置页关于分组-源码仓库入口
+  ///
+  /// In zh, this message translates to:
+  /// **'开源地址'**
+  String get settingsAboutRepoTitle;
+
+  /// 设置页关于分组-协议全文入口
+  ///
+  /// In zh, this message translates to:
+  /// **'开源协议'**
+  String get settingsAboutLicenseTitle;
+
+  /// 设置页关于分组-协议名称副标题
+  ///
+  /// In zh, this message translates to:
+  /// **'GNU General Public License v3.0'**
+  String get settingsAboutLicenseSubtitle;
+
+  /// 协议全文页标题
+  ///
+  /// In zh, this message translates to:
+  /// **'开源协议'**
+  String get openSourceLicensePageTitle;
+
+  /// 协议全文读取失败提示
+  ///
+  /// In zh, this message translates to:
+  /// **'协议文本加载失败'**
+  String get openSourceLicenseLoadFailed;
+
   /// 设置项-主题模式
   ///
   /// In zh, this message translates to:

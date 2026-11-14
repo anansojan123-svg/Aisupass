@@ -25,6 +25,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAppearanceSection => 'Appearance';
 
   @override
+  String get settingsAboutSection => 'About';
+
+  @override
+  String get settingsAboutVersionTitle => 'Version';
+
+  @override
+  String get settingsAboutRepoTitle => 'Repository';
+
+  @override
+  String get settingsAboutLicenseTitle => 'License';
+
+  @override
+  String get settingsAboutLicenseSubtitle => 'GNU General Public License v3.0';
+
+  @override
+  String get openSourceLicensePageTitle => 'License';
+
+  @override
+  String get openSourceLicenseLoadFailed => 'Failed to load license text';
+
+  @override
   String get themeModeTitle => 'Theme Mode';
 
   @override

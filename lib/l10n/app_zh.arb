@@ -20,6 +20,34 @@
   "@settingsAppearanceSection": {
     "description": "设置页分组标题-外观"
   },
+  "settingsAboutSection": "关于",
+  "@settingsAboutSection": {
+    "description": "设置页分组标题-关于"
+  },
+  "settingsAboutVersionTitle": "版本",
+  "@settingsAboutVersionTitle": {
+    "description": "设置页关于分组-当前版本号"
+  },
+  "settingsAboutRepoTitle": "开源地址",
+  "@settingsAboutRepoTitle": {
+    "description": "设置页关于分组-源码仓库入口"
+  },
+  "settingsAboutLicenseTitle": "开源协议",
+  "@settingsAboutLicenseTitle": {
+    "description": "设置页关于分组-协议全文入口"
+  },
+  "settingsAboutLicenseSubtitle": "GNU General Public License v3.0",
+  "@settingsAboutLicenseSubtitle": {
+    "description": "设置页关于分组-协议名称副标题"
+  },
+  "openSourceLicensePageTitle": "开源协议",
+  "@openSourceLicensePageTitle": {
+    "description": "协议全文页标题"
+  },
+  "openSourceLicenseLoadFailed": "协议文本加载失败",
+  "@openSourceLicenseLoadFailed": {
+    "description": "协议全文读取失败提示"
+  },
   "themeModeTitle": "主题模式",
   "@themeModeTitle": {
     "description": "设置项-主题模式"

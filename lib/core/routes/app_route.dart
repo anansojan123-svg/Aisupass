@@ -1,5 +1,6 @@
 import 'package:Aisupass/common/pages/desktop_page.dart';
 import 'package:Aisupass/common/pages/main_page.dart';
+import 'package:Aisupass/common/pages/open_source_license_page.dart';
 import 'package:Aisupass/features/ai/presentation/pages/ai_config_edit_page.dart';
 import 'package:Aisupass/features/ai/presentation/pages/ai_config_page.dart';
 import 'package:Aisupass/features/chat/presentation/pages/chat_page.dart';
@@ -70,6 +71,9 @@ class AppRoute {
   static String runLogDetail(String fileName) =>
       '$runLog?file=${Uri.encodeComponent(fileName)}';
 
+  // 开源协议全文
+  static const openSourceLicense = '/openSourceLicense';
+
   // 桌面端
   static const desktopHome = '/desktop';
 
@@ -134,6 +138,10 @@ final List<GoRoute> appRoutes = [
     builder: (context, state) => RunLogPage(
       openedFile: state.uri.queryParameters['file'],
     ),
+  ),
+  GoRoute(
+    path: AppRoute.openSourceLicense,
+    builder: (context, state) => const OpenSourceLicensePage(),
   ),
   GoRoute(
     path: AppRoute.desktopHome,

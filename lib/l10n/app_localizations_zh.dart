@@ -25,6 +25,27 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsAppearanceSection => '外观';
 
   @override
+  String get settingsAboutSection => '关于';
+
+  @override
+  String get settingsAboutVersionTitle => '版本';
+
+  @override
+  String get settingsAboutRepoTitle => '开源地址';
+
+  @override
+  String get settingsAboutLicenseTitle => '开源协议';
+
+  @override
+  String get settingsAboutLicenseSubtitle => 'GNU General Public License v3.0';
+
+  @override
+  String get openSourceLicensePageTitle => '开源协议';
+
+  @override
+  String get openSourceLicenseLoadFailed => '协议文本加载失败';
+
+  @override
   String get themeModeTitle => '主题模式';
 
   @override
