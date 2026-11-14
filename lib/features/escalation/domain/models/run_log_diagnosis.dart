@@ -4,8 +4,7 @@ part 'run_log_diagnosis.freezed.dart';
 
 /// 一次失败归因的结果。
 ///
-/// 只带规则码与原始证据行，**不含任何可读文案**——文案由
-/// `run_log_diagnosis_text.dart` 按 l10n 渲染。
+/// 只带规则码与原始证据行，不含任何可读文案。
 @freezed
 abstract class RunLogDiagnosis with _$RunLogDiagnosis {
   const RunLogDiagnosis._();

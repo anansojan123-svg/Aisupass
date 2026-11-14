@@ -34,15 +34,20 @@ class _CopyIcon extends StatelessWidget {
 }
 
 /// 解析结果卡片：只做展示，写入由弹层底部主按钮触发。
+///
+/// [routeDiagnostics] 为 false 时（GhostKey 目标）隐藏 route 几何与物理基址
+/// 相关诊断：那是 GhostLock 的分析结论，GhostKey 没有 route 概念，展示出来只会误导。
 class KernelProfileProbeCard extends HookWidget {
   const KernelProfileProbeCard({
     super.key,
     required this.probe,
     required this.enabled,
+    this.routeDiagnostics = true,
   });
 
   final GhostLockProbe probe;
   final bool enabled;
+  final bool routeDiagnostics;
 
   @override
   Widget build(BuildContext context) {
@@ -92,55 +97,56 @@ class KernelProfileProbeCard extends HookWidget {
             ),
             SizedBox(height: 4.h),
             /* 几何缺失是硬失败：运行到 W1 一定停，先在这里说清楚。 */
-            if (_geometryWarnings(probe.warnings) case final List<String> gaps
-                when gaps.isNotEmpty) ...<Widget>[
-              SizedBox(height: 4.h),
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Text(
-                      l10n.kernelProfileProbeRouteIncomplete,
+            if (routeDiagnostics)
+              if (_geometryWarnings(probe.warnings) case final List<String> gaps
+                  when gaps.isNotEmpty) ...<Widget>[
+                SizedBox(height: 4.h),
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Text(
+                        l10n.kernelProfileProbeRouteIncomplete,
+                        style: TextStyle(
+                          fontSize: 11.5.sp,
+                          height: 1.4,
+                          fontWeight: FontWeight.w600,
+                          color: scheme.error,
+                        ),
+                      ),
+                    ),
+                    _CopyIcon(
+                      text: <String>[
+                        l10n.kernelProfileProbeRouteIncomplete,
+                        for (final String line in gaps) '· $line',
+                        l10n.kernelProfileProbeRouteIncompleteHint,
+                      ].join('\n'),
+                    ),
+                  ],
+                ),
+                for (final String line in gaps)
+                  Padding(
+                    padding: EdgeInsets.only(top: 2.h),
+                    child: SelectableText(
+                      '· $line',
                       style: TextStyle(
-                        fontSize: 11.5.sp,
+                        fontSize: 10.5.sp,
                         height: 1.4,
-                        fontWeight: FontWeight.w600,
                         color: scheme.error,
                       ),
                     ),
                   ),
-                  _CopyIcon(
-                    text: <String>[
-                      l10n.kernelProfileProbeRouteIncomplete,
-                      for (final String line in gaps) '· $line',
-                      l10n.kernelProfileProbeRouteIncompleteHint,
-                    ].join('\n'),
-                  ),
-                ],
-              ),
-              for (final String line in gaps)
                 Padding(
                   padding: EdgeInsets.only(top: 2.h),
                   child: SelectableText(
-                    '· $line',
+                    l10n.kernelProfileProbeRouteIncompleteHint,
                     style: TextStyle(
                       fontSize: 10.5.sp,
                       height: 1.4,
-                      color: scheme.error,
+                      color: scheme.onSurfaceVariant,
                     ),
                   ),
                 ),
-              Padding(
-                padding: EdgeInsets.only(top: 2.h),
-                child: SelectableText(
-                  l10n.kernelProfileProbeRouteIncompleteHint,
-                  style: TextStyle(
-                    fontSize: 10.5.sp,
-                    height: 1.4,
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-            ],
+              ],
             /* 从包内实际解出的分区。 */
             if (_payloadLine(probe.warnings)
                 case final String extracted) ...<Widget>[
@@ -154,20 +160,22 @@ class KernelProfileProbeCard extends HookWidget {
               ),
               SizedBox(height: 4.h),
             ],
-            SelectableText(
-              probe.hasKernelPhysLoad
-                  ? '${l10n.kernelProfileProbePhys}: '
-                        '${probe.kernelPhysLoad} (${probe.physSource})'
-                  : '${l10n.kernelProfileProbePhys}: '
-                        '${l10n.kernelProfileProbePhysMissing}',
-              style: TextStyle(
-                fontSize: 11.5.sp,
-                height: 1.4,
-                color: scheme.onSurfaceVariant,
+            /* 物理装载基址只有 GhostLock 的 route 几何会用到。 */
+            if (routeDiagnostics)
+              SelectableText(
+                probe.hasKernelPhysLoad
+                    ? '${l10n.kernelProfileProbePhys}: '
+                          '${probe.kernelPhysLoad} (${probe.physSource})'
+                    : '${l10n.kernelProfileProbePhys}: '
+                          '${l10n.kernelProfileProbePhysMissing}',
+                style: TextStyle(
+                  fontSize: 11.5.sp,
+                  height: 1.4,
+                  color: scheme.onSurfaceVariant,
+                ),
               ),
-            ),
             /* 未取到时展开物理基址相关的告警。 */
-            if (!probe.hasKernelPhysLoad) ...<Widget>[
+            if (routeDiagnostics && !probe.hasKernelPhysLoad) ...<Widget>[
               SizedBox(height: 2.h),
               Row(
                 children: <Widget>[

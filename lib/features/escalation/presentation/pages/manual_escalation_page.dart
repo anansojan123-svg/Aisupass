@@ -259,6 +259,11 @@ class ManualEscalationPage extends HookConsumerWidget {
     }
 
     /// 停止本侧读取；设备侧进程继续跑。
+    Future<void> stopGhostKey() => flow.stopGhostKey(
+      onError: (Object error) => ToastMessage.error(error),
+    );
+
+    /// 停止本侧读取；设备侧进程继续跑。
     Future<void> stopGhostLock() => flow.stopGhostLock(
       onError: (Object error) => ToastMessage.error(error),
     );
@@ -576,6 +581,16 @@ class ManualEscalationPage extends HookConsumerWidget {
               ),
             ),
           // 运行中给一个停止入口：只停止本侧读取，设备侧进程继续跑。
+          if (ghostKeyStarted.value && ghostKey?.value?.isFinal != true)
+            IconButton(
+              tooltip: l10n.escalationGhostLockStop,
+              onPressed: () => unawaited(stopGhostKey()),
+              icon: Icon(
+                Icons.stop_circle_outlined,
+                size: 20.r,
+                color: theme.colorScheme.error,
+              ),
+            ),
           if (ghostLockStarted.value && ghostLock?.value?.isFinal != true)
             IconButton(
               tooltip: l10n.escalationGhostLockStop,

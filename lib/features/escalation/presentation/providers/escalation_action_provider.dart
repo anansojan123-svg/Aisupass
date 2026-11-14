@@ -275,6 +275,10 @@ class GhostKeyActions {
         .saveRunDefaults(defaults: defaults);
     _ref.invalidate(ghostKeyRunDefaultsProvider);
   }
+
+  /// 停止本侧读取；设备侧进程继续跑。
+  Future<void> cancel() =>
+      _ref.read(ghostKeyActionRepositoryProvider).cancel();
 }
 
 /// 跑一次 GhostKey，按块吐出证据。

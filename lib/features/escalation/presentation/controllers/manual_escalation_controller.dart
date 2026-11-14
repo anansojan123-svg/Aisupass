@@ -40,20 +40,16 @@ class ManualEscalationController {
   final bool Function() _isBusy;
   final void Function(bool busy) _setBusy;
 
-  /// GhostKey 一轮运行日志。本侧已给诊断码时不再归因。
+  /// GhostKey 一轮运行日志。
   late final RunLogSession _ghostKeyLog = RunLogSession(
     ref: _ref,
-    l10n: _l10n,
     writeLine: _writeLine,
-    skipDiagnosisWhenFailure: true,
   );
 
-  /// GhostLock 一轮运行日志。终局失败一律归因。
+  /// GhostLock 一轮运行日志。
   late final RunLogSession _ghostLockLog = RunLogSession(
     ref: _ref,
-    l10n: _l10n,
     writeLine: _writeLine,
-    skipDiagnosisWhenFailure: false,
   );
 
   /// 自动匹配载荷并执行。
@@ -351,6 +347,17 @@ class ManualEscalationController {
   }
 
   /// 停止本侧读取；设备侧进程继续跑。
+  Future<void> stopGhostKey({
+    required void Function(Object error) onError,
+  }) async {
+    try {
+      await _ref.read(ghostKeyActionsProvider).cancel();
+    } catch (error) {
+      onError(error);
+    }
+  }
+
+  /// 停止本侧读取；设备侧进程继续跑。
   Future<void> stopGhostLock({
     required void Function(Object error) onError,
   }) async {
@@ -369,8 +376,6 @@ class ManualEscalationController {
       _ghostKeyLog.append(
         output: outcome.output,
         isFinal: outcome.isFinal,
-        success: outcome.success,
-        failure: outcome.failure,
         exitCode: outcome.exitCode,
         durationMs: outcome.durationMs,
         result: outcome.logResult,
@@ -385,8 +390,6 @@ class ManualEscalationController {
       _ghostLockLog.append(
         output: outcome.output,
         isFinal: outcome.isFinal,
-        success: outcome.success,
-        failure: outcome.failure,
         exitCode: outcome.exitCode,
         durationMs: outcome.durationMs,
         result: outcome.logResult,

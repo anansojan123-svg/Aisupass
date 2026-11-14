@@ -1099,7 +1099,7 @@
   "ghostKeyDiagInjectTaskLeakFailedCause1": "The task_struct cache size disagrees with sizeof(task_struct) from BTF: the cache is created via kmem_cache_create_usercopy(\"task_struct\", arch_task_struct_size, 0x40, ...), where arch_task_struct_size is a runtime variable that vendors may extend via android_arch_task_struct_size= (up to 0x400)",
   "ghostKeyDiagInjectTaskLeakFailedCause2": "The kmem_cache_alloc event was never enabled (tracefs not writable / SELinux denied)",
   "ghostKeyDiagInjectTaskLeakFailedCause3": "A fork landed on a CPU that was not read (scanning covers all real cores, so this should not happen)",
-  "ghostKeyDiagInjectTaskLeakFailedSuggestion1": "Update to a build that includes this fix and retry (size matching now uses the [sizeof, sizeof+0x400] window, tolerating vendor extensions)",
+  "ghostKeyDiagInjectTaskLeakFailedSuggestion1": "Reboot the device and try again",
   "ghostKeyDiagInjectTaskLeakFailedSuggestion2": "In the log, [task] raw=0 means the event was not enabled; raw>0 with hits=0 means the size window is wrong — save the [task] sizes= line for investigation",
   "ghostKeyDiagVerifyFailedTitle": "Temporary root verification failed: the su check did not pass after the escalation channel came up",
   "ghostKeyDiagVerifyFailedCause1": "The credential rewrite during injection was incomplete (the upstream race only partly succeeded)",

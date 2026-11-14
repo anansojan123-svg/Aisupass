@@ -576,7 +576,12 @@ class KernelProfileImportPanel extends HookConsumerWidget {
                 ],
                 if (probed != null && !probing.value) ...<Widget>[
                   SizedBox(height: 16.h),
-                  KernelProfileProbeCard(probe: probed, enabled: !anyBusy),
+                  KernelProfileProbeCard(
+                    probe: probed,
+                    enabled: !anyBusy,
+                    /* GhostKey 没有 route 概念，隐藏 GhostLock 的几何诊断。 */
+                    routeDiagnostics: ghostLockTarget,
+                  ),
                 ],
                 if (busy.value) ...<Widget>[
                   SizedBox(height: 14.h),

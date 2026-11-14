@@ -4,9 +4,13 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 /**
- * 把 KernelProfile 序列化为与原生 kernel_table.c 严格对齐的定长 blob。
+ * 把 KernelProfile 序列化为与原生 kernel_table.c 严格对齐的 stdin 报文。
  *
- * 布局（全小端，共 308 字节，version 4）：
+ * 报文 = 4 字节大端长度前缀（= [BLOB_SIZE]）+ 308 字节定长 blob。
+ * kernel_table.c 先读长度再读 blob；不带前缀会把 magic "C982"
+ * 当成长度（1127823410），profile 被丢弃并回落到内置表。
+ *
+ * blob 布局（全小端，共 308 字节，version 4）：
  *   0    magic[4] "C982"
  *   4    u16 version = 4
  *   6    u16 flags (bit0 = recommend_shizuku)
@@ -41,11 +45,15 @@ import java.nio.ByteOrder
 object KernelProfileSerializer {
 
     const val BLOB_SIZE = 308
+    private const val PREFIX_SIZE = 4
     private const val MAGIC = "C982"
     private const val VERSION: Short = 4
 
     fun serialize(profile: KernelProfile): ByteArray {
-        val buf = ByteBuffer.allocate(BLOB_SIZE).order(ByteOrder.LITTLE_ENDIAN)
+        val buf = ByteBuffer.allocate(PREFIX_SIZE + BLOB_SIZE)
+            .order(ByteOrder.BIG_ENDIAN)
+        buf.putInt(BLOB_SIZE)                                  // 长度前缀（大端）
+        buf.order(ByteOrder.LITTLE_ENDIAN)
         buf.put(MAGIC.toByteArray(Charsets.US_ASCII))          // 0..3
         buf.putShort(VERSION)                                   // 4..5
         buf.putShort(if (profile.recommendShizuku) 1 else 0)    // 6..7

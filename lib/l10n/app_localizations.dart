@@ -4205,7 +4205,7 @@ abstract class AppLocalizations {
   /// 失败归因规则 InjectTaskLeakFailed 的建议 1
   ///
   /// In zh, this message translates to:
-  /// **'更新到本修复之后的版本重试（尺寸匹配已改为 [sizeof, sizeof+0x400] 窗口，兼容厂商扩展）'**
+  /// **'重启设备后再试一次'**
   String get ghostKeyDiagInjectTaskLeakFailedSuggestion1;
 
   /// 失败归因规则 InjectTaskLeakFailed 的建议 2

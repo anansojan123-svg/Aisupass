@@ -2390,7 +2390,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ghostKeyDiagInjectTaskLeakFailedSuggestion1 =>
-      'Update to a build that includes this fix and retry (size matching now uses the [sizeof, sizeof+0x400] window, tolerating vendor extensions)';
+      'Reboot the device and try again';
 
   @override
   String get ghostKeyDiagInjectTaskLeakFailedSuggestion2 =>

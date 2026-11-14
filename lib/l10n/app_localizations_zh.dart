@@ -2285,8 +2285,7 @@ class AppLocalizationsZh extends AppLocalizations {
       'fork 落在未被读取的 CPU 上（按实际核数扫描，理论上不会）';
 
   @override
-  String get ghostKeyDiagInjectTaskLeakFailedSuggestion1 =>
-      '更新到本修复之后的版本重试（尺寸匹配已改为 [sizeof, sizeof+0x400] 窗口，兼容厂商扩展）';
+  String get ghostKeyDiagInjectTaskLeakFailedSuggestion1 => '重启设备后再试一次';
 
   @override
   String get ghostKeyDiagInjectTaskLeakFailedSuggestion2 =>

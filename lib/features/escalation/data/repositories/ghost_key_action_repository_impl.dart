@@ -22,11 +22,9 @@ class GhostKeyActionRepositoryImpl implements GhostKeyActionRepository {
 
   /// 轮询间隔。
   ///
-  /// `04` 第 7 步已定：`start` / `poll` 走 `exec`，注入那 30 秒看不到逐行
-  /// stdout，只能按块刷新。500 ms 的取法：注入段预期 30 s（`EXPECTED_MS[2]`），
-  /// 30 s ÷ 500 ms = 60 块；整个会话上限 60 s（`04` §4.1 超时表的 calib_a 超时）
-  /// 时最坏 120 块，与 DirtyFrag 的 100 块同数量级；`verify` 段 6 s 仍有 12 次
-  /// 采样，不会漏掉阶段切换。
+  /// `04` 第 7 步已定：`start` / `poll` 走 `exec`，注入段看不到逐行
+  /// stdout，只能按块刷新。500 ms 取法：注入段 60 块左右，`verify` 段 6 s
+  /// 仍有 12 次采样，不会漏掉阶段切换。
   static const Duration _pollInterval = Duration(milliseconds: 500);
 
   final GhostKeyActionDatasource _datasource;

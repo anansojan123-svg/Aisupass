@@ -3142,7 +3142,7 @@
   "@ghostKeyDiagInjectTaskLeakFailedCause3": {
     "description": "失败归因规则 InjectTaskLeakFailed 的原因 3"
   },
-  "ghostKeyDiagInjectTaskLeakFailedSuggestion1": "更新到本修复之后的版本重试（尺寸匹配已改为 [sizeof, sizeof+0x400] 窗口，兼容厂商扩展）",
+  "ghostKeyDiagInjectTaskLeakFailedSuggestion1": "重启设备后再试一次",
   "@ghostKeyDiagInjectTaskLeakFailedSuggestion1": {
     "description": "失败归因规则 InjectTaskLeakFailed 的建议 1"
   },

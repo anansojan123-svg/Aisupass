@@ -21,7 +21,7 @@ enum GhostKeyKind {
   /// `calib_b` 失败（退出码 3）：线性映射 page_offset 解不出。
   pageOffsetFailed,
 
-  /// 注入失败（退出码 4）：rootd 未在 30 秒内就绪。
+  /// 注入失败（退出码 4）：rootd 通道未就绪。
   injectFailed,
 
   /// 提权校验失败（退出码 5）：临时 root 通道不可用。
