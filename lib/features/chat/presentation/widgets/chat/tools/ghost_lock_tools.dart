@@ -9,16 +9,11 @@ import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/tool_sche
 import 'package:Aisupass/features/escalation/domain/models/ghost_lock_outcome.dart';
 import 'package:Aisupass/features/escalation/domain/models/ghost_lock_preflight.dart';
 import 'package:Aisupass/features/escalation/domain/models/root_manager.dart';
-import 'package:Aisupass/features/escalation/domain/repositories/ghost_lock_action_repository.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/escalation_action_provider.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/escalation_query_provider.dart';
 
 /// GhostLock 工具：自检、启动与运行会话。
 List<ChatToolDefinition> ghostLockTools(Ref ref) {
-  final GhostLockActionRepository repository = ref.watch(
-    ghostLockActionRepositoryProvider,
-  );
-
   return <ChatToolDefinition>[
     ChatToolDefinition(
       name: 'ghost_lock_preflight',
@@ -81,8 +76,9 @@ List<ChatToolDefinition> ghostLockTools(Ref ref) {
           exploitRunRegistryProvider,
         );
         final ExploitRunSession session = registry.create('ghost_lock_start');
-        session.cancel = repository.cancel;
-        session.subscription = repository
+        session.cancel = ref.read(ghostLockActionsProvider).cancel;
+        session.subscription = ref
+            .read(ghostLockActionsProvider)
             .run(manager: manager, safeMode: safeMode)
             .listen(
               (GhostLockOutcome outcome) {
@@ -118,8 +114,8 @@ List<ChatToolDefinition> ghostLockTools(Ref ref) {
           ),
         },
       ),
-      execute: (Map<String, dynamic> arguments) =>
-          _sessionSnapshot(ref, arguments),
+      execute: (Map<String, dynamic> arguments) async =>
+          snapshotRunSession(ref, 'ghost_lock_start', arguments),
     ),
     ChatToolDefinition(
       name: 'ghost_lock_cancel',
@@ -134,36 +130,7 @@ List<ChatToolDefinition> ghostLockTools(Ref ref) {
         },
       ),
       execute: (Map<String, dynamic> arguments) =>
-          _sessionCancel(ref, arguments),
+          cancelRunSession(ref, 'ghost_lock_start', arguments),
     ),
   ];
-}
-
-Future<String> _sessionSnapshot(
-  Ref ref,
-  Map<String, dynamic> arguments,
-) async {
-  final ExploitRunRegistry registry = ref.read(exploitRunRegistryProvider);
-  final String id = stringArg(arguments, 'sessionId');
-  final ExploitRunSession? session = id.isEmpty
-      ? registry.latest('ghost_lock_start')
-      : registry.find(id);
-  if (session == null) return jsonEncode(<String, Object?>{'found': false});
-  return jsonEncode(<String, Object?>{'found': true, ...session.toJson()});
-}
-
-Future<String> _sessionCancel(Ref ref, Map<String, dynamic> arguments) async {
-  final ExploitRunRegistry registry = ref.read(exploitRunRegistryProvider);
-  final String id = stringArg(arguments, 'sessionId');
-  final ExploitRunSession? session = id.isEmpty
-      ? registry.latest('ghost_lock_start')
-      : registry.find(id);
-  if (session == null) return jsonEncode(<String, Object?>{'found': false});
-  await session.subscription?.cancel();
-  session.subscription = null;
-  await session.cancel?.call();
-  session.onCancel?.call();
-  session.status = 'cancelled';
-  session.finished = true;
-  return jsonEncode(<String, Object?>{'found': true, ...session.toJson()});
 }

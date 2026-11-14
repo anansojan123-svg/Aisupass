@@ -495,6 +495,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatToolCollapse => '收起';
 
   @override
+  String get chatCodeLabel => '代码';
+
+  @override
+  String get chatImageLabel => '图片';
+
+  @override
   String get chatToolReadDevice => '读取设备信息';
 
   @override

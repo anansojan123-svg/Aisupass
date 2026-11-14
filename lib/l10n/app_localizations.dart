@@ -1004,6 +1004,18 @@ abstract class AppLocalizations {
   /// **'收起'**
   String get chatToolCollapse;
 
+  /// 围栏代码块未标注语言时的标签
+  ///
+  /// In zh, this message translates to:
+  /// **'代码'**
+  String get chatCodeLabel;
+
+  /// Markdown 图片缺失替代文本时的占位说明
+  ///
+  /// In zh, this message translates to:
+  /// **'图片'**
+  String get chatImageLabel;
+
   /// 工具动作名-get_device_info
   ///
   /// In zh, this message translates to:

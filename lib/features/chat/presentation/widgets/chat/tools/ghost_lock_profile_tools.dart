@@ -81,9 +81,9 @@ List<ChatToolDefinition> ghostLockProfileTools(Ref ref) =>
             'Read the latest GhostLock kernel table probe progress snapshot.',
         parameters: noArgsSchema,
         execute: (Map<String, dynamic> arguments) async {
-          final GhostLockProbeProgress progress = await ref
-              .read(ghostLockProfileActionRepositoryProvider)
-              .profileProgress();
+          final GhostLockProbeProgress progress = await ref.read(
+            ghostLockProbeProgressSnapshotProvider.future,
+          );
           return jsonEncode(<String, Object?>{
             'phase': progress.phase,
             'downloading': progress.downloading,
@@ -101,9 +101,9 @@ List<ChatToolDefinition> ghostLockProfileTools(Ref ref) =>
             'profile extraction.',
         parameters: noArgsSchema,
         execute: (Map<String, dynamic> arguments) async {
-          final List<String> paths = await ref
-              .read(ghostLockProfileActionRepositoryProvider)
-              .listExtractedImages();
+          final List<String> paths = await ref.read(
+            ghostLockExtractedImagesProvider.future,
+          );
           return jsonEncode(<String, Object?>{'items': paths});
         },
       ),
@@ -122,9 +122,9 @@ List<ChatToolDefinition> ghostLockProfileTools(Ref ref) =>
         ),
         execute: (Map<String, dynamic> arguments) async {
           final String release = requireString(arguments, 'release');
-          final GhostLockProfileConfig config = await ref
-              .read(ghostLockProfileEditActionRepositoryProvider)
-              .load(release: release);
+          final GhostLockProfileConfig config = await ref.read(
+            ghostLockProfileConfigProvider(release: release).future,
+          );
           return jsonEncode(_configJson(config));
         },
       ),

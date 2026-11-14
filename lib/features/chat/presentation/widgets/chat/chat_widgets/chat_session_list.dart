@@ -1,8 +1,7 @@
 import 'package:Aisupass/core/extensions/context_extensions.dart';
 import 'package:Aisupass/core/utils/platform.dart';
 import 'package:Aisupass/features/chat/domain/models/chat_session.dart';
-import 'package:Aisupass/features/chat/presentation/providers/chat_provider.dart';
-import 'package:Aisupass/features/chat/presentation/providers/chat_sessions_provider.dart';
+import 'package:Aisupass/features/chat/presentation/providers/chat_action_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -236,7 +235,7 @@ class _SessionTile extends StatelessWidget {
       child: Material(
         color: selected
             ? colors.primary.withValues(alpha: isDark ? 0.16 : 0.1)
-            : Colors.transparent,
+            : colors.surface.withValues(alpha: 0),
         borderRadius: BorderRadius.circular(isDesktop ? 10 : 10.r),
         child: InkWell(
           borderRadius: BorderRadius.circular(isDesktop ? 10 : 10.r),
@@ -255,7 +254,7 @@ class _SessionTile extends StatelessWidget {
               border: Border.all(
                 color: selected
                     ? colors.primary.withValues(alpha: 0.28)
-                    : Colors.transparent,
+                    : colors.surface.withValues(alpha: 0),
               ),
             ),
             child: Column(

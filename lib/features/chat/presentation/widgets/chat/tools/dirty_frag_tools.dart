@@ -12,15 +12,10 @@ import 'package:Aisupass/features/escalation/domain/models/dirty_frag_run_defaul
 import 'package:Aisupass/features/escalation/domain/models/root_manager.dart';
 import 'package:Aisupass/features/escalation/domain/models/vr_derive_progress.dart';
 import 'package:Aisupass/features/escalation/domain/models/vr_offset_result.dart';
-import 'package:Aisupass/features/escalation/domain/repositories/dirty_frag_action_repository.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/escalation_action_provider.dart';
 
 /// DirtyFrag 工具：状态、偏好、运行会话与 VR 偏移提取。
 List<ChatToolDefinition> dirtyFragTools(Ref ref) {
-  final DirtyFragActionRepository repository = ref.watch(
-    dirtyFragActionRepositoryProvider,
-  );
-
   return <ChatToolDefinition>[
     ChatToolDefinition(
       name: 'dirty_frag_is_armed',
@@ -76,7 +71,9 @@ List<ChatToolDefinition> dirtyFragTools(Ref ref) {
           'Read the latest offline VR offset extraction progress snapshot.',
       parameters: noArgsSchema,
       execute: (Map<String, dynamic> arguments) async {
-        final VrDeriveProgress progress = await repository.vrDeriveProgress();
+        final VrDeriveProgress progress = await ref.read(
+          vrDeriveProgressSnapshotProvider.future,
+        );
         return jsonEncode(_vrProgressJson(progress));
       },
     ),
@@ -195,8 +192,9 @@ List<ChatToolDefinition> dirtyFragTools(Ref ref) {
           exploitRunRegistryProvider,
         );
         final ExploitRunSession session = registry.create('dirty_frag_start');
-        session.cancel = repository.cancel;
-        session.subscription = repository
+        session.cancel = ref.read(dirtyFragActionsProvider).cancel;
+        session.subscription = ref
+            .read(dirtyFragActionsProvider)
             .run(
               manager: manager,
               vrOffsetOverride: intArg(arguments, 'vrOffsetOverride'),
@@ -235,8 +233,8 @@ List<ChatToolDefinition> dirtyFragTools(Ref ref) {
           ),
         },
       ),
-      execute: (Map<String, dynamic> arguments) =>
-          _sessionSnapshot(ref, 'dirty_frag_start', arguments),
+      execute: (Map<String, dynamic> arguments) async =>
+          snapshotRunSession(ref, 'dirty_frag_start', arguments),
     ),
     ChatToolDefinition(
       name: 'dirty_frag_cancel',
@@ -249,7 +247,7 @@ List<ChatToolDefinition> dirtyFragTools(Ref ref) {
         },
       ),
       execute: (Map<String, dynamic> arguments) =>
-          _sessionCancel(ref, 'dirty_frag_start', arguments),
+          cancelRunSession(ref, 'dirty_frag_start', arguments),
     ),
     ChatToolDefinition(
       name: 'dirty_frag_derive_vr_offset',
@@ -282,14 +280,15 @@ List<ChatToolDefinition> dirtyFragTools(Ref ref) {
         Timer? poller;
         unawaited(() async {
           poller = Timer.periodic(const Duration(milliseconds: 400), (_) async {
-            final VrDeriveProgress progress = await repository.vrDeriveProgress();
+            final VrDeriveProgress progress = await ref.read(
+              vrDeriveProgressSnapshotProvider.future,
+            );
             session.fraction = progress.fraction;
             session.durationMs = progress.phase;
           });
           try {
-            final VrOffsetResult result = await repository.deriveVrOffset(
-              input: input,
-              insecure: insecure,
+            final VrOffsetResult result = await ref.read(
+              deriveVrOffsetProvider(input: input, insecure: insecure).future,
             );
             session.status = result.ok ? 'succeeded' : 'failed';
             session.resolvedVrOffset = result.member > 0 ? '${result.member}' : '';
@@ -331,37 +330,3 @@ Map<String, Object?> _vrProgressJson(VrDeriveProgress progress) =>
       'total': progress.total,
       'fraction': progress.fraction,
     };
-
-Future<String> _sessionSnapshot(
-  Ref ref,
-  String tool,
-  Map<String, dynamic> arguments,
-) async {
-  final ExploitRunRegistry registry = ref.read(exploitRunRegistryProvider);
-  final String id = stringArg(arguments, 'sessionId');
-  final ExploitRunSession? session = id.isEmpty
-      ? registry.latest(tool)
-      : registry.find(id);
-  if (session == null) return jsonEncode(<String, Object?>{'found': false});
-  return jsonEncode(<String, Object?>{'found': true, ...session.toJson()});
-}
-
-Future<String> _sessionCancel(
-  Ref ref,
-  String tool,
-  Map<String, dynamic> arguments,
-) async {
-  final ExploitRunRegistry registry = ref.read(exploitRunRegistryProvider);
-  final String id = stringArg(arguments, 'sessionId');
-  final ExploitRunSession? session = id.isEmpty
-      ? registry.latest(tool)
-      : registry.find(id);
-  if (session == null) return jsonEncode(<String, Object?>{'found': false});
-  await session.subscription?.cancel();
-  session.subscription = null;
-  await session.cancel?.call();
-  session.onCancel?.call();
-  session.status = 'cancelled';
-  session.finished = true;
-  return jsonEncode(<String, Object?>{'found': true, ...session.toJson()});
-}

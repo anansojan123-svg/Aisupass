@@ -38,7 +38,9 @@ class ChatScrollButton extends StatelessWidget {
               Material(
                 color: colors.surface,
                 elevation: 3,
-                shadowColor: Colors.black.withValues(alpha: isDark ? 0.5 : 0.18),
+                shadowColor: colors.shadow.withValues(
+                  alpha: isDark ? 0.5 : 0.18,
+                ),
                 shape: CircleBorder(
                   side: BorderSide(
                     color: colors.outline.withValues(

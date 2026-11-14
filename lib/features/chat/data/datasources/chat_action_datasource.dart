@@ -4,11 +4,12 @@ import 'dart:convert';
 import 'package:Aisupass/features/ai/data/datasources/ai_model_query_datasource.dart';
 import 'package:Aisupass/features/ai/data/models/ai_config_dto.dart';
 import 'package:Aisupass/features/ai/domain/enums/ai_api_type.dart';
+import 'package:Aisupass/features/chat/domain/enums/chat_tool_status.dart';
 import 'package:Aisupass/features/chat/domain/models/chat_stream_event.dart';
 import 'package:Aisupass/features/chat/domain/models/chat_tool.dart';
+import 'package:Aisupass/features/chat/domain/models/chat_tool_call.dart';
 import 'package:Aisupass/features/chat/domain/models/chat_turn.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 
 /// 对话数据源：把完整历史与工具清单发给模型，逐段吐出统一的流式事件。
 ///
@@ -16,8 +17,8 @@ import 'package:flutter/foundation.dart';
 /// `openai.chat.v1`、`openai.responses.v1`、`anthropic.messages.v1`。
 /// 失败不抛异常，而是以 [ChatStreamFailed] 结束，附带原始返回，
 /// 便于在对话流里直接展示真实报错。
-class ChatDatasource {
-  ChatDatasource({Dio? dio})
+class ChatActionDatasource {
+  ChatActionDatasource({Dio? dio})
     : _dio =
           dio ??
           Dio(
@@ -40,12 +41,6 @@ class ChatDatasource {
   /// Anthropic 的 max_tokens 为必填项，未配置时用这个兜底。
   static const int _defaultAnthropicMaxTokens = 4096;
 
-  static const String _tag = '[AiChat]';
-
-  static void _log(String message) {
-    if (kDebugMode) debugPrint('$_tag $message');
-  }
-
   Stream<ChatStreamEvent> streamChat({
     required AiConfigDto config,
     required List<ChatTurn> history,
@@ -66,9 +61,6 @@ class ChatDatasource {
       tools: tools,
     );
 
-    _log('→ POST $url apiType=${config.apiType.name} '
-        'model=${config.modelName} turns=${history.length} tools=${tools.length}');
-
     final Response<ResponseBody> response;
     try {
       response = await _dio.post<ResponseBody>(
@@ -82,7 +74,6 @@ class ChatDatasource {
         ),
       );
     } on DioException catch (error) {
-      _log('✗ DioException type=${error.type.name} msg=${error.message}');
       yield ChatStreamFailed(
         message: error.message ?? error.type.name,
         statusCode: error.response?.statusCode,
@@ -96,7 +87,6 @@ class ChatDatasource {
     // 非 2xx：整段读出正文当错误信息。
     if (status == null || status < 200 || status >= 300) {
       final String raw = _pretty(await _readAll(body));
-      _log('✗ HTTP $status');
       yield ChatStreamFailed(
         message: _errorDetail(_tryDecode(raw)) ?? 'HTTP $status',
         rawBody: raw,
@@ -112,7 +102,6 @@ class ChatDatasource {
     final StringBuffer rawSse = StringBuffer();
     final _FrameParser parser = _FrameParser(config.apiType);
     bool sawSse = false;
-    bool terminal = false;
 
     try {
       await for (final _SseEvent event in _decodeSse(
@@ -127,10 +116,7 @@ class ChatDatasource {
 
         final String data = event.data.trim();
         if (data.isEmpty) continue;
-        if (data == '[DONE]') {
-          terminal = true;
-          break;
-        }
+        if (data == '[DONE]') break;
 
         final Object? decoded = _tryDecode(data);
         final Map<String, Object?>? payload = decoded is Map
@@ -139,7 +125,6 @@ class ChatDatasource {
 
         // 流内报错（额度不足、模型不存在、网关业务错误信封）立即中断。
         if (_payloadIsError(payload, event.event)) {
-          _log('✗ stream error');
           yield ChatStreamFailed(
             message: _errorDetail(payload) ?? 'Stream error',
             rawBody: _pretty(rawSse.toString()),
@@ -149,14 +134,12 @@ class ChatDatasource {
         }
 
         final _Frame frame = parser.parse(payload, event.event);
-        if (frame.terminal) terminal = true;
         for (final ChatStreamEvent item in frame.events) {
           yield item;
         }
       }
     } on FormatException catch (error) {
       // 事件结构损坏或单事件超出上限，按协议错误处理。
-      _log('✗ protocol malformed: ${error.message}');
       yield ChatStreamFailed(
         message: 'Protocol malformed: ${error.message}',
         rawBody: _pretty(rawSse.toString()),
@@ -181,12 +164,8 @@ class ChatDatasource {
       }
       final String reply = _parsePlainReply(decoded, config.apiType);
       if (reply.isNotEmpty) yield ChatTextDelta(reply);
-      terminal = true;
     }
 
-    if (!terminal) {
-      _log('! stream ended without terminal event');
-    }
     yield const ChatStreamFinished();
   }
 
@@ -393,7 +372,7 @@ class ChatDatasource {
   /// 工具结果文本：失败时优先给出错误原因，保证模型能看到失败信息。
   String _toolResultText(ChatToolCall call) {
     if (call.status == ChatToolStatus.failed) {
-      final String error = (call.error ?? '').trim();
+      final String error = call.error.trim();
       if (error.isNotEmpty) return error;
     }
     final String result = call.result.trim();

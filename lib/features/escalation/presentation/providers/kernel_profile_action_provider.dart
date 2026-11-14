@@ -29,18 +29,14 @@ KernelProfileActionRepository kernelProfileActionRepository(Ref ref) =>
 Stream<KernelProfileImportState> importKernelProfile(
   Ref ref, {
   required String path,
-}) => ref
-    .watch(kernelProfileActionRepositoryProvider)
-    .importBootImage(path: path);
+}) => ref.watch(kernelProfileActionsProvider).importBootImage(path: path);
 
 /// 从 OTA 链接导入一份 profile，按进度块吐出。
 @riverpod
 Stream<KernelProfileImportState> importKernelProfileFromUrl(
   Ref ref, {
   required String url,
-}) => ref
-    .watch(kernelProfileActionRepositoryProvider)
-    .importBootImageFromUrl(url: url);
+}) => ref.watch(kernelProfileActionsProvider).importBootImageFromUrl(url: url);
 
 /// 用户 profile 的写操作。
 ///
@@ -53,6 +49,19 @@ class KernelProfileActions {
   KernelProfileActions(this._ref);
 
   final Ref _ref;
+
+  /// 解析 boot.img 并落盘，按进度块吐出。
+  Stream<KernelProfileImportState> importBootImage({required String path}) =>
+      _ref.read(kernelProfileActionRepositoryProvider).importBootImage(
+        path: path,
+      );
+
+  /// 从 OTA 链接取 boot 分区并落盘，按进度块吐出。
+  Stream<KernelProfileImportState> importBootImageFromUrl({
+    required String url,
+  }) => _ref
+      .read(kernelProfileActionRepositoryProvider)
+      .importBootImageFromUrl(url: url);
 
   /// 删除一份用户文档，成功后刷新列表与生效来源。
   Future<bool> remove(String name) async {

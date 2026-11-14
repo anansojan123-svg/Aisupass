@@ -688,6 +688,14 @@
   "@chatToolCollapse": {
     "description": "工具结果展开后的收起提示"
   },
+  "chatCodeLabel": "代码",
+  "@chatCodeLabel": {
+    "description": "围栏代码块未标注语言时的标签"
+  },
+  "chatImageLabel": "图片",
+  "@chatImageLabel": {
+    "description": "Markdown 图片缺失替代文本时的占位说明"
+  },
   "chatToolReadDevice": "读取设备信息",
   "@chatToolReadDevice": {
     "description": "工具动作名-get_device_info"

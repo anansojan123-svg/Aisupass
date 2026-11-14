@@ -4,12 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:Aisupass/features/chat/domain/models/chat_tool.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/exploit_run_sessions.dart';
+import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/tool_helpers.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/tool_schema.dart';
 import 'package:Aisupass/features/escalation/domain/models/kernel_profile.dart';
 import 'package:Aisupass/features/escalation/domain/models/kernel_profile_editor.dart';
 import 'package:Aisupass/features/escalation/domain/models/kernel_profile_import_result.dart';
 import 'package:Aisupass/features/escalation/domain/models/kernel_profile_import_state.dart';
-import 'package:Aisupass/features/escalation/domain/repositories/kernel_profile_action_repository.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/kernel_profile_action_provider.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/kernel_profile_query_provider.dart';
 
@@ -156,13 +156,12 @@ List<ChatToolDefinition> kernelProfileTools(Ref ref) => <ChatToolDefinition>[
         const <String>['path', 'url'],
       );
       final String value = requireString(arguments, 'value');
-      final KernelProfileActionRepository repository = ref.read(
-        kernelProfileActionRepositoryProvider,
+      final KernelProfileActions actions = ref.read(
+        kernelProfileActionsProvider,
       );
-      final Stream<KernelProfileImportState> stream =
-          source == 'path'
-          ? repository.importBootImage(path: value)
-          : repository.importBootImageFromUrl(url: value);
+      final Stream<KernelProfileImportState> stream = source == 'path'
+          ? actions.importBootImage(path: value)
+          : actions.importBootImageFromUrl(url: value);
 
       final ExploitRunRegistry registry = ref.read(
         exploitRunRegistryProvider,
@@ -207,19 +206,8 @@ List<ChatToolDefinition> kernelProfileTools(Ref ref) => <ChatToolDefinition>[
         ),
       },
     ),
-    execute: (Map<String, dynamic> arguments) async {
-      final ExploitRunRegistry registry = ref.read(
-        exploitRunRegistryProvider,
-      );
-      final String id = stringArg(arguments, 'sessionId');
-      final ExploitRunSession? session = id.isEmpty
-          ? registry.latest('kernel_profile_import_start')
-          : registry.find(id);
-      if (session == null) {
-        return jsonEncode(<String, Object?>{'found': false});
-      }
-      return jsonEncode(<String, Object?>{'found': true, ...session.toJson()});
-    },
+    execute: (Map<String, dynamic> arguments) async =>
+        snapshotRunSession(ref, 'kernel_profile_import_start', arguments),
   ),
   ChatToolDefinition(
     name: 'kernel_profile_import_cancel',
@@ -233,25 +221,8 @@ List<ChatToolDefinition> kernelProfileTools(Ref ref) => <ChatToolDefinition>[
         ),
       },
     ),
-    execute: (Map<String, dynamic> arguments) async {
-      final ExploitRunRegistry registry = ref.read(
-        exploitRunRegistryProvider,
-      );
-      final String id = stringArg(arguments, 'sessionId');
-      final ExploitRunSession? session = id.isEmpty
-          ? registry.latest('kernel_profile_import_start')
-          : registry.find(id);
-      if (session == null) {
-        return jsonEncode(<String, Object?>{'found': false});
-      }
-      await session.subscription?.cancel();
-      session.subscription = null;
-      await session.cancel?.call();
-      session.onCancel?.call();
-      session.status = 'cancelled';
-      session.finished = true;
-      return jsonEncode(<String, Object?>{'found': true, ...session.toJson()});
-    },
+    execute: (Map<String, dynamic> arguments) =>
+        cancelRunSession(ref, 'kernel_profile_import_start', arguments),
   ),
   ChatToolDefinition(
     name: 'kernel_profile_remove',

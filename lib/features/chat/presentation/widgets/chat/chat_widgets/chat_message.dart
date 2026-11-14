@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:Aisupass/core/extensions/context_extensions.dart';
 import 'package:Aisupass/core/utils/platform.dart';
 import 'package:Aisupass/features/ai/presentation/widgets/ai_brand_icon.dart';
+import 'package:Aisupass/features/chat/domain/enums/chat_notice.dart';
 import 'package:Aisupass/features/chat/domain/models/chat_turn.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/chat_widgets/chat_markdown.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/chat_widgets/chat_message_actions.dart';
@@ -152,12 +153,11 @@ class _AssistantMessage extends HookWidget {
         if (turn.toolCalls.isNotEmpty) ChatToolGroup(calls: turn.toolCalls),
         if (hasText) ChatMarkdown(data: shownText, streaming: turn.streaming),
         if (thinking && turn.toolCalls.isEmpty) const _TypingDots(),
-        if ((turn.error ?? '').trim().isNotEmpty)
-          ChatInlineNotice(text: turn.error!, isError: true),
-        if (turn.notice != null)
-          ChatInlineNotice(text: _noticeText(context, turn.notice!)),
+        if (turn.hasError) ChatInlineNotice(text: turn.error, isError: true),
+        if (turn.hasNotice)
+          ChatInlineNotice(text: _noticeText(context, turn.notice)),
         // 回答结束后再显示信息行与操作按钮，流式过程中不占位。
-        if (!turn.streaming && (hasText || (turn.error ?? '').trim().isNotEmpty))
+        if (!turn.streaming && (hasText || turn.hasError))
           ChatMessageActions(turn: turn),
       ],
     );
@@ -290,6 +290,7 @@ class _TypingDots extends HookWidget {
 
 String _noticeText(BuildContext context, ChatNotice notice) {
   return switch (notice) {
+    ChatNotice.none => '',
     ChatNotice.toolCallLimit => context.l10n.chatNoticeToolLimit,
     ChatNotice.emptyReply => context.l10n.chatNoticeEmptyReply,
   };

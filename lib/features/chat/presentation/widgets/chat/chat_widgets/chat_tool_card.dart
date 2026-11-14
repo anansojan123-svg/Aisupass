@@ -5,7 +5,8 @@ import 'package:Aisupass/common/widgets/toast.dart';
 import 'package:Aisupass/core/extensions/context_extensions.dart';
 import 'package:Aisupass/core/providers/device_info_provider.dart';
 import 'package:Aisupass/core/utils/platform.dart';
-import 'package:Aisupass/features/chat/domain/models/chat_turn.dart';
+import 'package:Aisupass/features/chat/domain/enums/chat_tool_status.dart';
+import 'package:Aisupass/features/chat/domain/models/chat_tool_call.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -40,7 +41,7 @@ class ChatToolCard extends HookWidget {
     final bool hasArguments =
         arguments.isNotEmpty && arguments != '{}' && arguments != 'null';
     final String result = call.result.trim();
-    final String error = (call.error ?? '').trim();
+    final String error = call.error.trim();
     final bool hasBody =
         hasArguments || result.isNotEmpty || error.isNotEmpty;
 
@@ -72,9 +73,9 @@ class ChatToolCard extends HookWidget {
                 ),
               ),
             ),
-            if (call.duration != null)
+            if (call.hasDuration)
               Text(
-                formatToolDuration(call.duration!),
+                formatToolDuration(call.duration),
                 style: TextStyle(
                   fontSize: isDesktop ? 10.5 : 10.5.sp,
                   fontFamily: 'monospace',
@@ -148,7 +149,7 @@ class ChatToolGroup extends HookWidget {
 
     Duration? total;
     for (final ChatToolCall call in calls) {
-      if (call.duration != null) total = (total ?? Duration.zero) + call.duration!;
+      if (call.hasDuration) total = (total ?? Duration.zero) + call.duration;
     }
 
     return Padding(

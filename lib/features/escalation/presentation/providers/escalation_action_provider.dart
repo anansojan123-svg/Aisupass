@@ -190,6 +190,18 @@ class DirtyFragActions {
         .setBootAutostartEnabled(enabled: enabled);
     _ref.invalidate(dirtyFragBootAutostartProvider);
   }
+
+  /// 停止本侧读取；设备侧进程继续跑。
+  Future<void> cancel() =>
+      _ref.read(dirtyFragActionRepositoryProvider).cancel();
+
+  /// 跑一次 DirtyFrag，按块吐出证据。
+  Stream<DirtyFragOutcome> run({
+    required RootManager manager,
+    int? vrOffsetOverride,
+  }) => _ref
+      .read(dirtyFragActionRepositoryProvider)
+      .run(manager: manager, vrOffsetOverride: vrOffsetOverride);
 }
 
 /// 跑一次 DirtyFrag，按块吐出证据。
@@ -199,7 +211,7 @@ Stream<DirtyFragOutcome> runDirtyFrag(
   required RootManager manager,
   int? vrOffsetOverride,
 }) => ref
-    .watch(dirtyFragActionRepositoryProvider)
+    .watch(dirtyFragActionsProvider)
     .run(manager: manager, vrOffsetOverride: vrOffsetOverride);
 
 /// 专家模式开关当前状态。
@@ -230,6 +242,11 @@ Stream<VrDeriveProgress> vrDeriveProgress(Ref ref) async* {
     await Future<void>.delayed(const Duration(milliseconds: 200));
   }
 }
+
+/// 提取进度的单次快照，供一次性查询使用。
+@riverpod
+Future<VrDeriveProgress> vrDeriveProgressSnapshot(Ref ref) =>
+    ref.watch(dirtyFragActionRepositoryProvider).vrDeriveProgress();
 
 /// GhostKey 运行数据源。
 @riverpod
@@ -279,12 +296,16 @@ class GhostKeyActions {
   /// 停止本侧读取；设备侧进程继续跑。
   Future<void> cancel() =>
       _ref.read(ghostKeyActionRepositoryProvider).cancel();
+
+  /// 跑一次 GhostKey，按块吐出证据。
+  Stream<GhostKeyOutcome> run({RootManager? manager}) =>
+      _ref.read(ghostKeyActionRepositoryProvider).run(manager: manager);
 }
 
 /// 跑一次 GhostKey，按块吐出证据。
 @riverpod
 Stream<GhostKeyOutcome> runGhostKey(Ref ref, {RootManager? manager}) =>
-    ref.watch(ghostKeyActionRepositoryProvider).run(manager: manager);
+    ref.watch(ghostKeyActionsProvider).run(manager: manager);
 
 /// GhostLock 运行数据源。
 @riverpod
@@ -318,6 +339,14 @@ class GhostLockActions {
   /// 停止本侧读取；设备侧进程继续跑。
   Future<void> cancel() =>
       _ref.read(ghostLockActionRepositoryProvider).cancel();
+
+  /// 跑一次 GhostLock，按块吐出证据。
+  Stream<GhostLockOutcome> run({
+    RootManager? manager,
+    bool safeMode = false,
+  }) => _ref
+      .read(ghostLockActionRepositoryProvider)
+      .run(manager: manager, safeMode: safeMode);
 }
 
 /// 跑一次 GhostLock，按块吐出证据。
@@ -327,7 +356,7 @@ Stream<GhostLockOutcome> runGhostLock(
   RootManager? manager,
   bool safeMode = false,
 }) => ref
-    .watch(ghostLockActionRepositoryProvider)
+    .watch(ghostLockActionsProvider)
     .run(manager: manager, safeMode: safeMode);
 
 /// GhostLock profile 导入数据源。
@@ -407,6 +436,26 @@ List<int> _similarityKey(List<int> device, List<int> candidate) {
     return (d - c).abs();
   });
 }
+
+/// 某 release 的生效 GhostLock 配置。
+@riverpod
+Future<GhostLockProfileConfig> ghostLockProfileConfig(
+  Ref ref, {
+  required String release,
+}) => ref
+    .watch(ghostLockProfileEditActionRepositoryProvider)
+    .load(release: release);
+
+/// 上一次提取留在缓存里的镜像路径。
+@riverpod
+Future<List<String>> ghostLockExtractedImages(Ref ref) =>
+    ref.watch(ghostLockProfileActionsProvider).listExtractedImages();
+
+/// kernel 表解析进度快照，供一次性查询使用。
+@riverpod
+Future<GhostLockProbeProgress> ghostLockProbeProgressSnapshot(Ref ref) => ref
+    .watch(ghostLockProfileActionRepositoryProvider)
+    .profileProgress();
 
 /// 单份用户 profile 的原始 HOCON 文本；不存在返回空串。
 @riverpod

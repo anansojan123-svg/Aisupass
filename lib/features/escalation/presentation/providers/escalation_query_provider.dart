@@ -10,6 +10,7 @@ import 'package:Aisupass/features/escalation/data/repositories/ghost_lock_profil
 import 'package:Aisupass/features/escalation/domain/models/device_identity.dart';
 import 'package:Aisupass/features/escalation/domain/models/ghost_lock_active_source.dart';
 import 'package:Aisupass/features/escalation/domain/models/payload.dart';
+import 'package:Aisupass/features/escalation/domain/models/payload_match.dart';
 import 'package:Aisupass/features/escalation/domain/models/root_manager.dart';
 import 'package:Aisupass/features/escalation/domain/repositories/escalation_query_repository.dart';
 import 'package:Aisupass/features/escalation/domain/repositories/ghost_lock_profile_edit_query_repository.dart';
@@ -53,6 +54,15 @@ Future<DeviceIdentity> currentDeviceIdentity(Ref ref) =>
 @riverpod
 Future<RootManager?> selectedRootManager(Ref ref) =>
     ref.watch(escalationQueryRepositoryProvider).selectedRootManager();
+
+/// 自动匹配当前设备的最佳载荷；没有候选时为 `null`。
+@riverpod
+Future<PayloadMatch?> resolvedPayload(
+  Ref ref, {
+  bool allowVendorFallback = false,
+}) => ref
+    .watch(escalationQueryRepositoryProvider)
+    .resolve(allowVendorFallback: allowVendorFallback);
 
 /// GhostLock profile 编辑只读数据源。
 @riverpod

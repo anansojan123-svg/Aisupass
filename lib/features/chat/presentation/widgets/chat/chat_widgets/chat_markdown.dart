@@ -106,10 +106,8 @@ MarkdownStyleSheet _buildStyleSheet(BuildContext context) {
     code: TextStyle(
       fontSize: codeSize,
       fontFamily: 'monospace',
-      color: isDark ? colors.primary : const Color(0xFFD84315),
-      backgroundColor: isDark
-          ? Colors.white.withValues(alpha: 0.06)
-          : Colors.black.withValues(alpha: 0.05),
+      color: isDark ? colors.primary : colors.tertiary,
+      backgroundColor: colors.onSurface.withValues(alpha: isDark ? 0.06 : 0.05),
     ),
     codeblockDecoration: const BoxDecoration(),
     blockquote: TextStyle(
@@ -118,9 +116,7 @@ MarkdownStyleSheet _buildStyleSheet(BuildContext context) {
       color: colors.onSurfaceVariant,
     ),
     blockquoteDecoration: BoxDecoration(
-      color: isDark
-          ? Colors.white.withValues(alpha: 0.04)
-          : Colors.black.withValues(alpha: 0.035),
+      color: colors.onSurface.withValues(alpha: isDark ? 0.04 : 0.035),
       borderRadius: BorderRadius.circular(radius),
     ),
     blockquotePadding: EdgeInsets.symmetric(horizontal: 12, vertical: gap),
@@ -188,9 +184,7 @@ class _CodeBlock extends StatelessWidget {
         bottom: isDesktop ? 8 : 8.h,
       ),
       decoration: BoxDecoration(
-        color: isDark
-            ? Colors.black.withValues(alpha: 0.3)
-            : Colors.black.withValues(alpha: 0.035),
+        color: colors.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(radius),
         border: Border.all(
           color: colors.outlineVariant.withValues(alpha: isDark ? 0.3 : 0.6),
@@ -205,7 +199,7 @@ class _CodeBlock extends StatelessWidget {
               children: <Widget>[
                 Expanded(
                   child: Text(
-                    language.isEmpty ? 'code' : language,
+                    language.isEmpty ? context.l10n.chatCodeLabel : language,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -367,13 +361,13 @@ class _ImageBuilder extends MarkdownElementBuilder {
         borderRadius: BorderRadius.circular(isDesktopPlatform ? 10 : 10.r),
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: maxSize, maxHeight: maxSize),
-          child: _buildImage(src, alt),
+          child: _buildImage(context, src, alt),
         ),
       ),
     );
   }
 
-  Widget _buildImage(String src, String alt) {
+  Widget _buildImage(BuildContext context, String src, String alt) {
     if (src.startsWith('data:image/')) {
       final int comma = src.indexOf(',');
       if (comma < 0) return const SizedBox.shrink();
@@ -382,7 +376,7 @@ class _ImageBuilder extends MarkdownElementBuilder {
         return Image.memory(
           bytes,
           fit: BoxFit.contain,
-          errorBuilder: (_, _, _) => _placeholder(alt),
+          errorBuilder: (_, _, _) => _placeholder(context, alt),
         );
       } on FormatException {
         return const SizedBox.shrink();
@@ -391,15 +385,15 @@ class _ImageBuilder extends MarkdownElementBuilder {
     return Image.network(
       src,
       fit: BoxFit.contain,
-      errorBuilder: (_, _, _) => _placeholder(alt),
+      errorBuilder: (_, _, _) => _placeholder(context, alt),
     );
   }
 
-  Widget _placeholder(String alt) {
+  Widget _placeholder(BuildContext context, String alt) {
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Text(
-        alt.isEmpty ? 'image' : alt,
+        alt.isEmpty ? context.l10n.chatImageLabel : alt,
         style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
       ),
     );

@@ -183,7 +183,7 @@ final class ImportKernelProfileProvider
 }
 
 String _$importKernelProfileHash() =>
-    r'd5bc3c932103badbe33487a5f9736d4e71cfa608';
+    r'c4926e688391cf27837acb08ba8d6b84542cf352';
 
 /// 从 boot.img 导入一份 profile，按进度块吐出。
 
@@ -271,7 +271,7 @@ final class ImportKernelProfileFromUrlProvider
 }
 
 String _$importKernelProfileFromUrlHash() =>
-    r'd39cca4be781d31456f4b6028e16b4696c766ec5';
+    r'b1c7bb91b26e2c0143aead7fe2e125e868ad174e';
 
 /// 从 OTA 链接导入一份 profile，按进度块吐出。
 

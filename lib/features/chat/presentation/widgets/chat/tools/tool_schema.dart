@@ -7,6 +7,7 @@ const Map<String, dynamic> noArgsSchema = <String, dynamic>{
   'additionalProperties': false,
 };
 
+/// 构造对象型参数 Schema。
 Map<String, dynamic> objectSchema({
   Map<String, dynamic> properties = const <String, dynamic>{},
   List<String> required = const <String>[],
@@ -17,6 +18,7 @@ Map<String, dynamic> objectSchema({
   'additionalProperties': false,
 };
 
+/// 构造字符串型属性。
 Map<String, dynamic> stringProperty({
   String description = '',
   List<String> allowedValues = const <String>[],
@@ -26,12 +28,14 @@ Map<String, dynamic> stringProperty({
   if (allowedValues.isNotEmpty) 'enum': allowedValues,
 };
 
+/// 构造布尔型属性。
 Map<String, dynamic> boolProperty({String description = ''}) =>
     <String, dynamic>{
       'type': 'boolean',
       if (description.isNotEmpty) 'description': description,
     };
 
+/// 构造整数型属性，可选上下界。
 Map<String, dynamic> intProperty({
   String description = '',
   int? minimum,
@@ -39,10 +43,11 @@ Map<String, dynamic> intProperty({
 }) => <String, dynamic>{
   'type': 'integer',
   if (description.isNotEmpty) 'description': description,
-  if (minimum != null) 'minimum': minimum,
-  if (maximum != null) 'maximum': maximum,
+  'minimum': ?minimum,
+  'maximum': ?maximum,
 };
 
+/// 构造「字符串键 → 整数」的映射属性。
 Map<String, dynamic> intMapProperty({String description = ''}) =>
     <String, dynamic>{
       'type': 'object',
@@ -50,6 +55,7 @@ Map<String, dynamic> intMapProperty({String description = ''}) =>
       if (description.isNotEmpty) 'description': description,
     };
 
+/// 构造「字符串键 → 字符串」的映射属性。
 Map<String, dynamic> stringMapProperty({String description = ''}) =>
     <String, dynamic>{
       'type': 'object',

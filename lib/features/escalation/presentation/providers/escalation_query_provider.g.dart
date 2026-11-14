@@ -295,6 +295,90 @@ final class SelectedRootManagerProvider
 String _$selectedRootManagerHash() =>
     r'5a06e5659196e105403ef2c76958b7494581a919';
 
+/// 自动匹配当前设备的最佳载荷；没有候选时为 `null`。
+
+@ProviderFor(resolvedPayload)
+const resolvedPayloadProvider = ResolvedPayloadFamily._();
+
+/// 自动匹配当前设备的最佳载荷；没有候选时为 `null`。
+
+final class ResolvedPayloadProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<PayloadMatch?>,
+          PayloadMatch?,
+          FutureOr<PayloadMatch?>
+        >
+    with $FutureModifier<PayloadMatch?>, $FutureProvider<PayloadMatch?> {
+  /// 自动匹配当前设备的最佳载荷；没有候选时为 `null`。
+  const ResolvedPayloadProvider._({
+    required ResolvedPayloadFamily super.from,
+    required bool super.argument,
+  }) : super(
+         retry: null,
+         name: r'resolvedPayloadProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$resolvedPayloadHash();
+
+  @override
+  String toString() {
+    return r'resolvedPayloadProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<PayloadMatch?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<PayloadMatch?> create(Ref ref) {
+    final argument = this.argument as bool;
+    return resolvedPayload(ref, allowVendorFallback: argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ResolvedPayloadProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$resolvedPayloadHash() => r'f76dde2d0f2ebf00c510e8df86ec3fc0ceebf382';
+
+/// 自动匹配当前设备的最佳载荷；没有候选时为 `null`。
+
+final class ResolvedPayloadFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<PayloadMatch?>, bool> {
+  const ResolvedPayloadFamily._()
+    : super(
+        retry: null,
+        name: r'resolvedPayloadProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// 自动匹配当前设备的最佳载荷；没有候选时为 `null`。
+
+  ResolvedPayloadProvider call({bool allowVendorFallback = false}) =>
+      ResolvedPayloadProvider._(argument: allowVendorFallback, from: this);
+
+  @override
+  String toString() => r'resolvedPayloadProvider';
+}
+
 /// GhostLock profile 编辑只读数据源。
 
 @ProviderFor(ghostLockProfileEditQueryDatasource)

@@ -2,7 +2,7 @@ import 'package:Aisupass/common/widgets/toast.dart';
 import 'package:Aisupass/core/extensions/context_extensions.dart';
 import 'package:Aisupass/core/utils/platform.dart';
 import 'package:Aisupass/features/chat/domain/models/chat_turn.dart';
-import 'package:Aisupass/features/chat/presentation/providers/chat_provider.dart';
+import 'package:Aisupass/features/chat/presentation/providers/chat_action_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -26,11 +26,10 @@ class ChatMessageActions extends HookConsumerWidget {
     final String text = turn.text.trim();
 
     final List<String> info = <String>[
-      if (turn.usage != null && !turn.usage!.isEmpty)
-        context.l10n.chatUsageTokens(turn.usage!.totalTokens),
-      if (turn.duration != null)
-        context.l10n.chatElapsed(_formatSeconds(turn.duration!)),
-      if (turn.createdAt != null) _formatClock(turn.createdAt!),
+      if (!turn.usage.isEmpty)
+        context.l10n.chatUsageTokens(turn.usage.totalTokens),
+      if (turn.hasDuration) context.l10n.chatElapsed(_formatSeconds(turn.duration)),
+      if (turn.hasCreatedAt) _formatClock(turn.createdAt),
     ];
 
     Future<void> handleCopy() async {

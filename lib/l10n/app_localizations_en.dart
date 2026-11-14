@@ -502,6 +502,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatToolCollapse => 'Collapse';
 
   @override
+  String get chatCodeLabel => 'Code';
+
+  @override
+  String get chatImageLabel => 'Image';
+
+  @override
   String get chatToolReadDevice => 'Read device info';
 
   @override

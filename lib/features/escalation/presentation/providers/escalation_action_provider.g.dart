@@ -119,6 +119,7 @@ String _$escalationActionRepositoryHash() =>
 /// 自动匹配并拼出执行载荷的那一行命令。
 ///
 /// 「选哪份」归查询仓储，「拼命令」归执行仓储，两者的装配只在这里发生。
+/// 没有候选时抛 [PayloadLaunchException]，文案由展示层写屏。
 
 @ProviderFor(runPayload)
 const runPayloadProvider = RunPayloadProvider._();
@@ -126,6 +127,7 @@ const runPayloadProvider = RunPayloadProvider._();
 /// 自动匹配并拼出执行载荷的那一行命令。
 ///
 /// 「选哪份」归查询仓储，「拼命令」归执行仓储，两者的装配只在这里发生。
+/// 没有候选时抛 [PayloadLaunchException]，文案由展示层写屏。
 
 final class RunPayloadProvider
     extends $FunctionalProvider<AsyncValue<String>, String, FutureOr<String>>
@@ -133,6 +135,7 @@ final class RunPayloadProvider
   /// 自动匹配并拼出执行载荷的那一行命令。
   ///
   /// 「选哪份」归查询仓储，「拼命令」归执行仓储，两者的装配只在这里发生。
+  /// 没有候选时抛 [PayloadLaunchException]，文案由展示层写屏。
   const RunPayloadProvider._()
     : super(
         from: null,
@@ -158,7 +161,7 @@ final class RunPayloadProvider
   }
 }
 
-String _$runPayloadHash() => r'a30cc1e659d1860e8f111ae4dd2d1bd4c9bc4193';
+String _$runPayloadHash() => r'4519e87d93ebed4e62158b9c47c9eed0ccac5646';
 
 /// 用指定载荷拼出执行命令，跳过自动匹配。
 ///
@@ -780,7 +783,7 @@ final class RunDirtyFragProvider
   }
 }
 
-String _$runDirtyFragHash() => r'4df47a1a78a0ab5fe45690f8c346b89c6e5a6fdb';
+String _$runDirtyFragHash() => r'e9cf4654c97b12af4362e04da6fe1110b3840b15';
 
 /// 跑一次 DirtyFrag，按块吐出证据。
 
@@ -1029,6 +1032,51 @@ final class VrDeriveProgressProvider
 }
 
 String _$vrDeriveProgressHash() => r'6328101a05e6d604b5067d9539040d603605a839';
+
+/// 提取进度的单次快照，供一次性查询使用。
+
+@ProviderFor(vrDeriveProgressSnapshot)
+const vrDeriveProgressSnapshotProvider = VrDeriveProgressSnapshotProvider._();
+
+/// 提取进度的单次快照，供一次性查询使用。
+
+final class VrDeriveProgressSnapshotProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<VrDeriveProgress>,
+          VrDeriveProgress,
+          FutureOr<VrDeriveProgress>
+        >
+    with $FutureModifier<VrDeriveProgress>, $FutureProvider<VrDeriveProgress> {
+  /// 提取进度的单次快照，供一次性查询使用。
+  const VrDeriveProgressSnapshotProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'vrDeriveProgressSnapshotProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$vrDeriveProgressSnapshotHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<VrDeriveProgress> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<VrDeriveProgress> create(Ref ref) {
+    return vrDeriveProgressSnapshot(ref);
+  }
+}
+
+String _$vrDeriveProgressSnapshotHash() =>
+    r'a0cc11760b9da540f0f5dcfc5b76a0ffa8da52b2';
 
 /// GhostKey 运行数据源。
 
@@ -1342,7 +1390,7 @@ final class RunGhostKeyProvider
   }
 }
 
-String _$runGhostKeyHash() => r'43cf80ac90026f3cb97df96e8c171575badb7639';
+String _$runGhostKeyHash() => r'b3d23e3ebdd337e7a46f512cb6f2baefbe43356c';
 
 /// 跑一次 GhostKey，按块吐出证据。
 
@@ -1640,7 +1688,7 @@ final class RunGhostLockProvider
   }
 }
 
-String _$runGhostLockHash() => r'e14d4fc987028888f7ff80a824161e87333103a0';
+String _$runGhostLockHash() => r'dc2b9bddefa405ac61c718ba1fb740747ab316f9';
 
 /// 跑一次 GhostLock，按块吐出证据。
 
@@ -1880,6 +1928,187 @@ final class GhostLockBuiltinReleasesProvider
 
 String _$ghostLockBuiltinReleasesHash() =>
     r'4beb4b951d9e6e0ccd7f5e665526f244da7f8fd4';
+
+/// 某 release 的生效 GhostLock 配置。
+
+@ProviderFor(ghostLockProfileConfig)
+const ghostLockProfileConfigProvider = GhostLockProfileConfigFamily._();
+
+/// 某 release 的生效 GhostLock 配置。
+
+final class GhostLockProfileConfigProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<GhostLockProfileConfig>,
+          GhostLockProfileConfig,
+          FutureOr<GhostLockProfileConfig>
+        >
+    with
+        $FutureModifier<GhostLockProfileConfig>,
+        $FutureProvider<GhostLockProfileConfig> {
+  /// 某 release 的生效 GhostLock 配置。
+  const GhostLockProfileConfigProvider._({
+    required GhostLockProfileConfigFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'ghostLockProfileConfigProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$ghostLockProfileConfigHash();
+
+  @override
+  String toString() {
+    return r'ghostLockProfileConfigProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<GhostLockProfileConfig> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<GhostLockProfileConfig> create(Ref ref) {
+    final argument = this.argument as String;
+    return ghostLockProfileConfig(ref, release: argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GhostLockProfileConfigProvider &&
+        other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$ghostLockProfileConfigHash() =>
+    r'6cf93438b0d2069a8b1b79d3a08a75ab6764b6d7';
+
+/// 某 release 的生效 GhostLock 配置。
+
+final class GhostLockProfileConfigFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<GhostLockProfileConfig>, String> {
+  const GhostLockProfileConfigFamily._()
+    : super(
+        retry: null,
+        name: r'ghostLockProfileConfigProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// 某 release 的生效 GhostLock 配置。
+
+  GhostLockProfileConfigProvider call({required String release}) =>
+      GhostLockProfileConfigProvider._(argument: release, from: this);
+
+  @override
+  String toString() => r'ghostLockProfileConfigProvider';
+}
+
+/// 上一次提取留在缓存里的镜像路径。
+
+@ProviderFor(ghostLockExtractedImages)
+const ghostLockExtractedImagesProvider = GhostLockExtractedImagesProvider._();
+
+/// 上一次提取留在缓存里的镜像路径。
+
+final class GhostLockExtractedImagesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<String>>,
+          List<String>,
+          FutureOr<List<String>>
+        >
+    with $FutureModifier<List<String>>, $FutureProvider<List<String>> {
+  /// 上一次提取留在缓存里的镜像路径。
+  const GhostLockExtractedImagesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'ghostLockExtractedImagesProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$ghostLockExtractedImagesHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<String>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<String>> create(Ref ref) {
+    return ghostLockExtractedImages(ref);
+  }
+}
+
+String _$ghostLockExtractedImagesHash() =>
+    r'ffa031c2cc13938d8d7b0b4c30ace5ec49fb8891';
+
+/// kernel 表解析进度快照，供一次性查询使用。
+
+@ProviderFor(ghostLockProbeProgressSnapshot)
+const ghostLockProbeProgressSnapshotProvider =
+    GhostLockProbeProgressSnapshotProvider._();
+
+/// kernel 表解析进度快照，供一次性查询使用。
+
+final class GhostLockProbeProgressSnapshotProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<GhostLockProbeProgress>,
+          GhostLockProbeProgress,
+          FutureOr<GhostLockProbeProgress>
+        >
+    with
+        $FutureModifier<GhostLockProbeProgress>,
+        $FutureProvider<GhostLockProbeProgress> {
+  /// kernel 表解析进度快照，供一次性查询使用。
+  const GhostLockProbeProgressSnapshotProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'ghostLockProbeProgressSnapshotProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$ghostLockProbeProgressSnapshotHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<GhostLockProbeProgress> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<GhostLockProbeProgress> create(Ref ref) {
+    return ghostLockProbeProgressSnapshot(ref);
+  }
+}
+
+String _$ghostLockProbeProgressSnapshotHash() =>
+    r'1999ae028ecc71e69d83da362d7866c2bcb54c1f';
 
 /// 单份用户 profile 的原始 HOCON 文本；不存在返回空串。
 

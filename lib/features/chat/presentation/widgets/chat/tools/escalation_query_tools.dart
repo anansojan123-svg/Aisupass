@@ -3,12 +3,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:Aisupass/features/chat/domain/models/chat_tool.dart';
+import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/tool_schema.dart';
 import 'package:Aisupass/features/escalation/domain/models/device_identity.dart';
 import 'package:Aisupass/features/escalation/domain/models/payload.dart';
 import 'package:Aisupass/features/escalation/domain/models/payload_match.dart';
 import 'package:Aisupass/features/escalation/domain/models/root_manager.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/escalation_query_provider.dart';
-import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/tool_schema.dart';
 
 /// 设备身份、载荷清单与 root 管理器相关工具。
 List<ChatToolDefinition> escalationQueryTools(Ref ref) => <ChatToolDefinition>[
@@ -91,9 +91,11 @@ List<ChatToolDefinition> escalationQueryTools(Ref ref) => <ChatToolDefinition>[
         'allowVendorFallback',
         fallback: false,
       );
-      final PayloadMatch? match = await ref
-          .read(escalationQueryRepositoryProvider)
-          .resolve(allowVendorFallback: allowVendorFallback);
+      final PayloadMatch? match = await ref.read(
+        resolvedPayloadProvider(
+          allowVendorFallback: allowVendorFallback,
+        ).future,
+      );
       return jsonEncode(<String, Object?>{
         'match': match == null
             ? null

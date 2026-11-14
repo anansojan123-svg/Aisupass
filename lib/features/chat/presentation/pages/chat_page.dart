@@ -5,10 +5,10 @@ import 'package:Aisupass/core/utils/platform.dart';
 import 'package:Aisupass/features/ai/domain/models/ai_config.dart';
 import 'package:Aisupass/features/ai/presentation/providers/ai_config_query_provider.dart';
 import 'package:Aisupass/features/ai/presentation/widgets/ai_brand_icon.dart';
-import 'package:Aisupass/features/chat/domain/models/chat_session.dart';
+import 'package:Aisupass/features/chat/domain/enums/chat_issue.dart';
 import 'package:Aisupass/features/chat/domain/models/chat_turn.dart';
-import 'package:Aisupass/features/chat/presentation/providers/chat_provider.dart';
-import 'package:Aisupass/features/chat/presentation/providers/chat_sessions_provider.dart';
+import 'package:Aisupass/features/chat/presentation/controllers/chat_page_controller.dart';
+import 'package:Aisupass/features/chat/presentation/providers/chat_action_provider.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/chat_widgets/chat_empty_state.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/chat_widgets/chat_input_bar.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/chat_widgets/chat_message.dart';
@@ -29,9 +29,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 class ChatPage extends HookConsumerWidget {
   const ChatPage({super.key});
 
-  /// 判定「用户已离开底部」的滚动距离。
-  static const double _awayThreshold = 120;
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
@@ -46,42 +43,39 @@ class ChatPage extends HookConsumerWidget {
       modelName: config?.modelName,
       name: config?.name,
     );
-    // 配置尚未加载完成时不提示，避免首帧闪一下。
+    // 加载中不提示，避免首帧闪一下；加载完成或失败后仍无配置才提示。
     final bool needsConfig =
         state.issue == ChatIssue.noConfig ||
-        (configAsync.hasValue && config == null);
+        (!configAsync.isLoading && config == null);
 
     final ScrollController scrollController = useScrollController();
     final ValueNotifier<bool> showJump = useState<bool>(false);
     final ValueNotifier<int> unread = useState<int>(0);
     final ObjectRef<int> lastTurnCount = useRef<int>(state.turns.length);
 
-    void jumpToLatest({bool animate = false}) {
-      if (!scrollController.hasClients) return;
-      unread.value = 0;
-      if (animate) {
-        scrollController.animateTo(
-          0,
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeOutCubic,
-        );
-      } else {
-        scrollController.jumpTo(0);
-      }
+    final ChatPageController pageController = ChatPageController(
+      ref: ref,
+      showJump: showJump,
+      unread: unread,
+      scrollController: scrollController,
+      notifySessionReady: (String title) => ToastMessage.success(
+        l10n.chatSessionReady(title.isEmpty ? l10n.chatUntitled : title),
+      ),
+    );
+
+    void handleSend(String text) {
+      pageController.send(text);
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => pageController.jumpToLatest(),
+      );
     }
 
     // 离开底部时浮出回到底部按钮，回到底部后清空未读。
     useEffect(() {
-      void listener() {
-        if (!scrollController.hasClients) return;
-        final bool away =
-            scrollController.position.pixels > ChatPage._awayThreshold;
-        if (showJump.value != away) showJump.value = away;
-        if (!away && unread.value != 0) unread.value = 0;
-      }
-
-      scrollController.addListener(listener);
-      return () => scrollController.removeListener(listener);
+      scrollController.addListener(pageController.syncScrollPosition);
+      return () => scrollController.removeListener(
+        pageController.syncScrollPosition,
+      );
     }, const <Object?>[]);
 
     // 新增轮次时，若用户正在回看历史，只累计未读，不打断阅读。
@@ -90,46 +84,18 @@ class ChatPage extends HookConsumerWidget {
       lastTurnCount.value = state.turns.length;
       if (state.turns.length <= previous) return null;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!scrollController.hasClients) return;
-        if (scrollController.position.pixels > ChatPage._awayThreshold) {
-          unread.value += 1;
-        }
+        pageController.markUnreadIfAway();
       });
       return null;
     }, <Object?>[state.turns.length]);
-
-    void handleSend(String text) {
-      unread.value = 0;
-      controller.send(text);
-      WidgetsBinding.instance.addPostFrameCallback((_) => jumpToLatest());
-    }
 
     // 后台会话跑完时给一次轻提示；用户正停留在该会话时由正文自己更新，不打扰。
     ref.listen<ChatJobsState>(chatJobsProvider, (
       ChatJobsState? previous,
       ChatJobsState next,
     ) {
-      final String? id = next.completed;
-      if (id == null || id == previous?.completed) return;
-
-      String title = '';
-      for (final ChatSession session in ref.read(chatSessionsProvider).sessions) {
-        if (session.id == id) {
-          title = session.title.trim();
-          break;
-        }
-      }
-      ToastMessage.success(
-        l10n.chatSessionReady(title.isEmpty ? l10n.chatUntitled : title),
-      );
-      ref.read(chatJobsProvider.notifier).acknowledge(id);
+      pageController.handleJobCompleted(next, previous?.completed);
     });
-
-    Future<void> startNewSession() async {
-      await controller.startNewSession();
-      unread.value = 0;
-      if (scrollController.hasClients) scrollController.jumpTo(0);
-    }
 
     // 头像与模型名只在每条用户消息后的首条 assistant 消息上出现，
     // 后续工具续跑的轮次不再重复，保持正文连续。
@@ -188,7 +154,7 @@ class ChatPage extends HookConsumerWidget {
                 child: ChatScrollButton(
                   visible: showJump.value,
                   unread: unread.value,
-                  onTap: () => jumpToLatest(animate: true),
+                  onTap: () => pageController.jumpToLatest(animate: true),
                 ),
               ),
             ],
@@ -223,7 +189,7 @@ class ChatPage extends HookConsumerWidget {
     // 日间对话区用纯白，夜间跟随主题底色。
     final Color pageBackground = context.isDark
         ? Theme.of(context).scaffoldBackgroundColor
-        : Colors.white;
+        : context.colorScheme.surface;
 
     if (!isDesktop) {
       return Scaffold(
@@ -247,7 +213,9 @@ class ChatPage extends HookConsumerWidget {
           title: Text(l10n.chatTitle),
           actions: <Widget>[
             IconButton(
-              onPressed: state.isEmpty ? null : () => startNewSession(),
+              onPressed: state.isEmpty
+                  ? null
+                  : () => pageController.startNewSession(),
               icon: Icon(Icons.add_comment_outlined, size: 20.sp),
               tooltip: l10n.chatNewSession,
             ),
@@ -302,7 +270,7 @@ class ChatPage extends HookConsumerWidget {
                       IconButton(
                         onPressed: state.isEmpty
                             ? null
-                            : () => startNewSession(),
+                            : () => pageController.startNewSession(),
                         icon: const Icon(
                           Icons.add_comment_outlined,
                           size: 21,

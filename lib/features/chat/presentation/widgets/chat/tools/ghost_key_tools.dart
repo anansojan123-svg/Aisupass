@@ -11,16 +11,11 @@ import 'package:Aisupass/features/escalation/domain/models/ghost_key_outcome.dar
 import 'package:Aisupass/features/escalation/domain/models/ghost_key_preflight.dart';
 import 'package:Aisupass/features/escalation/domain/models/ghost_key_run_defaults.dart';
 import 'package:Aisupass/features/escalation/domain/models/root_manager.dart';
-import 'package:Aisupass/features/escalation/domain/repositories/ghost_key_action_repository.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/escalation_action_provider.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/escalation_query_provider.dart';
 
 /// GhostKey（CVE-98260）工具：自检、偏好、启动与运行会话。
 List<ChatToolDefinition> ghostKeyTools(Ref ref) {
-  final GhostKeyActionRepository repository = ref.watch(
-    ghostKeyActionRepositoryProvider,
-  );
-
   return <ChatToolDefinition>[
     ChatToolDefinition(
       name: 'ghost_key_preflight',
@@ -127,8 +122,9 @@ List<ChatToolDefinition> ghostKeyTools(Ref ref) {
           exploitRunRegistryProvider,
         );
         final ExploitRunSession session = registry.create('ghost_key_start');
-        session.cancel = repository.cancel;
-        session.subscription = repository
+        session.cancel = ref.read(ghostKeyActionsProvider).cancel;
+        session.subscription = ref
+            .read(ghostKeyActionsProvider)
             .run(manager: manager)
             .listen(
               (GhostKeyOutcome outcome) {
@@ -168,19 +164,8 @@ List<ChatToolDefinition> ghostKeyTools(Ref ref) {
           ),
         },
       ),
-      execute: (Map<String, dynamic> arguments) async {
-        final ExploitRunRegistry registry = ref.read(
-          exploitRunRegistryProvider,
-        );
-        final String id = stringArg(arguments, 'sessionId');
-        final ExploitRunSession? session = id.isEmpty
-            ? registry.latest('ghost_key_start')
-            : registry.find(id);
-        if (session == null) {
-          return jsonEncode(<String, Object?>{'found': false});
-        }
-        return jsonEncode(<String, Object?>{'found': true, ...session.toJson()});
-      },
+      execute: (Map<String, dynamic> arguments) async =>
+          snapshotRunSession(ref, 'ghost_key_start', arguments),
     ),
     ChatToolDefinition(
       name: 'ghost_key_cancel',
@@ -194,24 +179,8 @@ List<ChatToolDefinition> ghostKeyTools(Ref ref) {
           ),
         },
       ),
-      execute: (Map<String, dynamic> arguments) async {
-        final ExploitRunRegistry registry = ref.read(
-          exploitRunRegistryProvider,
-        );
-        final String id = stringArg(arguments, 'sessionId');
-        final ExploitRunSession? session = id.isEmpty
-            ? registry.latest('ghost_key_start')
-            : registry.find(id);
-        if (session == null) {
-          return jsonEncode(<String, Object?>{'found': false});
-        }
-        await session.subscription?.cancel();
-        session.subscription = null;
-        await session.cancel?.call();
-        session.status = 'cancelled';
-        session.finished = true;
-        return jsonEncode(<String, Object?>{'found': true, ...session.toJson()});
-      },
+      execute: (Map<String, dynamic> arguments) =>
+          cancelRunSession(ref, 'ghost_key_start', arguments),
     ),
   ];
 }
