@@ -2425,6 +2425,91 @@
   "@kernelProfileDetailEmpty": {
     "description": "profile 文件读不到时的提示"
   },
+  "kernelProfileEditAction": "编辑",
+  "@kernelProfileEditAction": {
+    "description": "详情弹窗底部的编辑入口按钮"
+  },
+  "kernelProfileEditTitle": "编辑内核参数",
+  "@kernelProfileEditTitle": {
+    "description": "GhostKey 内核表字段编辑页标题"
+  },
+  "kernelProfileEditBasicSection": "基础偏移",
+  "@kernelProfileEditBasicSection": {
+    "description": "编辑页的基础偏移分组标题"
+  },
+  "kernelProfileEditAdvancedSection": "高级布局",
+  "@kernelProfileEditAdvancedSection": {
+    "description": "编辑页的高级布局分组标题"
+  },
+  "kernelProfileEditInputHint": "支持 0x 十六进制或十进制，64 位地址按无符号展示",
+  "@kernelProfileEditInputHint": {
+    "description": "编辑页顶部的数值输入说明"
+  },
+  "kernelProfileEditReleaseLabel": "内核 release（只读）",
+  "@kernelProfileEditReleaseLabel": {
+    "description": "编辑页顶部只读 release 字段名"
+  },
+  "kernelProfileEditReleaseHint": "release 是 uname -r 的精确匹配键，修改会导致不再生效",
+  "@kernelProfileEditReleaseHint": {
+    "description": "编辑页说明 release 不可修改的原因"
+  },
+  "kernelProfileEditSource": "导入来源",
+  "@kernelProfileEditSource": {
+    "description": "编辑页顶部导入来源标签"
+  },
+  "kernelProfileEditWriteBack": "写回我的配置",
+  "@kernelProfileEditWriteBack": {
+    "description": "保存菜单：覆盖当前用户文档"
+  },
+  "kernelProfileEditWriteBackHint": "覆盖当前用户文档",
+  "@kernelProfileEditWriteBackHint": {
+    "description": "写回动作的副标题"
+  },
+  "kernelProfileEditSaveAs": "另存为文件",
+  "@kernelProfileEditSaveAs": {
+    "description": "保存菜单：把编辑结果导出为本地文件"
+  },
+  "kernelProfileEditSaveAsHint": "把编辑结果导出为本地 .conf",
+  "@kernelProfileEditSaveAsHint": {
+    "description": "另存为动作的副标题"
+  },
+  "kernelProfileEditExportOriginal": "导出原始文档",
+  "@kernelProfileEditExportOriginal": {
+    "description": "保存菜单：导出未修改的原始文档"
+  },
+  "kernelProfileEditExportOriginalHint": "备份当前未修改的 HOCON",
+  "@kernelProfileEditExportOriginalHint": {
+    "description": "导出原始文档动作的副标题"
+  },
+  "kernelProfileEditSaved": "已保存",
+  "@kernelProfileEditSaved": {
+    "description": "写回成功提示"
+  },
+  "kernelProfileEditNoChange": "没有需要保存的改动",
+  "@kernelProfileEditNoChange": {
+    "description": "保存时草稿与原文一致的提示"
+  },
+  "kernelProfileEditInvalidField": "存在无效数值",
+  "@kernelProfileEditInvalidField": {
+    "description": "原生返回 invalidField 错误码时的文案"
+  },
+  "kernelProfileEditInvalidFields": "无效数值：{fields}",
+  "@kernelProfileEditInvalidFields": {
+    "description": "编辑页保存前的本地校验提示；fields 是字段路径列表",
+    "placeholders": {
+      "fields": {
+        "type": "String"
+      }
+    }
+  },
+  "kernelProfileEditExportFailed": "导出失败",
+  "@kernelProfileEditExportFailed": {
+    "description": "导出编辑结果失败提示"
+  },
+  "kernelProfileEditNotEditable": "该内核表不是用户导入文档，不能编辑",
+  "@kernelProfileEditNotEditable": {
+    "description": "编辑页找不到用户文档时的提示"
+  },
   "kernelProfilePhaseLocate": "定位 OTA 包",
   "@kernelProfilePhaseLocate": {
     "description": "导入阶段 0：连接服务器并定位 payload.bin"

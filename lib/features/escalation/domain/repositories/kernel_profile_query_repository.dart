@@ -1,4 +1,5 @@
 import 'package:Aisupass/features/escalation/domain/models/kernel_profile.dart';
+import 'package:Aisupass/features/escalation/domain/models/kernel_profile_editor.dart';
 
 /// 用户 profile **只读**仓储。
 abstract class KernelProfileQueryRepository {
@@ -10,4 +11,7 @@ abstract class KernelProfileQueryRepository {
 
   /// 读取一份 profile 的原始 HOCON 文本；文件不存在返回空串。
   Future<String> readContent({required String release});
+
+  /// 读取用户文档的可编辑字段；没有对应用户文档时 `release` 为空串。
+  Future<KernelProfileEditorState> readEditor({required String release});
 }

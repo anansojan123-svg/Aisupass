@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:Aisupass/features/escalation/data/datasources/kernel_profile_action_datasource.dart';
 import 'package:Aisupass/features/escalation/data/datasources/kernel_profile_query_datasource.dart';
 import 'package:Aisupass/features/escalation/data/models/kernel_profile_import_result_dto.dart';
+import 'package:Aisupass/features/escalation/domain/models/kernel_profile_import_result.dart';
 import 'package:Aisupass/features/escalation/domain/models/kernel_profile_import_state.dart';
 import 'package:Aisupass/features/escalation/domain/repositories/kernel_profile_action_repository.dart';
 
@@ -34,6 +35,21 @@ class KernelProfileActionRepositoryImpl
   @override
   Future<bool> removeImportedProfile({required String release}) =>
       _datasource.removeImportedProfile(release: release);
+
+  @override
+  Future<KernelProfileImportResult> saveEditor({
+    required String release,
+    required Map<String, String> values,
+  }) async => (await _datasource.saveEditor(
+    release: release,
+    values: values,
+  )).toEntity();
+
+  @override
+  Future<String> renderEditor({
+    required String release,
+    required Map<String, String> values,
+  }) => _datasource.renderEditor(release: release, values: values);
 
   /// 订阅一侧的导入任务，同时轮询进度；任务结束补一帧带真结果的进度块。
   Stream<KernelProfileImportState> _watch(

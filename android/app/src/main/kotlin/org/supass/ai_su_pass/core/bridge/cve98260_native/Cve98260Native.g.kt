@@ -614,6 +614,110 @@ data class KernelProfileImportResult (
 }
 
 /**
+ * 编辑器中的一个字段：路径 + 当前值。
+ *
+ * Generated class from Pigeon that represents data sent in messages.
+ */
+data class KernelProfileFieldValue (
+  /** 点分路径，如 `offset.timer_link`。 */
+  val path: String,
+  /** 当前值的十进制字符串；空串表示 profile 未提供该字段。 */
+  val value: String,
+  /** true 表示 64 位地址，UI 按十六进制展示与输入。 */
+  val hex: Boolean,
+  /** true 表示归入「高级布局」分组。 */
+  val advanced: Boolean
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): KernelProfileFieldValue {
+      val path = pigeonVar_list[0] as String
+      val value = pigeonVar_list[1] as String
+      val hex = pigeonVar_list[2] as Boolean
+      val advanced = pigeonVar_list[3] as Boolean
+      return KernelProfileFieldValue(path, value, hex, advanced)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      path,
+      value,
+      hex,
+      advanced,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as KernelProfileFieldValue
+    return Cve98260NativePigeonUtils.deepEquals(this.path, other.path) && Cve98260NativePigeonUtils.deepEquals(this.value, other.value) && Cve98260NativePigeonUtils.deepEquals(this.hex, other.hex) && Cve98260NativePigeonUtils.deepEquals(this.advanced, other.advanced)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + Cve98260NativePigeonUtils.deepHash(this.path)
+    result = 31 * result + Cve98260NativePigeonUtils.deepHash(this.value)
+    result = 31 * result + Cve98260NativePigeonUtils.deepHash(this.hex)
+    result = 31 * result + Cve98260NativePigeonUtils.deepHash(this.advanced)
+    return result
+  }
+}
+
+/**
+ * 一次编辑器读取结果；`release` 为空串表示没有可编辑的用户文档。
+ *
+ * Generated class from Pigeon that represents data sent in messages.
+ */
+data class KernelProfileEditorState (
+  val release: String,
+  val vulnType: String,
+  val detail: String,
+  val fields: List<KernelProfileFieldValue>
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): KernelProfileEditorState {
+      val release = pigeonVar_list[0] as String
+      val vulnType = pigeonVar_list[1] as String
+      val detail = pigeonVar_list[2] as String
+      val fields = pigeonVar_list[3] as List<KernelProfileFieldValue>
+      return KernelProfileEditorState(release, vulnType, detail, fields)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      release,
+      vulnType,
+      detail,
+      fields,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as KernelProfileEditorState
+    return Cve98260NativePigeonUtils.deepEquals(this.release, other.release) && Cve98260NativePigeonUtils.deepEquals(this.vulnType, other.vulnType) && Cve98260NativePigeonUtils.deepEquals(this.detail, other.detail) && Cve98260NativePigeonUtils.deepEquals(this.fields, other.fields)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + Cve98260NativePigeonUtils.deepHash(this.release)
+    result = 31 * result + Cve98260NativePigeonUtils.deepHash(this.vulnType)
+    result = 31 * result + Cve98260NativePigeonUtils.deepHash(this.detail)
+    result = 31 * result + Cve98260NativePigeonUtils.deepHash(this.fields)
+    return result
+  }
+}
+
+/**
  * 开一轮新日志。`runId` 由原生侧自算并回传，不要在这里传。
  *
  * Generated class from Pigeon that represents data sent in messages.
@@ -910,25 +1014,35 @@ private open class Cve98260NativePigeonCodec : StandardMessageCodec() {
       }
       136.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          RunLogBeginRequest.fromList(it)
+          KernelProfileFieldValue.fromList(it)
         }
       }
       137.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          RunLogFinishRequest.fromList(it)
+          KernelProfileEditorState.fromList(it)
         }
       }
       138.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          RunLogMetaDto.fromList(it)
+          RunLogBeginRequest.fromList(it)
         }
       }
       139.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          RunLogDiagnoseRequest.fromList(it)
+          RunLogFinishRequest.fromList(it)
         }
       }
       140.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          RunLogMetaDto.fromList(it)
+        }
+      }
+      141.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          RunLogDiagnoseRequest.fromList(it)
+        }
+      }
+      142.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
           RunLogDiagnosisDto.fromList(it)
         }
@@ -966,24 +1080,32 @@ private open class Cve98260NativePigeonCodec : StandardMessageCodec() {
         stream.write(135)
         writeValue(stream, value.toList())
       }
-      is RunLogBeginRequest -> {
+      is KernelProfileFieldValue -> {
         stream.write(136)
         writeValue(stream, value.toList())
       }
-      is RunLogFinishRequest -> {
+      is KernelProfileEditorState -> {
         stream.write(137)
         writeValue(stream, value.toList())
       }
-      is RunLogMetaDto -> {
+      is RunLogBeginRequest -> {
         stream.write(138)
         writeValue(stream, value.toList())
       }
-      is RunLogDiagnoseRequest -> {
+      is RunLogFinishRequest -> {
         stream.write(139)
         writeValue(stream, value.toList())
       }
-      is RunLogDiagnosisDto -> {
+      is RunLogMetaDto -> {
         stream.write(140)
+        writeValue(stream, value.toList())
+      }
+      is RunLogDiagnoseRequest -> {
+        stream.write(141)
+        writeValue(stream, value.toList())
+      }
+      is RunLogDiagnosisDto -> {
+        stream.write(142)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)
@@ -1143,6 +1265,12 @@ interface Cve98260ProfileNative {
   fun removeImportedProfile(release: String, callback: (Result<Boolean>) -> Unit)
   /** 读取一份用户 profile 的完整 HOCON 文本；文件不存在或解析失败返回空串。 */
   fun readImportedProfile(release: String, callback: (Result<String>) -> Unit)
+  /** 读取用户文档的可编辑字段；没有对应用户文档时 `release` 为空串。 */
+  fun readProfileEditor(release: String, callback: (Result<KernelProfileEditorState>) -> Unit)
+  /** 把编辑值合并回用户文档；校验完整后才落盘。 */
+  fun saveProfileEditor(release: String, values: Map<String, String>, callback: (Result<KernelProfileImportResult>) -> Unit)
+  /** 渲染编辑后的 HOCON 文本；失败返回空串。 */
+  fun renderProfileEditor(release: String, values: Map<String, String>, callback: (Result<String>) -> Unit)
 
   companion object {
     /** The codec used by Cve98260ProfileNative. */
@@ -1274,6 +1402,68 @@ interface Cve98260ProfileNative {
             val args = message as List<Any?>
             val releaseArg = args[0] as String
             api.readImportedProfile(releaseArg) { result: Result<String> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(Cve98260NativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(Cve98260NativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.Cve98260ProfileNative.readProfileEditor$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val releaseArg = args[0] as String
+            api.readProfileEditor(releaseArg) { result: Result<KernelProfileEditorState> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(Cve98260NativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(Cve98260NativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.Cve98260ProfileNative.saveProfileEditor$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val releaseArg = args[0] as String
+            val valuesArg = args[1] as Map<String, String>
+            api.saveProfileEditor(releaseArg, valuesArg) { result: Result<KernelProfileImportResult> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(Cve98260NativePigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(Cve98260NativePigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.Aisupass.Cve98260ProfileNative.renderProfileEditor$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val releaseArg = args[0] as String
+            val valuesArg = args[1] as Map<String, String>
+            api.renderProfileEditor(releaseArg, valuesArg) { result: Result<String> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(Cve98260NativePigeonUtils.wrapError(error))

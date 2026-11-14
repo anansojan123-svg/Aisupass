@@ -114,6 +114,7 @@ class _ImportedTab extends HookConsumerWidget {
                   for (final KernelProfile profile in list)
                     KernelProfileImportedRow(
                       profile: profile,
+                      editable: true,
                       matched:
                           source == _KeySource.user &&
                           profile.release == deviceRelease,

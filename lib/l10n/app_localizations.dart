@@ -3248,6 +3248,126 @@ abstract class AppLocalizations {
   /// **'读取不到内容，文件可能已被删除'**
   String get kernelProfileDetailEmpty;
 
+  /// 详情弹窗底部的编辑入口按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'编辑'**
+  String get kernelProfileEditAction;
+
+  /// GhostKey 内核表字段编辑页标题
+  ///
+  /// In zh, this message translates to:
+  /// **'编辑内核参数'**
+  String get kernelProfileEditTitle;
+
+  /// 编辑页的基础偏移分组标题
+  ///
+  /// In zh, this message translates to:
+  /// **'基础偏移'**
+  String get kernelProfileEditBasicSection;
+
+  /// 编辑页的高级布局分组标题
+  ///
+  /// In zh, this message translates to:
+  /// **'高级布局'**
+  String get kernelProfileEditAdvancedSection;
+
+  /// 编辑页顶部的数值输入说明
+  ///
+  /// In zh, this message translates to:
+  /// **'支持 0x 十六进制或十进制，64 位地址按无符号展示'**
+  String get kernelProfileEditInputHint;
+
+  /// 编辑页顶部只读 release 字段名
+  ///
+  /// In zh, this message translates to:
+  /// **'内核 release（只读）'**
+  String get kernelProfileEditReleaseLabel;
+
+  /// 编辑页说明 release 不可修改的原因
+  ///
+  /// In zh, this message translates to:
+  /// **'release 是 uname -r 的精确匹配键，修改会导致不再生效'**
+  String get kernelProfileEditReleaseHint;
+
+  /// 编辑页顶部导入来源标签
+  ///
+  /// In zh, this message translates to:
+  /// **'导入来源'**
+  String get kernelProfileEditSource;
+
+  /// 保存菜单：覆盖当前用户文档
+  ///
+  /// In zh, this message translates to:
+  /// **'写回我的配置'**
+  String get kernelProfileEditWriteBack;
+
+  /// 写回动作的副标题
+  ///
+  /// In zh, this message translates to:
+  /// **'覆盖当前用户文档'**
+  String get kernelProfileEditWriteBackHint;
+
+  /// 保存菜单：把编辑结果导出为本地文件
+  ///
+  /// In zh, this message translates to:
+  /// **'另存为文件'**
+  String get kernelProfileEditSaveAs;
+
+  /// 另存为动作的副标题
+  ///
+  /// In zh, this message translates to:
+  /// **'把编辑结果导出为本地 .conf'**
+  String get kernelProfileEditSaveAsHint;
+
+  /// 保存菜单：导出未修改的原始文档
+  ///
+  /// In zh, this message translates to:
+  /// **'导出原始文档'**
+  String get kernelProfileEditExportOriginal;
+
+  /// 导出原始文档动作的副标题
+  ///
+  /// In zh, this message translates to:
+  /// **'备份当前未修改的 HOCON'**
+  String get kernelProfileEditExportOriginalHint;
+
+  /// 写回成功提示
+  ///
+  /// In zh, this message translates to:
+  /// **'已保存'**
+  String get kernelProfileEditSaved;
+
+  /// 保存时草稿与原文一致的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'没有需要保存的改动'**
+  String get kernelProfileEditNoChange;
+
+  /// 原生返回 invalidField 错误码时的文案
+  ///
+  /// In zh, this message translates to:
+  /// **'存在无效数值'**
+  String get kernelProfileEditInvalidField;
+
+  /// 编辑页保存前的本地校验提示；fields 是字段路径列表
+  ///
+  /// In zh, this message translates to:
+  /// **'无效数值：{fields}'**
+  String kernelProfileEditInvalidFields(String fields);
+
+  /// 导出编辑结果失败提示
+  ///
+  /// In zh, this message translates to:
+  /// **'导出失败'**
+  String get kernelProfileEditExportFailed;
+
+  /// 编辑页找不到用户文档时的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'该内核表不是用户导入文档，不能编辑'**
+  String get kernelProfileEditNotEditable;
+
   /// 导入阶段 0：连接服务器并定位 payload.bin
   ///
   /// In zh, this message translates to:

@@ -287,3 +287,90 @@ final class KernelProfileContentFamily extends $Family
   @override
   String toString() => r'kernelProfileContentProvider';
 }
+
+/// 单份用户 profile 的可编辑字段。
+
+@ProviderFor(kernelProfileEditor)
+const kernelProfileEditorProvider = KernelProfileEditorFamily._();
+
+/// 单份用户 profile 的可编辑字段。
+
+final class KernelProfileEditorProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<KernelProfileEditorState>,
+          KernelProfileEditorState,
+          FutureOr<KernelProfileEditorState>
+        >
+    with
+        $FutureModifier<KernelProfileEditorState>,
+        $FutureProvider<KernelProfileEditorState> {
+  /// 单份用户 profile 的可编辑字段。
+  const KernelProfileEditorProvider._({
+    required KernelProfileEditorFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'kernelProfileEditorProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$kernelProfileEditorHash();
+
+  @override
+  String toString() {
+    return r'kernelProfileEditorProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<KernelProfileEditorState> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<KernelProfileEditorState> create(Ref ref) {
+    final argument = this.argument as String;
+    return kernelProfileEditor(ref, release: argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is KernelProfileEditorProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$kernelProfileEditorHash() =>
+    r'0a3a524fe2ecf8e530526edaaae962204970b4f8';
+
+/// 单份用户 profile 的可编辑字段。
+
+final class KernelProfileEditorFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<KernelProfileEditorState>, String> {
+  const KernelProfileEditorFamily._()
+    : super(
+        retry: null,
+        name: r'kernelProfileEditorProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// 单份用户 profile 的可编辑字段。
+
+  KernelProfileEditorProvider call({required String release}) =>
+      KernelProfileEditorProvider._(argument: release, from: this);
+
+  @override
+  String toString() => r'kernelProfileEditorProvider';
+}

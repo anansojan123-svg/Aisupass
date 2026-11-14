@@ -4,6 +4,7 @@ import 'package:Aisupass/core/providers/escalation_native_provider.dart';
 import 'package:Aisupass/features/escalation/data/datasources/kernel_profile_query_datasource.dart';
 import 'package:Aisupass/features/escalation/data/repositories/kernel_profile_query_repository_impl.dart';
 import 'package:Aisupass/features/escalation/domain/models/kernel_profile.dart';
+import 'package:Aisupass/features/escalation/domain/models/kernel_profile_editor.dart';
 import 'package:Aisupass/features/escalation/domain/repositories/kernel_profile_query_repository.dart';
 
 part 'kernel_profile_query_provider.g.dart';
@@ -37,3 +38,12 @@ Future<List<KernelProfile>> kernelProfileBuiltinList(Ref ref) =>
 Future<String> kernelProfileContent(Ref ref, {required String release}) => ref
     .watch(kernelProfileQueryRepositoryProvider)
     .readContent(release: release);
+
+/// 单份用户 profile 的可编辑字段。
+@riverpod
+Future<KernelProfileEditorState> kernelProfileEditor(
+  Ref ref, {
+  required String release,
+}) => ref
+    .watch(kernelProfileQueryRepositoryProvider)
+    .readEditor(release: release);

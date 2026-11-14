@@ -1,6 +1,7 @@
 import 'package:Aisupass/features/escalation/data/datasources/kernel_profile_query_datasource.dart';
 import 'package:Aisupass/features/escalation/data/models/kernel_profile_dto.dart';
 import 'package:Aisupass/features/escalation/domain/models/kernel_profile.dart';
+import 'package:Aisupass/features/escalation/domain/models/kernel_profile_editor.dart';
 import 'package:Aisupass/features/escalation/domain/repositories/kernel_profile_query_repository.dart';
 
 /// 只读仓储实现。DTO -> Entity 转换点之一。
@@ -29,4 +30,8 @@ class KernelProfileQueryRepositoryImpl implements KernelProfileQueryRepository {
   @override
   Future<String> readContent({required String release}) =>
       _datasource.readImportedProfile(release: release);
+
+  @override
+  Future<KernelProfileEditorState> readEditor({required String release}) async =>
+      (await _datasource.readEditor(release: release)).toEntity();
 }

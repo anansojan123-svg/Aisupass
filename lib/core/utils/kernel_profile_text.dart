@@ -1,3 +1,4 @@
+import 'package:Aisupass/features/escalation/domain/models/kernel_profile_import_result.dart';
 import 'package:Aisupass/features/escalation/domain/models/kernel_profile_import_state.dart';
 import 'package:Aisupass/l10n/app_localizations.dart';
 
@@ -65,6 +66,31 @@ String kernelProfileErrorText(
     );
   }
   final String detail = state.result.error.trim();
+  if (detail.isNotEmpty) {
+    lines.add(l10n.kernelProfileErrorDetail(detail));
+  }
+  return lines.join('\n');
+}
+
+/// 编辑器保存失败文案：错误码 + 缺失字段 + 原始详情。
+String kernelProfileEditErrorText(
+  AppLocalizations l10n,
+  KernelProfileImportResult result,
+) {
+  final String mapped = switch (result.errorCode) {
+    'invalidField' => l10n.kernelProfileEditInvalidField,
+    'notFound' => l10n.kernelProfileErrorNotFound,
+    'incomplete' => l10n.kernelProfileErrorIncomplete,
+    'io' => l10n.kernelProfileErrorIo,
+    _ => l10n.kernelProfileErrorUnknown,
+  };
+  final List<String> lines = <String>[mapped];
+  if (result.missing.isNotEmpty) {
+    lines.add(
+      l10n.kernelProfileMissingFields(result.missing.join(', ')),
+    );
+  }
+  final String detail = result.error.trim();
   if (detail.isNotEmpty) {
     lines.add(l10n.kernelProfileErrorDetail(detail));
   }

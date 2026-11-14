@@ -213,6 +213,43 @@ class KernelProfileImportResult {
   String error;
 }
 
+/// 编辑器中的一个字段：路径 + 当前值。
+class KernelProfileFieldValue {
+  KernelProfileFieldValue({
+    required this.path,
+    required this.value,
+    required this.hex,
+    required this.advanced,
+  });
+
+  /// 点分路径，如 `offset.timer_link`。
+  String path;
+
+  /// 当前值的十进制字符串；空串表示 profile 未提供该字段。
+  String value;
+
+  /// true 表示 64 位地址，UI 按十六进制展示与输入。
+  bool hex;
+
+  /// true 表示归入「高级布局」分组。
+  bool advanced;
+}
+
+/// 一次编辑器读取结果；`release` 为空串表示没有可编辑的用户文档。
+class KernelProfileEditorState {
+  KernelProfileEditorState({
+    required this.release,
+    required this.vulnType,
+    required this.detail,
+    required this.fields,
+  });
+
+  String release;
+  String vulnType;
+  String detail;
+  List<KernelProfileFieldValue> fields;
+}
+
 /// 用户 profile 的原生接口。
 ///
 /// 契约原则：
@@ -252,6 +289,21 @@ abstract class Cve98260ProfileNative {
   /// 读取一份用户 profile 的完整 HOCON 文本；文件不存在或解析失败返回空串。
   @async
   String readImportedProfile(String release);
+
+  /// 读取用户文档的可编辑字段；没有对应用户文档时 `release` 为空串。
+  @async
+  KernelProfileEditorState readProfileEditor(String release);
+
+  /// 把编辑值合并回用户文档；校验完整后才落盘。
+  @async
+  KernelProfileImportResult saveProfileEditor(
+    String release,
+    Map<String, String> values,
+  );
+
+  /// 渲染编辑后的 HOCON 文本；失败返回空串。
+  @async
+  String renderProfileEditor(String release, Map<String, String> values);
 }
 
 /// 开一轮新日志。`runId` 由原生侧自算并回传，不要在这里传。

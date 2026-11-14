@@ -1735,6 +1735,69 @@ class AppLocalizationsZh extends AppLocalizations {
   String get kernelProfileDetailEmpty => '读取不到内容，文件可能已被删除';
 
   @override
+  String get kernelProfileEditAction => '编辑';
+
+  @override
+  String get kernelProfileEditTitle => '编辑内核参数';
+
+  @override
+  String get kernelProfileEditBasicSection => '基础偏移';
+
+  @override
+  String get kernelProfileEditAdvancedSection => '高级布局';
+
+  @override
+  String get kernelProfileEditInputHint => '支持 0x 十六进制或十进制，64 位地址按无符号展示';
+
+  @override
+  String get kernelProfileEditReleaseLabel => '内核 release（只读）';
+
+  @override
+  String get kernelProfileEditReleaseHint =>
+      'release 是 uname -r 的精确匹配键，修改会导致不再生效';
+
+  @override
+  String get kernelProfileEditSource => '导入来源';
+
+  @override
+  String get kernelProfileEditWriteBack => '写回我的配置';
+
+  @override
+  String get kernelProfileEditWriteBackHint => '覆盖当前用户文档';
+
+  @override
+  String get kernelProfileEditSaveAs => '另存为文件';
+
+  @override
+  String get kernelProfileEditSaveAsHint => '把编辑结果导出为本地 .conf';
+
+  @override
+  String get kernelProfileEditExportOriginal => '导出原始文档';
+
+  @override
+  String get kernelProfileEditExportOriginalHint => '备份当前未修改的 HOCON';
+
+  @override
+  String get kernelProfileEditSaved => '已保存';
+
+  @override
+  String get kernelProfileEditNoChange => '没有需要保存的改动';
+
+  @override
+  String get kernelProfileEditInvalidField => '存在无效数值';
+
+  @override
+  String kernelProfileEditInvalidFields(String fields) {
+    return '无效数值：$fields';
+  }
+
+  @override
+  String get kernelProfileEditExportFailed => '导出失败';
+
+  @override
+  String get kernelProfileEditNotEditable => '该内核表不是用户导入文档，不能编辑';
+
+  @override
   String get kernelProfilePhaseLocate => '定位 OTA 包';
 
   @override

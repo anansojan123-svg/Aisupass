@@ -21,6 +21,7 @@ class KernelProfileImportedRow extends HookConsumerWidget {
     required this.profile,
     this.showDelete = true,
     this.matched = false,
+    this.editable = false,
   });
 
   final KernelProfile profile;
@@ -30,6 +31,9 @@ class KernelProfileImportedRow extends HookConsumerWidget {
 
   /// 与设备内核一致，即当前会生效的那份。
   final bool matched;
+
+  /// 用户导入文档可在详情弹窗内编辑。
+  final bool editable;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -58,7 +62,11 @@ class KernelProfileImportedRow extends HookConsumerWidget {
             : Colors.transparent,
         borderRadius: BorderRadius.circular(10.r),
         child: InkWell(
-          onTap: () => showKernelProfileDetailSheet(context, profile: profile),
+          onTap: () => showKernelProfileDetailSheet(
+            context,
+            profile: profile,
+            editable: editable,
+          ),
           borderRadius: BorderRadius.circular(10.r),
           child: Padding(
             padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 4.w),

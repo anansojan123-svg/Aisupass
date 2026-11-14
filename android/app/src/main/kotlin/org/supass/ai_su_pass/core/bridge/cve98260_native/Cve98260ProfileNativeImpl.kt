@@ -11,6 +11,7 @@ import java.net.URI
 import java.util.concurrent.Executors
 import org.supass.ai_su_pass.cve98260.AssetConfigLoader
 import org.supass.ai_su_pass.cve98260.BuiltinProfileCatalog
+import org.supass.ai_su_pass.cve98260.KernelProfileEditor
 import org.supass.ai_su_pass.cve98260.ProfileConversionException
 import org.supass.ai_su_pass.cve98260.ota.BootImageParser
 import org.supass.ai_su_pass.cve98260.ota.ImgToProfile
@@ -105,6 +106,94 @@ class Cve98260ProfileNativeImpl(private val context: Context) : Cve98260ProfileN
 
     fun dispose() {
         executor.shutdownNow()
+    }
+
+    /** 读可编辑字段；只有用户导入的文档可编辑，内置表返回空 release。 */
+    override fun readProfileEditor(
+        release: String,
+        callback: (Result<KernelProfileEditorState>) -> Unit,
+    ) {
+        runAsync(callback) {
+            val doc = store.readDocument(release)
+            if (doc == null) {
+                Log.w(TAG, "readProfileEditor: no user profile for $release")
+                return@runAsync KernelProfileEditorState(
+                    release = "",
+                    vulnType = "",
+                    detail = "",
+                    fields = emptyList(),
+                )
+            }
+            val values = KernelProfileEditor.read(doc)
+            KernelProfileEditorState(
+                release = doc.release,
+                vulnType = doc.getString("vuln_type") ?: "cve-2026-98260",
+                detail = doc.getString("_source").orEmpty(),
+                fields = KernelProfileEditor.FIELDS.map { spec ->
+                    KernelProfileFieldValue(
+                        path = spec.path,
+                        value = values[spec.path]?.toString().orEmpty(),
+                        hex = spec.hex,
+                        advanced = spec.advanced,
+                    )
+                },
+            )
+        }
+    }
+
+    /** 把编辑值合并回用户文档；校验完整后才落盘。 */
+    override fun saveProfileEditor(
+        release: String,
+        values: Map<String, String>,
+        callback: (Result<KernelProfileImportResult>) -> Unit,
+    ) {
+        runAsync(callback) { saveEditorInternal(release, values) }
+    }
+
+    /** 渲染编辑后的 HOCON 文本；无法解析时返回空串。 */
+    override fun renderProfileEditor(
+        release: String,
+        values: Map<String, String>,
+        callback: (Result<String>) -> Unit,
+    ) {
+        runAsync(callback) {
+            val doc = store.readDocument(release) ?: return@runAsync ""
+            runCatching { KernelProfileEditor.apply(doc, values).toHocon() }
+                .getOrDefault("")
+        }
+    }
+
+    private fun saveEditorInternal(
+        release: String,
+        values: Map<String, String>,
+    ): KernelProfileImportResult {
+        val doc = store.readDocument(release)
+            ?: return KernelProfileImportResult(false, "", emptyList(), "notFound", "")
+        val next = try {
+            KernelProfileEditor.apply(doc, values)
+        } catch (e: ProfileConversionException) {
+            Log.w(TAG, "editor field rejected: ${e.message}")
+            return KernelProfileImportResult(
+                ok = false,
+                release = doc.release,
+                missing = emptyList(),
+                errorCode = "invalidField",
+                error = e.message.orEmpty(),
+            )
+        }
+        val missing = next.missingRequiredFields()
+        if (missing.isNotEmpty()) {
+            Log.w(TAG, "editor save rejected, missing=$missing")
+            return KernelProfileImportResult(false, next.release, missing, "incomplete", "")
+        }
+        return try {
+            val saved = store.save(next)
+            Log.i(TAG, "editor saved release=$saved")
+            KernelProfileImportResult(true, saved, emptyList(), "", "")
+        } catch (e: IOException) {
+            Log.w(TAG, "editor save failed: ${e.javaClass.simpleName}: ${e.message}")
+            KernelProfileImportResult(false, next.release, emptyList(), "io", detailOf(e))
+        }
     }
 
     private fun importInternal(path: String): KernelProfileImportResult {

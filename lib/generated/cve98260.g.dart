@@ -549,6 +549,122 @@ class KernelProfileImportResult {
   int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
 }
 
+/// 编辑器中的一个字段：路径 + 当前值。
+class KernelProfileFieldValue {
+  KernelProfileFieldValue({
+    required this.path,
+    required this.value,
+    required this.hex,
+    required this.advanced,
+  });
+
+  /// 点分路径，如 `offset.timer_link`。
+  String path;
+
+  /// 当前值的十进制字符串；空串表示 profile 未提供该字段。
+  String value;
+
+  /// true 表示 64 位地址，UI 按十六进制展示与输入。
+  bool hex;
+
+  /// true 表示归入「高级布局」分组。
+  bool advanced;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      path,
+      value,
+      hex,
+      advanced,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static KernelProfileFieldValue decode(Object result) {
+    result as List<Object?>;
+    return KernelProfileFieldValue(
+      path: result[0]! as String,
+      value: result[1]! as String,
+      hex: result[2]! as bool,
+      advanced: result[3]! as bool,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! KernelProfileFieldValue || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(path, other.path) && _deepEquals(value, other.value) && _deepEquals(hex, other.hex) && _deepEquals(advanced, other.advanced);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+}
+
+/// 一次编辑器读取结果；`release` 为空串表示没有可编辑的用户文档。
+class KernelProfileEditorState {
+  KernelProfileEditorState({
+    required this.release,
+    required this.vulnType,
+    required this.detail,
+    required this.fields,
+  });
+
+  String release;
+
+  String vulnType;
+
+  String detail;
+
+  List<KernelProfileFieldValue> fields;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      release,
+      vulnType,
+      detail,
+      fields,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static KernelProfileEditorState decode(Object result) {
+    result as List<Object?>;
+    return KernelProfileEditorState(
+      release: result[0]! as String,
+      vulnType: result[1]! as String,
+      detail: result[2]! as String,
+      fields: (result[3]! as List<Object?>).cast<KernelProfileFieldValue>(),
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! KernelProfileEditorState || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(release, other.release) && _deepEquals(vulnType, other.vulnType) && _deepEquals(detail, other.detail) && _deepEquals(fields, other.fields);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+}
+
 /// 开一轮新日志。`runId` 由原生侧自算并回传，不要在这里传。
 class RunLogBeginRequest {
   RunLogBeginRequest({
@@ -868,20 +984,26 @@ class _PigeonCodec extends StandardMessageCodec {
     }    else if (value is KernelProfileImportResult) {
       buffer.putUint8(135);
       writeValue(buffer, value.encode());
-    }    else if (value is RunLogBeginRequest) {
+    }    else if (value is KernelProfileFieldValue) {
       buffer.putUint8(136);
       writeValue(buffer, value.encode());
-    }    else if (value is RunLogFinishRequest) {
+    }    else if (value is KernelProfileEditorState) {
       buffer.putUint8(137);
       writeValue(buffer, value.encode());
-    }    else if (value is RunLogMetaDto) {
+    }    else if (value is RunLogBeginRequest) {
       buffer.putUint8(138);
       writeValue(buffer, value.encode());
-    }    else if (value is RunLogDiagnoseRequest) {
+    }    else if (value is RunLogFinishRequest) {
       buffer.putUint8(139);
       writeValue(buffer, value.encode());
-    }    else if (value is RunLogDiagnosisDto) {
+    }    else if (value is RunLogMetaDto) {
       buffer.putUint8(140);
+      writeValue(buffer, value.encode());
+    }    else if (value is RunLogDiagnoseRequest) {
+      buffer.putUint8(141);
+      writeValue(buffer, value.encode());
+    }    else if (value is RunLogDiagnosisDto) {
+      buffer.putUint8(142);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -906,14 +1028,18 @@ class _PigeonCodec extends StandardMessageCodec {
       case 135:
         return KernelProfileImportResult.decode(readValue(buffer)!);
       case 136:
-        return RunLogBeginRequest.decode(readValue(buffer)!);
+        return KernelProfileFieldValue.decode(readValue(buffer)!);
       case 137:
-        return RunLogFinishRequest.decode(readValue(buffer)!);
+        return KernelProfileEditorState.decode(readValue(buffer)!);
       case 138:
-        return RunLogMetaDto.decode(readValue(buffer)!);
+        return RunLogBeginRequest.decode(readValue(buffer)!);
       case 139:
-        return RunLogDiagnoseRequest.decode(readValue(buffer)!);
+        return RunLogFinishRequest.decode(readValue(buffer)!);
       case 140:
+        return RunLogMetaDto.decode(readValue(buffer)!);
+      case 141:
+        return RunLogDiagnoseRequest.decode(readValue(buffer)!);
+      case 142:
         return RunLogDiagnosisDto.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -1179,6 +1305,66 @@ class Cve98260ProfileNative {
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[release]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as String;
+  }
+
+  /// 读取用户文档的可编辑字段；没有对应用户文档时 `release` 为空串。
+  Future<KernelProfileEditorState> readProfileEditor(String release) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.Cve98260ProfileNative.readProfileEditor$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[release]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as KernelProfileEditorState;
+  }
+
+  /// 把编辑值合并回用户文档；校验完整后才落盘。
+  Future<KernelProfileImportResult> saveProfileEditor(String release, Map<String, String> values) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.Cve98260ProfileNative.saveProfileEditor$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[release, values]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as KernelProfileImportResult;
+  }
+
+  /// 渲染编辑后的 HOCON 文本；失败返回空串。
+  Future<String> renderProfileEditor(String release, Map<String, String> values) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.Aisupass.Cve98260ProfileNative.renderProfileEditor$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[release, values]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(

@@ -21,6 +21,18 @@ class KernelProfileActionDatasource {
   Future<bool> removeImportedProfile({required String release}) =>
       _native.removeImportedProfile(release);
 
+  /// 把编辑值合并回用户文档。
+  Future<KernelProfileImportResultDto> saveEditor({
+    required String release,
+    required Map<String, String> values,
+  }) async => _toDto(await _native.saveProfileEditor(release, values));
+
+  /// 渲染编辑后的 HOCON 文本；失败返回空串。
+  Future<String> renderEditor({
+    required String release,
+    required Map<String, String> values,
+  }) => _native.renderProfileEditor(release, values);
+
   /// Pigeon 传输对象 -> DTO。
   static KernelProfileImportResultDto _toDto(
     pigeon.KernelProfileImportResult native,

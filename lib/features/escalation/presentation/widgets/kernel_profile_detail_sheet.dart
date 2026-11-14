@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'package:Aisupass/common/widgets/loading.dart';
 import 'package:Aisupass/common/widgets/ref_error.dart';
 import 'package:Aisupass/common/widgets/toast.dart';
 import 'package:Aisupass/core/extensions/context_extensions.dart';
+import 'package:Aisupass/core/routes/app_route.dart';
 import 'package:Aisupass/core/themes/app_fonts.dart';
 import 'package:Aisupass/core/utils/hocon_text.dart';
 import 'package:Aisupass/core/utils/kernel_profile_text.dart';
@@ -16,21 +18,34 @@ import 'package:Aisupass/features/escalation/presentation/providers/kernel_profi
 import 'package:Aisupass/l10n/app_localizations.dart';
 
 /// 打开一份已导入 profile 的详情弹窗。
+///
+/// [editable] 为 true 时底部提供编辑入口（仅用户导入文档）。
 Future<void> showKernelProfileDetailSheet(
   BuildContext context, {
   required KernelProfile profile,
+  bool editable = false,
 }) => showModalBottomSheet<void>(
   context: context,
   isScrollControlled: true,
   useSafeArea: true,
-  builder: (BuildContext _) => KernelProfileDetailSheet(profile: profile),
+  builder: (BuildContext _) => KernelProfileDetailSheet(
+    profile: profile,
+    editable: editable,
+  ),
 );
 
 /// 详情弹窗：概览字段 + 偏移量表 + 可展开的原始 HOCON 文本。
 class KernelProfileDetailSheet extends HookConsumerWidget {
-  const KernelProfileDetailSheet({required this.profile, super.key});
+  const KernelProfileDetailSheet({
+    required this.profile,
+    this.editable = false,
+    super.key,
+  });
 
   final KernelProfile profile;
+
+  /// 是否展示编辑入口。
+  final bool editable;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -161,6 +176,30 @@ class KernelProfileDetailSheet extends HookConsumerWidget {
               },
             ),
           ),
+          if (editable)
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 12.h),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 42.h,
+                  child: FilledButton.icon(
+                    onPressed: () async {
+                      await context.push(
+                        AppRoute.kernelProfileEditPath(profile.release),
+                      );
+                      /* 编辑可能已写回，返回后重取详情内容。 */
+                      ref.invalidate(
+                        kernelProfileContentProvider(release: profile.release),
+                      );
+                    },
+                    icon: Icon(Icons.edit_rounded, size: 17.r),
+                    label: Text(context.l10n.kernelProfileEditAction),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );

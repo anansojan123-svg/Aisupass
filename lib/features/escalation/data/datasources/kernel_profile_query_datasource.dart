@@ -1,4 +1,5 @@
 import 'package:Aisupass/features/escalation/data/models/kernel_profile_dto.dart';
+import 'package:Aisupass/features/escalation/data/models/kernel_profile_editor_dto.dart';
 import 'package:Aisupass/generated/cve98260.g.dart' as pigeon;
 
 /// 用户 profile 只读侧：列表与导入进度。
@@ -23,6 +24,12 @@ class KernelProfileQueryDatasource {
   /// 读取一份 profile 的原始 HOCON 文本；文件不存在返回空串。
   Future<String> readImportedProfile({required String release}) =>
       _native.readImportedProfile(release);
+
+  /// 读取用户文档的可编辑字段；没有对应用户文档时 `release` 为空串。
+  Future<KernelProfileEditorDto> readEditor({required String release}) async =>
+      KernelProfileEditorDto.fromNative(
+        await _native.readProfileEditor(release),
+      );
 
   /// Pigeon 传输对象 -> DTO。
   static KernelProfileDto _toDto(pigeon.KernelProfile native) =>

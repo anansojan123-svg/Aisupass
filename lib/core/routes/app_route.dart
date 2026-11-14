@@ -4,6 +4,7 @@ import 'package:Aisupass/features/ai/presentation/pages/ai_config_edit_page.dart
 import 'package:Aisupass/features/ai/presentation/pages/ai_config_page.dart';
 import 'package:Aisupass/features/chat/presentation/pages/chat_page.dart';
 import 'package:Aisupass/features/escalation/presentation/pages/ghost_lock_profile_page.dart';
+import 'package:Aisupass/features/escalation/presentation/pages/kernel_profile_edit_page.dart';
 import 'package:Aisupass/features/escalation/presentation/pages/kernel_profile_page.dart';
 import 'package:Aisupass/features/escalation/presentation/pages/manual_escalation_page.dart';
 import 'package:Aisupass/features/escalation/presentation/pages/run_log_page.dart';
@@ -38,6 +39,13 @@ class AppRoute {
   /// 内核表页路径；[tab] 为 `ghostkey` 时直接落在 GhostKey 页签。
   static String kernelProfilePath({String tab = ''}) =>
       tab.isEmpty ? kernelProfile : '$kernelProfile?tab=$tab';
+
+  // GhostKey 内核表字段编辑器
+  static const kernelProfileEdit = '/kernelProfile/edit';
+
+  /// 编辑器路径；[release] 是目标用户文档的 release。
+  static String kernelProfileEditPath(String release) =>
+      '$kernelProfileEdit?release=${Uri.encodeComponent(release)}';
 
   // GhostLock 内核表编辑器
   static const ghostLockProfile = '/ghostLock/profile';
@@ -93,6 +101,12 @@ final List<GoRoute> appRoutes = [
     path: AppRoute.kernelProfile,
     builder: (context, state) => KernelProfilePage(
       initialTab: state.uri.queryParameters['tab'] == 'ghostkey' ? 1 : 0,
+    ),
+  ),
+  GoRoute(
+    path: AppRoute.kernelProfileEdit,
+    builder: (context, state) => KernelProfileEditPage(
+      release: state.uri.queryParameters['release'] ?? '',
     ),
   ),
   GoRoute(

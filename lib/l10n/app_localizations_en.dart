@@ -1816,6 +1816,74 @@ class AppLocalizationsEn extends AppLocalizations {
       'Content unavailable; the file may have been removed';
 
   @override
+  String get kernelProfileEditAction => 'Edit';
+
+  @override
+  String get kernelProfileEditTitle => 'Edit kernel parameters';
+
+  @override
+  String get kernelProfileEditBasicSection => 'Basic offsets';
+
+  @override
+  String get kernelProfileEditAdvancedSection => 'Advanced layout';
+
+  @override
+  String get kernelProfileEditInputHint =>
+      'Accepts hex (0x...) or decimal; 64-bit addresses show as unsigned';
+
+  @override
+  String get kernelProfileEditReleaseLabel => 'Kernel release (read-only)';
+
+  @override
+  String get kernelProfileEditReleaseHint =>
+      'release is the exact uname -r match key; changing it disables matching';
+
+  @override
+  String get kernelProfileEditSource => 'Source';
+
+  @override
+  String get kernelProfileEditWriteBack => 'Write back';
+
+  @override
+  String get kernelProfileEditWriteBackHint =>
+      'Overwrite the current user profile';
+
+  @override
+  String get kernelProfileEditSaveAs => 'Save as file';
+
+  @override
+  String get kernelProfileEditSaveAsHint =>
+      'Export the edited result as a local .conf';
+
+  @override
+  String get kernelProfileEditExportOriginal => 'Export original';
+
+  @override
+  String get kernelProfileEditExportOriginalHint =>
+      'Back up the unmodified HOCON';
+
+  @override
+  String get kernelProfileEditSaved => 'Saved';
+
+  @override
+  String get kernelProfileEditNoChange => 'No changes to save';
+
+  @override
+  String get kernelProfileEditInvalidField => 'Invalid value found';
+
+  @override
+  String kernelProfileEditInvalidFields(String fields) {
+    return 'Invalid values: $fields';
+  }
+
+  @override
+  String get kernelProfileEditExportFailed => 'Export failed';
+
+  @override
+  String get kernelProfileEditNotEditable =>
+      'Only user-imported profiles can be edited';
+
+  @override
   String get kernelProfilePhaseLocate => 'Locating OTA package';
 
   @override

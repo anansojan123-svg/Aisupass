@@ -1,6 +1,7 @@
 import 'package:Aisupass/core/providers/escalation_native_provider.dart';
 import 'package:Aisupass/features/escalation/data/datasources/kernel_profile_action_datasource.dart';
 import 'package:Aisupass/features/escalation/data/repositories/kernel_profile_action_repository_impl.dart';
+import 'package:Aisupass/features/escalation/domain/models/kernel_profile_import_result.dart';
 import 'package:Aisupass/features/escalation/domain/models/kernel_profile_import_state.dart';
 import 'package:Aisupass/features/escalation/domain/repositories/kernel_profile_action_repository.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/kernel_profile_query_provider.dart';
@@ -61,4 +62,28 @@ class KernelProfileActions {
     _ref.invalidate(kernelProfileListProvider);
     return removed;
   }
+
+  /// 写回用户文档，成功后刷新列表、详情与编辑器缓存。
+  Future<KernelProfileImportResult> saveEditor({
+    required String release,
+    required Map<String, String> values,
+  }) async {
+    final KernelProfileImportResult result = await _ref
+        .read(kernelProfileActionRepositoryProvider)
+        .saveEditor(release: release, values: values);
+    if (result.ok) {
+      _ref.invalidate(kernelProfileListProvider);
+      _ref.invalidate(kernelProfileContentProvider(release: release));
+      _ref.invalidate(kernelProfileEditorProvider(release: release));
+    }
+    return result;
+  }
+
+  /// 渲染编辑后的 HOCON 文本，供另存为使用。
+  Future<String> renderEditor({
+    required String release,
+    required Map<String, String> values,
+  }) => _ref
+      .read(kernelProfileActionRepositoryProvider)
+      .renderEditor(release: release, values: values);
 }
