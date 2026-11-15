@@ -31,6 +31,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAboutVersionTitle => 'Version';
 
   @override
+  String get settingsAboutWebsiteTitle => 'Website';
+
+  @override
   String get settingsAboutRepoTitle => 'Repository';
 
   @override

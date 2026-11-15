@@ -31,6 +31,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsAboutVersionTitle => '版本';
 
   @override
+  String get settingsAboutWebsiteTitle => '官网';
+
+  @override
   String get settingsAboutRepoTitle => '开源地址';
 
   @override

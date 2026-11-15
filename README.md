@@ -5,8 +5,8 @@
 <h1 align="center">AISUPASS</h1>
 
 <p align="center">
-  <b>Android device assistant</b><br />
-  Reads the local device · pairs over wireless ADB for a shell(2000) · answers device questions in chat
+  <b>AI escalation assistant</b><br />
+  A conversational escalation tool with multiple escalation methods
 </p>
 
 <p align="center">

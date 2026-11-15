@@ -5,8 +5,8 @@
 <h1 align="center">AISUPASS</h1>
 
 <p align="center">
-  <b>Android 设备助手</b><br />
-  读取本机环境 · 无线 ADB 配对取得 shell(2000) · 对话式回答设备问题
+  <b>AI 提权助手</b><br />
+  对话式提权工具，支持多种方式提权
 </p>
 
 <p align="center">

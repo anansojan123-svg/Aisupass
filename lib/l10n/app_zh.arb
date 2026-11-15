@@ -28,6 +28,10 @@
   "@settingsAboutVersionTitle": {
     "description": "设置页关于分组-当前版本号"
   },
+  "settingsAboutWebsiteTitle": "官网",
+  "@settingsAboutWebsiteTitle": {
+    "description": "设置页关于分组-官网入口"
+  },
   "settingsAboutRepoTitle": "开源地址",
   "@settingsAboutRepoTitle": {
     "description": "设置页关于分组-源码仓库入口"

@@ -142,6 +142,8 @@ flutter:
     - assets/images/ai_icons/
     # 终端按键栏用的界面图标（三点菜单等）。
     - assets/images/icons/
+    # 设置页「官网」行使用的应用图标。
+    - assets/images/branding/
     # Flutter 的目录声明只包含该目录下的直接文件，不会递归子目录，
     # 因此 escalation 下的清单必须逐个文件声明。
     - assets/escalation/payloads/catalog.json

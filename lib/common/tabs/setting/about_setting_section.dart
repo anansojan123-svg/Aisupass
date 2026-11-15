@@ -11,7 +11,7 @@ import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-/// 设置页「关于」分组：版本号、开源地址、开源协议、第三方声明。
+/// 设置页「关于」分组：版本号、官网、开源地址、开源协议、第三方声明。
 class AboutSettingSection extends HookWidget {
   const AboutSettingSection({super.key});
 
@@ -32,7 +32,20 @@ class AboutSettingSection extends HookWidget {
         ),
         const _AboutDivider(),
         _AboutRow(
-          icon: Icons.code_rounded,
+          svgAsset: AppLinks.appIconAsset,
+          title: context.l10n.settingsAboutWebsiteTitle,
+          subtitle: AppLinks.websiteDisplay,
+          onTap: () => unawaited(
+            launchUrl(
+              Uri.parse(AppLinks.website),
+              mode: LaunchMode.externalApplication,
+            ),
+          ),
+        ),
+        const _AboutDivider(),
+        _AboutRow(
+          svgAsset: AppLinks.githubIconAsset,
+          svgColor: context.colorScheme.onSurface.withValues(alpha: 0.85),
           title: context.l10n.settingsAboutRepoTitle,
           subtitle: AppLinks.repositoryDisplay,
           onTap: () => unawaited(
@@ -66,14 +79,18 @@ class AboutSettingSection extends HookWidget {
 /// 分组内单行；[onTap] 为空时是只读行，右侧显示 [value] 而不是箭头。
 class _AboutRow extends StatelessWidget {
   const _AboutRow({
-    required this.icon,
+    this.icon,
+    this.svgAsset,
+    this.svgColor,
     required this.title,
     this.subtitle,
     this.value,
     this.onTap,
   });
 
-  final IconData icon;
+  final IconData? icon;
+  final String? svgAsset;
+  final Color? svgColor;
   final String title;
   final String? subtitle;
   final String? value;
@@ -88,7 +105,11 @@ class _AboutRow extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
         child: Row(
           children: <Widget>[
-            AppSettingIcon(icon: icon),
+            AppSettingIcon(
+              icon: icon,
+              svgAsset: svgAsset,
+              svgColor: svgColor,
+            ),
             SizedBox(width: 12.w),
             Expanded(
               child: Column(

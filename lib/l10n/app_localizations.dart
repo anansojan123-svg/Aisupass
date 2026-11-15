@@ -140,6 +140,12 @@ abstract class AppLocalizations {
   /// **'版本'**
   String get settingsAboutVersionTitle;
 
+  /// 设置页关于分组-官网入口
+  ///
+  /// In zh, this message translates to:
+  /// **'官网'**
+  String get settingsAboutWebsiteTitle;
+
   /// 设置页关于分组-源码仓库入口
   ///
   /// In zh, this message translates to:
