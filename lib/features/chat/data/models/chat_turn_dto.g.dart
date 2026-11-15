@@ -18,6 +18,11 @@ _ChatTurnDto _$ChatTurnDtoFromJson(Map<String, dynamic> json) => _ChatTurnDto(
       const <ChatToolCallDto>[],
   error: json['error'] as String? ?? '',
   notice: json['notice'] as String? ?? '',
+  attachments:
+      (json['attachments'] as List<dynamic>?)
+          ?.map((e) => ChatAttachmentDto.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const <ChatAttachmentDto>[],
   createdAt: json['createdAt'] as String? ?? '',
   durationMs: (json['durationMs'] as num?)?.toInt() ?? 0,
   usage: json['usage'] as Map<String, dynamic>? ?? const <String, dynamic>{},
@@ -32,6 +37,7 @@ Map<String, dynamic> _$ChatTurnDtoToJson(_ChatTurnDto instance) =>
       'toolCalls': instance.toolCalls,
       'error': instance.error,
       'notice': instance.notice,
+      'attachments': instance.attachments,
       'createdAt': instance.createdAt,
       'durationMs': instance.durationMs,
       'usage': instance.usage,

@@ -120,6 +120,59 @@ final class ChatActionDatasourceProvider
 String _$chatActionDatasourceHash() =>
     r'03f4af902927460f983fcff586b3b08496ede4fb';
 
+/// 附件落盘服务：把选中的文件复制到应用私有目录。
+
+@ProviderFor(chatAttachmentStore)
+const chatAttachmentStoreProvider = ChatAttachmentStoreProvider._();
+
+/// 附件落盘服务：把选中的文件复制到应用私有目录。
+
+final class ChatAttachmentStoreProvider
+    extends
+        $FunctionalProvider<
+          ChatAttachmentStore,
+          ChatAttachmentStore,
+          ChatAttachmentStore
+        >
+    with $Provider<ChatAttachmentStore> {
+  /// 附件落盘服务：把选中的文件复制到应用私有目录。
+  const ChatAttachmentStoreProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'chatAttachmentStoreProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$chatAttachmentStoreHash();
+
+  @$internal
+  @override
+  $ProviderElement<ChatAttachmentStore> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  ChatAttachmentStore create(Ref ref) {
+    return chatAttachmentStore(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ChatAttachmentStore value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ChatAttachmentStore>(value),
+    );
+  }
+}
+
+String _$chatAttachmentStoreHash() =>
+    r'75add446375cb6d94d8317bc9176eb94a7f7d4dc';
+
 /// 对话执行仓储。
 
 @ProviderFor(chatActionRepository)
@@ -387,7 +440,7 @@ final class ChatControllerProvider
   }
 }
 
-String _$chatControllerHash() => r'085726ebfcef31102fde22776fe771439a58728b';
+String _$chatControllerHash() => r'86be0904e91597af1ec6e56b4e572142de68d6bd';
 
 /// 对话控制器。
 ///

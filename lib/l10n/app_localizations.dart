@@ -1049,32 +1049,32 @@ abstract class AppLocalizations {
   /// 空会话引导标题
   ///
   /// In zh, this message translates to:
-  /// **'AI 设备助手'**
+  /// **'AISUPASS'**
   String get chatEmptyTitle;
 
   /// 空会话引导说明
   ///
   /// In zh, this message translates to:
-  /// **'描述你的设备情况，我会读取设备信息并回答你的问题'**
+  /// **'提出你的需求，我会给你最佳提权方案'**
   String get chatEmptyHint;
 
-  /// 空会话建议提问-设备环境
+  /// 空会话建议提问-查找本机型 ROM 包
   ///
   /// In zh, this message translates to:
-  /// **'分析我的设备环境'**
-  String get chatSuggestionDevice;
+  /// **'帮我找一下本机型的 ROM 包'**
+  String get chatSuggestionRom;
 
-  /// 空会话建议提问-root 状态
+  /// 空会话建议提问-分析提权方案
   ///
   /// In zh, this message translates to:
-  /// **'当前设备是否已 root'**
-  String get chatSuggestionRoot;
+  /// **'分析一下本机型的提权方案'**
+  String get chatSuggestionEscalation;
 
-  /// 空会话建议提问-ADB 状态
+  /// 空会话建议按钮-跳转交流群
   ///
   /// In zh, this message translates to:
-  /// **'这台设备的 ADB 状态怎么样'**
-  String get chatSuggestionPlan;
+  /// **'获取技术支持'**
+  String get chatSuggestionSupport;
 
   /// 会话列表标题
   ///
@@ -1417,6 +1417,864 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'分享失败，请稍后重试'**
   String get chatShareFailed;
+
+  /// 输入栏提示词库入口与弹层标题
+  ///
+  /// In zh, this message translates to:
+  /// **'常用提示词'**
+  String get chatPromptTitle;
+
+  /// 提示词库首次读盘中的占位文案
+  ///
+  /// In zh, this message translates to:
+  /// **'正在读取提示词…'**
+  String get chatPromptLoading;
+
+  /// 提示词库为空时的引导文案
+  ///
+  /// In zh, this message translates to:
+  /// **'还没有常用提示词，点击右上角 + 新建一条'**
+  String get chatPromptEmpty;
+
+  /// 提示词库-新建按钮与弹窗标题
+  ///
+  /// In zh, this message translates to:
+  /// **'新建提示词'**
+  String get chatPromptAdd;
+
+  /// 提示词库-编辑菜单项与弹窗标题
+  ///
+  /// In zh, this message translates to:
+  /// **'编辑提示词'**
+  String get chatPromptEdit;
+
+  /// 提示词库-把提示词插入输入框
+  ///
+  /// In zh, this message translates to:
+  /// **'插入'**
+  String get chatPromptInsert;
+
+  /// 提示词库-删除菜单项与确认弹窗标题
+  ///
+  /// In zh, this message translates to:
+  /// **'删除提示词'**
+  String get chatPromptDelete;
+
+  /// 提示词库-删除确认文案
+  ///
+  /// In zh, this message translates to:
+  /// **'确定删除「{title}」吗？'**
+  String chatPromptDeleteConfirm(String title);
+
+  /// 提示词保存成功提示
+  ///
+  /// In zh, this message translates to:
+  /// **'提示词已保存'**
+  String get chatPromptSaved;
+
+  /// 提示词删除成功提示
+  ///
+  /// In zh, this message translates to:
+  /// **'提示词已删除'**
+  String get chatPromptDeleted;
+
+  /// 提示词编辑器-标题字段
+  ///
+  /// In zh, this message translates to:
+  /// **'标题'**
+  String get chatPromptName;
+
+  /// 提示词编辑器-标题占位文案
+  ///
+  /// In zh, this message translates to:
+  /// **'例如：分析设备环境'**
+  String get chatPromptNameHint;
+
+  /// 提示词编辑器-内容字段
+  ///
+  /// In zh, this message translates to:
+  /// **'内容'**
+  String get chatPromptContent;
+
+  /// 提示词编辑器-内容占位文案
+  ///
+  /// In zh, this message translates to:
+  /// **'输入要发送给 AI 的提示词'**
+  String get chatPromptContentHint;
+
+  /// 提示词编辑器-内容为空的校验提示
+  ///
+  /// In zh, this message translates to:
+  /// **'提示词内容不能为空'**
+  String get chatPromptContentRequired;
+
+  /// 输入栏附件按钮提示
+  ///
+  /// In zh, this message translates to:
+  /// **'添加附件'**
+  String get chatAttachTitle;
+
+  /// 附件选择弹层-图片入口
+  ///
+  /// In zh, this message translates to:
+  /// **'选择图片'**
+  String get chatAttachImage;
+
+  /// 附件选择弹层-文本文件入口
+  ///
+  /// In zh, this message translates to:
+  /// **'选择文本文件'**
+  String get chatAttachText;
+
+  /// 附件选择弹层-镜像与压缩包入口
+  ///
+  /// In zh, this message translates to:
+  /// **'选择镜像/压缩包'**
+  String get chatAttachBinary;
+
+  /// 选中文件拿不到真实路径时的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'无法获取 {name} 的本地路径'**
+  String chatAttachNoPath(String name);
+
+  /// 选中文件类型不在允许列表时的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'不支持该文件类型'**
+  String get chatAttachUnsupported;
+
+  /// 附件超过大小上限时的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'文件过大：{name}'**
+  String chatAttachTooLarge(String name);
+
+  /// 附件复制或读取失败时的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'添加附件失败'**
+  String get chatAttachFailed;
+
+  /// 附件数量达到上限时的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'单条消息最多添加 {count} 个附件'**
+  String chatAttachLimit(int count);
+
+  /// 对话页手册入口与弹层标题
+  ///
+  /// In zh, this message translates to:
+  /// **'AI 能力手册'**
+  String get chatManualTitle;
+
+  /// 手册弹层副标题
+  ///
+  /// In zh, this message translates to:
+  /// **'助手在对话中可以调用的本地能力与工具'**
+  String get chatManualSubtitle;
+
+  /// 手册底部关于工具确认机制的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'执行类工具在动作前会先征求你的确认；只读工具可直接调用'**
+  String get chatManualConfirmHint;
+
+  /// No description provided for @chatToolDesc_get_device_info.
+  ///
+  /// In zh, this message translates to:
+  /// **'读取机型、系统版本、内核、补丁、基带、ABI 与 SELinux 等设备信息'**
+  String get chatToolDesc_get_device_info;
+
+  /// No description provided for @chatToolDesc_get_root_status.
+  ///
+  /// In zh, this message translates to:
+  /// **'检查当前进程是否已获得 ROOT 权限'**
+  String get chatToolDesc_get_root_status;
+
+  /// No description provided for @chatToolDesc_get_adb_status.
+  ///
+  /// In zh, this message translates to:
+  /// **'检查 USB 与无线调试开关是否打开'**
+  String get chatToolDesc_get_adb_status;
+
+  /// No description provided for @chatToolDesc_adb_shell_exec.
+  ///
+  /// In zh, this message translates to:
+  /// **'在已连接的 adb shell（uid 2000）执行一条命令，返回退出码与输出'**
+  String get chatToolDesc_adb_shell_exec;
+
+  /// No description provided for @chatToolDesc_adb_pairing_request.
+  ///
+  /// In zh, this message translates to:
+  /// **'打开无线调试配对面板，引导完成 adb 配对'**
+  String get chatToolDesc_adb_pairing_request;
+
+  /// No description provided for @chatToolDesc_web_search.
+  ///
+  /// In zh, this message translates to:
+  /// **'用 Bing 搜索公开网络，返回标题、链接与摘要'**
+  String get chatToolDesc_web_search;
+
+  /// No description provided for @chatToolDesc_fetch_web_page.
+  ///
+  /// In zh, this message translates to:
+  /// **'抓取指定网页的原始源码，同时返回状态码与内容类型'**
+  String get chatToolDesc_fetch_web_page;
+
+  /// No description provided for @chatToolDesc_open_in_browser.
+  ///
+  /// In zh, this message translates to:
+  /// **'用应用内浏览器打开网页，可回传网址或页面源码'**
+  String get chatToolDesc_open_in_browser;
+
+  /// No description provided for @chatToolDesc_escalation_get_device_identity.
+  ///
+  /// In zh, this message translates to:
+  /// **'读取提权需要的设备与内核标识'**
+  String get chatToolDesc_escalation_get_device_identity;
+
+  /// No description provided for @chatToolDesc_escalation_list_payloads.
+  ///
+  /// In zh, this message translates to:
+  /// **'列出内置提权载荷清单'**
+  String get chatToolDesc_escalation_list_payloads;
+
+  /// No description provided for @chatToolDesc_escalation_resolve_payload.
+  ///
+  /// In zh, this message translates to:
+  /// **'按机型与内核匹配合适的提权载荷'**
+  String get chatToolDesc_escalation_resolve_payload;
+
+  /// No description provided for @chatToolDesc_escalation_list_root_managers.
+  ///
+  /// In zh, this message translates to:
+  /// **'列出设备上可用的 ROOT 管理器'**
+  String get chatToolDesc_escalation_list_root_managers;
+
+  /// No description provided for @chatToolDesc_escalation_get_selected_root_manager.
+  ///
+  /// In zh, this message translates to:
+  /// **'读取当前选中的 ROOT 管理器'**
+  String get chatToolDesc_escalation_get_selected_root_manager;
+
+  /// No description provided for @chatToolDesc_escalation_run_payload.
+  ///
+  /// In zh, this message translates to:
+  /// **'执行指定的提权载荷'**
+  String get chatToolDesc_escalation_run_payload;
+
+  /// No description provided for @chatToolDesc_escalation_run_payload_by_id.
+  ///
+  /// In zh, this message translates to:
+  /// **'按编号执行提权载荷'**
+  String get chatToolDesc_escalation_run_payload_by_id;
+
+  /// No description provided for @chatToolDesc_escalation_handoff_root.
+  ///
+  /// In zh, this message translates to:
+  /// **'把已取得的 root 移交给指定管理器'**
+  String get chatToolDesc_escalation_handoff_root;
+
+  /// No description provided for @chatToolDesc_escalation_select_root_manager.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择后续交接使用的 ROOT 管理器'**
+  String get chatToolDesc_escalation_select_root_manager;
+
+  /// No description provided for @chatToolDesc_ghost_key_preflight.
+  ///
+  /// In zh, this message translates to:
+  /// **'GhostKey 预检：ADB、内核、配置与原生库是否就绪'**
+  String get chatToolDesc_ghost_key_preflight;
+
+  /// No description provided for @chatToolDesc_ghost_key_get_run_defaults.
+  ///
+  /// In zh, this message translates to:
+  /// **'读取 GhostKey 运行默认参数'**
+  String get chatToolDesc_ghost_key_get_run_defaults;
+
+  /// No description provided for @chatToolDesc_ghost_key_save_run_defaults.
+  ///
+  /// In zh, this message translates to:
+  /// **'保存 GhostKey 运行默认参数'**
+  String get chatToolDesc_ghost_key_save_run_defaults;
+
+  /// No description provided for @chatToolDesc_ghost_key_start.
+  ///
+  /// In zh, this message translates to:
+  /// **'启动一次 GhostKey 临时 root 流程'**
+  String get chatToolDesc_ghost_key_start;
+
+  /// No description provided for @chatToolDesc_ghost_key_status.
+  ///
+  /// In zh, this message translates to:
+  /// **'查询 GhostKey 当前执行状态'**
+  String get chatToolDesc_ghost_key_status;
+
+  /// No description provided for @chatToolDesc_ghost_key_cancel.
+  ///
+  /// In zh, this message translates to:
+  /// **'中止正在进行的 GhostKey 流程'**
+  String get chatToolDesc_ghost_key_cancel;
+
+  /// No description provided for @chatToolDesc_ghost_lock_preflight.
+  ///
+  /// In zh, this message translates to:
+  /// **'GhostLock 预检：ADB、uid、seccomp、内核与配置匹配情况'**
+  String get chatToolDesc_ghost_lock_preflight;
+
+  /// No description provided for @chatToolDesc_ghost_lock_start.
+  ///
+  /// In zh, this message translates to:
+  /// **'启动一次 GhostLock 提权，返回会话 id'**
+  String get chatToolDesc_ghost_lock_start;
+
+  /// No description provided for @chatToolDesc_ghost_lock_status.
+  ///
+  /// In zh, this message translates to:
+  /// **'读取 GhostLock 运行会话的最新快照'**
+  String get chatToolDesc_ghost_lock_status;
+
+  /// No description provided for @chatToolDesc_ghost_lock_cancel.
+  ///
+  /// In zh, this message translates to:
+  /// **'停止读取当前 GhostLock 运行，不终止设备进程'**
+  String get chatToolDesc_ghost_lock_cancel;
+
+  /// No description provided for @chatToolDesc_ghost_lock_list_imported_profiles.
+  ///
+  /// In zh, this message translates to:
+  /// **'列出已导入的 GhostLock 配置文件'**
+  String get chatToolDesc_ghost_lock_list_imported_profiles;
+
+  /// No description provided for @chatToolDesc_ghost_lock_list_builtin_releases.
+  ///
+  /// In zh, this message translates to:
+  /// **'列出内置的 GhostLock 发行版本'**
+  String get chatToolDesc_ghost_lock_list_builtin_releases;
+
+  /// No description provided for @chatToolDesc_ghost_lock_read_imported_profile.
+  ///
+  /// In zh, this message translates to:
+  /// **'读取某个已导入配置文件的详情'**
+  String get chatToolDesc_ghost_lock_read_imported_profile;
+
+  /// No description provided for @chatToolDesc_ghost_lock_get_probe_progress.
+  ///
+  /// In zh, this message translates to:
+  /// **'查询配置解析进度'**
+  String get chatToolDesc_ghost_lock_get_probe_progress;
+
+  /// No description provided for @chatToolDesc_ghost_lock_list_extracted_images.
+  ///
+  /// In zh, this message translates to:
+  /// **'列出从镜像包中提取出的分区'**
+  String get chatToolDesc_ghost_lock_list_extracted_images;
+
+  /// No description provided for @chatToolDesc_ghost_lock_get_profile_config.
+  ///
+  /// In zh, this message translates to:
+  /// **'读取当前配置文件的完整字段'**
+  String get chatToolDesc_ghost_lock_get_profile_config;
+
+  /// No description provided for @chatToolDesc_ghost_lock_get_active_source.
+  ///
+  /// In zh, this message translates to:
+  /// **'读取当前生效的配置来源'**
+  String get chatToolDesc_ghost_lock_get_active_source;
+
+  /// No description provided for @chatToolDesc_ghost_lock_probe_profile.
+  ///
+  /// In zh, this message translates to:
+  /// **'解析内核镜像并生成配置档'**
+  String get chatToolDesc_ghost_lock_probe_profile;
+
+  /// No description provided for @chatToolDesc_ghost_lock_save_profile.
+  ///
+  /// In zh, this message translates to:
+  /// **'保存当前配置档'**
+  String get chatToolDesc_ghost_lock_save_profile;
+
+  /// No description provided for @chatToolDesc_ghost_lock_import_profile_text.
+  ///
+  /// In zh, this message translates to:
+  /// **'导入一段配置文本作为新配置档'**
+  String get chatToolDesc_ghost_lock_import_profile_text;
+
+  /// No description provided for @chatToolDesc_ghost_lock_rename_imported_profile.
+  ///
+  /// In zh, this message translates to:
+  /// **'重命名已导入的配置档'**
+  String get chatToolDesc_ghost_lock_rename_imported_profile;
+
+  /// No description provided for @chatToolDesc_ghost_lock_remove_imported_profile.
+  ///
+  /// In zh, this message translates to:
+  /// **'删除已导入的配置档'**
+  String get chatToolDesc_ghost_lock_remove_imported_profile;
+
+  /// No description provided for @chatToolDesc_ghost_lock_export_imported_profile.
+  ///
+  /// In zh, this message translates to:
+  /// **'导出已导入的配置档文本'**
+  String get chatToolDesc_ghost_lock_export_imported_profile;
+
+  /// No description provided for @chatToolDesc_ghost_lock_convert_imported_profile.
+  ///
+  /// In zh, this message translates to:
+  /// **'转换配置档的格式'**
+  String get chatToolDesc_ghost_lock_convert_imported_profile;
+
+  /// No description provided for @chatToolDesc_ghost_lock_export_local_file.
+  ///
+  /// In zh, this message translates to:
+  /// **'把配置档导出为本地文件'**
+  String get chatToolDesc_ghost_lock_export_local_file;
+
+  /// No description provided for @chatToolDesc_ghost_lock_update_general_fields.
+  ///
+  /// In zh, this message translates to:
+  /// **'修改配置档的常规字段'**
+  String get chatToolDesc_ghost_lock_update_general_fields;
+
+  /// No description provided for @chatToolDesc_ghost_lock_update_advanced_fields.
+  ///
+  /// In zh, this message translates to:
+  /// **'修改配置档的高级字段'**
+  String get chatToolDesc_ghost_lock_update_advanced_fields;
+
+  /// No description provided for @chatToolDesc_ghost_lock_update_route.
+  ///
+  /// In zh, this message translates to:
+  /// **'修改配置档的路由信息'**
+  String get chatToolDesc_ghost_lock_update_route;
+
+  /// No description provided for @chatToolDesc_ghost_lock_update_fallback.
+  ///
+  /// In zh, this message translates to:
+  /// **'修改配置档的回退项'**
+  String get chatToolDesc_ghost_lock_update_fallback;
+
+  /// No description provided for @chatToolDesc_ghost_lock_reset_profile.
+  ///
+  /// In zh, this message translates to:
+  /// **'把配置档重置为默认值'**
+  String get chatToolDesc_ghost_lock_reset_profile;
+
+  /// No description provided for @chatToolDesc_ghost_lock_select_source.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择生效的配置来源'**
+  String get chatToolDesc_ghost_lock_select_source;
+
+  /// No description provided for @chatToolDesc_ghost_lock_render_profile.
+  ///
+  /// In zh, this message translates to:
+  /// **'渲染并预览配置档'**
+  String get chatToolDesc_ghost_lock_render_profile;
+
+  /// No description provided for @chatToolDesc_ghost_lock_export_profile.
+  ///
+  /// In zh, this message translates to:
+  /// **'导出当前配置档'**
+  String get chatToolDesc_ghost_lock_export_profile;
+
+  /// No description provided for @chatToolDesc_ghost_lock_save_modified_profile.
+  ///
+  /// In zh, this message translates to:
+  /// **'保存修改后的配置档'**
+  String get chatToolDesc_ghost_lock_save_modified_profile;
+
+  /// No description provided for @chatToolDesc_ghost_lock_overwrite_profile.
+  ///
+  /// In zh, this message translates to:
+  /// **'覆盖写入现有配置档'**
+  String get chatToolDesc_ghost_lock_overwrite_profile;
+
+  /// No description provided for @chatToolDesc_ghost_lock_begin_edit_session.
+  ///
+  /// In zh, this message translates to:
+  /// **'开始一次配置编辑会话'**
+  String get chatToolDesc_ghost_lock_begin_edit_session;
+
+  /// No description provided for @chatToolDesc_ghost_lock_reload_edit_session.
+  ///
+  /// In zh, this message translates to:
+  /// **'重新加载编辑会话'**
+  String get chatToolDesc_ghost_lock_reload_edit_session;
+
+  /// No description provided for @chatToolDesc_ghost_lock_get_edit_session.
+  ///
+  /// In zh, this message translates to:
+  /// **'读取编辑会话的当前草稿'**
+  String get chatToolDesc_ghost_lock_get_edit_session;
+
+  /// No description provided for @chatToolDesc_ghost_lock_commit_edit_session.
+  ///
+  /// In zh, this message translates to:
+  /// **'提交编辑会话中的修改'**
+  String get chatToolDesc_ghost_lock_commit_edit_session;
+
+  /// No description provided for @chatToolDesc_ghost_lock_save_edit_session_in_place.
+  ///
+  /// In zh, this message translates to:
+  /// **'就地保存编辑会话'**
+  String get chatToolDesc_ghost_lock_save_edit_session_in_place;
+
+  /// No description provided for @chatToolDesc_ghost_lock_save_edit_session_as_new.
+  ///
+  /// In zh, this message translates to:
+  /// **'把编辑会话另存为新配置档'**
+  String get chatToolDesc_ghost_lock_save_edit_session_as_new;
+
+  /// No description provided for @chatToolDesc_ghost_lock_export_edit_session.
+  ///
+  /// In zh, this message translates to:
+  /// **'导出编辑会话的内容'**
+  String get chatToolDesc_ghost_lock_export_edit_session;
+
+  /// No description provided for @chatToolDesc_ghost_lock_end_edit_session.
+  ///
+  /// In zh, this message translates to:
+  /// **'结束编辑会话'**
+  String get chatToolDesc_ghost_lock_end_edit_session;
+
+  /// No description provided for @chatToolDesc_dirty_frag_is_armed.
+  ///
+  /// In zh, this message translates to:
+  /// **'检查本次开机是否已注入过 DirtyFrag'**
+  String get chatToolDesc_dirty_frag_is_armed;
+
+  /// No description provided for @chatToolDesc_dirty_frag_get_run_defaults.
+  ///
+  /// In zh, this message translates to:
+  /// **'读取 DirtyFrag 运行默认参数'**
+  String get chatToolDesc_dirty_frag_get_run_defaults;
+
+  /// No description provided for @chatToolDesc_dirty_frag_get_expert_mode.
+  ///
+  /// In zh, this message translates to:
+  /// **'查询 DirtyFrag 专家模式是否开启'**
+  String get chatToolDesc_dirty_frag_get_expert_mode;
+
+  /// No description provided for @chatToolDesc_dirty_frag_get_boot_autostart.
+  ///
+  /// In zh, this message translates to:
+  /// **'查询 DirtyFrag 开机自启是否开启'**
+  String get chatToolDesc_dirty_frag_get_boot_autostart;
+
+  /// No description provided for @chatToolDesc_dirty_frag_get_vr_progress.
+  ///
+  /// In zh, this message translates to:
+  /// **'查询 VR 偏移推导进度'**
+  String get chatToolDesc_dirty_frag_get_vr_progress;
+
+  /// No description provided for @chatToolDesc_dirty_frag_save_run_defaults.
+  ///
+  /// In zh, this message translates to:
+  /// **'保存 DirtyFrag 运行默认参数'**
+  String get chatToolDesc_dirty_frag_save_run_defaults;
+
+  /// No description provided for @chatToolDesc_dirty_frag_set_expert_mode.
+  ///
+  /// In zh, this message translates to:
+  /// **'开关 DirtyFrag 专家模式'**
+  String get chatToolDesc_dirty_frag_set_expert_mode;
+
+  /// No description provided for @chatToolDesc_dirty_frag_set_boot_autostart.
+  ///
+  /// In zh, this message translates to:
+  /// **'开关 DirtyFrag 开机自启'**
+  String get chatToolDesc_dirty_frag_set_boot_autostart;
+
+  /// No description provided for @chatToolDesc_dirty_frag_start.
+  ///
+  /// In zh, this message translates to:
+  /// **'启动 DirtyFrag 提权'**
+  String get chatToolDesc_dirty_frag_start;
+
+  /// No description provided for @chatToolDesc_dirty_frag_status.
+  ///
+  /// In zh, this message translates to:
+  /// **'查询 DirtyFrag 当前状态'**
+  String get chatToolDesc_dirty_frag_status;
+
+  /// No description provided for @chatToolDesc_dirty_frag_cancel.
+  ///
+  /// In zh, this message translates to:
+  /// **'中止 DirtyFrag 运行'**
+  String get chatToolDesc_dirty_frag_cancel;
+
+  /// No description provided for @chatToolDesc_dirty_frag_derive_vr_offset.
+  ///
+  /// In zh, this message translates to:
+  /// **'从镜像包或 OTA 推导 VR 偏移'**
+  String get chatToolDesc_dirty_frag_derive_vr_offset;
+
+  /// No description provided for @chatToolDesc_kernel_profile_list_imported.
+  ///
+  /// In zh, this message translates to:
+  /// **'列出已导入的内核配置文件'**
+  String get chatToolDesc_kernel_profile_list_imported;
+
+  /// No description provided for @chatToolDesc_kernel_profile_list_builtin.
+  ///
+  /// In zh, this message translates to:
+  /// **'列出内置的内核配置文件'**
+  String get chatToolDesc_kernel_profile_list_builtin;
+
+  /// No description provided for @chatToolDesc_kernel_profile_read_content.
+  ///
+  /// In zh, this message translates to:
+  /// **'读取内核配置文件的完整内容'**
+  String get chatToolDesc_kernel_profile_read_content;
+
+  /// No description provided for @chatToolDesc_kernel_profile_read_editor.
+  ///
+  /// In zh, this message translates to:
+  /// **'读取内核配置编辑器的当前内容'**
+  String get chatToolDesc_kernel_profile_read_editor;
+
+  /// No description provided for @chatToolDesc_kernel_profile_get_active_selection.
+  ///
+  /// In zh, this message translates to:
+  /// **'读取当前生效的内核配置'**
+  String get chatToolDesc_kernel_profile_get_active_selection;
+
+  /// No description provided for @chatToolDesc_kernel_profile_import_start.
+  ///
+  /// In zh, this message translates to:
+  /// **'开始导入并解析内核镜像'**
+  String get chatToolDesc_kernel_profile_import_start;
+
+  /// No description provided for @chatToolDesc_kernel_profile_import_status.
+  ///
+  /// In zh, this message translates to:
+  /// **'查询内核导入进度'**
+  String get chatToolDesc_kernel_profile_import_status;
+
+  /// No description provided for @chatToolDesc_kernel_profile_import_cancel.
+  ///
+  /// In zh, this message translates to:
+  /// **'取消内核导入'**
+  String get chatToolDesc_kernel_profile_import_cancel;
+
+  /// No description provided for @chatToolDesc_kernel_profile_remove.
+  ///
+  /// In zh, this message translates to:
+  /// **'删除内核配置文件'**
+  String get chatToolDesc_kernel_profile_remove;
+
+  /// No description provided for @chatToolDesc_kernel_profile_save_editor.
+  ///
+  /// In zh, this message translates to:
+  /// **'保存编辑器内容'**
+  String get chatToolDesc_kernel_profile_save_editor;
+
+  /// No description provided for @chatToolDesc_kernel_profile_save_editor_as.
+  ///
+  /// In zh, this message translates to:
+  /// **'把编辑器内容另存为新配置'**
+  String get chatToolDesc_kernel_profile_save_editor_as;
+
+  /// No description provided for @chatToolDesc_kernel_profile_render_editor.
+  ///
+  /// In zh, this message translates to:
+  /// **'渲染并预览编辑器内容'**
+  String get chatToolDesc_kernel_profile_render_editor;
+
+  /// No description provided for @chatToolDesc_kernel_profile_select_user_profile.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择生效的用户配置'**
+  String get chatToolDesc_kernel_profile_select_user_profile;
+
+  /// No description provided for @chatToolDesc_kernel_profile_select_builtin_release.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择生效的内置发行版'**
+  String get chatToolDesc_kernel_profile_select_builtin_release;
+
+  /// No description provided for @chatToolDesc_ota_list_catalog.
+  ///
+  /// In zh, this message translates to:
+  /// **'列出指定厂商的内置 OTA 包清单'**
+  String get chatToolDesc_ota_list_catalog;
+
+  /// No description provided for @chatToolDesc_run_log_list_runs.
+  ///
+  /// In zh, this message translates to:
+  /// **'按时间倒序列出历史运行日志'**
+  String get chatToolDesc_run_log_list_runs;
+
+  /// No description provided for @chatToolDesc_run_log_read_body.
+  ///
+  /// In zh, this message translates to:
+  /// **'读取某个运行日志的正文'**
+  String get chatToolDesc_run_log_read_body;
+
+  /// No description provided for @chatToolDesc_run_log_export_all.
+  ///
+  /// In zh, this message translates to:
+  /// **'导出全部运行日志'**
+  String get chatToolDesc_run_log_export_all;
+
+  /// No description provided for @chatToolDesc_run_log_diagnose.
+  ///
+  /// In zh, this message translates to:
+  /// **'诊断失败的运行日志并给出原因'**
+  String get chatToolDesc_run_log_diagnose;
+
+  /// No description provided for @chatToolDesc_run_log_delete.
+  ///
+  /// In zh, this message translates to:
+  /// **'删除某个运行日志'**
+  String get chatToolDesc_run_log_delete;
+
+  /// No description provided for @chatToolDesc_run_log_clear_all.
+  ///
+  /// In zh, this message translates to:
+  /// **'清空全部运行日志，保留正在写入的一份'**
+  String get chatToolDesc_run_log_clear_all;
+
+  /// No description provided for @chatToolDesc_local_file_inspect.
+  ///
+  /// In zh, this message translates to:
+  /// **'在应用进程内检查附件的大小与头部格式，识别 payload、boot、zip 等容器类型'**
+  String get chatToolDesc_local_file_inspect;
+
+  /// 手册能力分组-设备信息
+  ///
+  /// In zh, this message translates to:
+  /// **'设备与环境'**
+  String get chatManualGroupDevice;
+
+  /// 手册能力分组说明-设备信息
+  ///
+  /// In zh, this message translates to:
+  /// **'读取机型、系统版本、内核、ROOT 状态与 ADB 开关'**
+  String get chatManualGroupDeviceDesc;
+
+  /// 手册能力分组-ADB
+  ///
+  /// In zh, this message translates to:
+  /// **'ADB 调试'**
+  String get chatManualGroupAdb;
+
+  /// 手册能力分组说明-ADB
+  ///
+  /// In zh, this message translates to:
+  /// **'执行 adb shell 命令，发起无线调试配对'**
+  String get chatManualGroupAdbDesc;
+
+  /// 手册能力分组-网络
+  ///
+  /// In zh, this message translates to:
+  /// **'网络与浏览'**
+  String get chatManualGroupWeb;
+
+  /// 手册能力分组说明-网络
+  ///
+  /// In zh, this message translates to:
+  /// **'联网搜索、抓取网页源码、用内置浏览器打开页面'**
+  String get chatManualGroupWebDesc;
+
+  /// 手册能力分组-手动提权
+  ///
+  /// In zh, this message translates to:
+  /// **'手动提权'**
+  String get chatManualGroupEscalation;
+
+  /// 手册能力分组说明-手动提权
+  ///
+  /// In zh, this message translates to:
+  /// **'匹配内核载荷并执行提权，把 root 移交给指定管理器'**
+  String get chatManualGroupEscalationDesc;
+
+  /// 手册能力分组-GhostKey
+  ///
+  /// In zh, this message translates to:
+  /// **'GhostKey 提权'**
+  String get chatManualGroupGhostKey;
+
+  /// 手册能力分组说明-GhostKey
+  ///
+  /// In zh, this message translates to:
+  /// **'预检并执行 GhostKey 临时 root 流程'**
+  String get chatManualGroupGhostKeyDesc;
+
+  /// 手册能力分组-GhostLock 提权
+  ///
+  /// In zh, this message translates to:
+  /// **'GhostLock 提权'**
+  String get chatManualGroupGhostLock;
+
+  /// 手册能力分组说明-GhostLock 提权
+  ///
+  /// In zh, this message translates to:
+  /// **'预检并执行 GhostLock 提权流程'**
+  String get chatManualGroupGhostLockDesc;
+
+  /// 手册能力分组-GhostLock 配置档
+  ///
+  /// In zh, this message translates to:
+  /// **'GhostLock 配置'**
+  String get chatManualGroupGhostLockProfile;
+
+  /// 手册能力分组说明-GhostLock 配置档
+  ///
+  /// In zh, this message translates to:
+  /// **'读取、编辑、解析、导入导出 GhostLock 配置档'**
+  String get chatManualGroupGhostLockProfileDesc;
+
+  /// 手册能力分组-DirtyFrag
+  ///
+  /// In zh, this message translates to:
+  /// **'DirtyFrag 提权'**
+  String get chatManualGroupDirtyFrag;
+
+  /// 手册能力分组说明-DirtyFrag
+  ///
+  /// In zh, this message translates to:
+  /// **'内核漏洞利用、VR 解除与偏移推导'**
+  String get chatManualGroupDirtyFragDesc;
+
+  /// 手册能力分组-内核配置
+  ///
+  /// In zh, this message translates to:
+  /// **'内核配置'**
+  String get chatManualGroupKernel;
+
+  /// 手册能力分组说明-内核配置
+  ///
+  /// In zh, this message translates to:
+  /// **'导入解析内核镜像，管理配置文件并选择生效项'**
+  String get chatManualGroupKernelDesc;
+
+  /// 手册能力分组-OTA 清单
+  ///
+  /// In zh, this message translates to:
+  /// **'OTA 素材'**
+  String get chatManualGroupOta;
+
+  /// 手册能力分组说明-OTA 清单
+  ///
+  /// In zh, this message translates to:
+  /// **'查询历史 OTA 清单，作为内核镜像来源'**
+  String get chatManualGroupOtaDesc;
+
+  /// 手册能力分组-运行日志
+  ///
+  /// In zh, this message translates to:
+  /// **'运行日志'**
+  String get chatManualGroupRunLog;
+
+  /// 手册能力分组说明-运行日志
+  ///
+  /// In zh, this message translates to:
+  /// **'读取、诊断、导出与清理提权运行日志'**
+  String get chatManualGroupRunLogDesc;
 
   /// 底栏圆球快捷面板标题
   ///
@@ -4879,6 +5737,36 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'微信公众号'**
   String get settingsWechatTitle;
+
+  /// 设置页通用分组-功能许愿入口
+  ///
+  /// In zh, this message translates to:
+  /// **'功能许愿'**
+  String get settingsFeatureWishTitle;
+
+  /// 设置页通用分组-功能许愿副标题
+  ///
+  /// In zh, this message translates to:
+  /// **'打赏支持作者，许愿新功能'**
+  String get settingsFeatureWishSubtitle;
+
+  /// 功能许愿弹窗说明
+  ///
+  /// In zh, this message translates to:
+  /// **'扫码打赏支持作者，再到 GitHub 提交你的功能想法。'**
+  String get featureWishDialogDesc;
+
+  /// 功能许愿弹窗-跳转 GitHub Issue 按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'提交功能 Issue'**
+  String get featureWishIssueButton;
+
+  /// 功能许愿弹窗-网络环境提示
+  ///
+  /// In zh, this message translates to:
+  /// **'请使用合理的网络环境打开'**
+  String get featureWishNetworkTip;
 
   /// 作者平台名称-Facebook
   ///

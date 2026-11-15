@@ -694,25 +694,25 @@
   "@chatIssueNoConfig": {
     "description": "未取到 AI 配置时的提示"
   },
-  "chatEmptyTitle": "AI 设备助手",
+  "chatEmptyTitle": "AISUPASS",
   "@chatEmptyTitle": {
     "description": "空会话引导标题"
   },
-  "chatEmptyHint": "描述你的设备情况，我会读取设备信息并回答你的问题",
+  "chatEmptyHint": "提出你的需求，我会给你最佳提权方案",
   "@chatEmptyHint": {
     "description": "空会话引导说明"
   },
-  "chatSuggestionDevice": "分析我的设备环境",
-  "@chatSuggestionDevice": {
-    "description": "空会话建议提问-设备环境"
+  "chatSuggestionRom": "帮我找一下本机型的 ROM 包",
+  "@chatSuggestionRom": {
+    "description": "空会话建议提问-查找本机型 ROM 包"
   },
-  "chatSuggestionRoot": "当前设备是否已 root",
-  "@chatSuggestionRoot": {
-    "description": "空会话建议提问-root 状态"
+  "chatSuggestionEscalation": "分析一下本机型的提权方案",
+  "@chatSuggestionEscalation": {
+    "description": "空会话建议提问-分析提权方案"
   },
-  "chatSuggestionPlan": "这台设备的 ADB 状态怎么样",
-  "@chatSuggestionPlan": {
-    "description": "空会话建议提问-ADB 状态"
+  "chatSuggestionSupport": "获取技术支持",
+  "@chatSuggestionSupport": {
+    "description": "空会话建议按钮-跳转交流群"
   },
   "chatSessions": "会话",
   "@chatSessions": {
@@ -1005,6 +1005,316 @@
   "chatShareFailed": "分享失败，请稍后重试",
   "@chatShareFailed": {
     "description": "调用系统分享失败时的提示"
+  },
+  "chatPromptTitle": "常用提示词",
+  "@chatPromptTitle": {
+    "description": "输入栏提示词库入口与弹层标题"
+  },
+  "chatPromptLoading": "正在读取提示词…",
+  "@chatPromptLoading": {
+    "description": "提示词库首次读盘中的占位文案"
+  },
+  "chatPromptEmpty": "还没有常用提示词，点击右上角 + 新建一条",
+  "@chatPromptEmpty": {
+    "description": "提示词库为空时的引导文案"
+  },
+  "chatPromptAdd": "新建提示词",
+  "@chatPromptAdd": {
+    "description": "提示词库-新建按钮与弹窗标题"
+  },
+  "chatPromptEdit": "编辑提示词",
+  "@chatPromptEdit": {
+    "description": "提示词库-编辑菜单项与弹窗标题"
+  },
+  "chatPromptInsert": "插入",
+  "@chatPromptInsert": {
+    "description": "提示词库-把提示词插入输入框"
+  },
+  "chatPromptDelete": "删除提示词",
+  "@chatPromptDelete": {
+    "description": "提示词库-删除菜单项与确认弹窗标题"
+  },
+  "chatPromptDeleteConfirm": "确定删除「{title}」吗？",
+  "@chatPromptDeleteConfirm": {
+    "description": "提示词库-删除确认文案",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "chatPromptSaved": "提示词已保存",
+  "@chatPromptSaved": {
+    "description": "提示词保存成功提示"
+  },
+  "chatPromptDeleted": "提示词已删除",
+  "@chatPromptDeleted": {
+    "description": "提示词删除成功提示"
+  },
+  "chatPromptName": "标题",
+  "@chatPromptName": {
+    "description": "提示词编辑器-标题字段"
+  },
+  "chatPromptNameHint": "例如：分析设备环境",
+  "@chatPromptNameHint": {
+    "description": "提示词编辑器-标题占位文案"
+  },
+  "chatPromptContent": "内容",
+  "@chatPromptContent": {
+    "description": "提示词编辑器-内容字段"
+  },
+  "chatPromptContentHint": "输入要发送给 AI 的提示词",
+  "@chatPromptContentHint": {
+    "description": "提示词编辑器-内容占位文案"
+  },
+  "chatPromptContentRequired": "提示词内容不能为空",
+  "@chatPromptContentRequired": {
+    "description": "提示词编辑器-内容为空的校验提示"
+  },
+  "chatAttachTitle": "添加附件",
+  "@chatAttachTitle": {
+    "description": "输入栏附件按钮提示"
+  },
+  "chatAttachImage": "选择图片",
+  "@chatAttachImage": {
+    "description": "附件选择弹层-图片入口"
+  },
+  "chatAttachText": "选择文本文件",
+  "@chatAttachText": {
+    "description": "附件选择弹层-文本文件入口"
+  },
+  "chatAttachBinary": "选择镜像/压缩包",
+  "@chatAttachBinary": {
+    "description": "附件选择弹层-镜像与压缩包入口"
+  },
+  "chatAttachNoPath": "无法获取 {name} 的本地路径",
+  "@chatAttachNoPath": {
+    "description": "选中文件拿不到真实路径时的提示",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "chatAttachUnsupported": "不支持该文件类型",
+  "@chatAttachUnsupported": {
+    "description": "选中文件类型不在允许列表时的提示"
+  },
+  "chatAttachTooLarge": "文件过大：{name}",
+  "@chatAttachTooLarge": {
+    "description": "附件超过大小上限时的提示",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "chatAttachFailed": "添加附件失败",
+  "@chatAttachFailed": {
+    "description": "附件复制或读取失败时的提示"
+  },
+  "chatAttachLimit": "单条消息最多添加 {count} 个附件",
+  "@chatAttachLimit": {
+    "description": "附件数量达到上限时的提示",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatManualTitle": "AI 能力手册",
+  "@chatManualTitle": {
+    "description": "对话页手册入口与弹层标题"
+  },
+  "chatManualSubtitle": "助手在对话中可以调用的本地能力与工具",
+  "@chatManualSubtitle": {
+    "description": "手册弹层副标题"
+  },
+  "chatManualConfirmHint": "执行类工具在动作前会先征求你的确认；只读工具可直接调用",
+  "@chatManualConfirmHint": {
+    "description": "手册底部关于工具确认机制的说明"
+  },
+  "chatToolDesc_get_device_info": "读取机型、系统版本、内核、补丁、基带、ABI 与 SELinux 等设备信息",
+  "chatToolDesc_get_root_status": "检查当前进程是否已获得 ROOT 权限",
+  "chatToolDesc_get_adb_status": "检查 USB 与无线调试开关是否打开",
+  "chatToolDesc_adb_shell_exec": "在已连接的 adb shell（uid 2000）执行一条命令，返回退出码与输出",
+  "chatToolDesc_adb_pairing_request": "打开无线调试配对面板，引导完成 adb 配对",
+  "chatToolDesc_web_search": "用 Bing 搜索公开网络，返回标题、链接与摘要",
+  "chatToolDesc_fetch_web_page": "抓取指定网页的原始源码，同时返回状态码与内容类型",
+  "chatToolDesc_open_in_browser": "用应用内浏览器打开网页，可回传网址或页面源码",
+  "chatToolDesc_escalation_get_device_identity": "读取提权需要的设备与内核标识",
+  "chatToolDesc_escalation_list_payloads": "列出内置提权载荷清单",
+  "chatToolDesc_escalation_resolve_payload": "按机型与内核匹配合适的提权载荷",
+  "chatToolDesc_escalation_list_root_managers": "列出设备上可用的 ROOT 管理器",
+  "chatToolDesc_escalation_get_selected_root_manager": "读取当前选中的 ROOT 管理器",
+  "chatToolDesc_escalation_run_payload": "执行指定的提权载荷",
+  "chatToolDesc_escalation_run_payload_by_id": "按编号执行提权载荷",
+  "chatToolDesc_escalation_handoff_root": "把已取得的 root 移交给指定管理器",
+  "chatToolDesc_escalation_select_root_manager": "选择后续交接使用的 ROOT 管理器",
+  "chatToolDesc_ghost_key_preflight": "GhostKey 预检：ADB、内核、配置与原生库是否就绪",
+  "chatToolDesc_ghost_key_get_run_defaults": "读取 GhostKey 运行默认参数",
+  "chatToolDesc_ghost_key_save_run_defaults": "保存 GhostKey 运行默认参数",
+  "chatToolDesc_ghost_key_start": "启动一次 GhostKey 临时 root 流程",
+  "chatToolDesc_ghost_key_status": "查询 GhostKey 当前执行状态",
+  "chatToolDesc_ghost_key_cancel": "中止正在进行的 GhostKey 流程",
+  "chatToolDesc_ghost_lock_preflight": "GhostLock 预检：ADB、uid、seccomp、内核与配置匹配情况",
+  "chatToolDesc_ghost_lock_start": "启动一次 GhostLock 提权，返回会话 id",
+  "chatToolDesc_ghost_lock_status": "读取 GhostLock 运行会话的最新快照",
+  "chatToolDesc_ghost_lock_cancel": "停止读取当前 GhostLock 运行，不终止设备进程",
+  "chatToolDesc_ghost_lock_list_imported_profiles": "列出已导入的 GhostLock 配置文件",
+  "chatToolDesc_ghost_lock_list_builtin_releases": "列出内置的 GhostLock 发行版本",
+  "chatToolDesc_ghost_lock_read_imported_profile": "读取某个已导入配置文件的详情",
+  "chatToolDesc_ghost_lock_get_probe_progress": "查询配置解析进度",
+  "chatToolDesc_ghost_lock_list_extracted_images": "列出从镜像包中提取出的分区",
+  "chatToolDesc_ghost_lock_get_profile_config": "读取当前配置文件的完整字段",
+  "chatToolDesc_ghost_lock_get_active_source": "读取当前生效的配置来源",
+  "chatToolDesc_ghost_lock_probe_profile": "解析内核镜像并生成配置档",
+  "chatToolDesc_ghost_lock_save_profile": "保存当前配置档",
+  "chatToolDesc_ghost_lock_import_profile_text": "导入一段配置文本作为新配置档",
+  "chatToolDesc_ghost_lock_rename_imported_profile": "重命名已导入的配置档",
+  "chatToolDesc_ghost_lock_remove_imported_profile": "删除已导入的配置档",
+  "chatToolDesc_ghost_lock_export_imported_profile": "导出已导入的配置档文本",
+  "chatToolDesc_ghost_lock_convert_imported_profile": "转换配置档的格式",
+  "chatToolDesc_ghost_lock_export_local_file": "把配置档导出为本地文件",
+  "chatToolDesc_ghost_lock_update_general_fields": "修改配置档的常规字段",
+  "chatToolDesc_ghost_lock_update_advanced_fields": "修改配置档的高级字段",
+  "chatToolDesc_ghost_lock_update_route": "修改配置档的路由信息",
+  "chatToolDesc_ghost_lock_update_fallback": "修改配置档的回退项",
+  "chatToolDesc_ghost_lock_reset_profile": "把配置档重置为默认值",
+  "chatToolDesc_ghost_lock_select_source": "选择生效的配置来源",
+  "chatToolDesc_ghost_lock_render_profile": "渲染并预览配置档",
+  "chatToolDesc_ghost_lock_export_profile": "导出当前配置档",
+  "chatToolDesc_ghost_lock_save_modified_profile": "保存修改后的配置档",
+  "chatToolDesc_ghost_lock_overwrite_profile": "覆盖写入现有配置档",
+  "chatToolDesc_ghost_lock_begin_edit_session": "开始一次配置编辑会话",
+  "chatToolDesc_ghost_lock_reload_edit_session": "重新加载编辑会话",
+  "chatToolDesc_ghost_lock_get_edit_session": "读取编辑会话的当前草稿",
+  "chatToolDesc_ghost_lock_commit_edit_session": "提交编辑会话中的修改",
+  "chatToolDesc_ghost_lock_save_edit_session_in_place": "就地保存编辑会话",
+  "chatToolDesc_ghost_lock_save_edit_session_as_new": "把编辑会话另存为新配置档",
+  "chatToolDesc_ghost_lock_export_edit_session": "导出编辑会话的内容",
+  "chatToolDesc_ghost_lock_end_edit_session": "结束编辑会话",
+  "chatToolDesc_dirty_frag_is_armed": "检查本次开机是否已注入过 DirtyFrag",
+  "chatToolDesc_dirty_frag_get_run_defaults": "读取 DirtyFrag 运行默认参数",
+  "chatToolDesc_dirty_frag_get_expert_mode": "查询 DirtyFrag 专家模式是否开启",
+  "chatToolDesc_dirty_frag_get_boot_autostart": "查询 DirtyFrag 开机自启是否开启",
+  "chatToolDesc_dirty_frag_get_vr_progress": "查询 VR 偏移推导进度",
+  "chatToolDesc_dirty_frag_save_run_defaults": "保存 DirtyFrag 运行默认参数",
+  "chatToolDesc_dirty_frag_set_expert_mode": "开关 DirtyFrag 专家模式",
+  "chatToolDesc_dirty_frag_set_boot_autostart": "开关 DirtyFrag 开机自启",
+  "chatToolDesc_dirty_frag_start": "启动 DirtyFrag 提权",
+  "chatToolDesc_dirty_frag_status": "查询 DirtyFrag 当前状态",
+  "chatToolDesc_dirty_frag_cancel": "中止 DirtyFrag 运行",
+  "chatToolDesc_dirty_frag_derive_vr_offset": "从镜像包或 OTA 推导 VR 偏移",
+  "chatToolDesc_kernel_profile_list_imported": "列出已导入的内核配置文件",
+  "chatToolDesc_kernel_profile_list_builtin": "列出内置的内核配置文件",
+  "chatToolDesc_kernel_profile_read_content": "读取内核配置文件的完整内容",
+  "chatToolDesc_kernel_profile_read_editor": "读取内核配置编辑器的当前内容",
+  "chatToolDesc_kernel_profile_get_active_selection": "读取当前生效的内核配置",
+  "chatToolDesc_kernel_profile_import_start": "开始导入并解析内核镜像",
+  "chatToolDesc_kernel_profile_import_status": "查询内核导入进度",
+  "chatToolDesc_kernel_profile_import_cancel": "取消内核导入",
+  "chatToolDesc_kernel_profile_remove": "删除内核配置文件",
+  "chatToolDesc_kernel_profile_save_editor": "保存编辑器内容",
+  "chatToolDesc_kernel_profile_save_editor_as": "把编辑器内容另存为新配置",
+  "chatToolDesc_kernel_profile_render_editor": "渲染并预览编辑器内容",
+  "chatToolDesc_kernel_profile_select_user_profile": "选择生效的用户配置",
+  "chatToolDesc_kernel_profile_select_builtin_release": "选择生效的内置发行版",
+  "chatToolDesc_ota_list_catalog": "列出指定厂商的内置 OTA 包清单",
+  "chatToolDesc_run_log_list_runs": "按时间倒序列出历史运行日志",
+  "chatToolDesc_run_log_read_body": "读取某个运行日志的正文",
+  "chatToolDesc_run_log_export_all": "导出全部运行日志",
+  "chatToolDesc_run_log_diagnose": "诊断失败的运行日志并给出原因",
+  "chatToolDesc_run_log_delete": "删除某个运行日志",
+  "chatToolDesc_run_log_clear_all": "清空全部运行日志，保留正在写入的一份",
+  "chatToolDesc_local_file_inspect": "在应用进程内检查附件的大小与头部格式，识别 payload、boot、zip 等容器类型",
+  "chatManualGroupDevice": "设备与环境",
+  "@chatManualGroupDevice": {
+    "description": "手册能力分组-设备信息"
+  },
+  "chatManualGroupDeviceDesc": "读取机型、系统版本、内核、ROOT 状态与 ADB 开关",
+  "@chatManualGroupDeviceDesc": {
+    "description": "手册能力分组说明-设备信息"
+  },
+  "chatManualGroupAdb": "ADB 调试",
+  "@chatManualGroupAdb": {
+    "description": "手册能力分组-ADB"
+  },
+  "chatManualGroupAdbDesc": "执行 adb shell 命令，发起无线调试配对",
+  "@chatManualGroupAdbDesc": {
+    "description": "手册能力分组说明-ADB"
+  },
+  "chatManualGroupWeb": "网络与浏览",
+  "@chatManualGroupWeb": {
+    "description": "手册能力分组-网络"
+  },
+  "chatManualGroupWebDesc": "联网搜索、抓取网页源码、用内置浏览器打开页面",
+  "@chatManualGroupWebDesc": {
+    "description": "手册能力分组说明-网络"
+  },
+  "chatManualGroupEscalation": "手动提权",
+  "@chatManualGroupEscalation": {
+    "description": "手册能力分组-手动提权"
+  },
+  "chatManualGroupEscalationDesc": "匹配内核载荷并执行提权，把 root 移交给指定管理器",
+  "@chatManualGroupEscalationDesc": {
+    "description": "手册能力分组说明-手动提权"
+  },
+  "chatManualGroupGhostKey": "GhostKey 提权",
+  "@chatManualGroupGhostKey": {
+    "description": "手册能力分组-GhostKey"
+  },
+  "chatManualGroupGhostKeyDesc": "预检并执行 GhostKey 临时 root 流程",
+  "@chatManualGroupGhostKeyDesc": {
+    "description": "手册能力分组说明-GhostKey"
+  },
+  "chatManualGroupGhostLock": "GhostLock 提权",
+  "@chatManualGroupGhostLock": {
+    "description": "手册能力分组-GhostLock 提权"
+  },
+  "chatManualGroupGhostLockDesc": "预检并执行 GhostLock 提权流程",
+  "@chatManualGroupGhostLockDesc": {
+    "description": "手册能力分组说明-GhostLock 提权"
+  },
+  "chatManualGroupGhostLockProfile": "GhostLock 配置",
+  "@chatManualGroupGhostLockProfile": {
+    "description": "手册能力分组-GhostLock 配置档"
+  },
+  "chatManualGroupGhostLockProfileDesc": "读取、编辑、解析、导入导出 GhostLock 配置档",
+  "@chatManualGroupGhostLockProfileDesc": {
+    "description": "手册能力分组说明-GhostLock 配置档"
+  },
+  "chatManualGroupDirtyFrag": "DirtyFrag 提权",
+  "@chatManualGroupDirtyFrag": {
+    "description": "手册能力分组-DirtyFrag"
+  },
+  "chatManualGroupDirtyFragDesc": "内核漏洞利用、VR 解除与偏移推导",
+  "@chatManualGroupDirtyFragDesc": {
+    "description": "手册能力分组说明-DirtyFrag"
+  },
+  "chatManualGroupKernel": "内核配置",
+  "@chatManualGroupKernel": {
+    "description": "手册能力分组-内核配置"
+  },
+  "chatManualGroupKernelDesc": "导入解析内核镜像，管理配置文件并选择生效项",
+  "@chatManualGroupKernelDesc": {
+    "description": "手册能力分组说明-内核配置"
+  },
+  "chatManualGroupOta": "OTA 素材",
+  "@chatManualGroupOta": {
+    "description": "手册能力分组-OTA 清单"
+  },
+  "chatManualGroupOtaDesc": "查询历史 OTA 清单，作为内核镜像来源",
+  "@chatManualGroupOtaDesc": {
+    "description": "手册能力分组说明-OTA 清单"
+  },
+  "chatManualGroupRunLog": "运行日志",
+  "@chatManualGroupRunLog": {
+    "description": "手册能力分组-运行日志"
+  },
+  "chatManualGroupRunLogDesc": "读取、诊断、导出与清理提权运行日志",
+  "@chatManualGroupRunLogDesc": {
+    "description": "手册能力分组说明-运行日志"
   },
   "aiQuickPanelTitle": "AI 助手",
   "@aiQuickPanelTitle": {
@@ -3621,6 +3931,26 @@
   "settingsWechatTitle": "微信公众号",
   "@settingsWechatTitle": {
     "description": "设置页关注作者分组-微信公众号入口"
+  },
+  "settingsFeatureWishTitle": "功能许愿",
+  "@settingsFeatureWishTitle": {
+    "description": "设置页通用分组-功能许愿入口"
+  },
+  "settingsFeatureWishSubtitle": "打赏支持作者，许愿新功能",
+  "@settingsFeatureWishSubtitle": {
+    "description": "设置页通用分组-功能许愿副标题"
+  },
+  "featureWishDialogDesc": "扫码打赏支持作者，再到 GitHub 提交你的功能想法。",
+  "@featureWishDialogDesc": {
+    "description": "功能许愿弹窗说明"
+  },
+  "featureWishIssueButton": "提交功能 Issue",
+  "@featureWishIssueButton": {
+    "description": "功能许愿弹窗-跳转 GitHub Issue 按钮"
+  },
+  "featureWishNetworkTip": "请使用合理的网络环境打开",
+  "@featureWishNetworkTip": {
+    "description": "功能许愿弹窗-网络环境提示"
   },
   "platformFacebook": "Facebook",
   "@platformFacebook": {

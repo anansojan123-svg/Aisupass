@@ -1,10 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="AISUPASS">
   <defs>
-    <linearGradient id="base" x1="96" y1="32" x2="944" y2="1000" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#4AD3FF"/>
-      <stop offset="0.5" stop-color="#7C6BFF"/>
-      <stop offset="1" stop-color="#FF6FB5"/>
-    </linearGradient>
     <linearGradient id="mark" x1="324" y1="356" x2="702" y2="668" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#08B4E0"/>
       <stop offset="0.5" stop-color="#6A5AE8"/>
@@ -20,8 +15,7 @@
   </defs>
 
   <g clip-path="url(#card)">
-    <rect width="1024" height="1024" fill="url(#base)"/>
-    <rect width="1024" height="1024" fill="#FFFFFF" opacity="0.64"/>
+    <rect width="1024" height="1024" fill="#FFFFFF"/>
   </g>
 
   <g transform="translate(-65 55)">

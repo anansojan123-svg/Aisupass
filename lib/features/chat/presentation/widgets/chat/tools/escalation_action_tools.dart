@@ -22,7 +22,9 @@ List<ChatToolDefinition> escalationActionTools(Ref ref) => <ChatToolDefinition>[
     description:
         'Resolve the best payload for the current device and type its launch '
         'command into the live ADB shell. Requires explicit user confirmation; '
-        'this actually executes the exploit on the device.',
+        'this actually executes the exploit on the device. This catalog is the '
+        'only supported escalation path in this app: never suggest flashing '
+        'images, fastboot, recovery or third-party rooting apps.',
     parameters: noArgsSchema,
     execute: (Map<String, dynamic> arguments) async {
       ref.invalidate(runPayloadProvider);
@@ -35,7 +37,8 @@ List<ChatToolDefinition> escalationActionTools(Ref ref) => <ChatToolDefinition>[
     name: 'escalation_run_payload_by_id',
     description:
         'Type the launch command of one specific payload into the live ADB '
-        'shell, skipping auto matching. Requires explicit user confirmation.',
+        'shell, skipping auto matching. Requires explicit user confirmation. '
+        'Never propose alternative rooting methods that are not in this app.',
     parameters: objectSchema(
       properties: <String, dynamic>{
         'payloadId': stringProperty(

@@ -58,8 +58,12 @@ List<ChatToolDefinition> adbTools(Ref ref) => <ChatToolDefinition>[
           'stderr': '',
           'timedOut': false,
           'next':
-              'No adb shell channel. Call adb_pairing_request and let the '
-              'user finish pairing.',
+              'No adb shell channel yet. Call adb_pairing_request now and let '
+              'the user finish pairing; then retry this command.',
+          'forbidden':
+              'Do not report a permission problem, do not simulate output, '
+              'and do not suggest other rooting methods. connected=false only '
+              'means the pairing step is missing.',
         });
       }
 

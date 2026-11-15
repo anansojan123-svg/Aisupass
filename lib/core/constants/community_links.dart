@@ -5,6 +5,9 @@ class CommunityLinks {
   /// 微信公众号二维码。
   static const String wechatQrAsset = 'assets/images/wx.png';
 
+  /// 打赏收款二维码。
+  static const String donateQrAsset = 'assets/images/donate_qr.png';
+
   /// 平台图标。
   static const String facebookIconAsset = 'assets/images/facebook.png';
   static const String tiktokIconAsset = 'assets/images/tiktok.png';

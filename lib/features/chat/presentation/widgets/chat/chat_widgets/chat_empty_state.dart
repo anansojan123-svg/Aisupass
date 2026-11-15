@@ -1,10 +1,18 @@
+import 'dart:async';
+
+import 'package:Aisupass/core/constants/app_links.dart';
+import 'package:Aisupass/core/constants/community_links.dart';
 import 'package:Aisupass/core/extensions/context_extensions.dart';
 import 'package:Aisupass/core/utils/platform.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-/// 空会话引导：标题、说明与三个可直接发送的建议问题。
-class ChatEmptyState extends StatelessWidget {
+/// 空会话引导：应用图标、标题、说明与两个可发送的建议问题，
+/// 另附一个跳转交流群的「获取技术支持」入口。
+class ChatEmptyState extends HookWidget {
   const ChatEmptyState({super.key, required this.onSuggestion});
 
   final ValueChanged<String> onSuggestion;
@@ -14,10 +22,14 @@ class ChatEmptyState extends StatelessWidget {
     final bool isDesktop = isDesktopPlatform;
     final ColorScheme colors = context.colorScheme;
     final List<String> suggestions = <String>[
-      context.l10n.chatSuggestionDevice,
-      context.l10n.chatSuggestionRoot,
-      context.l10n.chatSuggestionPlan,
+      context.l10n.chatSuggestionRom,
+      context.l10n.chatSuggestionEscalation,
     ];
+
+    Future<void> openSupport() => launchUrl(
+      Uri.parse(CommunityLinks.communityGroup),
+      mode: LaunchMode.externalApplication,
+    );
 
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
@@ -31,36 +43,19 @@ class ChatEmptyState extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    Container(
-                      width: isDesktop ? 60 : 60.r,
-                      height: isDesktop ? 60 : 60.r,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: colors.primary.withValues(
-                          alpha: context.isDark ? 0.18 : 0.1,
-                        ),
-                        borderRadius: BorderRadius.circular(
-                          isDesktop ? 20 : 20.r,
-                        ),
-                        border: Border.all(
-                          color: colors.primary.withValues(
-                            alpha: context.isDark ? 0.26 : 0.14,
-                          ),
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.auto_awesome_rounded,
-                        size: isDesktop ? 26 : 26.sp,
-                        color: colors.primary,
-                      ),
+                    SvgPicture.asset(
+                      AppLinks.appIconAsset,
+                      width: isDesktop ? 64 : 64.r,
+                      height: isDesktop ? 64 : 64.r,
                     ),
-                    SizedBox(height: isDesktop ? 18 : 18.h),
+                    SizedBox(height: isDesktop ? 16 : 16.h),
                     Text(
                       context.l10n.chatEmptyTitle,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: isDesktop ? 20 : 20.sp,
                         fontWeight: FontWeight.w700,
+                        letterSpacing: 0.6,
                         color: colors.onSurface,
                       ),
                     ),
@@ -85,6 +80,12 @@ class ChatEmptyState extends StatelessWidget {
                             text: suggestion,
                             onTap: () => onSuggestion(suggestion),
                           ),
+                        _SuggestionChip(
+                          text: context.l10n.chatSuggestionSupport,
+                          icon: Icons.headset_mic_outlined,
+                          highlighted: true,
+                          onTap: () => unawaited(openSupport()),
+                        ),
                       ],
                     ),
                   ],
@@ -98,22 +99,35 @@ class ChatEmptyState extends StatelessWidget {
   }
 }
 
-class _SuggestionChip extends StatelessWidget {
-  const _SuggestionChip({required this.text, required this.onTap});
+class _SuggestionChip extends HookWidget {
+  const _SuggestionChip({
+    required this.text,
+    required this.onTap,
+    this.icon = Icons.north_east_rounded,
+    this.highlighted = false,
+  });
 
   final String text;
   final VoidCallback onTap;
+  final IconData icon;
+
+  /// 强调色样式，用于跳转外部的特殊入口。
+  final bool highlighted;
 
   @override
   Widget build(BuildContext context) {
     final ColorScheme colors = context.colorScheme;
     final bool isDesktop = isDesktopPlatform;
+    final bool isDark = context.isDark;
     final BorderRadius radius = BorderRadius.circular(999);
+    final Color tint = highlighted ? colors.primary : colors.onSurfaceVariant;
 
     return Material(
-      color: colors.surfaceContainerHighest.withValues(
-        alpha: context.isDark ? 0.4 : 0.55,
-      ),
+      color: highlighted
+          ? colors.primary.withValues(alpha: isDark ? 0.18 : 0.1)
+          : colors.surfaceContainerHighest.withValues(
+              alpha: isDark ? 0.4 : 0.55,
+            ),
       borderRadius: radius,
       child: InkWell(
         borderRadius: radius,
@@ -126,25 +140,24 @@ class _SuggestionChip extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: radius,
             border: Border.all(
-              color: colors.outline.withValues(
-                alpha: context.isDark ? 0.24 : 0.14,
-              ),
+              color: highlighted
+                  ? colors.primary.withValues(alpha: 0.4)
+                  : colors.outline.withValues(alpha: isDark ? 0.24 : 0.14),
             ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Icon(
-                Icons.north_east_rounded,
-                size: isDesktop ? 13 : 13.sp,
-                color: colors.onSurfaceVariant,
-              ),
+              Icon(icon, size: isDesktop ? 13 : 13.sp, color: tint),
               SizedBox(width: isDesktop ? 5 : 5.w),
               Text(
                 text,
                 style: TextStyle(
                   fontSize: isDesktop ? 12.5 : 12.5.sp,
-                  color: colors.onSurface.withValues(alpha: 0.86),
+                  fontWeight: highlighted ? FontWeight.w600 : FontWeight.w400,
+                  color: highlighted
+                      ? colors.primary
+                      : colors.onSurface.withValues(alpha: 0.86),
                 ),
               ),
             ],

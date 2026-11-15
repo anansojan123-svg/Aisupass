@@ -49,7 +49,7 @@ class ChatMessageView extends HookWidget {
   Widget build(BuildContext context) {
     final bool isDesktop = isDesktopPlatform;
     final Widget content = turn.isUser
-        ? ChatUserBubble(text: turn.text)
+        ? ChatUserBubble(text: turn.text, attachments: turn.attachments)
         : _AssistantMessage(
             turn: turn,
             brand: brand,

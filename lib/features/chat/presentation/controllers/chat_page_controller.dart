@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:Aisupass/features/chat/domain/models/chat_attachment.dart';
 import 'package:Aisupass/features/chat/domain/models/chat_session.dart';
 import 'package:Aisupass/features/chat/presentation/providers/chat_action_provider.dart';
 
@@ -58,10 +59,15 @@ class ChatPageController {
     if (_isAway) _unread.value += 1;
   }
 
-  /// 发送一条消息。
-  void send(String text) {
+  /// 发送一条消息，可附带图片或文本文件。
+  void send(
+    String text, {
+    List<ChatAttachment> attachments = const <ChatAttachment>[],
+  }) {
     _unread.value = 0;
-    _ref.read(chatControllerProvider.notifier).send(text);
+    _ref
+        .read(chatControllerProvider.notifier)
+        .send(text, attachments: attachments);
   }
 
   /// 新建会话并回到底部。

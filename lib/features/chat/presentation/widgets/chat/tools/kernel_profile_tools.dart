@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -12,6 +13,9 @@ import 'package:Aisupass/features/escalation/domain/models/kernel_profile_import
 import 'package:Aisupass/features/escalation/domain/models/kernel_profile_import_state.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/kernel_profile_action_provider.dart';
 import 'package:Aisupass/features/escalation/presentation/providers/kernel_profile_query_provider.dart';
+
+/// 本地导入的原生上限，与 Kotlin 侧 `MAX_INPUT` 保持一致（512 MiB）。
+const int _maxImportBytes = 0x20000000;
 
 /// Kernel profile（CVE-98260）只读工具。
 List<ChatToolDefinition> kernelProfileTools(Ref ref) => <ChatToolDefinition>[
@@ -134,9 +138,12 @@ List<ChatToolDefinition> kernelProfileTools(Ref ref) => <ChatToolDefinition>[
   ChatToolDefinition(
     name: 'kernel_profile_import_start',
     description:
-        'Start importing a Kernel profile from a local boot.img path or an OTA '
-        'URL, and return a session id immediately. Poll with '
-        'kernel_profile_import_status.',
+        'Start importing a Kernel profile from a single local boot image path '
+        'or an OTA URL, and return a session id immediately. Poll with '
+        'kernel_profile_import_status. The local-path mode loads the whole file '
+        'into memory and only accepts one boot image up to 512 MiB: for '
+        'payload.bin, ZIP OTA packages or larger images call '
+        'ghost_lock_probe_profile instead.',
     parameters: objectSchema(
       properties: <String, dynamic>{
         'source': stringProperty(
@@ -156,6 +163,36 @@ List<ChatToolDefinition> kernelProfileTools(Ref ref) => <ChatToolDefinition>[
         const <String>['path', 'url'],
       );
       final String value = requireString(arguments, 'value');
+
+      // 先做本地预检，把「文件不存在 / 超过内存上限」变成可行动的结论，
+      // 避免模型反复重试同一条注定失败的调用。
+      if (source == 'path') {
+        final File file = File(value);
+        if (!file.existsSync()) {
+          return jsonEncode(<String, Object?>{
+            'ok': false,
+            'errorCode': 'notFound',
+            'next':
+                'The path does not exist. Ask the user to attach the image '
+                'again; do not guess its content.',
+          });
+        }
+        final int size = file.lengthSync();
+        if (size > _maxImportBytes) {
+          return jsonEncode(<String, Object?>{
+            'ok': false,
+            'errorCode': 'tooLarge',
+            'size': size,
+            'limit': _maxImportBytes,
+            'next':
+                'This importer loads the whole file into memory and is capped '
+                'at 512 MiB. For payload.bin or an OTA package call '
+                'ghost_lock_probe_profile instead; it streams and extracts '
+                'boot.img for you.',
+          });
+        }
+      }
+
       final KernelProfileActions actions = ref.read(
         kernelProfileActionsProvider,
       );

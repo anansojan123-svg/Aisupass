@@ -292,25 +292,25 @@
   "@chatIssueNoConfig": {
     "description": "No AI config available"
   },
-  "chatEmptyTitle": "AI Device Assistant",
+  "chatEmptyTitle": "AISUPASS",
   "@chatEmptyTitle": {
     "description": "Empty conversation title"
   },
-  "chatEmptyHint": "Describe your device and I will inspect it before answering",
+  "chatEmptyHint": "Tell me what you need and I'll work out the best escalation path",
   "@chatEmptyHint": {
     "description": "Empty conversation hint"
   },
-  "chatSuggestionDevice": "Analyze my device",
-  "@chatSuggestionDevice": {
-    "description": "Suggestion: device environment"
+  "chatSuggestionRom": "Find the ROM package for my device",
+  "@chatSuggestionRom": {
+    "description": "Suggestion: find the ROM package"
   },
-  "chatSuggestionRoot": "Is this device already rooted?",
-  "@chatSuggestionRoot": {
-    "description": "Suggestion: root status"
+  "chatSuggestionEscalation": "Analyze the escalation options for my device",
+  "@chatSuggestionEscalation": {
+    "description": "Suggestion: analyze escalation options"
   },
-  "chatSuggestionPlan": "How is the ADB status of this device?",
-  "@chatSuggestionPlan": {
-    "description": "Suggestion: ADB status"
+  "chatSuggestionSupport": "Get technical support",
+  "@chatSuggestionSupport": {
+    "description": "Suggestion button that opens the community group"
   },
   "chatSessions": "Conversations",
   "chatSessionEmpty": "No conversations",
@@ -544,6 +544,177 @@
   "chatActionRegenerate": "Regenerate",
   "chatCopied": "Copied to clipboard",
   "chatShareFailed": "Share failed, please try again",
+  "chatPromptTitle": "Prompt library",
+  "chatPromptLoading": "Loading prompts…",
+  "chatPromptEmpty": "No prompts yet. Tap + in the top-right corner to add one",
+  "chatPromptAdd": "New prompt",
+  "chatPromptEdit": "Edit prompt",
+  "chatPromptInsert": "Insert",
+  "chatPromptDelete": "Delete prompt",
+  "chatPromptDeleteConfirm": "Delete \"{title}\"?",
+  "@chatPromptDeleteConfirm": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "chatPromptSaved": "Prompt saved",
+  "chatPromptDeleted": "Prompt deleted",
+  "chatPromptName": "Title",
+  "chatPromptNameHint": "e.g. Analyze the device",
+  "chatPromptContent": "Content",
+  "chatPromptContentHint": "Enter the prompt to send to the AI",
+  "chatPromptContentRequired": "Prompt content cannot be empty",
+  "chatAttachTitle": "Add attachment",
+  "chatAttachImage": "Choose images",
+  "chatAttachText": "Choose text files",
+  "chatAttachBinary": "Choose firmware or archive",
+  "chatAttachNoPath": "Cannot resolve the local path of {name}",
+  "@chatAttachNoPath": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "chatAttachUnsupported": "Unsupported file type",
+  "chatAttachTooLarge": "File is too large: {name}",
+  "@chatAttachTooLarge": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "chatAttachFailed": "Failed to add attachment",
+  "chatAttachLimit": "Up to {count} attachments per message",
+  "@chatAttachLimit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatManualTitle": "AI capability manual",
+  "chatManualSubtitle": "Local capabilities and tools the assistant can call in a chat",
+  "chatManualConfirmHint": "Tools that change the device ask for your confirmation first; read-only tools run directly",
+  "chatToolDesc_get_device_info": "Read the model, OS version, kernel, patch level, baseband, ABI and SELinux state",
+  "chatToolDesc_get_root_status": "Check whether the current process already has ROOT privileges",
+  "chatToolDesc_get_adb_status": "Check whether the USB and wireless debugging switches are on",
+  "chatToolDesc_adb_shell_exec": "Run one command on the connected adb shell (uid 2000) and return exit code and output",
+  "chatToolDesc_adb_pairing_request": "Open the wireless debugging pairing panel and walk through adb pairing",
+  "chatToolDesc_web_search": "Search the public web with Bing and return titles, links and snippets",
+  "chatToolDesc_fetch_web_page": "Download the raw source of a page together with its status code and content type",
+  "chatToolDesc_open_in_browser": "Open a page in the in-app browser and hand back the URL or page source",
+  "chatToolDesc_escalation_get_device_identity": "Read the device and kernel identity required for escalation",
+  "chatToolDesc_escalation_list_payloads": "List the built-in escalation payloads",
+  "chatToolDesc_escalation_resolve_payload": "Match an escalation payload for this model and kernel",
+  "chatToolDesc_escalation_list_root_managers": "List the ROOT managers available on this device",
+  "chatToolDesc_escalation_get_selected_root_manager": "Read the currently selected ROOT manager",
+  "chatToolDesc_escalation_run_payload": "Run the given escalation payload",
+  "chatToolDesc_escalation_run_payload_by_id": "Run an escalation payload by its id",
+  "chatToolDesc_escalation_handoff_root": "Hand the acquired root over to the chosen manager",
+  "chatToolDesc_escalation_select_root_manager": "Choose the ROOT manager used for the next handoff",
+  "chatToolDesc_ghost_key_preflight": "GhostKey preflight: ADB, kernel, profile and native library readiness",
+  "chatToolDesc_ghost_key_get_run_defaults": "Read the GhostKey run defaults",
+  "chatToolDesc_ghost_key_save_run_defaults": "Save the GhostKey run defaults",
+  "chatToolDesc_ghost_key_start": "Start one GhostKey temporary root run",
+  "chatToolDesc_ghost_key_status": "Query the current GhostKey run status",
+  "chatToolDesc_ghost_key_cancel": "Abort the running GhostKey flow",
+  "chatToolDesc_ghost_lock_preflight": "GhostLock preflight: ADB, uid, seccomp, kernel and profile matching",
+  "chatToolDesc_ghost_lock_start": "Start one GhostLock run and return a session id",
+  "chatToolDesc_ghost_lock_status": "Read the latest snapshot of a GhostLock run session",
+  "chatToolDesc_ghost_lock_cancel": "Stop reading the current GhostLock run without killing device processes",
+  "chatToolDesc_ghost_lock_list_imported_profiles": "List the imported GhostLock profiles",
+  "chatToolDesc_ghost_lock_list_builtin_releases": "List the built-in GhostLock releases",
+  "chatToolDesc_ghost_lock_read_imported_profile": "Read the details of one imported profile",
+  "chatToolDesc_ghost_lock_get_probe_progress": "Query the profile parsing progress",
+  "chatToolDesc_ghost_lock_list_extracted_images": "List the partitions extracted from an image package",
+  "chatToolDesc_ghost_lock_get_profile_config": "Read every field of the current profile",
+  "chatToolDesc_ghost_lock_get_active_source": "Read the currently effective profile source",
+  "chatToolDesc_ghost_lock_probe_profile": "Parse a kernel image and build a profile",
+  "chatToolDesc_ghost_lock_save_profile": "Save the current profile",
+  "chatToolDesc_ghost_lock_import_profile_text": "Import profile text as a new profile",
+  "chatToolDesc_ghost_lock_rename_imported_profile": "Rename an imported profile",
+  "chatToolDesc_ghost_lock_remove_imported_profile": "Delete an imported profile",
+  "chatToolDesc_ghost_lock_export_imported_profile": "Export an imported profile as text",
+  "chatToolDesc_ghost_lock_convert_imported_profile": "Convert the format of a profile",
+  "chatToolDesc_ghost_lock_export_local_file": "Export a profile to a local file",
+  "chatToolDesc_ghost_lock_update_general_fields": "Edit the general fields of a profile",
+  "chatToolDesc_ghost_lock_update_advanced_fields": "Edit the advanced fields of a profile",
+  "chatToolDesc_ghost_lock_update_route": "Edit the route data of a profile",
+  "chatToolDesc_ghost_lock_update_fallback": "Edit the fallback entries of a profile",
+  "chatToolDesc_ghost_lock_reset_profile": "Reset the profile to its defaults",
+  "chatToolDesc_ghost_lock_select_source": "Choose the effective profile source",
+  "chatToolDesc_ghost_lock_render_profile": "Render a preview of the profile",
+  "chatToolDesc_ghost_lock_export_profile": "Export the current profile",
+  "chatToolDesc_ghost_lock_save_modified_profile": "Save the modified profile",
+  "chatToolDesc_ghost_lock_overwrite_profile": "Overwrite the existing profile",
+  "chatToolDesc_ghost_lock_begin_edit_session": "Begin a profile editing session",
+  "chatToolDesc_ghost_lock_reload_edit_session": "Reload the editing session",
+  "chatToolDesc_ghost_lock_get_edit_session": "Read the current draft of the editing session",
+  "chatToolDesc_ghost_lock_commit_edit_session": "Commit the changes in the editing session",
+  "chatToolDesc_ghost_lock_save_edit_session_in_place": "Save the editing session in place",
+  "chatToolDesc_ghost_lock_save_edit_session_as_new": "Save the editing session as a new profile",
+  "chatToolDesc_ghost_lock_export_edit_session": "Export the editing session content",
+  "chatToolDesc_ghost_lock_end_edit_session": "End the editing session",
+  "chatToolDesc_dirty_frag_is_armed": "Check whether DirtyFrag was already injected in this boot",
+  "chatToolDesc_dirty_frag_get_run_defaults": "Read the DirtyFrag run defaults",
+  "chatToolDesc_dirty_frag_get_expert_mode": "Check whether DirtyFrag expert mode is on",
+  "chatToolDesc_dirty_frag_get_boot_autostart": "Check whether DirtyFrag boot autostart is on",
+  "chatToolDesc_dirty_frag_get_vr_progress": "Query the VR offset derivation progress",
+  "chatToolDesc_dirty_frag_save_run_defaults": "Save the DirtyFrag run defaults",
+  "chatToolDesc_dirty_frag_set_expert_mode": "Toggle DirtyFrag expert mode",
+  "chatToolDesc_dirty_frag_set_boot_autostart": "Toggle DirtyFrag boot autostart",
+  "chatToolDesc_dirty_frag_start": "Start a DirtyFrag escalation",
+  "chatToolDesc_dirty_frag_status": "Query the current DirtyFrag status",
+  "chatToolDesc_dirty_frag_cancel": "Abort the DirtyFrag run",
+  "chatToolDesc_dirty_frag_derive_vr_offset": "Derive the VR offset from an image or OTA package",
+  "chatToolDesc_kernel_profile_list_imported": "List the imported kernel profiles",
+  "chatToolDesc_kernel_profile_list_builtin": "List the built-in kernel profiles",
+  "chatToolDesc_kernel_profile_read_content": "Read the full content of a kernel profile",
+  "chatToolDesc_kernel_profile_read_editor": "Read the current content of the kernel profile editor",
+  "chatToolDesc_kernel_profile_get_active_selection": "Read the currently effective kernel profile",
+  "chatToolDesc_kernel_profile_import_start": "Start importing and parsing a kernel image",
+  "chatToolDesc_kernel_profile_import_status": "Query the kernel import progress",
+  "chatToolDesc_kernel_profile_import_cancel": "Cancel the kernel import",
+  "chatToolDesc_kernel_profile_remove": "Delete a kernel profile",
+  "chatToolDesc_kernel_profile_save_editor": "Save the editor content",
+  "chatToolDesc_kernel_profile_save_editor_as": "Save the editor content as a new profile",
+  "chatToolDesc_kernel_profile_render_editor": "Render a preview of the editor content",
+  "chatToolDesc_kernel_profile_select_user_profile": "Select the effective user profile",
+  "chatToolDesc_kernel_profile_select_builtin_release": "Select the effective built-in release",
+  "chatToolDesc_ota_list_catalog": "List the built-in OTA packages for a vendor",
+  "chatToolDesc_run_log_list_runs": "List historical run logs, newest first",
+  "chatToolDesc_run_log_read_body": "Read the body of one run log",
+  "chatToolDesc_run_log_export_all": "Export every run log",
+  "chatToolDesc_run_log_diagnose": "Diagnose a failed run log and report the cause",
+  "chatToolDesc_run_log_delete": "Delete one run log",
+  "chatToolDesc_run_log_clear_all": "Clear every run log except the one being written",
+  "chatToolDesc_local_file_inspect": "Inspect an attachment inside the app process: size and header format, detecting payload, boot or zip containers",
+  "chatManualGroupDevice": "Device & environment",
+  "chatManualGroupDeviceDesc": "Read the model, OS version, kernel, ROOT state and ADB switches",
+  "chatManualGroupAdb": "ADB debugging",
+  "chatManualGroupAdbDesc": "Run adb shell commands and start wireless debugging pairing",
+  "chatManualGroupWeb": "Network & browsing",
+  "chatManualGroupWebDesc": "Search the web, fetch page source, open pages in the in-app browser",
+  "chatManualGroupEscalation": "Manual escalation",
+  "chatManualGroupEscalationDesc": "Match a kernel payload, escalate, and hand root off to a manager",
+  "chatManualGroupGhostKey": "GhostKey escalation",
+  "chatManualGroupGhostKeyDesc": "Preflight and run the GhostKey temporary root flow",
+  "chatManualGroupGhostLock": "GhostLock escalation",
+  "chatManualGroupGhostLockDesc": "Preflight and run the GhostLock escalation flow",
+  "chatManualGroupGhostLockProfile": "GhostLock profiles",
+  "chatManualGroupGhostLockProfileDesc": "Read, edit, parse, import and export GhostLock profiles",
+  "chatManualGroupDirtyFrag": "DirtyFrag escalation",
+  "chatManualGroupDirtyFragDesc": "Kernel exploit, VR disarm and offset derivation",
+  "chatManualGroupKernel": "Kernel profiles",
+  "chatManualGroupKernelDesc": "Import and parse kernel images, manage profiles and pick the active one",
+  "chatManualGroupOta": "OTA catalog",
+  "chatManualGroupOtaDesc": "Look up historical OTA entries as kernel image sources",
+  "chatManualGroupRunLog": "Run logs",
+  "chatManualGroupRunLogDesc": "Read, diagnose, export and clear escalation run logs",
   "aiQuickPanelTitle": "AI Assistant",
   "aiQuickChatTitle": "AI Chat",
   "aiQuickChatDesc": "Read the device environment and answer your questions",
@@ -1343,6 +1514,11 @@
   "settingsCommunityGroupSubtitle": "Join the group for help",
   "settingsCreatorPlatformsIntro": "Choose a platform to keep up with the latest creator updates.",
   "settingsWechatTitle": "WeChat Channel",
+  "settingsFeatureWishTitle": "Feature Wish",
+  "settingsFeatureWishSubtitle": "Tip the author and wish for a new feature",
+  "featureWishDialogDesc": "Scan the code to tip the author, then submit your feature idea on GitHub.",
+  "featureWishIssueButton": "Submit a Feature Issue",
+  "featureWishNetworkTip": "Please open it with a proper network environment",
   "platformFacebook": "Facebook",
   "platformTiktok": "TikTok",
   "platformDouyin": "Douyin",

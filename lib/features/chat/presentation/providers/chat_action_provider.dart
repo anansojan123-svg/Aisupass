@@ -9,12 +9,14 @@ import 'package:Aisupass/core/storage/storage_providers.dart';
 import 'package:Aisupass/features/ai/domain/models/ai_config.dart';
 import 'package:Aisupass/features/ai/presentation/providers/ai_config_query_provider.dart';
 import 'package:Aisupass/features/chat/data/datasources/chat_action_datasource.dart';
+import 'package:Aisupass/features/chat/data/datasources/chat_attachment_store.dart';
 import 'package:Aisupass/features/chat/data/datasources/chat_session_action_datasource.dart';
 import 'package:Aisupass/features/chat/data/repositories/chat_action_repository_impl.dart';
 import 'package:Aisupass/features/chat/data/repositories/chat_session_action_repository_impl.dart';
 import 'package:Aisupass/features/chat/domain/enums/chat_issue.dart';
 import 'package:Aisupass/features/chat/domain/enums/chat_notice.dart';
 import 'package:Aisupass/features/chat/domain/enums/chat_role.dart';
+import 'package:Aisupass/features/chat/domain/models/chat_attachment.dart';
 import 'package:Aisupass/features/chat/domain/models/chat_session.dart';
 import 'package:Aisupass/features/chat/domain/models/chat_tool.dart';
 import 'package:Aisupass/features/chat/domain/models/chat_tool_call.dart';
@@ -33,6 +35,7 @@ import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/ghost_key
 import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/ghost_lock_profile_tools.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/ghost_lock_tools.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/kernel_profile_tools.dart';
+import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/local_file_tools.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/ota_tools.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/run_log_tools.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/tools/tool_schema.dart';
@@ -143,6 +146,10 @@ class ChatJobs extends _$ChatJobs {
 @riverpod
 ChatActionDatasource chatActionDatasource(Ref ref) => ChatActionDatasource();
 
+/// 附件落盘服务：把选中的文件复制到应用私有目录。
+@riverpod
+ChatAttachmentStore chatAttachmentStore(Ref ref) => const ChatAttachmentStore();
+
 /// 对话执行仓储。
 @riverpod
 ChatActionRepository chatActionRepository(Ref ref) => ChatActionRepositoryImpl(
@@ -225,6 +232,7 @@ List<ChatToolDefinition> chatTools(Ref ref) => <ChatToolDefinition>[
   ...kernelProfileTools(ref),
   ...otaTools(ref),
   ...runLogTools(ref),
+  ...localFileTools(ref),
 ];
 
 /// 对话控制器。
@@ -266,9 +274,14 @@ class ChatController extends _$ChatController {
   }
 
   /// 发送一条用户消息，并自动跑完后续工具调用。
-  Future<void> send(String input) async {
+  Future<void> send(
+    String input, {
+    List<ChatAttachment> attachments = const <ChatAttachment>[],
+  }) async {
     final String text = input.trim();
-    if (text.isEmpty) return;
+    final List<ChatAttachment> files =
+        List<ChatAttachment>.unmodifiable(attachments);
+    if (text.isEmpty && files.isEmpty) return;
     if (_jobs[state.sessionId]?.running ?? false) return;
 
     final AiConfig? config = ref.read(aiConfigProvider).value?.current;
@@ -281,7 +294,9 @@ class ChatController extends _$ChatController {
     if (sessionId.isEmpty || _jobs.containsKey(sessionId)) return;
 
     // 标题只在会话还没有任何轮次时生成，避免覆盖用户手动改过的名字。
-    final String? title = state.turns.isEmpty ? _deriveTitle(text) : null;
+    final String? title = state.turns.isEmpty
+        ? _deriveTitle(text, files)
+        : null;
 
     final ChatStreamSession job = _startSession(
       sessionId: sessionId,
@@ -296,6 +311,7 @@ class ChatController extends _$ChatController {
           streaming: false,
           error: '',
           notice: ChatNotice.none,
+          attachments: files,
           createdAt: DateTime.now(),
           duration: Duration.zero,
           usage: ChatUsage.empty,
@@ -483,7 +499,7 @@ class ChatController extends _$ChatController {
     String? title;
     for (final ChatTurn turn in turns) {
       if (turn.isUser) {
-        title = _deriveTitle(turn.text);
+        title = _deriveTitle(turn.text, turn.attachments);
         break;
       }
     }
@@ -583,14 +599,19 @@ class ChatController extends _$ChatController {
   }
 
   /// 由首条用户消息生成会话标题：取首行，最多 24 个字符。
-  String? _deriveTitle(String text) {
+  ///
+  /// 纯附件消息取第一个附件的文件名，避免出现无标题会话。
+  String? _deriveTitle(String text, List<ChatAttachment> attachments) {
     final String firstLine = text
         .split(RegExp(r'[\r\n]'))
         .firstWhere((String line) => line.trim().isNotEmpty, orElse: () => '')
         .trim();
-    if (firstLine.isEmpty) return null;
-    final List<int> runes = firstLine.runes.toList(growable: false);
-    if (runes.length <= 24) return firstLine;
+    final String source = firstLine.isNotEmpty
+        ? firstLine
+        : (attachments.isEmpty ? '' : attachments.first.name.trim());
+    if (source.isEmpty) return null;
+    final List<int> runes = source.runes.toList(growable: false);
+    if (runes.length <= 24) return source;
     return String.fromCharCodes(runes.take(24));
   }
 

@@ -1,4 +1,5 @@
 import 'package:Aisupass/common/tabs/setting/about_setting_section.dart';
+import 'package:Aisupass/common/tabs/setting/feature_wish_setting_row.dart';
 import 'package:Aisupass/common/tabs/setting/follow_author_setting_section.dart';
 import 'package:Aisupass/common/widgets/app_language_switch.dart';
 import 'package:Aisupass/common/widgets/app_settings_section.dart';
@@ -33,7 +34,11 @@ class PcSettingTab extends HookWidget {
             SizedBox(height: 20.h),
             AppSettingsSection(
               title: context.l10n.settingsGeneralSection,
-              children: const <Widget>[AppLanguageSwitch()],
+              children: <Widget>[
+                const AppLanguageSwitch(),
+                Divider(height: 1, indent: 62.w, endIndent: 16.w),
+                const FeatureWishSettingRow(),
+              ],
             ),
             SizedBox(height: 20.h),
             AppSettingsSection(

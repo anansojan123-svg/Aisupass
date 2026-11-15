@@ -506,19 +506,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatIssueNoConfig => '请先在 AI 配置里完成设置';
 
   @override
-  String get chatEmptyTitle => 'AI 设备助手';
+  String get chatEmptyTitle => 'AISUPASS';
 
   @override
-  String get chatEmptyHint => '描述你的设备情况，我会读取设备信息并回答你的问题';
+  String get chatEmptyHint => '提出你的需求，我会给你最佳提权方案';
 
   @override
-  String get chatSuggestionDevice => '分析我的设备环境';
+  String get chatSuggestionRom => '帮我找一下本机型的 ROM 包';
 
   @override
-  String get chatSuggestionRoot => '当前设备是否已 root';
+  String get chatSuggestionEscalation => '分析一下本机型的提权方案';
 
   @override
-  String get chatSuggestionPlan => '这台设备的 ADB 状态怎么样';
+  String get chatSuggestionSupport => '获取技术支持';
 
   @override
   String get chatSessions => '会话';
@@ -715,6 +715,454 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get chatShareFailed => '分享失败，请稍后重试';
+
+  @override
+  String get chatPromptTitle => '常用提示词';
+
+  @override
+  String get chatPromptLoading => '正在读取提示词…';
+
+  @override
+  String get chatPromptEmpty => '还没有常用提示词，点击右上角 + 新建一条';
+
+  @override
+  String get chatPromptAdd => '新建提示词';
+
+  @override
+  String get chatPromptEdit => '编辑提示词';
+
+  @override
+  String get chatPromptInsert => '插入';
+
+  @override
+  String get chatPromptDelete => '删除提示词';
+
+  @override
+  String chatPromptDeleteConfirm(String title) {
+    return '确定删除「$title」吗？';
+  }
+
+  @override
+  String get chatPromptSaved => '提示词已保存';
+
+  @override
+  String get chatPromptDeleted => '提示词已删除';
+
+  @override
+  String get chatPromptName => '标题';
+
+  @override
+  String get chatPromptNameHint => '例如：分析设备环境';
+
+  @override
+  String get chatPromptContent => '内容';
+
+  @override
+  String get chatPromptContentHint => '输入要发送给 AI 的提示词';
+
+  @override
+  String get chatPromptContentRequired => '提示词内容不能为空';
+
+  @override
+  String get chatAttachTitle => '添加附件';
+
+  @override
+  String get chatAttachImage => '选择图片';
+
+  @override
+  String get chatAttachText => '选择文本文件';
+
+  @override
+  String get chatAttachBinary => '选择镜像/压缩包';
+
+  @override
+  String chatAttachNoPath(String name) {
+    return '无法获取 $name 的本地路径';
+  }
+
+  @override
+  String get chatAttachUnsupported => '不支持该文件类型';
+
+  @override
+  String chatAttachTooLarge(String name) {
+    return '文件过大：$name';
+  }
+
+  @override
+  String get chatAttachFailed => '添加附件失败';
+
+  @override
+  String chatAttachLimit(int count) {
+    return '单条消息最多添加 $count 个附件';
+  }
+
+  @override
+  String get chatManualTitle => 'AI 能力手册';
+
+  @override
+  String get chatManualSubtitle => '助手在对话中可以调用的本地能力与工具';
+
+  @override
+  String get chatManualConfirmHint => '执行类工具在动作前会先征求你的确认；只读工具可直接调用';
+
+  @override
+  String get chatToolDesc_get_device_info =>
+      '读取机型、系统版本、内核、补丁、基带、ABI 与 SELinux 等设备信息';
+
+  @override
+  String get chatToolDesc_get_root_status => '检查当前进程是否已获得 ROOT 权限';
+
+  @override
+  String get chatToolDesc_get_adb_status => '检查 USB 与无线调试开关是否打开';
+
+  @override
+  String get chatToolDesc_adb_shell_exec =>
+      '在已连接的 adb shell（uid 2000）执行一条命令，返回退出码与输出';
+
+  @override
+  String get chatToolDesc_adb_pairing_request => '打开无线调试配对面板，引导完成 adb 配对';
+
+  @override
+  String get chatToolDesc_web_search => '用 Bing 搜索公开网络，返回标题、链接与摘要';
+
+  @override
+  String get chatToolDesc_fetch_web_page => '抓取指定网页的原始源码，同时返回状态码与内容类型';
+
+  @override
+  String get chatToolDesc_open_in_browser => '用应用内浏览器打开网页，可回传网址或页面源码';
+
+  @override
+  String get chatToolDesc_escalation_get_device_identity => '读取提权需要的设备与内核标识';
+
+  @override
+  String get chatToolDesc_escalation_list_payloads => '列出内置提权载荷清单';
+
+  @override
+  String get chatToolDesc_escalation_resolve_payload => '按机型与内核匹配合适的提权载荷';
+
+  @override
+  String get chatToolDesc_escalation_list_root_managers => '列出设备上可用的 ROOT 管理器';
+
+  @override
+  String get chatToolDesc_escalation_get_selected_root_manager =>
+      '读取当前选中的 ROOT 管理器';
+
+  @override
+  String get chatToolDesc_escalation_run_payload => '执行指定的提权载荷';
+
+  @override
+  String get chatToolDesc_escalation_run_payload_by_id => '按编号执行提权载荷';
+
+  @override
+  String get chatToolDesc_escalation_handoff_root => '把已取得的 root 移交给指定管理器';
+
+  @override
+  String get chatToolDesc_escalation_select_root_manager =>
+      '选择后续交接使用的 ROOT 管理器';
+
+  @override
+  String get chatToolDesc_ghost_key_preflight =>
+      'GhostKey 预检：ADB、内核、配置与原生库是否就绪';
+
+  @override
+  String get chatToolDesc_ghost_key_get_run_defaults => '读取 GhostKey 运行默认参数';
+
+  @override
+  String get chatToolDesc_ghost_key_save_run_defaults => '保存 GhostKey 运行默认参数';
+
+  @override
+  String get chatToolDesc_ghost_key_start => '启动一次 GhostKey 临时 root 流程';
+
+  @override
+  String get chatToolDesc_ghost_key_status => '查询 GhostKey 当前执行状态';
+
+  @override
+  String get chatToolDesc_ghost_key_cancel => '中止正在进行的 GhostKey 流程';
+
+  @override
+  String get chatToolDesc_ghost_lock_preflight =>
+      'GhostLock 预检：ADB、uid、seccomp、内核与配置匹配情况';
+
+  @override
+  String get chatToolDesc_ghost_lock_start => '启动一次 GhostLock 提权，返回会话 id';
+
+  @override
+  String get chatToolDesc_ghost_lock_status => '读取 GhostLock 运行会话的最新快照';
+
+  @override
+  String get chatToolDesc_ghost_lock_cancel => '停止读取当前 GhostLock 运行，不终止设备进程';
+
+  @override
+  String get chatToolDesc_ghost_lock_list_imported_profiles =>
+      '列出已导入的 GhostLock 配置文件';
+
+  @override
+  String get chatToolDesc_ghost_lock_list_builtin_releases =>
+      '列出内置的 GhostLock 发行版本';
+
+  @override
+  String get chatToolDesc_ghost_lock_read_imported_profile => '读取某个已导入配置文件的详情';
+
+  @override
+  String get chatToolDesc_ghost_lock_get_probe_progress => '查询配置解析进度';
+
+  @override
+  String get chatToolDesc_ghost_lock_list_extracted_images => '列出从镜像包中提取出的分区';
+
+  @override
+  String get chatToolDesc_ghost_lock_get_profile_config => '读取当前配置文件的完整字段';
+
+  @override
+  String get chatToolDesc_ghost_lock_get_active_source => '读取当前生效的配置来源';
+
+  @override
+  String get chatToolDesc_ghost_lock_probe_profile => '解析内核镜像并生成配置档';
+
+  @override
+  String get chatToolDesc_ghost_lock_save_profile => '保存当前配置档';
+
+  @override
+  String get chatToolDesc_ghost_lock_import_profile_text => '导入一段配置文本作为新配置档';
+
+  @override
+  String get chatToolDesc_ghost_lock_rename_imported_profile => '重命名已导入的配置档';
+
+  @override
+  String get chatToolDesc_ghost_lock_remove_imported_profile => '删除已导入的配置档';
+
+  @override
+  String get chatToolDesc_ghost_lock_export_imported_profile => '导出已导入的配置档文本';
+
+  @override
+  String get chatToolDesc_ghost_lock_convert_imported_profile => '转换配置档的格式';
+
+  @override
+  String get chatToolDesc_ghost_lock_export_local_file => '把配置档导出为本地文件';
+
+  @override
+  String get chatToolDesc_ghost_lock_update_general_fields => '修改配置档的常规字段';
+
+  @override
+  String get chatToolDesc_ghost_lock_update_advanced_fields => '修改配置档的高级字段';
+
+  @override
+  String get chatToolDesc_ghost_lock_update_route => '修改配置档的路由信息';
+
+  @override
+  String get chatToolDesc_ghost_lock_update_fallback => '修改配置档的回退项';
+
+  @override
+  String get chatToolDesc_ghost_lock_reset_profile => '把配置档重置为默认值';
+
+  @override
+  String get chatToolDesc_ghost_lock_select_source => '选择生效的配置来源';
+
+  @override
+  String get chatToolDesc_ghost_lock_render_profile => '渲染并预览配置档';
+
+  @override
+  String get chatToolDesc_ghost_lock_export_profile => '导出当前配置档';
+
+  @override
+  String get chatToolDesc_ghost_lock_save_modified_profile => '保存修改后的配置档';
+
+  @override
+  String get chatToolDesc_ghost_lock_overwrite_profile => '覆盖写入现有配置档';
+
+  @override
+  String get chatToolDesc_ghost_lock_begin_edit_session => '开始一次配置编辑会话';
+
+  @override
+  String get chatToolDesc_ghost_lock_reload_edit_session => '重新加载编辑会话';
+
+  @override
+  String get chatToolDesc_ghost_lock_get_edit_session => '读取编辑会话的当前草稿';
+
+  @override
+  String get chatToolDesc_ghost_lock_commit_edit_session => '提交编辑会话中的修改';
+
+  @override
+  String get chatToolDesc_ghost_lock_save_edit_session_in_place => '就地保存编辑会话';
+
+  @override
+  String get chatToolDesc_ghost_lock_save_edit_session_as_new => '把编辑会话另存为新配置档';
+
+  @override
+  String get chatToolDesc_ghost_lock_export_edit_session => '导出编辑会话的内容';
+
+  @override
+  String get chatToolDesc_ghost_lock_end_edit_session => '结束编辑会话';
+
+  @override
+  String get chatToolDesc_dirty_frag_is_armed => '检查本次开机是否已注入过 DirtyFrag';
+
+  @override
+  String get chatToolDesc_dirty_frag_get_run_defaults => '读取 DirtyFrag 运行默认参数';
+
+  @override
+  String get chatToolDesc_dirty_frag_get_expert_mode => '查询 DirtyFrag 专家模式是否开启';
+
+  @override
+  String get chatToolDesc_dirty_frag_get_boot_autostart =>
+      '查询 DirtyFrag 开机自启是否开启';
+
+  @override
+  String get chatToolDesc_dirty_frag_get_vr_progress => '查询 VR 偏移推导进度';
+
+  @override
+  String get chatToolDesc_dirty_frag_save_run_defaults => '保存 DirtyFrag 运行默认参数';
+
+  @override
+  String get chatToolDesc_dirty_frag_set_expert_mode => '开关 DirtyFrag 专家模式';
+
+  @override
+  String get chatToolDesc_dirty_frag_set_boot_autostart => '开关 DirtyFrag 开机自启';
+
+  @override
+  String get chatToolDesc_dirty_frag_start => '启动 DirtyFrag 提权';
+
+  @override
+  String get chatToolDesc_dirty_frag_status => '查询 DirtyFrag 当前状态';
+
+  @override
+  String get chatToolDesc_dirty_frag_cancel => '中止 DirtyFrag 运行';
+
+  @override
+  String get chatToolDesc_dirty_frag_derive_vr_offset => '从镜像包或 OTA 推导 VR 偏移';
+
+  @override
+  String get chatToolDesc_kernel_profile_list_imported => '列出已导入的内核配置文件';
+
+  @override
+  String get chatToolDesc_kernel_profile_list_builtin => '列出内置的内核配置文件';
+
+  @override
+  String get chatToolDesc_kernel_profile_read_content => '读取内核配置文件的完整内容';
+
+  @override
+  String get chatToolDesc_kernel_profile_read_editor => '读取内核配置编辑器的当前内容';
+
+  @override
+  String get chatToolDesc_kernel_profile_get_active_selection => '读取当前生效的内核配置';
+
+  @override
+  String get chatToolDesc_kernel_profile_import_start => '开始导入并解析内核镜像';
+
+  @override
+  String get chatToolDesc_kernel_profile_import_status => '查询内核导入进度';
+
+  @override
+  String get chatToolDesc_kernel_profile_import_cancel => '取消内核导入';
+
+  @override
+  String get chatToolDesc_kernel_profile_remove => '删除内核配置文件';
+
+  @override
+  String get chatToolDesc_kernel_profile_save_editor => '保存编辑器内容';
+
+  @override
+  String get chatToolDesc_kernel_profile_save_editor_as => '把编辑器内容另存为新配置';
+
+  @override
+  String get chatToolDesc_kernel_profile_render_editor => '渲染并预览编辑器内容';
+
+  @override
+  String get chatToolDesc_kernel_profile_select_user_profile => '选择生效的用户配置';
+
+  @override
+  String get chatToolDesc_kernel_profile_select_builtin_release => '选择生效的内置发行版';
+
+  @override
+  String get chatToolDesc_ota_list_catalog => '列出指定厂商的内置 OTA 包清单';
+
+  @override
+  String get chatToolDesc_run_log_list_runs => '按时间倒序列出历史运行日志';
+
+  @override
+  String get chatToolDesc_run_log_read_body => '读取某个运行日志的正文';
+
+  @override
+  String get chatToolDesc_run_log_export_all => '导出全部运行日志';
+
+  @override
+  String get chatToolDesc_run_log_diagnose => '诊断失败的运行日志并给出原因';
+
+  @override
+  String get chatToolDesc_run_log_delete => '删除某个运行日志';
+
+  @override
+  String get chatToolDesc_run_log_clear_all => '清空全部运行日志，保留正在写入的一份';
+
+  @override
+  String get chatToolDesc_local_file_inspect =>
+      '在应用进程内检查附件的大小与头部格式，识别 payload、boot、zip 等容器类型';
+
+  @override
+  String get chatManualGroupDevice => '设备与环境';
+
+  @override
+  String get chatManualGroupDeviceDesc => '读取机型、系统版本、内核、ROOT 状态与 ADB 开关';
+
+  @override
+  String get chatManualGroupAdb => 'ADB 调试';
+
+  @override
+  String get chatManualGroupAdbDesc => '执行 adb shell 命令，发起无线调试配对';
+
+  @override
+  String get chatManualGroupWeb => '网络与浏览';
+
+  @override
+  String get chatManualGroupWebDesc => '联网搜索、抓取网页源码、用内置浏览器打开页面';
+
+  @override
+  String get chatManualGroupEscalation => '手动提权';
+
+  @override
+  String get chatManualGroupEscalationDesc => '匹配内核载荷并执行提权，把 root 移交给指定管理器';
+
+  @override
+  String get chatManualGroupGhostKey => 'GhostKey 提权';
+
+  @override
+  String get chatManualGroupGhostKeyDesc => '预检并执行 GhostKey 临时 root 流程';
+
+  @override
+  String get chatManualGroupGhostLock => 'GhostLock 提权';
+
+  @override
+  String get chatManualGroupGhostLockDesc => '预检并执行 GhostLock 提权流程';
+
+  @override
+  String get chatManualGroupGhostLockProfile => 'GhostLock 配置';
+
+  @override
+  String get chatManualGroupGhostLockProfileDesc =>
+      '读取、编辑、解析、导入导出 GhostLock 配置档';
+
+  @override
+  String get chatManualGroupDirtyFrag => 'DirtyFrag 提权';
+
+  @override
+  String get chatManualGroupDirtyFragDesc => '内核漏洞利用、VR 解除与偏移推导';
+
+  @override
+  String get chatManualGroupKernel => '内核配置';
+
+  @override
+  String get chatManualGroupKernelDesc => '导入解析内核镜像，管理配置文件并选择生效项';
+
+  @override
+  String get chatManualGroupOta => 'OTA 素材';
+
+  @override
+  String get chatManualGroupOtaDesc => '查询历史 OTA 清单，作为内核镜像来源';
+
+  @override
+  String get chatManualGroupRunLog => '运行日志';
+
+  @override
+  String get chatManualGroupRunLogDesc => '读取、诊断、导出与清理提权运行日志';
 
   @override
   String get aiQuickPanelTitle => 'AI 助手';
@@ -2657,6 +3105,21 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsWechatTitle => '微信公众号';
+
+  @override
+  String get settingsFeatureWishTitle => '功能许愿';
+
+  @override
+  String get settingsFeatureWishSubtitle => '打赏支持作者，许愿新功能';
+
+  @override
+  String get featureWishDialogDesc => '扫码打赏支持作者，再到 GitHub 提交你的功能想法。';
+
+  @override
+  String get featureWishIssueButton => '提交功能 Issue';
+
+  @override
+  String get featureWishNetworkTip => '请使用合理的网络环境打开';
 
   @override
   String get platformFacebook => 'Facebook';

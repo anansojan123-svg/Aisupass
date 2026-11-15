@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:Aisupass/core/extensions/context_extensions.dart';
 import 'package:Aisupass/core/utils/platform.dart';
+import 'package:Aisupass/features/chat/domain/models/chat_attachment.dart';
 import 'package:Aisupass/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -20,9 +23,14 @@ const double _collapsedMaxHeight = 320;
 /// [_collapsedLines] 行，由「展开全文 / 收起」控制。浏览器回传的整页源码
 /// 因此可以完整进入上下文，又不会把对话撑成几万行。
 class ChatUserBubble extends HookWidget {
-  const ChatUserBubble({super.key, required this.text});
+  const ChatUserBubble({
+    super.key,
+    required this.text,
+    this.attachments = const <ChatAttachment>[],
+  });
 
   final String text;
+  final List<ChatAttachment> attachments;
 
   @override
   Widget build(BuildContext context) {
@@ -67,23 +75,149 @@ class ChatUserBubble extends HookWidget {
               color: colors.primary.withValues(alpha: isDark ? 0.26 : 0.14),
             ),
           ),
-          child: hasCode
-              ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    for (final _Segment segment in segments)
-                      if (segment.isCode)
-                        _CodeSegment(segment: segment)
-                      else if (segment.text.trim().isNotEmpty)
-                        SelectableText(
-                          segment.text.trim(),
-                          style: bodyStyle,
-                        ),
-                  ],
-                )
-              : SelectableText(text, style: bodyStyle),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              if (attachments.isNotEmpty)
+                _AttachmentGrid(attachments: attachments),
+              if (attachments.isNotEmpty && text.trim().isNotEmpty)
+                SizedBox(height: isDesktop ? 8 : 8.h),
+              if (text.trim().isNotEmpty)
+                if (hasCode)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      for (final _Segment segment in segments)
+                        if (segment.isCode)
+                          _CodeSegment(segment: segment)
+                        else if (segment.text.trim().isNotEmpty)
+                          SelectableText(
+                            segment.text.trim(),
+                            style: bodyStyle,
+                          ),
+                    ],
+                  )
+                else
+                  SelectableText(text, style: bodyStyle),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+}
+
+/// 用户消息里的附件：图片显示缩略图，文本显示文件名标签。
+class _AttachmentGrid extends HookWidget {
+  const _AttachmentGrid({required this.attachments});
+
+  final List<ChatAttachment> attachments;
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isDesktop = isDesktopPlatform;
+
+    return Wrap(
+      spacing: isDesktop ? 6 : 6.w,
+      runSpacing: isDesktop ? 6 : 6.h,
+      children: <Widget>[
+        for (final ChatAttachment attachment in attachments)
+          if (attachment.isImage)
+            _ImageThumb(attachment: attachment)
+          else
+            _FileChip(attachment: attachment),
+      ],
+    );
+  }
+}
+
+/// 图片缩略图；文件已被清理时退化为占位图标。
+class _ImageThumb extends HookWidget {
+  const _ImageThumb({required this.attachment});
+
+  final ChatAttachment attachment;
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isDesktop = isDesktopPlatform;
+    final ColorScheme colors = context.colorScheme;
+    final double size = isDesktop ? 132 : 112.w;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(isDesktop ? 10 : 10.r),
+      child: Image.file(
+        File(attachment.path),
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        errorBuilder: (BuildContext context, Object error, StackTrace? _) =>
+            Container(
+              width: size,
+              height: size,
+              alignment: Alignment.center,
+              color: colors.surface.withValues(alpha: 0.5),
+              child: Icon(
+                Icons.broken_image_outlined,
+                size: isDesktop ? 22 : 22.sp,
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+      ),
+    );
+  }
+}
+
+/// 文本附件标签：只展示文件名，内容发送时由请求层读取。
+class _FileChip extends HookWidget {
+  const _FileChip({required this.attachment});
+
+  final ChatAttachment attachment;
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isDesktop = isDesktopPlatform;
+    final ColorScheme colors = context.colorScheme;
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: isDesktop ? 9 : 9.w,
+        vertical: isDesktop ? 6 : 6.h,
+      ),
+      decoration: BoxDecoration(
+        color: colors.surface.withValues(
+          alpha: context.isDark ? 0.45 : 0.7,
+        ),
+        borderRadius: BorderRadius.circular(isDesktop ? 10 : 10.r),
+        border: Border.all(
+          color: colors.primary.withValues(alpha: 0.18),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Icon(
+            attachment.isBinary
+                ? Icons.inventory_2_outlined
+                : Icons.description_outlined,
+            size: isDesktop ? 14 : 14.sp,
+            color: colors.onSurfaceVariant,
+          ),
+          SizedBox(width: isDesktop ? 5 : 5.w),
+          ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: isDesktop ? 200 : 160.w),
+            child: Text(
+              attachment.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: isDesktop ? 11.5 : 11.5.sp,
+                color: colors.onSurface,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

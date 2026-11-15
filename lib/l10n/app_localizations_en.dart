@@ -515,20 +515,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatIssueNoConfig => 'Finish setting up an AI config first';
 
   @override
-  String get chatEmptyTitle => 'AI Device Assistant';
+  String get chatEmptyTitle => 'AISUPASS';
 
   @override
   String get chatEmptyHint =>
-      'Describe your device and I will inspect it before answering';
+      'Tell me what you need and I\'ll work out the best escalation path';
 
   @override
-  String get chatSuggestionDevice => 'Analyze my device';
+  String get chatSuggestionRom => 'Find the ROM package for my device';
 
   @override
-  String get chatSuggestionRoot => 'Is this device already rooted?';
+  String get chatSuggestionEscalation =>
+      'Analyze the escalation options for my device';
 
   @override
-  String get chatSuggestionPlan => 'How is the ADB status of this device?';
+  String get chatSuggestionSupport => 'Get technical support';
 
   @override
   String get chatSessions => 'Conversations';
@@ -728,6 +729,543 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatShareFailed => 'Share failed, please try again';
+
+  @override
+  String get chatPromptTitle => 'Prompt library';
+
+  @override
+  String get chatPromptLoading => 'Loading prompts…';
+
+  @override
+  String get chatPromptEmpty =>
+      'No prompts yet. Tap + in the top-right corner to add one';
+
+  @override
+  String get chatPromptAdd => 'New prompt';
+
+  @override
+  String get chatPromptEdit => 'Edit prompt';
+
+  @override
+  String get chatPromptInsert => 'Insert';
+
+  @override
+  String get chatPromptDelete => 'Delete prompt';
+
+  @override
+  String chatPromptDeleteConfirm(String title) {
+    return 'Delete \"$title\"?';
+  }
+
+  @override
+  String get chatPromptSaved => 'Prompt saved';
+
+  @override
+  String get chatPromptDeleted => 'Prompt deleted';
+
+  @override
+  String get chatPromptName => 'Title';
+
+  @override
+  String get chatPromptNameHint => 'e.g. Analyze the device';
+
+  @override
+  String get chatPromptContent => 'Content';
+
+  @override
+  String get chatPromptContentHint => 'Enter the prompt to send to the AI';
+
+  @override
+  String get chatPromptContentRequired => 'Prompt content cannot be empty';
+
+  @override
+  String get chatAttachTitle => 'Add attachment';
+
+  @override
+  String get chatAttachImage => 'Choose images';
+
+  @override
+  String get chatAttachText => 'Choose text files';
+
+  @override
+  String get chatAttachBinary => 'Choose firmware or archive';
+
+  @override
+  String chatAttachNoPath(String name) {
+    return 'Cannot resolve the local path of $name';
+  }
+
+  @override
+  String get chatAttachUnsupported => 'Unsupported file type';
+
+  @override
+  String chatAttachTooLarge(String name) {
+    return 'File is too large: $name';
+  }
+
+  @override
+  String get chatAttachFailed => 'Failed to add attachment';
+
+  @override
+  String chatAttachLimit(int count) {
+    return 'Up to $count attachments per message';
+  }
+
+  @override
+  String get chatManualTitle => 'AI capability manual';
+
+  @override
+  String get chatManualSubtitle =>
+      'Local capabilities and tools the assistant can call in a chat';
+
+  @override
+  String get chatManualConfirmHint =>
+      'Tools that change the device ask for your confirmation first; read-only tools run directly';
+
+  @override
+  String get chatToolDesc_get_device_info =>
+      'Read the model, OS version, kernel, patch level, baseband, ABI and SELinux state';
+
+  @override
+  String get chatToolDesc_get_root_status =>
+      'Check whether the current process already has ROOT privileges';
+
+  @override
+  String get chatToolDesc_get_adb_status =>
+      'Check whether the USB and wireless debugging switches are on';
+
+  @override
+  String get chatToolDesc_adb_shell_exec =>
+      'Run one command on the connected adb shell (uid 2000) and return exit code and output';
+
+  @override
+  String get chatToolDesc_adb_pairing_request =>
+      'Open the wireless debugging pairing panel and walk through adb pairing';
+
+  @override
+  String get chatToolDesc_web_search =>
+      'Search the public web with Bing and return titles, links and snippets';
+
+  @override
+  String get chatToolDesc_fetch_web_page =>
+      'Download the raw source of a page together with its status code and content type';
+
+  @override
+  String get chatToolDesc_open_in_browser =>
+      'Open a page in the in-app browser and hand back the URL or page source';
+
+  @override
+  String get chatToolDesc_escalation_get_device_identity =>
+      'Read the device and kernel identity required for escalation';
+
+  @override
+  String get chatToolDesc_escalation_list_payloads =>
+      'List the built-in escalation payloads';
+
+  @override
+  String get chatToolDesc_escalation_resolve_payload =>
+      'Match an escalation payload for this model and kernel';
+
+  @override
+  String get chatToolDesc_escalation_list_root_managers =>
+      'List the ROOT managers available on this device';
+
+  @override
+  String get chatToolDesc_escalation_get_selected_root_manager =>
+      'Read the currently selected ROOT manager';
+
+  @override
+  String get chatToolDesc_escalation_run_payload =>
+      'Run the given escalation payload';
+
+  @override
+  String get chatToolDesc_escalation_run_payload_by_id =>
+      'Run an escalation payload by its id';
+
+  @override
+  String get chatToolDesc_escalation_handoff_root =>
+      'Hand the acquired root over to the chosen manager';
+
+  @override
+  String get chatToolDesc_escalation_select_root_manager =>
+      'Choose the ROOT manager used for the next handoff';
+
+  @override
+  String get chatToolDesc_ghost_key_preflight =>
+      'GhostKey preflight: ADB, kernel, profile and native library readiness';
+
+  @override
+  String get chatToolDesc_ghost_key_get_run_defaults =>
+      'Read the GhostKey run defaults';
+
+  @override
+  String get chatToolDesc_ghost_key_save_run_defaults =>
+      'Save the GhostKey run defaults';
+
+  @override
+  String get chatToolDesc_ghost_key_start =>
+      'Start one GhostKey temporary root run';
+
+  @override
+  String get chatToolDesc_ghost_key_status =>
+      'Query the current GhostKey run status';
+
+  @override
+  String get chatToolDesc_ghost_key_cancel => 'Abort the running GhostKey flow';
+
+  @override
+  String get chatToolDesc_ghost_lock_preflight =>
+      'GhostLock preflight: ADB, uid, seccomp, kernel and profile matching';
+
+  @override
+  String get chatToolDesc_ghost_lock_start =>
+      'Start one GhostLock run and return a session id';
+
+  @override
+  String get chatToolDesc_ghost_lock_status =>
+      'Read the latest snapshot of a GhostLock run session';
+
+  @override
+  String get chatToolDesc_ghost_lock_cancel =>
+      'Stop reading the current GhostLock run without killing device processes';
+
+  @override
+  String get chatToolDesc_ghost_lock_list_imported_profiles =>
+      'List the imported GhostLock profiles';
+
+  @override
+  String get chatToolDesc_ghost_lock_list_builtin_releases =>
+      'List the built-in GhostLock releases';
+
+  @override
+  String get chatToolDesc_ghost_lock_read_imported_profile =>
+      'Read the details of one imported profile';
+
+  @override
+  String get chatToolDesc_ghost_lock_get_probe_progress =>
+      'Query the profile parsing progress';
+
+  @override
+  String get chatToolDesc_ghost_lock_list_extracted_images =>
+      'List the partitions extracted from an image package';
+
+  @override
+  String get chatToolDesc_ghost_lock_get_profile_config =>
+      'Read every field of the current profile';
+
+  @override
+  String get chatToolDesc_ghost_lock_get_active_source =>
+      'Read the currently effective profile source';
+
+  @override
+  String get chatToolDesc_ghost_lock_probe_profile =>
+      'Parse a kernel image and build a profile';
+
+  @override
+  String get chatToolDesc_ghost_lock_save_profile => 'Save the current profile';
+
+  @override
+  String get chatToolDesc_ghost_lock_import_profile_text =>
+      'Import profile text as a new profile';
+
+  @override
+  String get chatToolDesc_ghost_lock_rename_imported_profile =>
+      'Rename an imported profile';
+
+  @override
+  String get chatToolDesc_ghost_lock_remove_imported_profile =>
+      'Delete an imported profile';
+
+  @override
+  String get chatToolDesc_ghost_lock_export_imported_profile =>
+      'Export an imported profile as text';
+
+  @override
+  String get chatToolDesc_ghost_lock_convert_imported_profile =>
+      'Convert the format of a profile';
+
+  @override
+  String get chatToolDesc_ghost_lock_export_local_file =>
+      'Export a profile to a local file';
+
+  @override
+  String get chatToolDesc_ghost_lock_update_general_fields =>
+      'Edit the general fields of a profile';
+
+  @override
+  String get chatToolDesc_ghost_lock_update_advanced_fields =>
+      'Edit the advanced fields of a profile';
+
+  @override
+  String get chatToolDesc_ghost_lock_update_route =>
+      'Edit the route data of a profile';
+
+  @override
+  String get chatToolDesc_ghost_lock_update_fallback =>
+      'Edit the fallback entries of a profile';
+
+  @override
+  String get chatToolDesc_ghost_lock_reset_profile =>
+      'Reset the profile to its defaults';
+
+  @override
+  String get chatToolDesc_ghost_lock_select_source =>
+      'Choose the effective profile source';
+
+  @override
+  String get chatToolDesc_ghost_lock_render_profile =>
+      'Render a preview of the profile';
+
+  @override
+  String get chatToolDesc_ghost_lock_export_profile =>
+      'Export the current profile';
+
+  @override
+  String get chatToolDesc_ghost_lock_save_modified_profile =>
+      'Save the modified profile';
+
+  @override
+  String get chatToolDesc_ghost_lock_overwrite_profile =>
+      'Overwrite the existing profile';
+
+  @override
+  String get chatToolDesc_ghost_lock_begin_edit_session =>
+      'Begin a profile editing session';
+
+  @override
+  String get chatToolDesc_ghost_lock_reload_edit_session =>
+      'Reload the editing session';
+
+  @override
+  String get chatToolDesc_ghost_lock_get_edit_session =>
+      'Read the current draft of the editing session';
+
+  @override
+  String get chatToolDesc_ghost_lock_commit_edit_session =>
+      'Commit the changes in the editing session';
+
+  @override
+  String get chatToolDesc_ghost_lock_save_edit_session_in_place =>
+      'Save the editing session in place';
+
+  @override
+  String get chatToolDesc_ghost_lock_save_edit_session_as_new =>
+      'Save the editing session as a new profile';
+
+  @override
+  String get chatToolDesc_ghost_lock_export_edit_session =>
+      'Export the editing session content';
+
+  @override
+  String get chatToolDesc_ghost_lock_end_edit_session =>
+      'End the editing session';
+
+  @override
+  String get chatToolDesc_dirty_frag_is_armed =>
+      'Check whether DirtyFrag was already injected in this boot';
+
+  @override
+  String get chatToolDesc_dirty_frag_get_run_defaults =>
+      'Read the DirtyFrag run defaults';
+
+  @override
+  String get chatToolDesc_dirty_frag_get_expert_mode =>
+      'Check whether DirtyFrag expert mode is on';
+
+  @override
+  String get chatToolDesc_dirty_frag_get_boot_autostart =>
+      'Check whether DirtyFrag boot autostart is on';
+
+  @override
+  String get chatToolDesc_dirty_frag_get_vr_progress =>
+      'Query the VR offset derivation progress';
+
+  @override
+  String get chatToolDesc_dirty_frag_save_run_defaults =>
+      'Save the DirtyFrag run defaults';
+
+  @override
+  String get chatToolDesc_dirty_frag_set_expert_mode =>
+      'Toggle DirtyFrag expert mode';
+
+  @override
+  String get chatToolDesc_dirty_frag_set_boot_autostart =>
+      'Toggle DirtyFrag boot autostart';
+
+  @override
+  String get chatToolDesc_dirty_frag_start => 'Start a DirtyFrag escalation';
+
+  @override
+  String get chatToolDesc_dirty_frag_status =>
+      'Query the current DirtyFrag status';
+
+  @override
+  String get chatToolDesc_dirty_frag_cancel => 'Abort the DirtyFrag run';
+
+  @override
+  String get chatToolDesc_dirty_frag_derive_vr_offset =>
+      'Derive the VR offset from an image or OTA package';
+
+  @override
+  String get chatToolDesc_kernel_profile_list_imported =>
+      'List the imported kernel profiles';
+
+  @override
+  String get chatToolDesc_kernel_profile_list_builtin =>
+      'List the built-in kernel profiles';
+
+  @override
+  String get chatToolDesc_kernel_profile_read_content =>
+      'Read the full content of a kernel profile';
+
+  @override
+  String get chatToolDesc_kernel_profile_read_editor =>
+      'Read the current content of the kernel profile editor';
+
+  @override
+  String get chatToolDesc_kernel_profile_get_active_selection =>
+      'Read the currently effective kernel profile';
+
+  @override
+  String get chatToolDesc_kernel_profile_import_start =>
+      'Start importing and parsing a kernel image';
+
+  @override
+  String get chatToolDesc_kernel_profile_import_status =>
+      'Query the kernel import progress';
+
+  @override
+  String get chatToolDesc_kernel_profile_import_cancel =>
+      'Cancel the kernel import';
+
+  @override
+  String get chatToolDesc_kernel_profile_remove => 'Delete a kernel profile';
+
+  @override
+  String get chatToolDesc_kernel_profile_save_editor =>
+      'Save the editor content';
+
+  @override
+  String get chatToolDesc_kernel_profile_save_editor_as =>
+      'Save the editor content as a new profile';
+
+  @override
+  String get chatToolDesc_kernel_profile_render_editor =>
+      'Render a preview of the editor content';
+
+  @override
+  String get chatToolDesc_kernel_profile_select_user_profile =>
+      'Select the effective user profile';
+
+  @override
+  String get chatToolDesc_kernel_profile_select_builtin_release =>
+      'Select the effective built-in release';
+
+  @override
+  String get chatToolDesc_ota_list_catalog =>
+      'List the built-in OTA packages for a vendor';
+
+  @override
+  String get chatToolDesc_run_log_list_runs =>
+      'List historical run logs, newest first';
+
+  @override
+  String get chatToolDesc_run_log_read_body => 'Read the body of one run log';
+
+  @override
+  String get chatToolDesc_run_log_export_all => 'Export every run log';
+
+  @override
+  String get chatToolDesc_run_log_diagnose =>
+      'Diagnose a failed run log and report the cause';
+
+  @override
+  String get chatToolDesc_run_log_delete => 'Delete one run log';
+
+  @override
+  String get chatToolDesc_run_log_clear_all =>
+      'Clear every run log except the one being written';
+
+  @override
+  String get chatToolDesc_local_file_inspect =>
+      'Inspect an attachment inside the app process: size and header format, detecting payload, boot or zip containers';
+
+  @override
+  String get chatManualGroupDevice => 'Device & environment';
+
+  @override
+  String get chatManualGroupDeviceDesc =>
+      'Read the model, OS version, kernel, ROOT state and ADB switches';
+
+  @override
+  String get chatManualGroupAdb => 'ADB debugging';
+
+  @override
+  String get chatManualGroupAdbDesc =>
+      'Run adb shell commands and start wireless debugging pairing';
+
+  @override
+  String get chatManualGroupWeb => 'Network & browsing';
+
+  @override
+  String get chatManualGroupWebDesc =>
+      'Search the web, fetch page source, open pages in the in-app browser';
+
+  @override
+  String get chatManualGroupEscalation => 'Manual escalation';
+
+  @override
+  String get chatManualGroupEscalationDesc =>
+      'Match a kernel payload, escalate, and hand root off to a manager';
+
+  @override
+  String get chatManualGroupGhostKey => 'GhostKey escalation';
+
+  @override
+  String get chatManualGroupGhostKeyDesc =>
+      'Preflight and run the GhostKey temporary root flow';
+
+  @override
+  String get chatManualGroupGhostLock => 'GhostLock escalation';
+
+  @override
+  String get chatManualGroupGhostLockDesc =>
+      'Preflight and run the GhostLock escalation flow';
+
+  @override
+  String get chatManualGroupGhostLockProfile => 'GhostLock profiles';
+
+  @override
+  String get chatManualGroupGhostLockProfileDesc =>
+      'Read, edit, parse, import and export GhostLock profiles';
+
+  @override
+  String get chatManualGroupDirtyFrag => 'DirtyFrag escalation';
+
+  @override
+  String get chatManualGroupDirtyFragDesc =>
+      'Kernel exploit, VR disarm and offset derivation';
+
+  @override
+  String get chatManualGroupKernel => 'Kernel profiles';
+
+  @override
+  String get chatManualGroupKernelDesc =>
+      'Import and parse kernel images, manage profiles and pick the active one';
+
+  @override
+  String get chatManualGroupOta => 'OTA catalog';
+
+  @override
+  String get chatManualGroupOtaDesc =>
+      'Look up historical OTA entries as kernel image sources';
+
+  @override
+  String get chatManualGroupRunLog => 'Run logs';
+
+  @override
+  String get chatManualGroupRunLogDesc =>
+      'Read, diagnose, export and clear escalation run logs';
 
   @override
   String get aiQuickPanelTitle => 'AI Assistant';
@@ -2786,6 +3324,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsWechatTitle => 'WeChat Channel';
+
+  @override
+  String get settingsFeatureWishTitle => 'Feature Wish';
+
+  @override
+  String get settingsFeatureWishSubtitle =>
+      'Tip the author and wish for a new feature';
+
+  @override
+  String get featureWishDialogDesc =>
+      'Scan the code to tip the author, then submit your feature idea on GitHub.';
+
+  @override
+  String get featureWishIssueButton => 'Submit a Feature Issue';
+
+  @override
+  String get featureWishNetworkTip =>
+      'Please open it with a proper network environment';
 
   @override
   String get platformFacebook => 'Facebook';

@@ -2,6 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'package:Aisupass/features/chat/domain/enums/chat_notice.dart';
 import 'package:Aisupass/features/chat/domain/enums/chat_role.dart';
+import 'package:Aisupass/features/chat/domain/models/chat_attachment.dart';
 import 'package:Aisupass/features/chat/domain/models/chat_tool_call.dart';
 import 'package:Aisupass/features/chat/domain/models/chat_usage.dart';
 
@@ -22,6 +23,9 @@ abstract class ChatTurn with _$ChatTurn {
     required String error,
     required ChatNotice notice,
 
+    /// 用户消息附带的图片或文本文件，assistant 轮次恒为空。
+    @Default(<ChatAttachment>[]) List<ChatAttachment> attachments,
+
     /// 轮次创建时间；`0` 表示未记录。
     required DateTime createdAt,
 
@@ -36,7 +40,8 @@ abstract class ChatTurn with _$ChatTurn {
   bool get isUser => role == ChatRole.user;
 
   /// 是否包含可发送给模型的有效内容。
-  bool get hasPayload => text.trim().isNotEmpty || toolCalls.isNotEmpty;
+  bool get hasPayload =>
+      text.trim().isNotEmpty || toolCalls.isNotEmpty || attachments.isNotEmpty;
 
   /// 是否有失败原因。
   bool get hasError => error.isNotEmpty;

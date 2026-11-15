@@ -6,11 +6,13 @@ import 'package:Aisupass/features/ai/domain/models/ai_config.dart';
 import 'package:Aisupass/features/ai/presentation/providers/ai_config_query_provider.dart';
 import 'package:Aisupass/features/ai/presentation/widgets/ai_brand_icon.dart';
 import 'package:Aisupass/features/chat/domain/enums/chat_issue.dart';
+import 'package:Aisupass/features/chat/domain/models/chat_attachment.dart';
 import 'package:Aisupass/features/chat/domain/models/chat_turn.dart';
 import 'package:Aisupass/features/chat/presentation/controllers/chat_page_controller.dart';
 import 'package:Aisupass/features/chat/presentation/providers/chat_action_provider.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/chat_widgets/chat_empty_state.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/chat_widgets/chat_input_bar.dart';
+import 'package:Aisupass/features/chat/presentation/widgets/chat/chat_widgets/chat_manual_sheet.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/chat_widgets/chat_message.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/chat_widgets/chat_notice.dart';
 import 'package:Aisupass/features/chat/presentation/widgets/chat/chat_widgets/chat_scroll_button.dart';
@@ -63,8 +65,11 @@ class ChatPage extends HookConsumerWidget {
       ),
     );
 
-    void handleSend(String text) {
-      pageController.send(text);
+    void handleSend(
+      String text, {
+      List<ChatAttachment> attachments = const <ChatAttachment>[],
+    }) {
+      pageController.send(text, attachments: attachments);
       WidgetsBinding.instance.addPostFrameCallback(
         (_) => pageController.jumpToLatest(),
       );
@@ -181,7 +186,8 @@ class ChatPage extends HookConsumerWidget {
           ),
         ChatInputBar(
           streaming: state.streaming,
-          onSend: handleSend,
+          onSend: (String text, List<ChatAttachment> attachments) =>
+              handleSend(text, attachments: attachments),
           onStop: controller.stop,
         ),
       ],
@@ -213,6 +219,11 @@ class ChatPage extends HookConsumerWidget {
           ),
           title: Text(l10n.chatTitle),
           actions: <Widget>[
+            IconButton(
+              onPressed: () => showChatManualSheet(context),
+              icon: Icon(Icons.menu_book_outlined, size: 20.sp),
+              tooltip: l10n.chatManualTitle,
+            ),
             IconButton(
               onPressed: state.isEmpty
                   ? null
@@ -267,6 +278,11 @@ class ChatPage extends HookConsumerWidget {
                             fontWeight: FontWeight.w700,
                           ),
                         ),
+                      ),
+                      IconButton(
+                        onPressed: () => showChatManualSheet(context),
+                        icon: const Icon(Icons.menu_book_outlined, size: 21),
+                        tooltip: l10n.chatManualTitle,
                       ),
                       IconButton(
                         onPressed: state.isEmpty

@@ -14,6 +14,9 @@ class AppLinks {
   /// 仓库地址的展示文本，设置页副标题用。
   static const String repositoryDisplay = 'github.com/dugongzi/Aisupass';
 
+  /// 新建 Issue 页面地址，功能许愿入口用。
+  static const String newIssue = '$repository/issues/new';
+
   /// 设置页「官网」行的图标：应用自身图标（彩色，无模糊滤镜版本）。
   static const String appIconAsset = 'assets/images/branding/app_icon_flat.svg';
 

@@ -127,6 +127,22 @@ dev_dependencies:
   freezed: ^3.0.0
   json_serializable: ^6.8.0
 
+  # 应用图标生成（配置在下方 flutter_launcher_icons 段）
+  flutter_launcher_icons: ^0.14.4
+
+# 应用图标源图与自适应图标配置，改图标只改这里，勿手改 android/res。
+# 生成命令：flutter pub get && dart run flutter_launcher_icons
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/images/branding/app_icon_white.png"
+  min_sdk_android: 30
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/images/branding/app_icon_white_foreground.png"
+  # 前景源图已按 72dp 安全区留白，这里不再追加内边距。
+  adaptive_icon_foreground_inset: 0
+  adaptive_icon_monochrome: "assets/images/branding/app_icon_white_monochrome.png"
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

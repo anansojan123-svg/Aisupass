@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'package:Aisupass/features/chat/data/models/chat_attachment_dto.dart';
 import 'package:Aisupass/features/chat/data/models/chat_tool_call_dto.dart';
 import 'package:Aisupass/features/chat/domain/enums/chat_notice.dart';
 import 'package:Aisupass/features/chat/domain/enums/chat_role.dart';
@@ -22,6 +23,7 @@ abstract class ChatTurnDto with _$ChatTurnDto {
     @Default(<ChatToolCallDto>[]) List<ChatToolCallDto> toolCalls,
     @Default('') String error,
     @Default('') String notice,
+    @Default(<ChatAttachmentDto>[]) List<ChatAttachmentDto> attachments,
     @Default('') String createdAt,
     @Default(0) int durationMs,
     @Default(<String, dynamic>{}) Map<String, dynamic> usage,
@@ -40,6 +42,9 @@ abstract class ChatTurnDto with _$ChatTurnDto {
         .toList(growable: false),
     error: entity.error,
     notice: entity.notice.name,
+    attachments: entity.attachments
+        .map(ChatAttachmentDto.fromEntity)
+        .toList(growable: false),
     createdAt: entity.hasCreatedAt
         ? entity.createdAt.toIso8601String()
         : '',
@@ -63,6 +68,9 @@ abstract class ChatTurnDto with _$ChatTurnDto {
     streaming: false,
     error: error,
     notice: ChatNotice.fromName(notice),
+    attachments: attachments
+        .map((ChatAttachmentDto item) => item.toEntity())
+        .toList(growable: false),
     createdAt: DateTime.tryParse(createdAt) ??
         DateTime.fromMillisecondsSinceEpoch(0),
     duration: Duration(milliseconds: durationMs),

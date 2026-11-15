@@ -1,10 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:Aisupass/features/ai/data/datasources/ai_model_query_datasource.dart';
 import 'package:Aisupass/features/ai/data/models/ai_config_dto.dart';
 import 'package:Aisupass/features/ai/domain/enums/ai_api_type.dart';
+import 'package:Aisupass/features/chat/data/datasources/chat_attachment_store.dart';
+import 'package:Aisupass/features/chat/domain/constants/chat_system_prompt.dart';
 import 'package:Aisupass/features/chat/domain/enums/chat_tool_status.dart';
+import 'package:Aisupass/features/chat/domain/models/chat_attachment.dart';
 import 'package:Aisupass/features/chat/domain/models/chat_stream_event.dart';
 import 'package:Aisupass/features/chat/domain/models/chat_tool.dart';
 import 'package:Aisupass/features/chat/domain/models/chat_tool_call.dart';
@@ -59,6 +63,7 @@ class ChatActionDatasource {
       config: config,
       history: history,
       tools: tools,
+      payloads: await _loadPayloads(history),
     );
 
     final Response<ResponseBody> response;
@@ -174,11 +179,16 @@ class ChatActionDatasource {
     required AiConfigDto config,
     required List<ChatTurn> history,
     required List<ChatToolDefinition> tools,
+    required Map<String, _AttachmentPayload> payloads,
   }) {
     return switch (config.apiType) {
       AiApiType.openai => <String, dynamic>{
         'model': config.modelName,
-        'messages': _openAiMessages(history),
+        // 系统提示词必须排在最前，否则模型把自己当成普通聊天机器人。
+        'messages': <Map<String, dynamic>>[
+          <String, dynamic>{'role': 'system', 'content': chatSystemPrompt},
+          ..._openAiMessages(history, payloads),
+        ],
         if (config.maxToken > 0) 'max_tokens': config.maxToken,
         // temperature 未配置时是 -1，直接下发会被服务端判为非法值。
         if (config.temperature >= 0) 'temperature': config.temperature,
@@ -200,7 +210,8 @@ class ChatActionDatasource {
       },
       AiApiType.openaiResponses => <String, dynamic>{
         'model': config.modelName,
-        'input': _responsesInput(history),
+        'instructions': chatSystemPrompt,
+        'input': _responsesInput(history, payloads),
         if (config.maxToken > 0) 'max_output_tokens': config.maxToken,
         if (config.temperature >= 0) 'temperature': config.temperature,
         if (tools.isNotEmpty)
@@ -217,7 +228,8 @@ class ChatActionDatasource {
       },
       AiApiType.anthropic => <String, dynamic>{
         'model': config.modelName,
-        'messages': _anthropicMessages(history),
+        'system': chatSystemPrompt,
+        'messages': _anthropicMessages(history, payloads),
         'max_tokens': config.maxToken > 0
             ? config.maxToken
             : _defaultAnthropicMaxTokens,
@@ -238,13 +250,28 @@ class ChatActionDatasource {
 
   /// OpenAI Chat Completions 的消息序列：工具结果作为独立的 `tool` 消息，
   /// 紧跟在其所属的 assistant 消息之后。
-  List<Map<String, dynamic>> _openAiMessages(List<ChatTurn> history) {
+  List<Map<String, dynamic>> _openAiMessages(
+    List<ChatTurn> history,
+    Map<String, _AttachmentPayload> payloads,
+  ) {
     final List<Map<String, dynamic>> messages = <Map<String, dynamic>>[];
     for (final ChatTurn turn in history) {
       final String text = turn.text.trim();
       if (turn.isUser) {
-        if (text.isEmpty) continue;
-        messages.add(<String, dynamic>{'role': 'user', 'content': text});
+        if (text.isEmpty && turn.attachments.isEmpty) continue;
+        if (turn.attachments.isEmpty) {
+          messages.add(<String, dynamic>{'role': 'user', 'content': text});
+          continue;
+        }
+        final List<Map<String, dynamic>> content =
+            <Map<String, dynamic>>[
+              if (text.isNotEmpty)
+                <String, dynamic>{'type': 'text', 'text': text},
+              for (final ChatAttachment attachment in turn.attachments)
+                ?_openAiAttachmentBlock(attachment, payloads[attachment.id]),
+            ];
+        if (content.isEmpty) continue;
+        messages.add(<String, dynamic>{'role': 'user', 'content': content});
         continue;
       }
 
@@ -278,16 +305,25 @@ class ChatActionDatasource {
   }
 
   /// Responses 协议的输入项数组：正文用 message 项，工具调用与结果各自成项。
-  List<Map<String, dynamic>> _responsesInput(List<ChatTurn> history) {
+  List<Map<String, dynamic>> _responsesInput(
+    List<ChatTurn> history,
+    Map<String, _AttachmentPayload> payloads,
+  ) {
     final List<Map<String, dynamic>> input = <Map<String, dynamic>>[];
     for (final ChatTurn turn in history) {
       final String text = turn.text.trim();
       if (turn.isUser) {
-        if (text.isEmpty) continue;
+        if (text.isEmpty && turn.attachments.isEmpty) continue;
         input.add(<String, dynamic>{
           'role': 'user',
-          'content': <Map<String, String>>[
-            <String, String>{'type': 'input_text', 'text': text},
+          'content': <Map<String, dynamic>>[
+            if (text.isNotEmpty)
+              <String, dynamic>{'type': 'input_text', 'text': text},
+            for (final ChatAttachment attachment in turn.attachments)
+              ?_responsesAttachmentBlock(
+                attachment,
+                payloads[attachment.id],
+              ),
           ],
         });
         continue;
@@ -320,7 +356,10 @@ class ChatActionDatasource {
 
   /// Anthropic 的消息序列：工具结果必须放在紧随 assistant 的 user 消息里，
   /// 因此相邻的 user 内容块要合并成一条消息。
-  List<Map<String, dynamic>> _anthropicMessages(List<ChatTurn> history) {
+  List<Map<String, dynamic>> _anthropicMessages(
+    List<ChatTurn> history,
+    Map<String, _AttachmentPayload> payloads,
+  ) {
     final List<Map<String, dynamic>> messages = <Map<String, dynamic>>[];
 
     void addBlocks(String role, List<Map<String, dynamic>> blocks) {
@@ -337,9 +376,15 @@ class ChatActionDatasource {
     for (final ChatTurn turn in history) {
       final String text = turn.text.trim();
       if (turn.isUser) {
-        if (text.isEmpty) continue;
+        if (text.isEmpty && turn.attachments.isEmpty) continue;
         addBlocks('user', <Map<String, dynamic>>[
-          <String, dynamic>{'type': 'text', 'text': text},
+          if (text.isNotEmpty)
+            <String, dynamic>{'type': 'text', 'text': text},
+          for (final ChatAttachment attachment in turn.attachments)
+            ?_anthropicAttachmentBlock(
+              attachment,
+              payloads[attachment.id],
+            ),
         ]);
         continue;
       }
@@ -377,6 +422,146 @@ class ChatActionDatasource {
     }
     final String result = call.result.trim();
     return result.isEmpty ? '(empty result)' : result;
+  }
+
+  /// 读取用户轮次里附件的实际内容：图片转 base64，文本读成 UTF-8，
+  /// 镜像与压缩包只生成路径说明。
+  ///
+  /// 文件在发送前被删除或超过上限时直接跳过，不影响其余内容发出。
+  Future<Map<String, _AttachmentPayload>> _loadPayloads(
+    List<ChatTurn> history,
+  ) async {
+    final Map<String, _AttachmentPayload> payloads =
+        <String, _AttachmentPayload>{};
+    for (final ChatTurn turn in history) {
+      if (!turn.isUser) continue;
+      for (final ChatAttachment attachment in turn.attachments) {
+        if (payloads.containsKey(attachment.id)) continue;
+        // 只传路径的附件不读盘，路径可能指向外部存储里的大文件。
+        if (attachment.isBinary) {
+          payloads[attachment.id] = _AttachmentPayload(
+            reference: _attachmentReference(attachment),
+          );
+          continue;
+        }
+        final File file = File(attachment.path);
+        if (!await file.exists()) continue;
+        final int length = await file.length();
+        if (length <= 0) continue;
+        if (attachment.isImage) {
+          if (length > maxChatImageBytes) continue;
+          payloads[attachment.id] = _AttachmentPayload(
+            base64: base64Encode(await file.readAsBytes()),
+          );
+        } else {
+          if (length > maxChatTextBytes) continue;
+          payloads[attachment.id] = _AttachmentPayload(
+            text: utf8.decode(
+              await file.readAsBytes(),
+              allowMalformed: true,
+            ),
+          );
+        }
+      }
+    }
+    return payloads;
+  }
+
+  Map<String, dynamic>? _openAiAttachmentBlock(
+    ChatAttachment attachment,
+    _AttachmentPayload? payload,
+  ) {
+    if (payload == null) return null;
+    if (attachment.isImage && payload.base64 != null) {
+      return <String, dynamic>{
+        'type': 'image_url',
+        'image_url': <String, dynamic>{
+          'url': _dataUrl(attachment, payload.base64!),
+        },
+      };
+    }
+    final String? text = _blockText(attachment, payload);
+    return text == null
+        ? null
+        : <String, dynamic>{'type': 'text', 'text': text};
+  }
+
+  Map<String, dynamic>? _responsesAttachmentBlock(
+    ChatAttachment attachment,
+    _AttachmentPayload? payload,
+  ) {
+    if (payload == null) return null;
+    if (attachment.isImage && payload.base64 != null) {
+      return <String, dynamic>{
+        'type': 'input_image',
+        'image_url': _dataUrl(attachment, payload.base64!),
+      };
+    }
+    final String? text = _blockText(attachment, payload);
+    return text == null
+        ? null
+        : <String, dynamic>{'type': 'input_text', 'text': text};
+  }
+
+  Map<String, dynamic>? _anthropicAttachmentBlock(
+    ChatAttachment attachment,
+    _AttachmentPayload? payload,
+  ) {
+    if (payload == null) return null;
+    if (attachment.isImage && payload.base64 != null) {
+      return <String, dynamic>{
+        'type': 'image',
+        'source': <String, dynamic>{
+          'type': 'base64',
+          'media_type': attachment.mimeType,
+          'data': payload.base64,
+        },
+      };
+    }
+    final String? text = _blockText(attachment, payload);
+    return text == null
+        ? null
+        : <String, dynamic>{'type': 'text', 'text': text};
+  }
+
+  /// 非图片附件的文本块内容：路径引用直接返回，文本文件加围栏。
+  String? _blockText(ChatAttachment attachment, _AttachmentPayload payload) {
+    final String? reference = payload.reference;
+    if (reference != null) return reference;
+    final String? text = payload.text;
+    return text == null ? null : _attachmentText(attachment, text);
+  }
+
+  String _dataUrl(ChatAttachment attachment, String base64) =>
+      'data:${attachment.mimeType};base64,$base64';
+
+  /// 文本附件统一用围栏包起来，让模型能区分文件和正文。
+  String _attachmentText(ChatAttachment attachment, String content) =>
+      '文件 ${attachment.name}：\n```\n$content\n```';
+
+  /// 镜像与压缩包只给路径，并说明沙箱限制与对应解析工具。
+  ///
+  /// 这些文件位于应用私有目录，adb shell（uid 2000）无权读取，
+  /// 必须交给应用内的流式解析工具处理。
+  String _attachmentReference(ChatAttachment attachment) =>
+      '本地文件 ${attachment.name}（路径：${attachment.path}，'
+      '${_formatSize(attachment.size)}）。'
+      '该路径在应用沙箱内，adb shell（uid 2000）没有读取权限，'
+      '不要用 adb_shell_exec 探测它。'
+      '先用 local_file_inspect 确认容器格式，'
+      'payload.bin 或 OTA 压缩包用 ghost_lock_probe_profile 流式切分，'
+      '单个 boot.img 才用 kernel_profile_import_start（上限 512 MiB）。';
+
+  String _formatSize(int bytes) {
+    if (bytes <= 0) return '大小未知';
+    if (bytes >= 1 << 30) {
+      return '${(bytes / (1 << 30)).toStringAsFixed(2)} GB';
+    }
+    if (bytes >= 1 << 20) {
+      return '${(bytes / (1 << 20)).toStringAsFixed(1)} MB';
+    }
+    if (bytes >= 1 << 10) return '${(bytes / (1 << 10)).toStringAsFixed(1)} KB';
+    return '$bytes B';
   }
 
   /// 参数 JSON 必须是合法对象，空串或非法内容统一退化成 `{}`。
@@ -660,6 +845,15 @@ class ChatActionDatasource {
     'Accept-Encoding': 'identity',
     ..._headers(config),
   };
+}
+
+/// 已读取的附件内容：图片带 base64，文本带正文，路径引用带说明文本。
+class _AttachmentPayload {
+  const _AttachmentPayload({this.base64, this.text, this.reference});
+
+  final String? base64;
+  final String? text;
+  final String? reference;
 }
 
 /// 一个 SSE 事件：`data` 已按行拼好，其余为可选元字段。
