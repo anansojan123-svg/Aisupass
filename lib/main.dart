@@ -5,11 +5,15 @@ import 'package:Aisupass/core/routes/app_router.dart';
 import 'package:Aisupass/core/themes/app_theme.dart';
 import 'package:Aisupass/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // `.env` 缺失时按未配置处理，不阻断启动。
+  await dotenv.load(isOptional: true);
   runApp(const ProviderScope(child: AiSuPassApp()));
 }
 

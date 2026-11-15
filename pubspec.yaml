@@ -73,6 +73,9 @@ dependencies:
   uuid: ^4.5.0
   permission_handler: ^11.3.0
 
+  # 环境变量（更新链接等公开配置，见根目录 .env.example）
+  flutter_dotenv: ^5.2.1
+
   # 设备信息（系统版本、机型、ABI 等）
   device_info_plus: ^12.3.0
   package_info_plus: ^9.0.0
@@ -139,6 +142,8 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    # 更新链接等公开配置；缺此文件会导致构建失败，首次 clone 后由 .env.example 复制。
+    - .env
     - assets/images/ai_icons/
     # 终端按键栏用的界面图标（三点菜单等）。
     - assets/images/icons/
