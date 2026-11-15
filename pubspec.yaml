@@ -144,6 +144,8 @@ flutter:
   assets:
     # 更新链接等公开配置；缺此文件会导致构建失败，首次 clone 后由 .env.example 复制。
     - .env
+    # 设置页「关注作者」使用的平台图标与公众号二维码。
+    - assets/images/
     - assets/images/ai_icons/
     # 终端按键栏用的界面图标（三点菜单等）。
     - assets/images/icons/

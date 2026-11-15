@@ -387,7 +387,7 @@ final class ChatControllerProvider
   }
 }
 
-String _$chatControllerHash() => r'2cf335412155e1280d989a2f4cbaeaec5a0c6f61';
+String _$chatControllerHash() => r'085726ebfcef31102fde22776fe771439a58728b';
 
 /// 对话控制器。
 ///

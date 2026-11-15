@@ -4,6 +4,8 @@ import 'package:Aisupass/common/widgets/app_setting_icon.dart';
 import 'package:Aisupass/core/constants/app_links.dart';
 import 'package:Aisupass/core/extensions/context_extensions.dart';
 import 'package:Aisupass/core/routes/app_route.dart';
+import 'package:Aisupass/core/utils/app_version.dart';
+import 'package:Aisupass/features/update/presentation/widgets/update_check_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -11,7 +13,7 @@ import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-/// 设置页「关于」分组：版本号、官网、开源地址、开源协议、第三方声明。
+/// 设置页「关于」分组：版本号、检查更新、官网、开源地址、开源协议、第三方声明。
 class AboutSettingSection extends HookWidget {
   const AboutSettingSection({super.key});
 
@@ -19,7 +21,7 @@ class AboutSettingSection extends HookWidget {
   Widget build(BuildContext context) {
     // 版本号只取一次，避免每帧走平台通道。
     final PackageInfo? info = useFuture(
-      useMemoized(PackageInfo.fromPlatform),
+      useMemoized(AppVersion.load),
     ).data;
 
     return Column(
@@ -28,8 +30,10 @@ class AboutSettingSection extends HookWidget {
         _AboutRow(
           icon: Icons.info_outline_rounded,
           title: context.l10n.settingsAboutVersionTitle,
-          value: info == null ? null : '${info.version}+${info.buildNumber}',
+          value: info == null ? null : AppVersion.display(info),
         ),
+        const _AboutDivider(),
+        const UpdateCheckRow(),
         const _AboutDivider(),
         _AboutRow(
           svgAsset: AppLinks.appIconAsset,

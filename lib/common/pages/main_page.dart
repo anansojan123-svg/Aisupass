@@ -6,6 +6,7 @@ import 'package:Aisupass/common/widgets/app_ai_quick_panel.dart';
 import 'package:Aisupass/common/widgets/app_bottom_bar.dart';
 import 'package:Aisupass/common/widgets/app_bottom_center_ball.dart';
 import 'package:Aisupass/common/widgets/app_root_manager_pill.dart';
+import 'package:Aisupass/common/widgets/app_startup_check.dart';
 import 'package:Aisupass/core/extensions/context_extensions.dart';
 import 'package:Aisupass/core/routes/app_route.dart';
 import 'package:Aisupass/features/ai/presentation/providers/ai_config_query_provider.dart';
@@ -117,6 +118,8 @@ class MainPage extends HookConsumerWidget {
             context.push(AppRoute.manualEscalation);
           },
         ),
+        // 启动编排：先公告，后检查更新。
+        const AppStartupCheck(),
       ],
     );
   }

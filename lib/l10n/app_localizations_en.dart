@@ -34,6 +34,53 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAboutWebsiteTitle => 'Website';
 
   @override
+  String get updateCheckTitle => 'Check for Updates';
+
+  @override
+  String updateCurrentVersion(String version, String buildNumber) {
+    return 'Current version $version ($buildNumber)';
+  }
+
+  @override
+  String get updateAvailableTitle => 'New Version Available';
+
+  @override
+  String updateAvailableVersion(String version) {
+    return 'Version $version';
+  }
+
+  @override
+  String get updateNotesTitle => 'What\'s New';
+
+  @override
+  String get updateNotesFallback => 'No release notes';
+
+  @override
+  String get updateNow => 'Update Now';
+
+  @override
+  String get updateLater => 'Later';
+
+  @override
+  String get updateLatest => 'You\'re up to date';
+
+  @override
+  String get updateCheckFailed =>
+      'Failed to check for updates. Try again later.';
+
+  @override
+  String get updateNotConfigured => 'Update endpoint not configured';
+
+  @override
+  String get announcementTitle => 'Latest Notice';
+
+  @override
+  String get announcementClose => 'Got it';
+
+  @override
+  String get announcementTutorial => 'Get Tutorial';
+
+  @override
   String get settingsAboutRepoTitle => 'Repository';
 
   @override
@@ -2714,4 +2761,44 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get ghostKeyDiagFallbackGenericSuggestion2 =>
       'After repeated failures, reboot and retry; if it still fails, save the run log for investigation';
+
+  @override
+  String get settingsFollowAuthorSection => 'Follow the Author';
+
+  @override
+  String get settingsCreatorPlatformsTitle => 'Creator Platforms';
+
+  @override
+  String get settingsTutorialTitle => 'Tutorials';
+
+  @override
+  String get settingsTutorialSubtitle => 'Watch tutorials on creator platforms';
+
+  @override
+  String get settingsCommunityGroupTitle => 'Community Group';
+
+  @override
+  String get settingsCommunityGroupSubtitle => 'Join the group for help';
+
+  @override
+  String get settingsCreatorPlatformsIntro =>
+      'Choose a platform to keep up with the latest creator updates.';
+
+  @override
+  String get settingsWechatTitle => 'WeChat Channel';
+
+  @override
+  String get platformFacebook => 'Facebook';
+
+  @override
+  String get platformTiktok => 'TikTok';
+
+  @override
+  String get platformDouyin => 'Douyin';
+
+  @override
+  String get platformBilibili => 'Bilibili';
+
+  @override
+  String get platformYoutube => 'YouTube';
 }

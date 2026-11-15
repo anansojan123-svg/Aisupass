@@ -34,6 +34,52 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsAboutWebsiteTitle => '官网';
 
   @override
+  String get updateCheckTitle => '检查更新';
+
+  @override
+  String updateCurrentVersion(String version, String buildNumber) {
+    return '当前版本 $version（$buildNumber）';
+  }
+
+  @override
+  String get updateAvailableTitle => '发现新版本';
+
+  @override
+  String updateAvailableVersion(String version) {
+    return '新版本 $version';
+  }
+
+  @override
+  String get updateNotesTitle => '更新内容';
+
+  @override
+  String get updateNotesFallback => '暂无更新说明';
+
+  @override
+  String get updateNow => '立即更新';
+
+  @override
+  String get updateLater => '稍后再说';
+
+  @override
+  String get updateLatest => '已是最新版本';
+
+  @override
+  String get updateCheckFailed => '检查更新失败，请稍后重试';
+
+  @override
+  String get updateNotConfigured => '未配置更新接口';
+
+  @override
+  String get announcementTitle => '最新公告';
+
+  @override
+  String get announcementClose => '知道了';
+
+  @override
+  String get announcementTutorial => '获取教程';
+
+  @override
   String get settingsAboutRepoTitle => '开源地址';
 
   @override
@@ -2587,4 +2633,43 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get ghostKeyDiagFallbackGenericSuggestion2 =>
       '连续失败请重启设备后再试；仍失败请保存运行日志以便排查';
+
+  @override
+  String get settingsFollowAuthorSection => '关注作者';
+
+  @override
+  String get settingsCreatorPlatformsTitle => '作者平台';
+
+  @override
+  String get settingsTutorialTitle => '使用教程';
+
+  @override
+  String get settingsTutorialSubtitle => '在作者各平台查看教程视频';
+
+  @override
+  String get settingsCommunityGroupTitle => '交流群';
+
+  @override
+  String get settingsCommunityGroupSubtitle => '加入交流群获取帮助';
+
+  @override
+  String get settingsCreatorPlatformsIntro => '选择一个平台，继续关注作者的最新内容与动态。';
+
+  @override
+  String get settingsWechatTitle => '微信公众号';
+
+  @override
+  String get platformFacebook => 'Facebook';
+
+  @override
+  String get platformTiktok => 'TikTok';
+
+  @override
+  String get platformDouyin => '抖音';
+
+  @override
+  String get platformBilibili => '哔哩哔哩';
+
+  @override
+  String get platformYoutube => 'YouTube';
 }

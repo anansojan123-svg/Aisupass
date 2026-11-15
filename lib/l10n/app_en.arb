@@ -8,6 +8,37 @@
   "settingsAboutSection": "About",
   "settingsAboutVersionTitle": "Version",
   "settingsAboutWebsiteTitle": "Website",
+  "updateCheckTitle": "Check for Updates",
+  "updateCurrentVersion": "Current version {version} ({buildNumber})",
+  "@updateCurrentVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "buildNumber": {
+        "type": "String"
+      }
+    }
+  },
+  "updateAvailableTitle": "New Version Available",
+  "updateAvailableVersion": "Version {version}",
+  "@updateAvailableVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "updateNotesTitle": "What's New",
+  "updateNotesFallback": "No release notes",
+  "updateNow": "Update Now",
+  "updateLater": "Later",
+  "updateLatest": "You're up to date",
+  "updateCheckFailed": "Failed to check for updates. Try again later.",
+  "updateNotConfigured": "Update endpoint not configured",
+  "announcementTitle": "Latest Notice",
+  "announcementClose": "Got it",
+  "announcementTutorial": "Get Tutorial",
   "settingsAboutRepoTitle": "Repository",
   "settingsAboutLicenseTitle": "License",
   "settingsAboutLicenseSubtitle": "GNU General Public License v3.0",
@@ -1303,5 +1334,18 @@
   "ghostKeyDiagFallbackGenericTitle": "Pipeline terminated (exit={exit}): no known failure pattern matched",
   "ghostKeyDiagFallbackGenericCause1": "The timing-sensitive race window was missed, or the environment failed temporarily",
   "ghostKeyDiagFallbackGenericSuggestion1": "Do not just retry: copy and save the full contents of the Run Log page to help locate kernel compatibility issues",
-  "ghostKeyDiagFallbackGenericSuggestion2": "After repeated failures, reboot and retry; if it still fails, save the run log for investigation"
+  "ghostKeyDiagFallbackGenericSuggestion2": "After repeated failures, reboot and retry; if it still fails, save the run log for investigation",
+  "settingsFollowAuthorSection": "Follow the Author",
+  "settingsCreatorPlatformsTitle": "Creator Platforms",
+  "settingsTutorialTitle": "Tutorials",
+  "settingsTutorialSubtitle": "Watch tutorials on creator platforms",
+  "settingsCommunityGroupTitle": "Community Group",
+  "settingsCommunityGroupSubtitle": "Join the group for help",
+  "settingsCreatorPlatformsIntro": "Choose a platform to keep up with the latest creator updates.",
+  "settingsWechatTitle": "WeChat Channel",
+  "platformFacebook": "Facebook",
+  "platformTiktok": "TikTok",
+  "platformDouyin": "Douyin",
+  "platformBilibili": "Bilibili",
+  "platformYoutube": "YouTube"
 }

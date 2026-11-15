@@ -146,6 +146,90 @@ abstract class AppLocalizations {
   /// **'官网'**
   String get settingsAboutWebsiteTitle;
 
+  /// 设置页关于分组-检查更新入口
+  ///
+  /// In zh, this message translates to:
+  /// **'检查更新'**
+  String get updateCheckTitle;
+
+  /// 检查更新入口副标题
+  ///
+  /// In zh, this message translates to:
+  /// **'当前版本 {version}（{buildNumber}）'**
+  String updateCurrentVersion(String version, String buildNumber);
+
+  /// 更新弹窗标题
+  ///
+  /// In zh, this message translates to:
+  /// **'发现新版本'**
+  String get updateAvailableTitle;
+
+  /// 更新弹窗里展示的远端版本号
+  ///
+  /// In zh, this message translates to:
+  /// **'新版本 {version}'**
+  String updateAvailableVersion(String version);
+
+  /// 更新弹窗里更新说明的小标题
+  ///
+  /// In zh, this message translates to:
+  /// **'更新内容'**
+  String get updateNotesTitle;
+
+  /// 接口未提供更新说明时的占位文本
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无更新说明'**
+  String get updateNotesFallback;
+
+  /// 更新弹窗的主按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'立即更新'**
+  String get updateNow;
+
+  /// 更新弹窗的次按钮；强制更新时不显示
+  ///
+  /// In zh, this message translates to:
+  /// **'稍后再说'**
+  String get updateLater;
+
+  /// 手动检查更新且无新版本时的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'已是最新版本'**
+  String get updateLatest;
+
+  /// 检查更新失败的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'检查更新失败，请稍后重试'**
+  String get updateCheckFailed;
+
+  /// 更新接口地址为空时的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'未配置更新接口'**
+  String get updateNotConfigured;
+
+  /// 启动公告弹层的标题
+  ///
+  /// In zh, this message translates to:
+  /// **'最新公告'**
+  String get announcementTitle;
+
+  /// 关闭公告弹层的按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'知道了'**
+  String get announcementClose;
+
+  /// 公告弹层中跳转交流群的按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'获取教程'**
+  String get announcementTutorial;
+
   /// 设置页关于分组-源码仓库入口
   ///
   /// In zh, this message translates to:
@@ -4747,6 +4831,84 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'连续失败请重启设备后再试；仍失败请保存运行日志以便排查'**
   String get ghostKeyDiagFallbackGenericSuggestion2;
+
+  /// 设置页分组标题-关注作者
+  ///
+  /// In zh, this message translates to:
+  /// **'关注作者'**
+  String get settingsFollowAuthorSection;
+
+  /// 设置页关注作者分组-作者各大平台入口
+  ///
+  /// In zh, this message translates to:
+  /// **'作者平台'**
+  String get settingsCreatorPlatformsTitle;
+
+  /// 设置页关注作者分组-使用教程入口
+  ///
+  /// In zh, this message translates to:
+  /// **'使用教程'**
+  String get settingsTutorialTitle;
+
+  /// 设置页关注作者分组-使用教程副标题
+  ///
+  /// In zh, this message translates to:
+  /// **'在作者各平台查看教程视频'**
+  String get settingsTutorialSubtitle;
+
+  /// 设置页关注作者分组-交流群入口
+  ///
+  /// In zh, this message translates to:
+  /// **'交流群'**
+  String get settingsCommunityGroupTitle;
+
+  /// 设置页关注作者分组-交流群副标题
+  ///
+  /// In zh, this message translates to:
+  /// **'加入交流群获取帮助'**
+  String get settingsCommunityGroupSubtitle;
+
+  /// 作者平台弹窗的说明文字
+  ///
+  /// In zh, this message translates to:
+  /// **'选择一个平台，继续关注作者的最新内容与动态。'**
+  String get settingsCreatorPlatformsIntro;
+
+  /// 设置页关注作者分组-微信公众号入口
+  ///
+  /// In zh, this message translates to:
+  /// **'微信公众号'**
+  String get settingsWechatTitle;
+
+  /// 作者平台名称-Facebook
+  ///
+  /// In zh, this message translates to:
+  /// **'Facebook'**
+  String get platformFacebook;
+
+  /// 作者平台名称-TikTok
+  ///
+  /// In zh, this message translates to:
+  /// **'TikTok'**
+  String get platformTiktok;
+
+  /// 作者平台名称-抖音
+  ///
+  /// In zh, this message translates to:
+  /// **'抖音'**
+  String get platformDouyin;
+
+  /// 作者平台名称-哔哩哔哩
+  ///
+  /// In zh, this message translates to:
+  /// **'哔哩哔哩'**
+  String get platformBilibili;
+
+  /// 作者平台名称-YouTube
+  ///
+  /// In zh, this message translates to:
+  /// **'YouTube'**
+  String get platformYoutube;
 }
 
 class _AppLocalizationsDelegate

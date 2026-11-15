@@ -1,4 +1,5 @@
 import 'package:Aisupass/common/tabs/setting/about_setting_section.dart';
+import 'package:Aisupass/common/tabs/setting/follow_author_setting_section.dart';
 import 'package:Aisupass/common/widgets/app_language_switch.dart';
 import 'package:Aisupass/common/widgets/app_settings_section.dart';
 import 'package:Aisupass/common/widgets/app_theme_color_picker.dart';
@@ -33,6 +34,11 @@ class SettingTab extends HookWidget {
         AppSettingsSection(
           title: context.l10n.settingsGeneralSection,
           children: const <Widget>[AppLanguageSwitch()],
+        ),
+        SizedBox(height: 20.h),
+        AppSettingsSection(
+          title: context.l10n.settingsFollowAuthorSection,
+          children: const <Widget>[FollowAuthorSettingSection()],
         ),
         SizedBox(height: 20.h),
         AppSettingsSection(

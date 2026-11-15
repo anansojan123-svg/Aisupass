@@ -1,6 +1,7 @@
 import 'package:Aisupass/common/tabs/home/pc_home_tab.dart';
 import 'package:Aisupass/common/tabs/setting/pc_setting_tab.dart';
 import 'package:Aisupass/common/widgets/app_desktop_sidebar.dart';
+import 'package:Aisupass/common/widgets/app_startup_check.dart';
 import 'package:Aisupass/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -31,36 +32,45 @@ class DesktopPage extends HookWidget {
     ];
 
     return Scaffold(
-      body: Row(
+      body: Stack(
         children: <Widget>[
-          AppDesktopSidebar(
-            items: navItems,
-            currentIndex: currentIndex.value,
-            onSelected: (int index) => currentIndex.value = index,
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(28, 26, 28, 14),
-                  child: Text(
-                    navItems[currentIndex.value].label,
-                    style: context.textTheme.titleLarge?.copyWith(
-                      fontSize: 21,
-                      fontWeight: FontWeight.w700,
+          Row(
+            children: <Widget>[
+              AppDesktopSidebar(
+                items: navItems,
+                currentIndex: currentIndex.value,
+                onSelected: (int index) => currentIndex.value = index,
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(28, 26, 28, 14),
+                      child: Text(
+                        navItems[currentIndex.value].label,
+                        style: context.textTheme.titleLarge?.copyWith(
+                          fontSize: 21,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
-                  ),
+                    Expanded(
+                      child: IndexedStack(
+                        index: currentIndex.value,
+                        children: const <Widget>[
+                          PcHomeTab(),
+                          PcSettingTab(),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                Expanded(
-                  child: IndexedStack(
-                    index: currentIndex.value,
-                    children: const <Widget>[PcHomeTab(), PcSettingTab()],
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
+          // 启动编排：先公告，后检查更新。
+          const AppStartupCheck(),
         ],
       ),
     );
