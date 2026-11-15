@@ -191,6 +191,8 @@ abstract class AdbShellNative {
   /// 发起配对。
   ///
   /// 三个参数全为空 = 通知栏模式：配对码在通知里输入，地址与端口由 mDNS 发现。
+  /// 只给 [code]（[host] 为空、[port] 为 0）= 卡片模式：配对码来自应用内输入框，
+  /// 地址与端口仍由 mDNS 发现。用于通知栏弹不出输入框的 ROM（如 MIUI/HyperOS）。
   @async
   PairingStartResult startPairing(String host, int port, String code);
 

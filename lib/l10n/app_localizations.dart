@@ -3908,6 +3908,54 @@ abstract class AppLocalizations {
   /// **'重试'**
   String get shellPairingRetry;
 
+  /// 设置项-无线调试配对码输入位置标题
+  ///
+  /// In zh, this message translates to:
+  /// **'配对码输入位置'**
+  String get settingsShellPairingModeTitle;
+
+  /// 设置项-无线调试配对码输入位置说明
+  ///
+  /// In zh, this message translates to:
+  /// **'通知栏弹不出输入框的机型（如小米）可改为小窗/分屏后，在卡片里输入配对码'**
+  String get settingsShellPairingModeDesc;
+
+  /// 配对码输入位置-通知栏
+  ///
+  /// In zh, this message translates to:
+  /// **'通知栏'**
+  String get shellPairingModeNotification;
+
+  /// 配对码输入位置-小窗/分屏后在卡片内输入
+  ///
+  /// In zh, this message translates to:
+  /// **'小窗输入'**
+  String get shellPairingModeCard;
+
+  /// 卡片内配对码输入框的占位提示
+  ///
+  /// In zh, this message translates to:
+  /// **'六位配对码'**
+  String get shellPairingCodeHint;
+
+  /// 卡片内配对码提交按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'配对'**
+  String get shellPairingCodeSubmit;
+
+  /// 卡片输入模式的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'先在系统里点「使用配对码配对设备」，再把六位码填到这里；建议分屏或小窗，切走应用会让码失效'**
+  String get shellPairingCardHint;
+
+  /// 卡片输入模式-跳转系统无线调试页的入口
+  ///
+  /// In zh, this message translates to:
+  /// **'打开无线调试设置'**
+  String get shellPairingOpenDebugSettings;
+
   /// 首页 ADB 卡片-shell 已连接但没有 uid 时的状态
   ///
   /// In zh, this message translates to:
@@ -3949,6 +3997,12 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'连接已断开'**
   String get shellReasonHostDisconnected;
+
+  /// 原因码-pairingEndpointNotFound
+  ///
+  /// In zh, this message translates to:
+  /// **'没找到配对服务：请先在系统里打开「使用配对码配对设备」弹窗，再重新输入配对码'**
+  String get shellReasonEndpointNotFound;
 
   /// 原因码-pairingTimeout
   ///

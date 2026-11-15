@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:Aisupass/core/storage/preferences_store.dart';
+import 'package:Aisupass/core/storage/storage_providers.dart';
 import 'package:Aisupass/core/utils/su_shell.dart';
 import 'package:Aisupass/generated/adb_shell.g.dart';
 import 'package:flutter/foundation.dart';
@@ -86,6 +88,56 @@ class ShellPairingState {
   bool get failed => stage == PairingStage.done && reason != null;
 }
 
+/// 配对码的输入位置。
+enum ShellPairingInputMode {
+  /// 通知栏内联回复：默认，不用切屏。
+  notification,
+
+  /// 应用内卡片输入：通知栏弹不出输入框的 ROM（如小米）用这条。
+  card;
+
+  bool get isCard => this == ShellPairingInputMode.card;
+}
+
+/// 配对码输入位置的偏好，持久化在 [PreferencesStore] 里。
+class ShellPairingModeController extends Notifier<ShellPairingInputMode> {
+  static const String _key = 'adb_pairing_input_mode';
+
+  @override
+  ShellPairingInputMode build() {
+    Future.microtask(_load);
+    return ShellPairingInputMode.notification;
+  }
+
+  PreferencesStore get _store => ref.read(preferencesStoreProvider);
+
+  Future<void> _load() async {
+    try {
+      final String raw = await _store.read<String>(
+        _key,
+        defaultValue: ShellPairingInputMode.notification.name,
+      );
+      state = raw == ShellPairingInputMode.card.name
+          ? ShellPairingInputMode.card
+          : ShellPairingInputMode.notification;
+    } catch (_) {
+      // 存储不可用时保持默认：通知栏输入。
+    }
+  }
+
+  Future<void> setMode(ShellPairingInputMode mode) async {
+    if (mode == state) return;
+    state = mode;
+    await _store.write<String>(_key, mode.name);
+  }
+}
+
+final NotifierProvider<ShellPairingModeController, ShellPairingInputMode>
+shellPairingModeProvider =
+    NotifierProvider<ShellPairingModeController, ShellPairingInputMode>(
+      ShellPairingModeController.new,
+    );
+
 /// 无线调试配对：配对码在通知栏里输，调试端口由 mDNS 自动发现。
 final NotifierProvider<ShellPairingController, ShellPairingState>
 shellPairingProvider =
@@ -112,14 +164,18 @@ class ShellPairingController extends Notifier<ShellPairingState> {
   }
 
   /// 发起一次配对。
-  Future<void> start() async {
+  ///
+  /// [code] 为空 = 通知栏模式，等用户在通知里输入；非空 = 卡片模式，
+  /// 直接把这份码交给原生，地址与端口仍由 mDNS 发现。
+  Future<void> start({String code = ''}) async {
     if (state.active) return;
     final AdbShellNative native = ref.read(adbShellNativeProvider);
+    final String trimmed = code.trim();
 
     final PairingStartResult result;
     try {
-      // 三个参数留空 = 通知栏模式：地址与端口由原生侧 mDNS 发现。
-      result = await native.startPairing('', 0, '');
+      // host/port 一律留空：两种模式都由原生发现端点，用户只需要提供码。
+      result = await native.startPairing('', 0, trimmed);
     } catch (error) {
       state = ShellPairingState(
         stage: PairingStage.done,

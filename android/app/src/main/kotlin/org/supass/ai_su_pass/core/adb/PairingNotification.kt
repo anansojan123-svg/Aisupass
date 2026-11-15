@@ -59,6 +59,15 @@ internal class PairingNotification(context: Context) {
      */
     private var manager: NotificationManager? = null
 
+    /** 诊断：MIUI/HyperOS 的 RemoteInput 已知失效，先把机型与 ROM 记进日志。 */
+    private val romLabel: String = runCatching {
+        val props = Class.forName("android.os.SystemProperties")
+        val get = props.getMethod("get", String::class.java)
+        listOf("ro.miui.ui.version.name", "ro.mi.os.version.name", "ro.build.version.incremental")
+            .mapNotNull { key -> (get.invoke(null, key) as? String)?.takeIf { it.isNotBlank() } }
+            .joinToString("/")
+    }.getOrDefault("")
+
     /**
      * 弹出配对码输入通知。
      *
@@ -79,6 +88,7 @@ internal class PairingNotification(context: Context) {
         }
 
         ensureChannel(manager)
+        logEnvironment(manager)
         dismiss()
 
         this.manager = manager
@@ -86,7 +96,15 @@ internal class PairingNotification(context: Context) {
         val filter = IntentFilter(ACTION_PAIR_CODE)
         val inputReceiver = object : BroadcastReceiver() {
             override fun onReceive(receiverContext: Context?, intent: Intent?) {
+                // 诊断：正文点击与输入框回复共用一条广播，靠 source 区分。
+                val source = intent?.getStringExtra(EXTRA_SOURCE) ?: SOURCE_REMOTE_INPUT
                 val results = RemoteInput.getResultsFromIntent(intent)
+                if (results == null) Log.w(TAG, "diag: tap source=$source without RemoteInput results")
+                if (source == SOURCE_CONTENT_TAP) {
+                    // action 点了没反应时，这条日志才能区分是 SystemUI 吞了还是广播链路断了。
+                    Log.i(TAG, "diag: notification body tapped, broadcast channel alive")
+                    return
+                }
                 val raw = results?.getCharSequence(KEY_CODE)?.toString().orEmpty()
                 // 只打长度与数字个数，不打明文：既能看出「输入法塞了空格」，
                 // 也不会把配对码留在日志里。
@@ -120,14 +138,13 @@ internal class PairingNotification(context: Context) {
         }
         receiver = inputReceiver
 
-        manager.notify(
-            NOTIFICATION_ID,
-            buildNotification(
-                context.getString(R.string.pairing_notification_text),
-                withInput = true,
-            ),
+        val notification = buildNotification(
+            context.getString(R.string.pairing_notification_text),
+            withInput = true,
         )
-        Log.i(TAG, "pairing notification posted")
+        logNotification(notification, "show")
+        manager.notify(NOTIFICATION_ID, notification)
+        Log.i(TAG, "pairing notification posted, active=${manager.activeNotifications?.size}")
         return true
     }
 
@@ -148,8 +165,42 @@ internal class PairingNotification(context: Context) {
             .setAutoCancel(false)
             // 只改文案时不要再次振动或发声，也尽量别打断已经展开的输入框。
             .setOnlyAlertOnce(true)
+            // 诊断用：正文点击只回报日志，不切前台，避免打乱配对流程。
+            .setContentIntent(buildProbeIntent())
         if (withInput) builder.addAction(buildInputAction())
         return builder.build()
+    }
+
+    /** 诊断：正文点击探针，与输入框广播分开 requestCode，互不覆盖。 */
+    private fun buildProbeIntent(): PendingIntent = PendingIntent.getBroadcast(
+        context,
+        PROBE_REQUEST_CODE,
+        Intent(ACTION_PAIR_CODE)
+            .setPackage(context.packageName)
+            .putExtra(EXTRA_SOURCE, SOURCE_CONTENT_TAP),
+        PENDING_FLAGS,
+    )
+
+    /** 诊断：把机型、ROM、渠道重要性一次性打全，是 MIUI 还是我们自己的问题一眼可辨。 */
+    private fun logEnvironment(manager: NotificationManager) {
+        val channel = manager.getNotificationChannel(CHANNEL_ID)
+        Log.i(
+            TAG,
+            "diag: sdk=${Build.VERSION.SDK_INT} brand=${Build.BRAND} model=${Build.MODEL} " +
+                "rom=$romLabel notifEnabled=${manager.areNotificationsEnabled()} " +
+                "channelImportance=${channel?.importance} channelSound=${channel?.sound}",
+        )
+    }
+
+    /** 诊断：确认通知里确实挂上了 RemoteInput，以及本次重发是否在做无谓刷新。 */
+    private fun logNotification(notification: Notification, reason: String) {
+        val actions = notification.actions?.size ?: 0
+        val remoteInputs = notification.actions?.sumOf { it.remoteInputs?.size ?: 0 } ?: 0
+        Log.i(
+            TAG,
+            "diag: notify($reason) actions=$actions remoteInputs=$remoteInputs " +
+                "ongoing=${notification.flags and Notification.FLAG_ONGOING_EVENT != 0}",
+        )
     }
 
     /**
@@ -186,13 +237,12 @@ internal class PairingNotification(context: Context) {
         if (received) return
         Log.i(TAG, "markDeviceFound")
         runCatching {
-            manager.notify(
-                NOTIFICATION_ID,
-                buildNotification(
-                    context.getString(R.string.pairing_notification_device_found),
-                    withInput = true,
-                ),
+            val notification = buildNotification(
+                context.getString(R.string.pairing_notification_device_found),
+                withInput = true,
             )
+            logNotification(notification, "deviceFound")
+            manager.notify(NOTIFICATION_ID, notification)
         }
     }
 
@@ -206,13 +256,12 @@ internal class PairingNotification(context: Context) {
         val manager = manager ?: return
         Log.w(TAG, "markCodeRejected: keeping input entry for retry")
         runCatching {
-            manager.notify(
-                NOTIFICATION_ID,
-                buildNotification(
-                    context.getString(R.string.pairing_notification_empty_code),
-                    withInput = true,
-                ),
+            val notification = buildNotification(
+                context.getString(R.string.pairing_notification_empty_code),
+                withInput = true,
             )
+            logNotification(notification, "codeRejected")
+            manager.notify(NOTIFICATION_ID, notification)
         }
     }
 
@@ -226,13 +275,12 @@ internal class PairingNotification(context: Context) {
         val manager = manager ?: return
         Log.i(TAG, "markReceived: switching to connecting")
         runCatching {
-            manager.notify(
-                NOTIFICATION_ID,
-                buildNotification(
-                    context.getString(R.string.pairing_notification_received),
-                    withInput = false,
-                ),
+            val notification = buildNotification(
+                context.getString(R.string.pairing_notification_received),
+                withInput = false,
             )
+            logNotification(notification, "received")
+            manager.notify(NOTIFICATION_ID, notification)
         }
     }
 
@@ -249,13 +297,12 @@ internal class PairingNotification(context: Context) {
         // 允许用户重新提交：上一份码已经作废，不能被「只认第一份」挡住。
         received = false
         runCatching {
-            manager.notify(
-                NOTIFICATION_ID,
-                buildNotification(
-                    context.getString(R.string.pairing_notification_dialog_closed),
-                    withInput = true,
-                ),
+            val notification = buildNotification(
+                context.getString(R.string.pairing_notification_dialog_closed),
+                withInput = true,
             )
+            logNotification(notification, "dialogClosed")
+            manager.notify(NOTIFICATION_ID, notification)
         }
     }
 
@@ -295,6 +342,12 @@ internal class PairingNotification(context: Context) {
         const val ACTION_PAIR_CODE = "org.supass.ai_su_pass.action.PAIR_CODE"
         const val KEY_CODE = "pairing_code"
         const val REQUEST_CODE = 0x5042
+
+        /** 诊断：区分「输入框回复」与「正文探针」。 */
+        const val EXTRA_SOURCE = "pairing_source"
+        const val SOURCE_REMOTE_INPUT = "remote_input"
+        const val SOURCE_CONTENT_TAP = "content_tap"
+        const val PROBE_REQUEST_CODE = 0x5043
 
         /** 系统配对码固定 6 位数字，长度不符直接判为输错。 */
         const val CODE_LENGTH = 6

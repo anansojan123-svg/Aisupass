@@ -2581,6 +2581,38 @@
   "@shellPairingRetry": {
     "description": "首页 ADB 卡片-配对失败后的重试按钮"
   },
+  "settingsShellPairingModeTitle": "配对码输入位置",
+  "@settingsShellPairingModeTitle": {
+    "description": "设置项-无线调试配对码输入位置标题"
+  },
+  "settingsShellPairingModeDesc": "通知栏弹不出输入框的机型（如小米）可改为小窗/分屏后，在卡片里输入配对码",
+  "@settingsShellPairingModeDesc": {
+    "description": "设置项-无线调试配对码输入位置说明"
+  },
+  "shellPairingModeNotification": "通知栏",
+  "@shellPairingModeNotification": {
+    "description": "配对码输入位置-通知栏"
+  },
+  "shellPairingModeCard": "小窗输入",
+  "@shellPairingModeCard": {
+    "description": "配对码输入位置-小窗/分屏后在卡片内输入"
+  },
+  "shellPairingCodeHint": "六位配对码",
+  "@shellPairingCodeHint": {
+    "description": "卡片内配对码输入框的占位提示"
+  },
+  "shellPairingCodeSubmit": "配对",
+  "@shellPairingCodeSubmit": {
+    "description": "卡片内配对码提交按钮"
+  },
+  "shellPairingCardHint": "先在系统里点「使用配对码配对设备」，再把六位码填到这里；建议分屏或小窗，切走应用会让码失效",
+  "@shellPairingCardHint": {
+    "description": "卡片输入模式的说明"
+  },
+  "shellPairingOpenDebugSettings": "打开无线调试设置",
+  "@shellPairingOpenDebugSettings": {
+    "description": "卡片输入模式-跳转系统无线调试页的入口"
+  },
   "shellConnected": "shell 已连接",
   "@shellConnected": {
     "description": "首页 ADB 卡片-shell 已连接但没有 uid 时的状态"
@@ -2613,6 +2645,10 @@
   "shellReasonHostDisconnected": "连接已断开",
   "@shellReasonHostDisconnected": {
     "description": "原因码-hostDisconnected"
+  },
+  "shellReasonEndpointNotFound": "没找到配对服务：请先在系统里打开「使用配对码配对设备」弹窗，再重新输入配对码",
+  "@shellReasonEndpointNotFound": {
+    "description": "原因码-pairingEndpointNotFound"
   },
   "shellReasonPairingTimeout": "配对超时，请重试",
   "@shellReasonPairingTimeout": {

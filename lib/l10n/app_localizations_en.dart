@@ -2235,6 +2235,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shellPairingRetry => 'Retry';
 
   @override
+  String get settingsShellPairingModeTitle => 'Pairing code entry';
+
+  @override
+  String get settingsShellPairingModeDesc =>
+      'Choose small-window entry when the notification box does not open (e.g. on Xiaomi), then type the code in the card';
+
+  @override
+  String get shellPairingModeNotification => 'Notification';
+
+  @override
+  String get shellPairingModeCard => 'Small window';
+
+  @override
+  String get shellPairingCodeHint => 'Six-digit code';
+
+  @override
+  String get shellPairingCodeSubmit => 'Pair';
+
+  @override
+  String get shellPairingCardHint =>
+      'Tap \"Pair device with pairing code\" in Settings first, then type the six digits here. Use split screen or a floating window: leaving the app invalidates the code';
+
+  @override
+  String get shellPairingOpenDebugSettings =>
+      'Open wireless debugging settings';
+
+  @override
   String get shellConnected => 'Shell connected';
 
   @override
@@ -2257,6 +2284,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shellReasonHostDisconnected => 'Connection lost';
+
+  @override
+  String get shellReasonEndpointNotFound =>
+      'Pairing service not found. Open \"Pair device with pairing code\" in Settings first, then enter the code again';
 
   @override
   String get shellReasonPairingTimeout => 'Pairing timed out, please retry';

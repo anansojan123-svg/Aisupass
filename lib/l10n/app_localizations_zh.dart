@@ -2069,6 +2069,32 @@ class AppLocalizationsZh extends AppLocalizations {
   String get shellPairingRetry => '重试';
 
   @override
+  String get settingsShellPairingModeTitle => '配对码输入位置';
+
+  @override
+  String get settingsShellPairingModeDesc =>
+      '通知栏弹不出输入框的机型（如小米）可改为小窗/分屏后，在卡片里输入配对码';
+
+  @override
+  String get shellPairingModeNotification => '通知栏';
+
+  @override
+  String get shellPairingModeCard => '小窗输入';
+
+  @override
+  String get shellPairingCodeHint => '六位配对码';
+
+  @override
+  String get shellPairingCodeSubmit => '配对';
+
+  @override
+  String get shellPairingCardHint =>
+      '先在系统里点「使用配对码配对设备」，再把六位码填到这里；建议分屏或小窗，切走应用会让码失效';
+
+  @override
+  String get shellPairingOpenDebugSettings => '打开无线调试设置';
+
+  @override
   String get shellConnected => 'shell 已连接';
 
   @override
@@ -2090,6 +2116,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get shellReasonHostDisconnected => '连接已断开';
+
+  @override
+  String get shellReasonEndpointNotFound =>
+      '没找到配对服务：请先在系统里打开「使用配对码配对设备」弹窗，再重新输入配对码';
 
   @override
   String get shellReasonPairingTimeout => '配对超时，请重试';

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:Aisupass/common/widgets/adb_pairing_code_input.dart';
 import 'package:Aisupass/core/extensions/context_extensions.dart';
 import 'package:Aisupass/core/providers/adb_shell_provider.dart';
 import 'package:Aisupass/core/utils/platform.dart';
@@ -32,6 +33,10 @@ class AppAdbShellPanel extends HookConsumerWidget {
     final AsyncValue<ShellConnection> link = ref.watch(shellConnectionProvider);
     final ShellPairingState pairing = ref.watch(shellPairingProvider);
     final bool connected = link.value?.connected ?? false;
+    // 卡片输入模式：通知栏弹不出输入框的机型由卡片直接收码。
+    final bool cardInput = ref.watch(shellPairingModeProvider).isCard;
+    // 输入框只在「还没连上、也没在配对」时出现，其余状态仍是状态文案。
+    final bool showCodeInput = cardInput && !connected && !pairing.active;
 
     // 连接状态不是推送式的：用户关掉无线调试或设备重启时原生不会主动通知，
     // 所以已连接期间定时重查，让配对入口能自己回来；未连接时不轮询，
@@ -57,12 +62,16 @@ class AppAdbShellPanel extends HookConsumerWidget {
       actionLabel = l10n.shellPairingCancel;
       actionIcon = Icons.close_rounded;
       action = () => ref.read(shellPairingProvider.notifier).cancel();
-      hint = l10n.shellPairingNotice;
+      // 卡片模式没有通知栏，别再提「在通知栏输入」。
+      hint = cardInput ? null : l10n.shellPairingNotice;
     } else if (pairing.failed) {
       statusText = _reasonLabel(l10n, pairing.reason);
-      actionLabel = l10n.shellPairingRetry;
-      actionIcon = Icons.refresh_rounded;
-      action = () => _startPairing(ref);
+      // 卡片模式下上一份码已经作废，重输比「重试」更直接。
+      if (!cardInput) {
+        actionLabel = l10n.shellPairingRetry;
+        actionIcon = Icons.refresh_rounded;
+        action = () => _startPairing(ref);
+      }
       hint = pairing.detail;
     } else if (!link.hasValue) {
       // 首次查询还没有结果，先只显示检测中，不给按钮。
@@ -72,9 +81,11 @@ class AppAdbShellPanel extends HookConsumerWidget {
       statusText = uid > 0 ? l10n.shellConnectedUid(uid) : l10n.shellConnected;
     } else {
       statusText = l10n.shellDisconnected;
-      actionLabel = l10n.shellPairingStart;
-      action = () => _startPairing(ref);
-      hint = l10n.shellPairingNotice;
+      if (!showCodeInput) {
+        actionLabel = l10n.shellPairingStart;
+        action = () => _startPairing(ref);
+        hint = l10n.shellPairingNotice;
+      }
     }
 
     // 失败时把原生回传的原文给出去，用户要能直接拷走。
@@ -116,7 +127,10 @@ class AppAdbShellPanel extends HookConsumerWidget {
               ),
           ],
         ),
-        if (actionLabel != null) ...<Widget>[
+        if (showCodeInput) ...<Widget>[
+          SizedBox(height: isDesktop ? 10 : 10.h),
+          const AdbPairingCodeInput(),
+        ] else if (actionLabel != null) ...<Widget>[
           SizedBox(height: isDesktop ? 10 : 10.h),
           SizedBox(
             height: isDesktop ? 38 : 38.h,
@@ -203,6 +217,8 @@ String _reasonLabel(AppLocalizations l10n, String? reason) {
       return l10n.shellReasonHostAuthFailed;
     case 'hostDisconnected':
       return l10n.shellReasonHostDisconnected;
+    case 'pairingEndpointNotFound':
+      return l10n.shellReasonEndpointNotFound;
     case 'pairingTimeout':
       return l10n.shellReasonPairingTimeout;
     case 'deviceRebooted':

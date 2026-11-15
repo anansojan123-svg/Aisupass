@@ -16,6 +16,9 @@ internal object PairingReasons {
     /** 配对端口不可达、或建链时连接失败。 */
     const val HOST_DISCONNECTED = "hostDisconnected"
 
+    /** 卡片模式下没发现 `adb-tls-pairing` 端点：系统配对弹窗多半已经关闭。 */
+    const val ENDPOINT_NOT_FOUND = "pairingEndpointNotFound"
+
     /** 等码或握手超时。 */
     const val PAIRING_TIMEOUT = "pairingTimeout"
 

@@ -87,9 +87,10 @@ List<ChatToolDefinition> adbTools(Ref ref) => <ChatToolDefinition>[
         'whenever the user asks to connect ADB, enable wireless debugging, '
         'pair the adb shell, or asks why shell commands do not work; also '
         'call it right after adb_shell_exec returns connected=false. It '
-        'renders an interactive panel with a pairing button in the chat. The '
-        'user must tap that button and enter the pairing code in the system '
-        'notification, which you cannot do for them.',
+        'renders an interactive pairing panel in the chat. The user must '
+        'either tap the pairing button and reply in the notification, or type '
+        'the six-digit code into the panel when in-card entry is selected; '
+        'you cannot do that for them.',
     parameters: noArgsSchema,
     execute: (Map<String, dynamic> arguments) async {
       final ShellConnection link = await _readConnection(ref);

@@ -114,13 +114,16 @@ class AdbShellNativeImpl(private val context: Context) : AdbShellNative {
         // 三参数全空 = 通知栏模式：配对码在通知里输入，地址与端口由 mDNS 自动发现。
         // 这是默认路径——让用户切回 App 抄 IP 再输码，系统配对对话框会直接失效。
         val notificationMode = trimmedHost.isEmpty() && port == 0L && trimmedCode.isEmpty()
+        // 只给码 = 卡片模式：码来自应用内输入框，端点仍由 mDNS 发现，
+        // 给那些通知栏弹不出输入框的 ROM（如 MIUI/HyperOS）用。
+        val cardMode = trimmedHost.isEmpty() && port == 0L && trimmedCode.isNotEmpty()
         Log.i(
             TAG,
-            "startPairing mode=${if (notificationMode) "notification" else "manual"} " +
+            "startPairing mode=${pairingModeName(notificationMode, cardMode)} " +
                 "host='$trimmedHost' port=$port codeLen=${trimmedCode.length}",
         )
         // 半填状态（例如只给码不给地址）是调用方拼错参数，直接拒绝，不要进后台白跑一轮。
-        if (!notificationMode &&
+        if (!notificationMode && !cardMode &&
             (trimmedHost.isEmpty() || port !in 1L..65535L || trimmedCode.isEmpty())
         ) {
             Log.w(TAG, "startPairing rejected: incomplete manual parameters")
@@ -140,10 +143,19 @@ class AdbShellNativeImpl(private val context: Context) : AdbShellNative {
 
         val job = PairingJob(
             session = PairingSession("pair-${UUID.randomUUID()}").apply {
-                // 通知模式要等用户去系统设置里操作，窗口必须比手动模式宽得多。
-                timeoutMs = if (notificationMode) NOTIFICATION_TIMEOUT_MS else PAIRING_TIMEOUT_MS
+                // 通知模式要等用户去系统设置里操作，窗口必须比手动模式宽得多；
+                // 卡片模式的码已经到手，只剩发现 + 握手。
+                timeoutMs = when {
+                    notificationMode -> NOTIFICATION_TIMEOUT_MS
+                    cardMode -> CARD_TIMEOUT_MS
+                    else -> PAIRING_TIMEOUT_MS
+                }
             },
-            mode = if (notificationMode) PairingMode.NOTIFICATION else PairingMode.MANUAL,
+            mode = when {
+                notificationMode -> PairingMode.NOTIFICATION
+                cardMode -> PairingMode.CARD
+                else -> PairingMode.MANUAL
+            },
             host = trimmedHost,
             port = port.toInt(),
             code = trimmedCode,
@@ -163,10 +175,10 @@ class AdbShellNativeImpl(private val context: Context) : AdbShellNative {
         // 否则连 connection 这种只读调用也会被一起堵住。
         Thread(
             {
-                if (job.mode == PairingMode.NOTIFICATION) {
-                    runNotificationPairing(job)
-                } else {
-                    runPairing(job)
+                when (job.mode) {
+                    PairingMode.NOTIFICATION -> runNotificationPairing(job)
+                    PairingMode.CARD -> runCardPairing(job)
+                    PairingMode.MANUAL -> runPairing(job)
                 }
             },
             PAIRING_THREAD_NAME,
@@ -556,6 +568,44 @@ class AdbShellNativeImpl(private val context: Context) : AdbShellNative {
     }
 
     /**
+     * 卡片输入模式的配对：配对码由应用内输入框给出，端点仍走 mDNS 发现。
+     *
+     * 存在的理由：MIUI/HyperOS 的通知栏会吞掉 RemoteInput，用户根本打不开输入框。
+     * 这里不让用户抄 IP 与端口，只用他读到的 6 位码——系统配对弹窗只要还开着，
+     * `_adb-tls-pairing._tcp` 就一直在广播。
+     */
+    private fun runCardPairing(job: PairingJob) {
+        val session = job.session
+        // 码已经到手，直接进入配对阶段：Dart 侧据此把「等待输入」换成「正在配对」。
+        session.advance(PairingStage.PAIRING)
+        Log.i(TAG, "card pairing: code len=${job.code.length}, discovering pairing endpoint")
+        val discovery = adb.startPairingDiscovery()
+        try {
+            val endpoint = discovery.await(CARD_ENDPOINT_WAIT_MS)
+            if (endpoint == null) {
+                // 最常见的原因是配对弹窗已经关了（或本机 mDNS 受限）：
+                // 拿一个不存在的端点去握手只会白费一次码。
+                Log.w(
+                    TAG,
+                    "card pairing: no pairing endpoint error=${discovery.error ?: "notFound"}",
+                )
+                session.fail(PairingReasons.ENDPOINT_NOT_FOUND, discovery.error ?: "notFound")
+                return
+            }
+            job.host = endpoint.address.hostAddress.orEmpty()
+            job.port = endpoint.port
+            Log.i(TAG, "card pairing: endpoint resolved to ${job.host}:${job.port}")
+            runPairing(job)
+        } catch (_: InterruptedException) {
+            Thread.currentThread().interrupt()
+            session.fail(PairingReasons.CANCELLED, "interrupted")
+        } finally {
+            discovery.close()
+            session.finish()
+        }
+    }
+
+    /**
      * 配对工作流：交换配对码 → 发现连接端点并建链。
      *
      * 只写原因码，不判定成败；成功与否由 Dart 侧读 `finished` + `reason` 判定。
@@ -626,6 +676,13 @@ class AdbShellNativeImpl(private val context: Context) : AdbShellNative {
         } else {
             PairingReasons.HOST_DISCONNECTED
         }
+
+    /** 日志用的配对模式名。 */
+    private fun pairingModeName(notificationMode: Boolean, cardMode: Boolean): String = when {
+        notificationMode -> "notification"
+        cardMode -> "card"
+        else -> "manual"
+    }
 
     /**
      * 把用户送到「开发者选项 → 无线调试」页面。
@@ -702,6 +759,9 @@ class AdbShellNativeImpl(private val context: Context) : AdbShellNative {
 
         /** 只等用户在通知栏输入配对码，地址与端口由 mDNS 发现。 */
         NOTIFICATION,
+
+        /** 配对码来自应用内卡片输入框，地址与端口由 mDNS 发现。 */
+        CARD,
     }
 
     /** 一次配对请求的可变参数：通知模式下 host/port/code 要等用户输入后才填上。 */
@@ -766,6 +826,17 @@ class AdbShellNativeImpl(private val context: Context) : AdbShellNative {
 
         /** 通知栏模式的会话总上限，必须大于「等码 + 发现 + 握手」，否则会先被轮询判超时。 */
         const val NOTIFICATION_TIMEOUT_MS = NOTIFICATION_CODE_WAIT_MS + 120_000L
+
+        /**
+         * 卡片模式下等 `adb-tls-pairing` 端点的上限。
+         *
+         * 提交时配对弹窗应当还开着，端点通常立即就有；留 8 秒是为了覆盖 mDNS
+         * 刚起播、以及用户点得比弹窗慢一步的情况。
+         */
+        const val CARD_ENDPOINT_WAIT_MS = 8_000L
+
+        /** 卡片模式的会话总上限：发现 + 可达性探测 + 握手，再被轮询判超时就说不通了。 */
+        const val CARD_TIMEOUT_MS = CARD_ENDPOINT_WAIT_MS + PAIRING_TIMEOUT_MS
 
         /** mDNS 发现 `adb-tls-connect` 端点的等待上限。 */
         const val PAIRING_DISCOVERY_TIMEOUT_MS = 15_000L

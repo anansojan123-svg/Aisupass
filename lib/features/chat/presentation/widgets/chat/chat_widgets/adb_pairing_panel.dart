@@ -1,3 +1,4 @@
+import 'package:Aisupass/common/widgets/adb_pairing_code_input.dart';
 import 'package:Aisupass/core/extensions/context_extensions.dart';
 import 'package:Aisupass/core/providers/adb_shell_provider.dart';
 import 'package:Aisupass/core/providers/system_status_provider.dart';
@@ -35,6 +36,8 @@ class AdbPairingPanel extends HookConsumerWidget {
 
     final AsyncValue<ShellConnection> link = ref.watch(shellConnectionProvider);
     final ShellPairingState pairing = ref.watch(shellPairingProvider);
+    // 卡片输入模式：通知栏弹不出输入框的机型由这里接管输入。
+    final bool cardInput = ref.watch(shellPairingModeProvider).isCard;
     // 已点过按钮但还没连上：界面进入等待形态，不再催促。
     final ValueNotifier<bool> suspended = useState<bool>(false);
 
@@ -66,6 +69,7 @@ class AdbPairingPanel extends HookConsumerWidget {
         connected: connected,
         uid: uid,
         suspended: suspended,
+        cardInput: cardInput,
       ),
     );
   }
@@ -78,6 +82,7 @@ class AdbPairingPanel extends HookConsumerWidget {
     required bool connected,
     required int uid,
     required ValueNotifier<bool> suspended,
+    required bool cardInput,
   }) {
     final bool isDesktop = isDesktopPlatform;
     final ColorScheme colors = context.colorScheme;
@@ -94,20 +99,34 @@ class AdbPairingPanel extends HookConsumerWidget {
       icon = Icons.link_rounded;
       statusText = l10n.shellConnectedUid(uid);
       statusColor = colors.primary;
+    } else if (cardInput && pairing.active) {
+      // 卡片模式下码已提交：只有阶段可显示，输入框先收起来。
+      icon = Icons.sync_rounded;
+      statusText = switch (pairing.stage) {
+        PairingStage.pairing => l10n.shellPairingPairing,
+        PairingStage.connecting => l10n.shellPairingConnecting,
+        _ => l10n.shellPairingWaitingCode,
+      };
+      statusColor = colors.onSurfaceVariant;
     } else if (pairing.failed) {
       icon = Icons.link_off_rounded;
       statusText = l10n.chatAdbPairingFailed;
       statusColor = colors.error;
-      actionLabel = l10n.shellPairingRetry;
-      actionIcon = Icons.refresh_rounded;
-      action = () => _connect(ref, suspended);
+      // 卡片模式下失败的码已经作废，直接让用户重输，不再给「重试」按钮。
+      if (!cardInput) {
+        actionLabel = l10n.shellPairingRetry;
+        actionIcon = Icons.refresh_rounded;
+        action = () => _connect(ref, suspended);
+      }
     } else if (suspended.value) {
       // 已跳到系统页：只说明下一步，保留一个恢复入口。
       icon = Icons.pause_circle_outline_rounded;
       statusText = l10n.chatAdbPairingPending;
       statusColor = colors.onSurfaceVariant;
-      actionLabel = l10n.shellPairingStart;
-      action = () => _connect(ref, suspended);
+      if (!cardInput) {
+        actionLabel = l10n.shellPairingStart;
+        action = () => _connect(ref, suspended);
+      }
     } else if (!link.hasValue) {
       icon = Icons.link_off_rounded;
       statusText = l10n.statusDetecting;
@@ -116,8 +135,10 @@ class AdbPairingPanel extends HookConsumerWidget {
       icon = Icons.link_off_rounded;
       statusText = l10n.shellDisconnected;
       statusColor = colors.onSurfaceVariant;
-      actionLabel = l10n.shellPairingStart;
-      action = () => _connect(ref, suspended);
+      if (!cardInput) {
+        actionLabel = l10n.shellPairingStart;
+        action = () => _connect(ref, suspended);
+      }
     }
 
     return Container(
@@ -174,7 +195,11 @@ class AdbPairingPanel extends HookConsumerWidget {
               ),
             ],
           ),
-          if (actionLabel != null) ...<Widget>[
+          // 卡片输入模式且还没开始配对：输入框就是这一步唯一的动作。
+          if (cardInput && !connected && !pairing.active) ...<Widget>[
+            SizedBox(height: isDesktop ? 8 : 8.h),
+            const AdbPairingCodeInput(),
+          ] else if (actionLabel != null) ...<Widget>[
             SizedBox(height: isDesktop ? 8 : 8.h),
             SizedBox(
               height: isDesktop ? 36 : 36.h,
