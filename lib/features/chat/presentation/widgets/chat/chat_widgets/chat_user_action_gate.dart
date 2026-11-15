@@ -78,7 +78,12 @@ class ChatUserActionGate extends HookConsumerWidget {
     useEffect(() {
       if (!awaiting || !done || resumed.value == turnId) return null;
       resumed.value = turnId;
-      ref.read(chatControllerProvider.notifier).resumeAfterUserAction();
+      // useEffect 在 build 阶段被调度，这里必须推到帧末再改 provider，
+      // 否则会撞上 Riverpod 的「build 期间修改 provider」断言。
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+        ref.read(chatControllerProvider.notifier).resumeAfterUserAction();
+      });
       return null;
     }, <Object?>[awaiting, done, turnId]);
 

@@ -48,8 +48,12 @@ class AdbPairingPanel extends HookConsumerWidget {
     // 连上即解除等待，并让首页 ADB 卡片读到同一份最新开关状态。
     useEffect(() {
       if (!connected) return null;
-      suspended.value = false;
-      ref.invalidate(adbStatusProvider);
+      // 帧末再改状态：build 期间更新 ValueNotifier / provider 都会触发断言。
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+        suspended.value = false;
+        ref.invalidate(adbStatusProvider);
+      });
       return null;
     }, <Object?>[connected]);
 
