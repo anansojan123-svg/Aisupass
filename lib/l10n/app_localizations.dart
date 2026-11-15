@@ -3872,10 +3872,10 @@ abstract class AppLocalizations {
   /// **'无线调试配对'**
   String get shellPairingStart;
 
-  /// 首页 ADB 卡片-配对说明
+  /// 首页 ADB 卡片-通知栏输入的兜底提示
   ///
   /// In zh, this message translates to:
-  /// **'点击后在通知栏输入设备显示的配对码，不必切回应用'**
+  /// **'如果通知栏无法输入配对码，请到「设置 → 通用 → 配对码输入位置」切换为「小窗输入」'**
   String get shellPairingNotice;
 
   /// 首页 ADB 卡片-等待通知栏输入配对码

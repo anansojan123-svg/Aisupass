@@ -2217,7 +2217,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shellPairingNotice =>
-      'Tap, then enter the code shown on the device in the notification';
+      'If the notification cannot accept the code, open Settings → General → Pairing code entry and switch to \"Small window\"';
 
   @override
   String get shellPairingWaitingCode => 'Waiting for the pairing code…';

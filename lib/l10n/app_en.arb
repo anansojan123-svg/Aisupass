@@ -1067,7 +1067,7 @@
     "description": "Generic retry button"
   },
   "shellPairingStart": "Pair over wireless debugging",
-  "shellPairingNotice": "Tap, then enter the code shown on the device in the notification",
+  "shellPairingNotice": "If the notification cannot accept the code, open Settings → General → Pairing code entry and switch to \"Small window\"",
   "shellPairingWaitingCode": "Waiting for the pairing code…",
   "shellPairingPairing": "Pairing…",
   "shellPairingConnecting": "Code received, connecting…",

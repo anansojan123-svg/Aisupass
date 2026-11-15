@@ -2557,9 +2557,9 @@
   "@shellPairingStart": {
     "description": "首页 ADB 卡片-shell 未连接时的配对按钮"
   },
-  "shellPairingNotice": "点击后在通知栏输入设备显示的配对码，不必切回应用",
+  "shellPairingNotice": "如果通知栏无法输入配对码，请到「设置 → 通用 → 配对码输入位置」切换为「小窗输入」",
   "@shellPairingNotice": {
-    "description": "首页 ADB 卡片-配对说明"
+    "description": "首页 ADB 卡片-通知栏输入的兜底提示"
   },
   "shellPairingWaitingCode": "等待输入配对码…",
   "@shellPairingWaitingCode": {

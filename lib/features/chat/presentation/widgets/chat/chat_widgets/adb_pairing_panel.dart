@@ -228,6 +228,18 @@ class AdbPairingPanel extends HookConsumerWidget {
               ),
             ),
           ],
+          // 通知栏模式给一句兜底说明：弹不出输入框时换小窗输入。
+          if (!cardInput && !connected) ...<Widget>[
+            SizedBox(height: isDesktop ? 6 : 6.h),
+            Text(
+              l10n.shellPairingNotice,
+              style: TextStyle(
+                fontSize: isDesktop ? 11 : 11.sp,
+                height: 1.35,
+                color: colors.onSurfaceVariant.withValues(alpha: 0.8),
+              ),
+            ),
+          ],
         ],
       ),
     );
