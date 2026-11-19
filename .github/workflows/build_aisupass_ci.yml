@@ -42,7 +42,7 @@ jobs:
 
       - name: Compute size and SHA-256
         run: |
-          APK=android/app/build/outputs/apk/debug/app-debug.apk
+          APK=build/app/outputs/flutter-apk/app-debug.apk
           stat -c%s "$APK" > apk-size.txt
           sha256sum "$APK" | awk '{print $1}' > apk-sha256.txt
           ls -l "$APK"
@@ -51,7 +51,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
 
       - name: Upload size artifact
         uses: actions/upload-artifact@v4
