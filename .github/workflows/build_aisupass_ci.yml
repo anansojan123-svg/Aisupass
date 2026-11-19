@@ -10,7 +10,7 @@ jobs:
       - name: Check out Aisupass at V1.0.0
         uses: actions/checkout@v4
         with:
-          ref: 1fa2b4c
+          ref: V1.0.0
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
