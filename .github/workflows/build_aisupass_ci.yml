@@ -1,0 +1,69 @@
+name: Build Aisupass Debug APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Aisupass at V1.0.0
+        uses: actions/checkout@v4
+        with:
+          ref: 1fa2b4c
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager "platforms;android-36" "build-tools;36.0.0" "ndk;28.2.13676358"
+
+      - name: Set up Flutter 3.47.9
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.9'
+
+      - name: Accept Android SDK licenses
+        run: yes | flutter doctor --android-licenses
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Generate localizations
+        run: flutter gen-l10n
+
+      - name: Build debug APK
+        run: flutter build apk --debug
+
+      - name: Compute size and SHA-256
+        run: |
+          APK=android/app/build/outputs/apk/debug/app-debug.apk
+          stat -c%s "$APK" > apk-size.txt
+          sha256sum "$APK" | awk '{print $1}' > apk-sha256.txt
+          ls -l "$APK"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload size artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk-size
+          path: apk-size.txt
+
+      - name: Upload SHA-256 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk-sha256
+          path: apk-sha256.txt
